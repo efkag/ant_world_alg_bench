@@ -2,7 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import pandas as pd
-
+import cv2 as cv
+import math
 
 
 def display_image(image, size=(10, 10)):
@@ -21,7 +22,7 @@ def display_image(image, size=(10, 10)):
 
 
 def plot_map(world, route_cords=None, grid_cords=None, size=(15, 15), save=False, zoom=(), zoom_factor=1000,
-             vectors=None, grid_vectors=None, marker_size=10, scale=40):
+             vectors=None, grid_vectors=None, marker_size=10, scale=40, route_zoom=False):
     fig = plt.figure(figsize=size)
     fig.suptitle('World Grid', fontsize=16, fontweight='bold')
     plt.xlabel('x coordinates', fontsize=14, fontweight='bold')
@@ -41,6 +42,10 @@ def plot_map(world, route_cords=None, grid_cords=None, size=(15, 15), save=False
     if zoom:
         plt.xlim([zoom[0] - zoom_factor, zoom[0] + zoom_factor])
         plt.ylim([zoom[1] - zoom_factor, zoom[1] + zoom_factor])
+
+    if route_zoom:
+        # plt.xlim([])
+        plt.ylim([4700, 6500])
     plt.savefig("test.png")
     plt.show()
 
@@ -48,8 +53,8 @@ def plot_map(world, route_cords=None, grid_cords=None, size=(15, 15), save=False
 def load_route(route_id, grid_pos_limit=200):
     # Path/ Directory settings
     route_id_dir = 'ant1_route' + route_id + '/'
-    route_dir = 'Datasets/AntWorld/' + route_id_dir
-    grid_dir = 'Datasets/AntWorld/world5000_grid/'
+    route_dir = 'AntWorld/' + route_id_dir
+    grid_dir = 'AntWorld/world5000_grid/'
 
     # World top down image
     world = mpimg.imread(grid_dir + 'world5000_grid.png')
@@ -78,7 +83,7 @@ def load_route(route_id, grid_pos_limit=200):
     max_norm = 1
     route_images = []
     for i in range(0, len(imgs_route_path)):
-        img = cv2.imread(route_dir + imgs_route_path[i][1:], cv2.IMREAD_GRAYSCALE)
+        img = cv.imread(route_dir + imgs_route_path[i][1:], cv.IMREAD_GRAYSCALE)
         # Normalize
         img = img * max_norm / img.max()
         route_images.append(img)
@@ -96,11 +101,11 @@ def load_route(route_id, grid_pos_limit=200):
         for j in range(0, len(X_route), 1):
             d = (math.sqrt((X_route[j] - X[i]) ** 2 + (Y_route[j] - Y[i]) ** 2))
             dist.append(d)
-        if (min(dist) < grid_pos_limit):  # Maximum distance limit from the Route images
+        if min(dist) < grid_pos_limit:  # Maximum distance limit from the Route images
             X_inlimit.append(X[i])
             Y_inlimit.append(Y[i])
             img_dir = grid_dir + img_path[i][1:]
-            img = cv2.imread(img_dir, cv2.IMREAD_GRAYSCALE)
+            img = cv.imread(img_dir, cv.IMREAD_GRAYSCALE)
             # Normalize
             img = img * max_norm / img.max()
             world_grid_imgs.append(img)
