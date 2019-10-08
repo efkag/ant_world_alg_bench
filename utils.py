@@ -111,3 +111,111 @@ def load_route(route_id, grid_pos_limit=200):
             world_grid_imgs.append(img)
 
     return world, X_inlimit, Y_inlimit, world_grid_imgs, X_route, Y_route, Heading_route, route_images
+
+
+def pol2cart(theta, r):
+    """
+    This function converts the cartesian coordinates into polar coordinates.
+
+    of the quiver.
+    :param theta: represents the heading in degrees
+    :param r: represens the lenghth of the quiver
+    :return: This function returns a tuple (float, float) which represents the u and v coordinates
+    """
+    x = r * math.cos(math.radians(theta))
+    y = r * math.sin(math.radians(theta))
+    return x, y
+
+
+def pol_2cart_headings(headings):
+    """
+    Convert degree headings to U,V cartesian coordinates
+    :param headings: list of degrees
+    :return: 2D coordinates
+    """
+    U = []
+    V = []
+
+    for i in range(0, len(headings)):
+        U.append(pol2cart(headings[i], 1)[0])
+        V.append(pol2cart(headings[i], 1)[1])
+
+    return U, V
+
+
+def pre_process(imgs, shape=(200, 200)):
+    """
+    Gaussian blur then resize the images
+    :param imgs:
+    :param shape:
+    :return:
+    """
+    imgs = [cv.GaussianBlur(img, (5, 5), 0) for img in imgs]
+    return [cv.resize(img, shape) for img in imgs]
+
+
+def rotate(d,image):
+    """
+    Converts the degrees into columns and rotates the image.
+    :param d: number of degrees the the agent will rotate its view
+    :param image: An np.array that we want to shift.
+    :return: Returns the rotated image.
+    """
+    if abs(d) > 360:
+      deg = abs(d) - 360
+    if d < 0:
+        d = -d
+        num_of_cols = image.shape[1]
+        num_of_cols_perdegree = num_of_cols/360
+        cols_to_shift = num_of_cols - round(d * num_of_cols_perdegree)
+        img1 = image[:, cols_to_shift:num_of_cols]
+        img2 = image[:, 0: cols_to_shift]
+        return np.concatenate((img1, img2), axis=1)
+    else:
+        num_of_cols = image.shape[1]
+        num_of_cols_perdegree = num_of_cols/360
+        cols_to_shift = round(d * num_of_cols_perdegree)
+        img1 = image[:, cols_to_shift:num_of_cols]
+        img2 = image[:, 0: cols_to_shift]
+        return np.concatenate((img1, img2), axis=1)
+
+
+def idf(img, ref_img):
+    """
+    Image Differencing Function RMSE
+    :param img:
+    :param ref_img:
+    :return:
+    """
+    return math.sqrt(((ref_img - img)**2).mean())
+
+
+def cov(a, b):
+    """
+    Calculates covariance (non sample)
+    Assumes flattened arrays
+    :param a:
+    :param b:
+    :return:
+    """
+    if len(a) != len(b):
+        return
+
+    a_mean = np.mean(a)
+    b_mean = np.mean(b)
+
+    return np.sum((a - a_mean) * (b - b_mean)) / (len(a))
+
+
+def cor_coef(a, b):
+    """
+    Calculate correlation coefficient
+    :param a:
+    :param b:
+    :return:
+    """
+    a = a.flatten()
+    b = b.flatten()
+    return cov(a, b) / (np.std(a) * np.std(b))
+
+
