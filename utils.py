@@ -21,8 +21,8 @@ def display_image(image, size=(10, 10)):
     plt.show()
 
 
-def plot_map(world, route_cords=None, grid_cords=None, size=(15, 15), save=False, zoom=(), zoom_factor=1000,
-             vectors=None, grid_vectors=None, marker_size=10, scale=40, route_zoom=False):
+def plot_map(world, route_cords=None, grid_cords=None, size=(10, 10), save=False, zoom=(), zoom_factor=1000,
+             vectors=None, grid_vectors=None, marker_size=10, scale=40, route_zoom=False, save_id=''):
     fig = plt.figure(figsize=size)
     fig.suptitle('World Grid', fontsize=16, fontweight='bold')
     plt.xlabel('x coordinates', fontsize=14, fontweight='bold')
@@ -38,15 +38,13 @@ def plot_map(world, route_cords=None, grid_cords=None, size=(15, 15), save=False
     if grid_vectors: plt.quiver(grid_cords[0], grid_cords[1], grid_vectors[0], grid_vectors[1], scale=scale, color='r')
 
     plt.imshow(world, zorder=0, extent=[-0.158586 * 1000, 10.2428 * 1000, -0.227704 * 1000, 10.0896 * 1000])
-    if save: fig.savefig('Graph1.jpg')
     if zoom:
         plt.xlim([zoom[0] - zoom_factor, zoom[0] + zoom_factor])
         plt.ylim([zoom[1] - zoom_factor, zoom[1] + zoom_factor])
-
     if route_zoom:
         # plt.xlim([])
         plt.ylim([4700, 6500])
-    plt.savefig("test.png")
+    if save: fig.savefig('graph' + str(save_id) + '.png')
     plt.show()
 
 
@@ -218,4 +216,18 @@ def cor_coef(a, b):
     b = b.flatten()
     return cov(a, b) / (np.std(a) * np.std(b))
 
+
+def mean_degree_error(x_cords, y_cords, x_route_cords, y_route_cords, route_heading, recovered_headings):
+    k = []  # Holds the position of the memmory with the shortest diatance to the wg possition
+    error = []  # Holds the error between the world grid image and the closest route imageroute
+    for i in range(0, len(x_cords)):  # For every grid possition
+        distance = []
+        for j in range(0, len(x_route_cords)):
+            d = math.sqrt((x_cords[i] - x_route_cords[j]) ** 2 + ((y_cords[i] - y_route_cords[j]) ** 2))
+            distance.append(d)
+
+        k.append(distance.index(min(distance)))
+        error.append(abs(recovered_headings[i] - route_heading[distance.index(min(distance))]))
+
+    return sum(error) / len(error)
 
