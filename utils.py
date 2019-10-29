@@ -111,6 +111,28 @@ def load_route(route_id, grid_pos_limit=200):
     return world, X_inlimit, Y_inlimit, world_grid_imgs, X_route, Y_route, Heading_route, route_images
 
 
+def sample_from_wg(x_cords, y_cords, x_route_cords, y_route_cords, world_grid_imgs, min_dist):
+    x_inrange = []
+    y_inrange = []
+    w_g_imgs_inrange = []
+
+    for i in range(0, len(x_cords), 1):
+        dist = []
+        for j in range(0, len(x_route_cords), 1):
+            d = (math.sqrt((x_route_cords[j] - x_cords[i]) ** 2 + (y_route_cords[j] - y_cords[i]) ** 2))
+            dist.append(d)
+        if min(dist) < min_dist:
+            x_inrange.append(x_cords[i])
+            y_inrange.append(y_cords[i])
+            w_g_imgs_inrange.append(world_grid_imgs[i])
+
+    x_inrange = list(reversed(x_inrange))
+    y_inrange = list(reversed(y_inrange))
+    w_g_imgs_inrange = list(reversed(w_g_imgs_inrange))
+
+    return x_inrange, y_inrange, w_g_imgs_inrange
+
+
 def pol2cart(theta, r):
     """
     This function converts the cartesian coordinates into polar coordinates.
