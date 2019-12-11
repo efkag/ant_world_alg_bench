@@ -1,6 +1,7 @@
 from utils import pre_process, mean_degree_error, load_route, sample_from_wg, plot_map
 from sequential_perfect_memory import seq_perf_mem, seq_perf_mem_cor
 import pandas as pd
+import numpy as np
 
 DIST = 100  # Distance between grid images and route images
 
@@ -9,6 +10,7 @@ class benchmark():
     def __init__(self):
         self.jobs = None
         self.total_jobs = None
+        self.bench_logs = []
 
     def bench_seq_pm(self, route_ids=None, window_range=None, corr_coef=True):
         logs = []
@@ -45,9 +47,8 @@ class benchmark():
             mean_route_error = sum(route_errors) / len(route_errors)
 
             #                               Seq, memory window, CorCoef, RMSE, Mean route error
-            logs.append([len(route_ids), True, window, corr_coef, not corr_coef, mean_route_error])
-
-        return logs, jobs
+            self.bench_logs.append([len(route_ids), True, window, corr_coef, not corr_coef, mean_route_error])
+        return logs
 
 
     def benchmark_init(self, route_ids=None, window_range=None):
@@ -55,15 +56,12 @@ class benchmark():
         self.total_jobs = len(window_range) * len(route_ids) * nav_alg_num
         print('Total number of jobs: {}'.format(self.total_jobs))
         self.jobs = 0
-        bench_logs = []
 
         # Benchmark for sequential pm with RMSE
-        logs = self.bench_seq_pm(route_ids, window_range, corr_coef=False)
-        bench_logs.append(logs)
+        self.bench_seq_pm(route_ids, window_range, corr_coef=False)
         # Benchmark for sequential pm with corr_coef
-        logs = self.bench_seq_pm(route_ids, window_range, corr_coef=True)
-        bench_logs.append(logs)
+        self.bench_seq_pm(route_ids, window_range, corr_coef=True)
 
-        bench_results = pd.DataFrame(bench_logs,
+        bench_results = pd.DataFrame(self.bench_logs,
                                      columns=['Tested routes', 'Seq', 'Window', 'CorCoef', 'RMSE', 'Mean Error'])
         print(bench_results)
