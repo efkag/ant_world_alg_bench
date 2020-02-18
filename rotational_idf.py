@@ -11,3 +11,8 @@ class RotationalIDF:
         :return:
         """
         return sqrt(((ref_img - img) ** 2).mean())
+
+    @staticmethod
+    def best_match(array):
+        minimum = min(array)
+        return minimum, array.index(minimum)

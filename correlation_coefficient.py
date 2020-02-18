@@ -30,4 +30,7 @@ class CorrelationCoefficient:
         b = b.flatten()
         return self.cov(a, b) / (np.std(a) * np.std(b))
 
-
+    @staticmethod
+    def best_match(array):
+        maximum = max(array)
+        return maximum, array.index(maximum)

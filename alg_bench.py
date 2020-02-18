@@ -6,7 +6,7 @@ import numpy as np
 DIST = 100  # Distance between grid images and route images
 
 
-class benchmark():
+class Benchmark():
     def __init__(self):
         self.jobs = None
         self.total_jobs = None
@@ -26,6 +26,7 @@ class benchmark():
 
                 pre_world_grid_imgs = pre_process(w_g_imgs_inrange, (180, 50))
                 pre_route_images = pre_process(route_images, (180, 50))
+
 
                 if corr_coef:
                     Recovered_Heading, logs, window_log = seq_perf_mem_cor(pre_world_grid_imgs, pre_route_images,
