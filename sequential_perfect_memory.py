@@ -1,5 +1,5 @@
 import correlation_coefficient
-import rotational_idf
+import idf
 from utils import rotate
 
 
@@ -17,7 +17,7 @@ class SequentialPerfectMemory:
         if matching == 'corr':
             self.matcher = correlation_coefficient.CorrelationCoefficient()
         elif matching == 'idf':
-            self.matcher = rotational_idf.RotationalIDF()
+            self.matcher = idf.RotationalIDF()
         else:
             raise Exception('Non valid matching method name')
 

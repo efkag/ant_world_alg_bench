@@ -1,8 +1,10 @@
 import alg_bench
 
 def main():
-    pre_processing = [dict({'blur': True, 'shape': (180, 50), 'edge_range': (180, 200)})]#,
-                      #dict({'blur': True, 'shape': (180, 50), 'edge_range': None})]
+    pre_processing = [dict({'blur': True, 'shape': (180, 50), 'edge_range': (180, 200)})]
+
+    # pre_processing = [dict({'blur': True, 'shape': (180, 50), 'edge_range': (180, 200)}),
+    #                   dict({'blur': True, 'shape': (180, 50), 'edge_range': None})]
 
     window_range = list(range(5, 7))
     routes = [1]
