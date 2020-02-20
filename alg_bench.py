@@ -59,10 +59,6 @@ class Benchmark():
         # Benchmark for sequential-pm
         self.bench_seq_pm(route_ids, pre_processing, window_range, matchers)
 
-
-        # Benchmark for sequential pm with corr_coef
-        self.bench_seq_pm(route_ids, window_range, corr_coef=True, edges=True)
-
         bench_results = pd.DataFrame(self.bench_logs,
                                      columns=['Tested routes', 'pre-proc', 'Seq', 'Window', 'Matcher', 'Mean Error'])
 
