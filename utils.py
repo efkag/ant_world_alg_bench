@@ -23,6 +23,23 @@ def display_image(image, size=(10, 10)):
 
 def plot_map(world, route_cords=None, grid_cords=None, size=(10, 10), save=False, zoom=(), zoom_factor=1000,
              vectors=None, grid_vectors=None, marker_size=10, scale=40, route_zoom=False, save_id=''):
+    '''
+    Plots a top down view of the grid world, with markers or quivers of route and grid positions
+    :param world: Top down image of the world
+    :param route_cords: X and Y route coordinates
+    :param grid_cords: X and Y
+    :param size:grid coordinates
+    :param save: If to save the image
+    :param zoom: x and Y tuple of zoom centre
+    :param zoom_factor: Magnitute of zoom. (lower values is greater zoom)
+    :param vectors: X and Y coordinates of route vectors
+    :param grid_vectors: X and Y coordinates of grid vectors
+    :param marker_size: Size of route of grid marker
+    :param scale: Size of quiver scale. (relative to image size)
+    :param route_zoom: Rectangle zoom around the route
+    :param save_id: A file id to save the plot and avoid overide of the saved file
+    :return: -
+    '''
     fig = plt.figure(figsize=size)
     fig.suptitle('World Grid', fontsize=16, fontweight='bold')
     plt.xlabel('x coordinates', fontsize=14, fontweight='bold')
@@ -105,13 +122,28 @@ def load_route(route_id, grid_pos_limit=200):
             img_dir = grid_dir + img_path[i][1:]
             img = cv.imread(img_dir, cv.IMREAD_GRAYSCALE)
             # Normalize
-            #img = img * max_norm / img.max()
+            # img = img * max_norm / img.max()
             world_grid_imgs.append(img)
 
     return world, X_inlimit, Y_inlimit, world_grid_imgs, X_route, Y_route, Heading_route, route_images
 
 
 def sample_from_wg(x_cords, y_cords, x_route_cords, y_route_cords, world_grid_imgs, min_dist):
+    '''
+    Samples images and their coordinates from the world grid
+    given a routes coordinates and a min distance.
+    The min distance would be the distance between
+    a grid image and the nearest route image.
+
+
+    :param x_cords: world grid coordinate
+    :param y_cords: world grid coordinate
+    :param x_route_cords: x route coordinate
+    :param y_route_cords: y route coordinate
+    :param world_grid_imgs: Grid images
+    :param min_dist: Minimum distance between grid poit and route point.
+    :return:
+    '''
     x_inrange = []
     y_inrange = []
     w_g_imgs_inrange = []
@@ -168,6 +200,7 @@ def pre_process(imgs, sets):
     Gaussian blur, edge detection and image resize
     :param imgs:
     :param shape:
+    :param edges:
     :return:
     """
     if sets.get('edge_range'):
@@ -244,6 +277,15 @@ def cor_coef(a, b):
     a = a.flatten()
     b = b.flatten()
     return cov(a, b) / (np.std(a) * np.std(b))
+
+
+def flatten_imgs(imgs):
+    return [img.flatten() for img in imgs]
+
+
+def cross_corr(sub_series, series):
+
+    return [np.dot(s, sub_series) for s in series]
 
 
 def mean_degree_error(x_cords, y_cords, x_route_cords, y_route_cords, route_heading, recovered_headings):

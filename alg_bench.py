@@ -3,14 +3,15 @@ import sequential_perfect_memory as spm
 import pandas as pd
 import numpy as np
 
-DIST = 100  # Distance between grid images and route images
-
 
 class Benchmark():
     def __init__(self):
         self.jobs = None
         self.total_jobs = None
         self.bench_logs = []
+        self.dist = 100  # Distance between grid images and route images
+        self.img_shape = (180, 50)
+
 
     def bench_seq_pm(self, route_ids=None, pre_procs=None, window_range=None, matchers=None):
         logs = []
@@ -58,6 +59,11 @@ class Benchmark():
         # Benchmark for sequential-pm
         self.bench_seq_pm(route_ids, pre_processing, window_range, matchers)
 
+
+        # Benchmark for sequential pm with corr_coef
+        self.bench_seq_pm(route_ids, window_range, corr_coef=True, edges=True)
+
         bench_results = pd.DataFrame(self.bench_logs,
                                      columns=['Tested routes', 'pre-proc', 'Seq', 'Window', 'Matcher', 'Mean Error'])
+
         print(bench_results)
