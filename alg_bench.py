@@ -1,10 +1,10 @@
 from utils import pre_process, mean_degree_error, load_route, sample_from_wg, plot_map
-from sequential_perfect_memory import seq_perf_mem, seq_perf_mem_cor
+import sequential_perfect_memory as spm
 import pandas as pd
 import numpy as np
 
 
-class benchmark():
+class Benchmark():
     def __init__(self):
         self.jobs = None
         self.total_jobs = None
@@ -12,63 +12,58 @@ class benchmark():
         self.dist = 100  # Distance between grid images and route images
         self.img_shape = (180, 50)
 
-    def bench_seq_pm(self, route_ids=None, window_range=None, corr_coef=True, edges=False):
+
+    def bench_seq_pm(self, route_ids=None, pre_procs=None, window_range=None, matchers=None):
         logs = []
         for window in window_range:
-            route_errors = []
-            for route in route_ids:  # for every route
-                _, X_inlimit, Y_inlimit, world_grid_imgs, X_route, Y_route, route_heading, route_images = load_route(
-                    str(route))
+            for matching in matchers:
+                for pre_proc in pre_procs:
+                    route_errors = []
+                    for route in route_ids:  # for every route
+                        _, x_inlimit, y_inlimit, world_grid_imgs, x_route, y_route, \
+                            route_heading, route_images = load_route(str(route))
 
-                X_inrange, Y_inrange, w_g_imgs_inrange = sample_from_wg(X_inlimit, Y_inlimit,
-                                                                        X_route, Y_route,
-                                                                        world_grid_imgs, self.dist)
+                        x_inrange, y_inrange, w_g_imgs_inrange = sample_from_wg(x_inlimit, y_inlimit,
+                                                                                x_route, y_route,
+                                                                                world_grid_imgs, DIST)
+                        # Preprocess images
+                        pre_world_grid_imgs = pre_process(w_g_imgs_inrange, pre_proc)
+                        pre_route_images = pre_process(route_images, pre_proc)
+                        # Run navigation algorithm
+                        nav = spm.SequentialPerfectMemory(pre_route_images, matching)
+                        recovered_heading, logs, window_log = nav.navigate(pre_world_grid_imgs, window)
 
-                pre_world_grid_imgs = pre_process(w_g_imgs_inrange, self.img_shape, edges)
-                pre_route_images = pre_process(route_images, self.img_shape, edges)
+                        route_errors.append(mean_degree_error(x_inrange, y_inrange, x_route, y_route,
+                                                              route_heading, recovered_heading))
 
-                if corr_coef:
-                    Recovered_Heading, logs, window_log = seq_perf_mem_cor(pre_world_grid_imgs, pre_route_images,
-                                                                           window=window, mem_pointer=0)
-                else:
-                    Recovered_Heading, logs, window_log = seq_perf_mem(pre_world_grid_imgs, pre_route_images,
-                                                                       window=window, mem_pointer=0)
-                mean_error = mean_degree_error(X_inrange, Y_inrange, X_route, Y_route, route_heading, Recovered_Heading)
-                route_errors.append(mean_error)
+                        # #plot the full route with headings_heading
+                        # U, V = pol_2cart_headings(recovered_heading)
 
-                # #plot the full route with headings_heading
-                # U, V = pol_2cart_headings(Recovered_Heading)
-                # plot_map([X_route, Y_route], [X_inrange, Y_inrange], size=(15, 15), grid_vectors=[U, V],
-                #          scale=80, route_zoom=True)
+                        # plot_map([x_route, y_route], [x_inrange, y_inrange], size=(15, 15), grid_vectors=[U, V],
+                        #          scale=80, route_zoom=True)
+                        self.jobs += 1
+                        print('Jobs completed: {}/{}'.format(self.jobs, self.total_jobs))
+                    # Mean route error
+                    mean_route_error = sum(route_errors) / len(route_errors)
 
-                self.jobs += 1
-                print('Jobs completed: {}/{}'.format(self.jobs, self.total_jobs))
-            # Mean route error
-            mean_route_error = sum(route_errors) / len(route_errors)
+                    # Num of routes, pre_proc, Seq, memory window, Matcher, Mean route error
+                    self.bench_logs.append([len(route_ids), pre_proc.keys(), True, window, matching, mean_route_error])
+        return self.bench_logs
 
-            #                                       Seq, Edges, window, CorCoef, RMSE, Mean route error
-            self.bench_logs.append([len(route_ids), True, edges,  window, corr_coef, not corr_coef, mean_route_error])
-        return logs
-
-
-    def benchmark_init(self, route_ids=None, window_range=None):
-        nav_alg_num = 2
-        self.total_jobs = len(window_range) * len(route_ids) * nav_alg_num * 2
+    def benchmark_init(self, route_ids, pre_processing, window_range=None, matchers=None):
+        nav_alg_num = 1
+        self.total_jobs = len(pre_processing) * len(window_range) * len(route_ids) * len(matchers) * nav_alg_num
         print('Total number of jobs: {}'.format(self.total_jobs))
         self.jobs = 0
 
-        # Benchmark for sequential pm with RMSE
-        self.bench_seq_pm(route_ids, window_range, corr_coef=False)
+        # Benchmark for sequential-pm
+        self.bench_seq_pm(route_ids, pre_processing, window_range, matchers)
 
-        # Benchmark for sequential pm with RMSE, with edges
-        self.bench_seq_pm(route_ids, window_range, corr_coef=False, edges=True)
-
-        # Benchmark for sequential pm with corr_coef
-        self.bench_seq_pm(route_ids, window_range, corr_coef=True)
 
         # Benchmark for sequential pm with corr_coef
         self.bench_seq_pm(route_ids, window_range, corr_coef=True, edges=True)
 
         bench_results = pd.DataFrame(self.bench_logs,
-                                     columns=['Tested routes', 'Seq', 'Edges',  'Window', 'CorCoef', 'RMSE', 'Mean Error'])
+                                     columns=['Tested routes', 'pre-proc', 'Seq', 'Window', 'Matcher', 'Mean Error'])
+
         print(bench_results)

@@ -99,8 +99,8 @@ def load_route(route_id, grid_pos_limit=200):
     route_images = []
     for i in range(0, len(imgs_route_path)):
         img = cv.imread(route_dir + imgs_route_path[i][1:], cv.IMREAD_GRAYSCALE)
-        # # Normalize
-        # img = img * max_norm / img.max()
+        # Normalize
+        #img = img * max_norm / img.max()
         route_images.append(img)
 
     # Load world grid images
@@ -195,20 +195,26 @@ def pol_2cart_headings(headings):
     return U, V
 
 
-def pre_process(imgs, shape=(200, 200), edges=False):
+def pre_process(imgs, sets):
     """
-    Gaussian blur then resize the images
+    Gaussian blur, edge detection and image resize
     :param imgs:
     :param shape:
     :param edges:
     :return:
     """
-    if edges: imgs = [cv.Canny(img, 180, 200) for img in imgs]
-    imgs = [cv.GaussianBlur(img, (5, 5), 0) for img in imgs]
-    return [cv.resize(img, shape) for img in imgs]
+    if sets.get('edge_range'):
+        lims = sets['edge_range']
+        imgs = [cv.Canny(img, lims[0], lims[1]) for img in imgs]
+    if sets.get('blur'):
+        imgs = [cv.GaussianBlur(img, (5, 5), 0) for img in imgs]
+    if sets.get('shape'):
+        shape = sets['shape']
+        imgs = [cv.resize(img, shape) for img in imgs]
+    return imgs
 
 
-def rotate(d,image):
+def rotate(d, image):
     """
     Converts the degrees into columns and rotates the image.
     :param d: number of degrees the the agent will rotate its view
