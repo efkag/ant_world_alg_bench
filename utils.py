@@ -27,8 +27,8 @@ def plot_map(world, route_cords=None, grid_cords=None, size=(10, 10), save=False
     Plots a top down view of the grid world, with markers or quivers of route and grid positions
     :param world: Top down image of the world
     :param route_cords: X and Y route coordinates
-    :param grid_cords: X and Y
-    :param size:grid coordinates
+    :param grid_cords: X and Y grid coordinates
+    :param size: size of the figure
     :param save: If to save the image
     :param zoom: x and Y tuple of zoom centre
     :param zoom_factor: Magnitute of zoom. (lower values is greater zoom)
@@ -37,7 +37,7 @@ def plot_map(world, route_cords=None, grid_cords=None, size=(10, 10), save=False
     :param marker_size: Size of route of grid marker
     :param scale: Size of quiver scale. (relative to image size)
     :param route_zoom: Rectangle zoom around the route
-    :param save_id: A file id to save the plot and avoid overide of the saved file
+    :param save_id: A file id to save the plot and avoid override of the saved file
     :return: -
     '''
     fig = plt.figure(figsize=size)
@@ -63,6 +63,40 @@ def plot_map(world, route_cords=None, grid_cords=None, size=(10, 10), save=False
         plt.ylim([4700, 6500])
     if save: fig.savefig('graph' + str(save_id) + '.png')
     plt.show()
+
+
+def load_grid():
+    grid_dir = 'AntWorld/world5000_grid/'
+
+    data = pd.read_csv(grid_dir + 'world5000_grid.csv', header=0)
+    data = data.values
+
+    # World top down image
+    world = mpimg.imread(grid_dir + 'world5000_grid.png')
+
+    # Grid data
+    x = data[:, 1]  # x location of the image in the world_grid
+    y = data[:, 0]  # y location of the image in the world_grid
+    # img_path = data[:, 4]  # Name of the image file
+
+    return x, y, world
+
+
+def gen_route_line(indexes, direction, length):
+    if direction == 'right': index_jump = 105
+    elif direction == 'left': index_jump = -105
+    elif direction == 'up': index_jump = 1
+    elif direction == 'down': index_jump = -1
+    elif direction == 'up_r': index_jump = 106
+    elif direction == 'up_l': index_jump = -104
+    elif direction == 'down_r': index_jump = 104
+    elif direction == 'down_l': index_jump = -106
+    else: raise Exception('Wrong direction given')
+
+    for i in range(length):
+        indexes.append(indexes[-1] + index_jump)
+
+    return indexes
 
 
 def load_route(route_id, grid_pos_limit=200):
@@ -104,7 +138,6 @@ def load_route(route_id, grid_pos_limit=200):
         route_images.append(img)
 
     # Load world grid images
-
     max_norm = 1
     X_inlimit = []
     Y_inlimit = []
