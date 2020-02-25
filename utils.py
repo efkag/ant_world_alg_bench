@@ -93,8 +93,10 @@ def gen_route_line(indexes, direction, length):
     elif direction == 'down_l': index_jump = -106
     else: raise Exception('Wrong direction given')
 
-    for i in range(length):
-        indexes.append(indexes[-1] + index_jump)
+    # for i in range(length):
+    #     indexes.append(indexes[-1] + index_jump)
+    # Add indexes using the range
+    indexes.extend(list(range(indexes[-1], indexes[-1] + length*index_jump, index_jump)))
 
     return indexes
 
@@ -198,10 +200,20 @@ def sample_from_wg(x_cords, y_cords, x_route_cords, y_route_cords, world_grid_im
     return x_inrange, y_inrange, w_g_imgs_inrange
 
 
+def line_incl(x, y):
+    '''
+    Calculates the inclination of lines defined by 2 subsequent coordinates
+    :param x:
+    :param y:
+    :return:
+    '''
+    incl = np.arctan((y[1:] - y[:-1]) / (x[1:] - x[:-1])) * 180 / np.pi
+    return incl
+
+
 def pol2cart(theta, r):
     """
     This function converts the cartesian coordinates into polar coordinates.
-
     of the quiver.
     :param theta: represents the heading in degrees
     :param r: represens the lenghth of the quiver
