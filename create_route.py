@@ -1,4 +1,4 @@
-from utils import load_grid, plot_map, gen_route_line, pol_2cart_headings, line_incl
+from utils import load_grid, plot_map, gen_route_line, pol_2cart_headings, line_incl, route_imgs_from_indexes
 import numpy as np
 # right = 105
 # left = -105
@@ -13,15 +13,15 @@ x, y, w = load_grid()
 
 # ---------------- Amend code here below to change route
 step = 105
-start = 800
-stop = 3200
+start = 790
+stop = 3000
 
 headings = []
 indexes = list(range(start, stop, step))
 headings.extend([0] * len(indexes))
 
-indexes = gen_route_line(indexes, 'up_r', 4)
-headings.extend([45] * 4)
+indexes = gen_route_line(indexes, 'up_r', 10)
+headings.extend([45] * 10)
 
 indexes = gen_route_line(indexes, 'up', 4)
 headings.extend([90] * 4)
@@ -49,7 +49,7 @@ headings.append(headings[-1])
 
 route_x = x[indexes]
 route_y = y[indexes]
-
+route_imgs = route_imgs_from_indexes(indexes, headings)
 
 u, v = pol_2cart_headings(headings)
 

@@ -6,7 +6,7 @@ import cv2 as cv
 import math
 
 
-def display_image(image, size=(10, 10)):
+def display_image(image, size=(10, 10), save_id=None):
     """
     Display the image given as a 2d or 3d array of values.
     :param size: Size of the plot for the image
@@ -17,8 +17,11 @@ def display_image(image, size=(10, 10)):
     plt.imshow(image, cmap='gray', interpolation='bilinear')
     plt.xticks([]), plt.yticks([])  # to hide tick values on X and Y axis
     # or plt.axis('off')
-    plt.savefig("test.png")
-    plt.show()
+    if save_id: plt.savefig(str(save_id) + ".png")
+
+
+def save_image(img, path):
+    mpimg.imsave(path + '.png', img, cmap='gray')
 
 
 def plot_map(world, route_cords=None, grid_cords=None, size=(10, 10), save=False, zoom=(), zoom_factor=1000,
@@ -99,6 +102,25 @@ def gen_route_line(indexes, direction, length):
     indexes.extend(list(range(indexes[-1], indexes[-1] + length*index_jump, index_jump)))
 
     return indexes
+
+
+def route_imgs_from_indexes(indexes, headings):
+    grid_dir = 'AntWorld/world5000_grid/'
+    data = pd.read_csv(grid_dir + 'world5000_grid.csv', header=0)
+    data = data.values
+    img_path = data[:, 4]  # Name of the image files
+
+    images = []
+    id = 0
+    for i, h in zip(indexes, headings):
+        img = cv.imread(grid_dir + img_path[i][1:], cv.IMREAD_GRAYSCALE)
+        img = rotate(h, img)
+        save_image(img, 'temp/'+str(id))
+        images.append(img)
+        id += 1
+
+    return images
+
 
 
 def load_route(route_id, grid_pos_limit=200):
@@ -272,14 +294,14 @@ def rotate(d, image):
         d = -d
         num_of_cols = image.shape[1]
         num_of_cols_perdegree = num_of_cols/360
-        cols_to_shift = num_of_cols - round(d * num_of_cols_perdegree)
+        cols_to_shift = round(d * num_of_cols_perdegree)
         img1 = image[:, cols_to_shift:num_of_cols]
         img2 = image[:, 0: cols_to_shift]
         return np.concatenate((img1, img2), axis=1)
     else:
         num_of_cols = image.shape[1]
-        num_of_cols_perdegree = num_of_cols/360
-        cols_to_shift = round(d * num_of_cols_perdegree)
+        num_of_cols_perdegree = num_of_cols / 360
+        cols_to_shift = num_of_cols - round(d * num_of_cols_perdegree)
         img1 = image[:, cols_to_shift:num_of_cols]
         img2 = image[:, 0: cols_to_shift]
         return np.concatenate((img1, img2), axis=1)
