@@ -3,6 +3,7 @@ import sequential_perfect_memory as spm
 import pandas as pd
 import numpy as np
 
+DIST = 100
 
 class Benchmark():
     def __init__(self):
@@ -62,4 +63,5 @@ class Benchmark():
         bench_results = pd.DataFrame(self.bench_logs,
                                      columns=['Tested routes', 'pre-proc', 'Seq', 'Window', 'Matcher', 'Mean Error'])
 
+        bench_results.to_csv('bench-results.csv')
         print(bench_results)

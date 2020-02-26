@@ -1,0 +1,61 @@
+,Tested routes,pre-proc,Seq,Window,Matcher,Mean Error
+0,3,"dict_keys(['blur', 'shape', 'edge_range'])",True,5,corr,91.20070540467542
+1,3,"dict_keys(['blur', 'shape'])",True,5,corr,93.52543951444397
+2,3,"dict_keys(['blur', 'shape', 'edge_range'])",True,5,idf,84.11849088198657
+3,3,"dict_keys(['blur', 'shape'])",True,5,idf,95.04893644458043
+4,3,"dict_keys(['blur', 'shape', 'edge_range'])",True,6,corr,88.64315984069053
+5,3,"dict_keys(['blur', 'shape'])",True,6,corr,84.61630144158683
+6,3,"dict_keys(['blur', 'shape', 'edge_range'])",True,6,idf,90.73172614371465
+7,3,"dict_keys(['blur', 'shape'])",True,6,idf,95.75523235994923
+8,3,"dict_keys(['blur', 'shape', 'edge_range'])",True,7,corr,56.78536679696125
+9,3,"dict_keys(['blur', 'shape'])",True,7,corr,65.31522304023427
+10,3,"dict_keys(['blur', 'shape', 'edge_range'])",True,7,idf,86.31085487338298
+11,3,"dict_keys(['blur', 'shape'])",True,7,idf,98.1538727251335
+12,3,"dict_keys(['blur', 'shape', 'edge_range'])",True,8,corr,54.737223054144714
+13,3,"dict_keys(['blur', 'shape'])",True,8,corr,60.56122746694672
+14,3,"dict_keys(['blur', 'shape', 'edge_range'])",True,8,idf,81.32740244250199
+15,3,"dict_keys(['blur', 'shape'])",True,8,idf,95.21051707392421
+16,3,"dict_keys(['blur', 'shape', 'edge_range'])",True,9,corr,54.85655018834177
+17,3,"dict_keys(['blur', 'shape'])",True,9,corr,45.96380416368896
+18,3,"dict_keys(['blur', 'shape', 'edge_range'])",True,9,idf,59.46142463663282
+19,3,"dict_keys(['blur', 'shape'])",True,9,idf,87.7956750314869
+20,3,"dict_keys(['blur', 'shape', 'edge_range'])",True,10,corr,4.460421232918398
+21,3,"dict_keys(['blur', 'shape'])",True,10,corr,55.10564467655583
+22,3,"dict_keys(['blur', 'shape', 'edge_range'])",True,10,idf,59.330952746474416
+23,3,"dict_keys(['blur', 'shape'])",True,10,idf,74.43102536948196
+24,3,"dict_keys(['blur', 'shape', 'edge_range'])",True,11,corr,3.2875517883338823
+25,3,"dict_keys(['blur', 'shape'])",True,11,corr,33.92149090719929
+26,3,"dict_keys(['blur', 'shape', 'edge_range'])",True,11,idf,49.022683313134195
+27,3,"dict_keys(['blur', 'shape'])",True,11,idf,75.8152881150812
+28,3,"dict_keys(['blur', 'shape', 'edge_range'])",True,12,corr,3.3478013389972077
+29,3,"dict_keys(['blur', 'shape'])",True,12,corr,8.83419910208014
+30,3,"dict_keys(['blur', 'shape', 'edge_range'])",True,12,idf,48.80942756913061
+31,3,"dict_keys(['blur', 'shape'])",True,12,idf,57.53509940990693
+32,3,"dict_keys(['blur', 'shape', 'edge_range'])",True,13,corr,3.017937850985412
+33,3,"dict_keys(['blur', 'shape'])",True,13,corr,9.260599391069839
+34,3,"dict_keys(['blur', 'shape', 'edge_range'])",True,13,idf,48.818037609812905
+35,3,"dict_keys(['blur', 'shape'])",True,13,idf,60.843788391551506
+36,3,"dict_keys(['blur', 'shape', 'edge_range'])",True,14,corr,2.9874178593432767
+37,3,"dict_keys(['blur', 'shape'])",True,14,corr,9.33047447750303
+38,3,"dict_keys(['blur', 'shape', 'edge_range'])",True,14,idf,48.81013690611777
+39,3,"dict_keys(['blur', 'shape'])",True,14,idf,34.55216361042381
+40,3,"dict_keys(['blur', 'shape', 'edge_range'])",True,15,corr,2.990013520092784
+41,3,"dict_keys(['blur', 'shape'])",True,15,corr,9.98250617334398
+42,3,"dict_keys(['blur', 'shape', 'edge_range'])",True,15,idf,48.74910477760371
+43,3,"dict_keys(['blur', 'shape'])",True,15,idf,34.709296149528136
+44,3,"dict_keys(['blur', 'shape', 'edge_range'])",True,16,corr,3.2870170846468576
+45,3,"dict_keys(['blur', 'shape'])",True,16,corr,10.420580887556582
+46,3,"dict_keys(['blur', 'shape', 'edge_range'])",True,16,idf,35.1662900153073
+47,3,"dict_keys(['blur', 'shape'])",True,16,idf,35.48054896219313
+48,3,"dict_keys(['blur', 'shape', 'edge_range'])",True,17,corr,3.369524960572555
+49,3,"dict_keys(['blur', 'shape'])",True,17,corr,15.564466247730143
+50,3,"dict_keys(['blur', 'shape', 'edge_range'])",True,17,idf,5.258928164382164
+51,3,"dict_keys(['blur', 'shape'])",True,17,idf,7.360290299312422
+52,3,"dict_keys(['blur', 'shape', 'edge_range'])",True,18,corr,3.3687409128504213
+53,3,"dict_keys(['blur', 'shape'])",True,18,corr,15.645319042079713
+54,3,"dict_keys(['blur', 'shape', 'edge_range'])",True,18,idf,5.299113295149135
+55,3,"dict_keys(['blur', 'shape'])",True,18,idf,9.730041949005432
+56,3,"dict_keys(['blur', 'shape', 'edge_range'])",True,19,corr,3.36676852626265
+57,3,"dict_keys(['blur', 'shape'])",True,19,corr,15.614113868086003
+58,3,"dict_keys(['blur', 'shape', 'edge_range'])",True,19,idf,5.161596089945001
+59,3,"dict_keys(['blur', 'shape'])",True,19,idf,10.105938797186145
