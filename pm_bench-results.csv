@@ -1,0 +1,5 @@
+,Tested routes,pre-proc,Seq,Window,Matcher,Mean Error
+0,3,"dict_keys(['edge_range', 'blur', 'shape'])",False,,corr,3.3936624326719502
+1,3,"dict_keys(['blur', 'shape'])",False,,corr,14.88208208675372
+2,3,"dict_keys(['edge_range', 'blur', 'shape'])",False,,idf,39.022284326510835
+3,3,"dict_keys(['blur', 'shape'])",False,,idf,13.082625945838487

@@ -6,6 +6,7 @@ def main():
     pre_processing = [dict({'blur': True, 'shape': (180, 50), 'edge_range': (180, 200)}),
                       dict({'blur': True, 'shape': (180, 50)})]
 
+    # window_range = list(range(5, 20))
     window_range = list(range(5, 20))
     routes = [1, 2, 3]
     matchers = ['corr', 'idf']
