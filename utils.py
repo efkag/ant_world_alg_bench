@@ -99,12 +99,13 @@ def gen_route_line(indexes, direction, length):
     # for i in range(length):
     #     indexes.append(indexes[-1] + index_jump)
     # Add indexes using the range
-    indexes.extend(list(range(indexes[-1], indexes[-1] + length*index_jump, index_jump)))
+    end = indexes[-1] + length*index_jump + index_jump
+    indexes.extend(list(range(indexes[-1]+index_jump, end, index_jump)))
 
     return indexes
 
 
-def route_imgs_from_indexes(indexes, headings):
+def route_imgs_from_indexes(indexes, headings, directory):
     grid_dir = 'AntWorld/world5000_grid/'
     data = pd.read_csv(grid_dir + 'world5000_grid.csv', header=0)
     data = data.values
@@ -115,12 +116,11 @@ def route_imgs_from_indexes(indexes, headings):
     for i, h in zip(indexes, headings):
         img = cv.imread(grid_dir + img_path[i][1:], cv.IMREAD_GRAYSCALE)
         img = rotate(h, img)
-        save_image(img, 'temp/'+str(id))
+        save_image(img, directory + str(id))
         images.append(img)
         id += 1
 
     return images
-
 
 
 def load_route(route_id, grid_pos_limit=200):
