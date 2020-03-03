@@ -1,4 +1,4 @@
-from utils import load_grid, plot_map, gen_route_line, pol_2cart_headings, route_imgs_from_indexes
+from utils import load_grid, plot_map, gen_route_line, pol_2cart_headings, route_imgs_from_indexes, check_for_dir_and_create
 import pandas as pd
 import numpy as np
 # right = 105
@@ -59,7 +59,8 @@ route = pd.DataFrame(route_data)
 # Rearange column order
 route = route[['X', 'Y', 'Z', 'Heading', 'Filename']]
 
-directory = 'temp/'
+directory = 'LoopRoutes/route_1/'
+check_for_dir_and_create(directory)
 route_imgs = route_imgs_from_indexes(indexes, headings, directory)
 route.to_csv(directory + 'AntLoop.csv')
 

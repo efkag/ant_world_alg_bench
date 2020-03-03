@@ -3,6 +3,8 @@ import sequential_perfect_memory as spm
 import pandas as pd
 import numpy as np
 
+DIST = 100
+
 
 class Benchmark():
     def __init__(self):

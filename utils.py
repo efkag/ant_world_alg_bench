@@ -4,6 +4,7 @@ import matplotlib.image as mpimg
 import pandas as pd
 import cv2 as cv
 import math
+import os
 
 
 def display_image(image, size=(10, 10), save_id=None):
@@ -368,4 +369,9 @@ def mean_degree_error(x_cords, y_cords, x_route_cords, y_route_cords, route_head
         error.append(abs(recovered_headings[i] - route_heading[distance.index(min(distance))]))
 
     return sum(error) / len(error)
+
+
+def check_for_dir_and_create(directory):
+    if not os.path.exists(directory):
+        os.mkdir(directory)
 
