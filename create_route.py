@@ -54,7 +54,7 @@ headings.append(headings[-1])
 route_x = x[indexes]
 route_y = y[indexes]
 route_data = {'X': route_x, 'Y': route_y, 'Z':[10]*len(route_x), 'Heading': headings,
-              'Filename':[str(i)+'.png' for i in range(0, len(route_x))]}
+              'Filename': [str(i)+'.png' for i in range(0, len(route_x))]}
 route = pd.DataFrame(route_data)
 # Rearange column order
 route = route[['X', 'Y', 'Z', 'Heading', 'Filename']]
@@ -62,7 +62,7 @@ route = route[['X', 'Y', 'Z', 'Heading', 'Filename']]
 directory = 'LoopRoutes/route_1/'
 check_for_dir_and_create(directory)
 route_imgs = route_imgs_from_indexes(indexes, headings, directory)
-route.to_csv(directory + 'AntLoop.csv')
+route.to_csv(directory + 'route_1.csv', index=False)
 
 
 u, v = pol_2cart_headings(headings)
