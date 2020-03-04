@@ -26,7 +26,7 @@ def save_image(img, path):
 
 
 def plot_map(world, route_cords=None, grid_cords=None, size=(10, 10), save=False, zoom=(), zoom_factor=1000,
-             vectors=None, grid_vectors=None, marker_size=10, scale=40, route_zoom=False, save_id=''):
+             vectors=None, grid_vectors=None, marker_size=10, scale=40, route_zoom=False, save_id='', window=None):
     '''
     Plots a top down view of the grid world, with markers or quivers of route and grid positions
     :param world: Top down image of the world
@@ -42,6 +42,7 @@ def plot_map(world, route_cords=None, grid_cords=None, size=(10, 10), save=False
     :param scale: Size of quiver scale. (relative to image size)
     :param route_zoom: Rectangle zoom around the route
     :param save_id: A file id to save the plot and avoid override of the saved file
+    :param window: The pointer to the memory window
     :return: -
     '''
     fig = plt.figure(figsize=size)
@@ -57,6 +58,12 @@ def plot_map(world, route_cords=None, grid_cords=None, size=(10, 10), save=False
     if vectors: plt.quiver(route_cords[0], route_cords[1], vectors[0], vectors[1], scale=scale, color='b')
     # Plot world grid images heading vectors
     if grid_vectors: plt.quiver(grid_cords[0], grid_cords[1], grid_vectors[0], grid_vectors[1], scale=scale, color='r')
+
+    # Plot window vectors only
+    if window:
+        window = range(window[0], window[1])
+        plt.quiver([route_cords[0][i] for i in window], [route_cords[1][i] for i in window],
+                   [vectors[0][i] for i in window], [vectors[1][i] for i in window], scale=scale, color='c')
 
     plt.imshow(world, zorder=0, extent=[-0.158586 * 1000, 10.2428 * 1000, -0.227704 * 1000, 10.0896 * 1000])
     if zoom:

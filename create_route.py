@@ -15,7 +15,7 @@ x, y, w = load_grid()
 # ---------------- Amend code here below to change route
 step = 105
 start = 800
-stop = 3000
+stop = 3500
 
 headings = []
 indexes = list(range(start, stop, step))
@@ -24,26 +24,26 @@ headings.extend([0] * len(indexes))
 indexes = gen_route_line(indexes, 'up_r', 10)
 headings.extend([45] * 10)
 
-indexes = gen_route_line(indexes, 'right', 10)
-headings.extend([0] * 10)
+indexes = gen_route_line(indexes, 'up', 4)
+headings.extend([90] * 4)
 
-# indexes = gen_route_line(indexes, 'up', 4)
-# headings.extend([90] * 4)
-#
-# indexes = gen_route_line(indexes, 'up_l', 4)
-# headings.extend([135] * 4)
-#
-# indexes = gen_route_line(indexes, 'left', 4)
-# headings.extend([180] * 4)
-#
-# indexes = gen_route_line(indexes, 'down_l', 4)
-# headings.extend([225] * 4)
-#
-# indexes = gen_route_line(indexes, 'down', 4)
-# headings.extend([270] * 4)
-#
-# indexes = gen_route_line(indexes, 'down_r', 8)
-# headings.extend([315] * 8)
+indexes = gen_route_line(indexes, 'up_l', 4)
+headings.extend([135] * 4)
+
+indexes = gen_route_line(indexes, 'left', 4)
+headings.extend([180] * 4)
+
+indexes = gen_route_line(indexes, 'down_l', 4)
+headings.extend([225] * 4)
+
+indexes = gen_route_line(indexes, 'down', 4)
+headings.extend([270] * 4)
+
+indexes = gen_route_line(indexes, 'down_r', 8)
+headings.extend([315] * 8)
+
+indexes = gen_route_line(indexes, 'right', 8)
+headings.extend([0] * 8)
 
 # ------------------Amend code here above to change route
 
@@ -59,10 +59,11 @@ route = pd.DataFrame(route_data)
 # Rearange column order
 route = route[['X', 'Y', 'Z', 'Heading', 'Filename']]
 
-directory = 'LoopRoutes/route_1/'
+route_dir = 'route_' + str(1)
+directory = 'LoopRoutes/' + route_dir + '/'
 check_for_dir_and_create(directory)
 route_imgs = route_imgs_from_indexes(indexes, headings, directory)
-route.to_csv(directory + 'route_1.csv', index=False)
+route.to_csv(directory + route_dir + '.csv', index=False)
 
 
 u, v = pol_2cart_headings(headings)
