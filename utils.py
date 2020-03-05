@@ -26,7 +26,8 @@ def save_image(img, path):
 
 
 def plot_map(world, route_cords=None, grid_cords=None, size=(10, 10), save=False, zoom=(), zoom_factor=1000,
-             vectors=None, grid_vectors=None, marker_size=10, scale=40, route_zoom=False, save_id='', window=None):
+             vectors=None, grid_vectors=None, marker_size=10, scale=40, route_zoom=False, save_id=None, window=None,
+             path='', show=True):
     '''
     Plots a top down view of the grid world, with markers or quivers of route and grid positions
     :param world: Top down image of the world
@@ -52,13 +53,15 @@ def plot_map(world, route_cords=None, grid_cords=None, size=(10, 10), save=False
     # Plot circles for route image locations
     if route_cords and not vectors: plt.scatter(route_cords[0], route_cords[1], marker="o", s=marker_size, color='blue')
     # Plot stars for grid image locations
-    if grid_cords and not grid_vectors: plt.scatter(grid_cords[0], grid_cords[1], marker="*", s=marker_size,
+    if grid_cords and not grid_vectors: plt.scatter(grid_cords[0][0:save_id], grid_cords[1][0:save_id], marker="*", s=marker_size,
                                                     color='red')
     # Plot route images heading vectors
     if vectors: plt.quiver(route_cords[0], route_cords[1], vectors[0], vectors[1], scale=scale, color='b')
     # Plot world grid images heading vectors
-    if grid_vectors: plt.quiver(grid_cords[0], grid_cords[1], grid_vectors[0], grid_vectors[1], scale=scale, color='r')
-
+    # if grid_vectors: plt.quiver(grid_cords[0], grid_cords[1], grid_vectors[0], grid_vectors[1], scale=scale, color='r')
+    # The variable save_id is used here to plot the vectors that have been matched with a window so far
+    if grid_vectors: plt.quiver(grid_cords[0][0:save_id], grid_cords[1][0:save_id],
+                                grid_vectors[0][0:save_id], grid_vectors[1][0:save_id], scale=scale, color='r')
     # Plot window vectors only
     if window:
         window = range(window[0], window[1])
@@ -72,8 +75,8 @@ def plot_map(world, route_cords=None, grid_cords=None, size=(10, 10), save=False
     if route_zoom:
         # plt.xlim([])
         plt.ylim([4700, 6500])
-    if save: fig.savefig('graph' + str(save_id) + '.png')
-    plt.show()
+    if save: fig.savefig(path + 'graph' + str(save_id) + '.png')
+    if show: plt.show()
 
 
 def load_grid():
