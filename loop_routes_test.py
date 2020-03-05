@@ -24,13 +24,10 @@ U, V = pol_2cart_headings(route_heading)
 #          vectors=[U, V], grid_vectors=[grid_U, grid_V], scale=80)
 
 
-
-id = 0
-for i in range(5, 70):
+for id in range(50, 200):
     plot_map(w, [x_route, y_route], [x_inlimit, y_inlimit], size=(15, 15), marker_size=100, scale=40,
              vectors=[U, V], show=False, save=True, save_id=id,
-             window=[i-5, i], path='Figures/')
-    id += 1
+             path='Figures/')
 # i = 0
 # for window in window_log:
 #     plot_map(w, [x_route, y_route], [x_inlimit, y_inlimit], size=(15, 15), marker_size=100, scale=70,
