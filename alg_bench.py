@@ -1,4 +1,4 @@
-from utils import pre_process, mean_degree_error, load_route, sample_from_wg, plot_map
+from utils import pre_process, mean_degree_error, load_route, sample_from_wg, plot_map, degree_error
 import sequential_perfect_memory as spm
 import perfect_memory as pm
 import pandas as pd
@@ -13,6 +13,8 @@ class Benchmark():
         self.bench_logs = []
         self.dist = 100  # Distance between grid images and route images
         self.img_shape = (180, 50)
+        keys = ['tested routes', 'pre-proc', 'seq', 'window', 'matcher', 'mean error', 'errors']
+        self.log = dict.fromkeys(keys, [])
 
     def bench_seq_pm(self, route_ids=None, pre_procs=None, window_range=None, matchers=None):
         for window in window_range:
@@ -33,18 +35,22 @@ class Benchmark():
                         nav = spm.SequentialPerfectMemory(pre_route_images, matching)
                         recovered_heading, logs, window_log = nav.navigate(pre_world_grid_imgs, window)
 
-                        route_errors.append(mean_degree_error(x_inrange, y_inrange, x_route, y_route,
+                        route_errors.append(degree_error(x_inrange, y_inrange, x_route, y_route,
                                                               route_heading, recovered_heading))
 
-                        # #plot the full route with headings_heading
-                        # U, V = pol_2cart_headings(recovered_heading)
-
-                        # plot_map([x_route, y_route], [x_inrange, y_inrange], size=(15, 15), grid_vectors=[U, V],
-                        #          scale=80, route_zoom=True)
                         self.jobs += 1
                         print('Jobs completed: {}/{}'.format(self.jobs, self.total_jobs))
+
+                    route_errors = [item for sublist in route_errors for item in sublist]
                     # Mean route error
                     mean_route_error = sum(route_errors) / len(route_errors)
+                    self.log['tested routes'].extend([len(route_ids)])
+                    self.log['pre-proc'].extend([pre_proc.keys()])
+                    self.log['seq'].extend([True])
+                    self.log['window'].extend([window])
+                    self.log['matcher'].extend([matching])
+                    self.log['mean error'].extend([mean_route_error])
+                    self.log['errors'].append(route_errors)
 
                     # Num of routes, pre_proc, Seq, memory window, Matcher, Mean route error
                     self.bench_logs.append([len(route_ids), pre_proc.keys(), True, window, matching, mean_route_error])
@@ -93,10 +99,10 @@ class Benchmark():
         print('Total number of jobs: {}'.format(self.total_jobs))
         self.jobs = 0
 
-        # # Benchmark for sequential-pm
-        # self.bench_seq_pm(route_ids, pre_processing, window_range, matchers)
+        # Benchmark for sequential-pm
+        self.bench_seq_pm(route_ids, pre_processing, window_range, matchers)
 
-        self.bench_pm(route_ids, pre_processing, matchers)
+        # self.bench_pm(route_ids, pre_processing, matchers)
 
         bench_results = pd.DataFrame(self.bench_logs,
                                      columns=['Tested routes', 'pre-proc', 'Seq', 'Window', 'Matcher', 'Mean Error'])
