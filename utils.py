@@ -96,15 +96,31 @@ def load_grid():
     return x, y, world
 
 
-def gen_route_line(indexes, direction, length):
-    if direction == 'right': index_jump = 105
-    elif direction == 'left': index_jump = -105
-    elif direction == 'up': index_jump = 1
-    elif direction == 'down': index_jump = -1
-    elif direction == 'up_r': index_jump = 106
-    elif direction == 'up_l': index_jump = -104
-    elif direction == 'down_r': index_jump = 104
-    elif direction == 'down_l': index_jump = -106
+def gen_route_line(indexes, headings, direction, length):
+    if direction == 'right':
+        index_jump = 105
+        head = [0]
+    elif direction == 'left':
+        index_jump = -105
+        head = [180]
+    elif direction == 'up':
+        index_jump = 1
+        head = [90]
+    elif direction == 'down':
+        index_jump = -1
+        head = [270]
+    elif direction == 'up_r':
+        index_jump = 106
+        head = [45]
+    elif direction == 'up_l':
+        index_jump = -104
+        head = [135]
+    elif direction == 'down_r':
+        index_jump = 104
+        head = [315]
+    elif direction == 'down_l':
+        index_jump = -106
+        head = [225]
     else: raise Exception('Wrong direction given')
 
     # for i in range(length):
@@ -112,8 +128,9 @@ def gen_route_line(indexes, direction, length):
     # Add indexes using the range
     end = indexes[-1] + length*index_jump + index_jump
     indexes.extend(list(range(indexes[-1]+index_jump, end, index_jump)))
+    headings.extend(head * length)
 
-    return indexes
+    return indexes, headings
 
 
 def route_imgs_from_indexes(indexes, headings, directory):
@@ -383,7 +400,7 @@ def mean_degree_error(x_cords, y_cords, x_route_cords, y_route_cords, route_head
 
 def check_for_dir_and_create(directory):
     if not os.path.exists(directory):
-        os.mkdir(directory)
+        os.makedirs(directory)
 
 
 def load_grid_route(route_dir, route_id=1, grid_pos_limit=200, route_direction='left2right'):

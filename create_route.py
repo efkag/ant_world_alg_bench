@@ -11,39 +11,41 @@ import numpy as np
 # down_l = left + down
 
 x, y, w = load_grid()
+route_id = 2
 
 # ---------------- Amend code here below to change route
 step = 105
-start = 800
+start = 900
 stop = 3500
 
 headings = []
 indexes = list(range(start, stop, step))
 headings.extend([0] * len(indexes))
 
-indexes = gen_route_line(indexes, 'up_r', 10)
-headings.extend([45] * 10)
+indexes, headings = gen_route_line(indexes, headings, 'down_r', 6)
 
-indexes = gen_route_line(indexes, 'up', 4)
-headings.extend([90] * 4)
+indexes, headings = gen_route_line(indexes, headings, 'right', 8)
 
-indexes = gen_route_line(indexes, 'up_l', 4)
-headings.extend([135] * 4)
+indexes, headings = gen_route_line(indexes, headings, 'up_r', 10)
 
-indexes = gen_route_line(indexes, 'left', 4)
-headings.extend([180] * 4)
+indexes, headings = gen_route_line(indexes, headings, 'up', 10)
 
-indexes = gen_route_line(indexes, 'down_l', 4)
-headings.extend([225] * 4)
+indexes, headings = gen_route_line(indexes, headings, 'up_l', 8)
 
-indexes = gen_route_line(indexes, 'down', 4)
-headings.extend([270] * 4)
+indexes, headings = gen_route_line(indexes, headings, 'left', 6)
 
-indexes = gen_route_line(indexes, 'down_r', 8)
-headings.extend([315] * 8)
+indexes, headings = gen_route_line(indexes, headings, 'down_l', 6)
 
-indexes = gen_route_line(indexes, 'right', 8)
-headings.extend([0] * 8)
+indexes, headings = gen_route_line(indexes, headings, 'down', 4)
+
+indexes, headings = gen_route_line(indexes, headings, 'down_r', 5)
+
+indexes, headings = gen_route_line(indexes, headings, 'down', 4)
+
+indexes, headings = gen_route_line(indexes, headings, 'down_r', 15)
+
+indexes, headings = gen_route_line(indexes, headings, 'right', 8)
+
 
 # ------------------Amend code here above to change route
 
@@ -59,7 +61,7 @@ route = pd.DataFrame(route_data)
 # Rearange column order
 route = route[['X', 'Y', 'Z', 'Heading', 'Filename']]
 
-route_dir = 'route_' + str(1)
+route_dir = 'route_' + str(route_id)
 directory = 'LoopRoutes/' + route_dir + '/'
 check_for_dir_and_create(directory)
 route_imgs = route_imgs_from_indexes(indexes, headings, directory)
