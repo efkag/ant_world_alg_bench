@@ -13,8 +13,8 @@ class Benchmark():
         self.bench_logs = []
         self.dist = 100  # Distance between grid images and route images
         self.img_shape = (180, 50)
-        keys = ['tested routes', 'pre-proc', 'seq', 'window', 'matcher', 'mean error', 'errors']
-        self.log = dict.fromkeys(keys, [])
+        self.log = {'tested routes': [], 'pre-proc': [], 'seq': [], 'window': [],
+                    'matcher': [], 'mean error': [], 'errors': []}
 
     def bench_seq_pm(self, route_ids=None, pre_procs=None, window_range=None, matchers=None):
         for window in window_range:
@@ -41,6 +41,7 @@ class Benchmark():
                         self.jobs += 1
                         print('Jobs completed: {}/{}'.format(self.jobs, self.total_jobs))
 
+                    # Flatten errors
                     route_errors = [item for sublist in route_errors for item in sublist]
                     # Mean route error
                     mean_route_error = sum(route_errors) / len(route_errors)
@@ -52,9 +53,7 @@ class Benchmark():
                     self.log['mean error'].extend([mean_route_error])
                     self.log['errors'].append(route_errors)
 
-                    # Num of routes, pre_proc, Seq, memory window, Matcher, Mean route error
-                    self.bench_logs.append([len(route_ids), pre_proc.keys(), True, window, matching, mean_route_error])
-        return self.bench_logs
+        return self.log
 
     def bench_pm(self, route_ids=None, pre_procs=None, matchers=None):
         for matching in matchers:
@@ -68,7 +67,7 @@ class Benchmark():
                                                                             x_route, y_route,
                                                                             world_grid_imgs, DIST)
                     # Preprocess images
-                    pre_world_grid_imgs = pre_process(w_g_imgs_inrange, pre_proc)
+                    pre_world_grid_imgs = pre_pforocess(w_g_imgs_inrange, pre_proc)
                     pre_route_images = pre_process(route_images, pre_proc)
                     # Run navigation algorithm
                     nav = pm.PerfectMemory(pre_route_images, matching)
@@ -94,8 +93,8 @@ class Benchmark():
     def benchmark_init(self, route_ids, pre_processing, window_range=None, matchers=None):
         nav_alg_num = 1
         ## TODO need to alter code to pass any number of navigation algorithms to test
-        self.total_jobs = len(pre_processing) * len(route_ids) * len(matchers) * nav_alg_num
-        #self.total_jobs = len(pre_processing) * len(window_range) * len(route_ids) * len(matchers) * nav_alg_num
+        # self.total_jobs = len(pre_processing) * len(route_ids) * len(matchers) * nav_alg_num
+        self.total_jobs = len(pre_processing) * len(window_range) * len(route_ids) * len(matchers) * nav_alg_num
         print('Total number of jobs: {}'.format(self.total_jobs))
         self.jobs = 0
 
@@ -104,8 +103,7 @@ class Benchmark():
 
         # self.bench_pm(route_ids, pre_processing, matchers)
 
-        bench_results = pd.DataFrame(self.bench_logs,
-                                     columns=['Tested routes', 'pre-proc', 'Seq', 'Window', 'Matcher', 'Mean Error'])
+        bench_results = pd.DataFrame(self.log)
 
-        bench_results.to_csv('pm_bench-results.csv')
+        bench_results.to_csv('Results/bench-results.csv')
         print(bench_results)
