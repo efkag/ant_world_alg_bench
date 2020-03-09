@@ -16,7 +16,7 @@ fig, ax = plt.subplots()
 pos = data['window'].tolist()
 parts = ax.violinplot(v_data, pos, points=100, widths=0.7, showmeans=True,
                       showextrema=True, showmedians=True, bw_method=0.5)
-parts['cmeans'].set_edgecolor('red')
+# parts['cmeans'].set_edgecolor('red')
 ax.set_ylabel('Degree error')
 ax.set_xlabel('Window size')
 plt.show()

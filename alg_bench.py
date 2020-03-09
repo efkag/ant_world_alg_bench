@@ -7,7 +7,8 @@ import numpy as np
 DIST = 100
 
 class Benchmark():
-    def __init__(self):
+    def __init__(self, results_path):
+        self.results_path = results_path
         self.jobs = None
         self.total_jobs = None
         self.bench_logs = []
@@ -23,19 +24,19 @@ class Benchmark():
                     route_errors = []
                     for route in route_ids:  # for every route
                         _, x_inlimit, y_inlimit, world_grid_imgs, x_route, y_route, \
-                            route_heading, route_images = load_route(str(route))
+                            route_heading, route_images = load_route(route, route_direction='right2left')
 
-                        x_inrange, y_inrange, w_g_imgs_inrange = sample_from_wg(x_inlimit, y_inlimit,
+                        x_inlimit, y_inlimit, world_grid_imgs = sample_from_wg(x_inlimit, y_inlimit,
                                                                                 x_route, y_route,
                                                                                 world_grid_imgs, DIST)
                         # Preprocess images
-                        pre_world_grid_imgs = pre_process(w_g_imgs_inrange, pre_proc)
+                        pre_world_grid_imgs = pre_process(world_grid_imgs, pre_proc)
                         pre_route_images = pre_process(route_images, pre_proc)
                         # Run navigation algorithm
                         nav = spm.SequentialPerfectMemory(pre_route_images, matching)
                         recovered_heading, logs, window_log = nav.navigate(pre_world_grid_imgs, window)
 
-                        route_errors.append(degree_error(x_inrange, y_inrange, x_route, y_route,
+                        route_errors.append(degree_error(x_inlimit, y_inlimit, x_route, y_route,
                                                               route_heading, recovered_heading))
 
                         self.jobs += 1
@@ -67,7 +68,7 @@ class Benchmark():
                                                                             x_route, y_route,
                                                                             world_grid_imgs, DIST)
                     # Preprocess images
-                    pre_world_grid_imgs = pre_pforocess(w_g_imgs_inrange, pre_proc)
+                    pre_world_grid_imgs = pre_process(w_g_imgs_inrange, pre_proc)
                     pre_route_images = pre_process(route_images, pre_proc)
                     # Run navigation algorithm
                     nav = pm.PerfectMemory(pre_route_images, matching)
@@ -105,5 +106,5 @@ class Benchmark():
 
         bench_results = pd.DataFrame(self.log)
 
-        bench_results.to_csv('Results/bench-results.csv')
+        bench_results.to_csv(self.results_path)
         print(bench_results)

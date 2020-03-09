@@ -7,14 +7,14 @@ def main():
     #                   dict({'blur': True, 'shape': (180, 50)})]
 
     # window_range = list(range(5, 20))
-    window_range = list(range(6, 13))
+    window_range = list(range(8, 14))
     # routes = [1, 2, 3]
     routes = [1]
     # matchers = ['corr', 'idf']
     matchers = ['idf']
 
 
-    bench = alg_bench.Benchmark()
+    bench = alg_bench.Benchmark('Results/bench-results.csv')
     bench.benchmark_init(routes, pre_processing, window_range, matchers)
 
 
