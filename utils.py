@@ -4,9 +4,10 @@ import matplotlib.image as mpimg
 import pandas as pd
 import cv2 as cv
 import math
+import os
 
 
-def display_image(image, size=(10, 10)):
+def display_image(image, size=(10, 10), save_id=None):
     """
     Display the image given as a 2d or 3d array of values.
     :param size: Size of the plot for the image
@@ -17,18 +18,22 @@ def display_image(image, size=(10, 10)):
     plt.imshow(image, cmap='gray', interpolation='bilinear')
     plt.xticks([]), plt.yticks([])  # to hide tick values on X and Y axis
     # or plt.axis('off')
-    plt.savefig("test.png")
-    plt.show()
+    if save_id: plt.savefig(str(save_id) + ".png")
+
+
+def save_image(img, path):
+    mpimg.imsave(path + '.png', img, cmap='gray')
 
 
 def plot_map(world, route_cords=None, grid_cords=None, size=(10, 10), save=False, zoom=(), zoom_factor=1000,
-             vectors=None, grid_vectors=None, marker_size=10, scale=40, route_zoom=False, save_id=''):
+             vectors=None, grid_vectors=None, marker_size=10, scale=40, route_zoom=False, save_id=None, window=None,
+             path='', show=True):
     '''
     Plots a top down view of the grid world, with markers or quivers of route and grid positions
     :param world: Top down image of the world
     :param route_cords: X and Y route coordinates
-    :param grid_cords: X and Y
-    :param size:grid coordinates
+    :param grid_cords: X and Y grid coordinates
+    :param size: size of the figure
     :param save: If to save the image
     :param zoom: x and Y tuple of zoom centre
     :param zoom_factor: Magnitute of zoom. (lower values is greater zoom)
@@ -37,7 +42,8 @@ def plot_map(world, route_cords=None, grid_cords=None, size=(10, 10), save=False
     :param marker_size: Size of route of grid marker
     :param scale: Size of quiver scale. (relative to image size)
     :param route_zoom: Rectangle zoom around the route
-    :param save_id: A file id to save the plot and avoid overide of the saved file
+    :param save_id: A file id to save the plot and avoid override of the saved file
+    :param window: The pointer to the memory window
     :return: -
     '''
     fig = plt.figure(figsize=size)
@@ -47,12 +53,20 @@ def plot_map(world, route_cords=None, grid_cords=None, size=(10, 10), save=False
     # Plot circles for route image locations
     if route_cords and not vectors: plt.scatter(route_cords[0], route_cords[1], marker="o", s=marker_size, color='blue')
     # Plot stars for grid image locations
-    if grid_cords and not grid_vectors: plt.scatter(grid_cords[0], grid_cords[1], marker="*", s=marker_size,
+    if grid_cords and not grid_vectors: plt.scatter(grid_cords[0][0:save_id], grid_cords[1][0:save_id], marker="*", s=marker_size,
                                                     color='red')
     # Plot route images heading vectors
     if vectors: plt.quiver(route_cords[0], route_cords[1], vectors[0], vectors[1], scale=scale, color='b')
     # Plot world grid images heading vectors
-    if grid_vectors: plt.quiver(grid_cords[0], grid_cords[1], grid_vectors[0], grid_vectors[1], scale=scale, color='r')
+    # if grid_vectors: plt.quiver(grid_cords[0], grid_cords[1], grid_vectors[0], grid_vectors[1], scale=scale, color='r')
+    # The variable save_id is used here to plot the vectors that have been matched with a window so far
+    if grid_vectors: plt.quiver(grid_cords[0][0:save_id], grid_cords[1][0:save_id],
+                                grid_vectors[0][0:save_id], grid_vectors[1][0:save_id], scale=scale, color='r')
+    # Plot window vectors only
+    if window:
+        window = range(window[0], window[1])
+        plt.quiver([route_cords[0][i] for i in window], [route_cords[1][i] for i in window],
+                   [vectors[0][i] for i in window], [vectors[1][i] for i in window], scale=scale, color='c')
 
     plt.imshow(world, zorder=0, extent=[-0.158586 * 1000, 10.2428 * 1000, -0.227704 * 1000, 10.0896 * 1000])
     if zoom:
@@ -61,8 +75,80 @@ def plot_map(world, route_cords=None, grid_cords=None, size=(10, 10), save=False
     if route_zoom:
         # plt.xlim([])
         plt.ylim([4700, 6500])
-    if save: fig.savefig('graph' + str(save_id) + '.png')
-    plt.show()
+    if save: fig.savefig(path + 'graph' + str(save_id) + '.png')
+    if show: plt.show()
+
+
+def load_grid():
+    grid_dir = 'AntWorld/world5000_grid/'
+
+    data = pd.read_csv(grid_dir + 'world5000_grid.csv', header=0)
+    data = data.values
+
+    # World top down image
+    world = mpimg.imread(grid_dir + 'world5000_grid.png')
+
+    # Grid data
+    x = data[:, 1]  # x location of the image in the world_grid
+    y = data[:, 0]  # y location of the image in the world_grid
+    # img_path = data[:, 4]  # Name of the image file
+
+    return x, y, world
+
+
+def gen_route_line(indexes, headings, direction, length):
+    if direction == 'right':
+        index_jump = 105
+        head = [0]
+    elif direction == 'left':
+        index_jump = -105
+        head = [180]
+    elif direction == 'up':
+        index_jump = 1
+        head = [90]
+    elif direction == 'down':
+        index_jump = -1
+        head = [270]
+    elif direction == 'up_r':
+        index_jump = 106
+        head = [45]
+    elif direction == 'up_l':
+        index_jump = -104
+        head = [135]
+    elif direction == 'down_r':
+        index_jump = 104
+        head = [315]
+    elif direction == 'down_l':
+        index_jump = -106
+        head = [225]
+    else: raise Exception('Wrong direction given')
+
+    # for i in range(length):
+    #     indexes.append(indexes[-1] + index_jump)
+    # Add indexes using the range
+    end = indexes[-1] + length*index_jump + index_jump
+    indexes.extend(list(range(indexes[-1]+index_jump, end, index_jump)))
+    headings.extend(head * length)
+
+    return indexes, headings
+
+
+def route_imgs_from_indexes(indexes, headings, directory):
+    grid_dir = 'AntWorld/world5000_grid/'
+    data = pd.read_csv(grid_dir + 'world5000_grid.csv', header=0)
+    data = data.values
+    img_path = data[:, 4]  # Name of the image files
+
+    images = []
+    id = 0
+    for i, h in zip(indexes, headings):
+        img = cv.imread(grid_dir + img_path[i][1:], cv.IMREAD_GRAYSCALE)
+        img = rotate(h, img)
+        save_image(img, directory + str(id))
+        images.append(img)
+        id += 1
+
+    return images
 
 
 def load_route(route_id, grid_pos_limit=200):
@@ -104,7 +190,6 @@ def load_route(route_id, grid_pos_limit=200):
         route_images.append(img)
 
     # Load world grid images
-
     max_norm = 1
     X_inlimit = []
     Y_inlimit = []
@@ -165,10 +250,20 @@ def sample_from_wg(x_cords, y_cords, x_route_cords, y_route_cords, world_grid_im
     return x_inrange, y_inrange, w_g_imgs_inrange
 
 
+def line_incl(x, y):
+    '''
+    Calculates the inclination of lines defined by 2 subsequent coordinates
+    :param x:
+    :param y:
+    :return:
+    '''
+    incl = np.arctan((y[1:] - y[:-1]) / (x[1:] - x[:-1])) * 180 / np.pi
+    return incl
+
+
 def pol2cart(theta, r):
     """
     This function converts the cartesian coordinates into polar coordinates.
-
     of the quiver.
     :param theta: represents the heading in degrees
     :param r: represens the lenghth of the quiver
@@ -227,14 +322,14 @@ def rotate(d, image):
         d = -d
         num_of_cols = image.shape[1]
         num_of_cols_perdegree = num_of_cols/360
-        cols_to_shift = num_of_cols - round(d * num_of_cols_perdegree)
+        cols_to_shift = round(d * num_of_cols_perdegree)
         img1 = image[:, cols_to_shift:num_of_cols]
         img2 = image[:, 0: cols_to_shift]
         return np.concatenate((img1, img2), axis=1)
     else:
         num_of_cols = image.shape[1]
-        num_of_cols_perdegree = num_of_cols/360
-        cols_to_shift = round(d * num_of_cols_perdegree)
+        num_of_cols_perdegree = num_of_cols / 360
+        cols_to_shift = num_of_cols - round(d * num_of_cols_perdegree)
         img1 = image[:, cols_to_shift:num_of_cols]
         img2 = image[:, 0: cols_to_shift]
         return np.concatenate((img1, img2), axis=1)
@@ -305,3 +400,80 @@ def mean_degree_error(x_cords, y_cords, x_route_cords, y_route_cords, route_head
     error = degree_error(x_cords, y_cords, x_route_cords, y_route_cords, route_heading, recovered_headings)
     return sum(error) / len(error)
 
+
+def check_for_dir_and_create(directory):
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+
+def load_grid_route(route_dir, route_id=1, grid_pos_limit=200, route_direction='left2right'):
+    # Path/ Directory settings
+    route_id_dir = 'route_' + str(route_id) + '/'
+    csv_file = 'route_' + str(route_id) + '.csv'
+    route_dir = route_dir + route_id_dir
+    grid_dir = 'AntWorld/world5000_grid/'
+
+    # World top down image
+    world = mpimg.imread(grid_dir + 'world5000_grid.png')
+
+    # Grid Images
+    data = pd.read_csv(grid_dir + 'world5000_grid.csv', header=0)
+    data = data.values
+
+    # Route
+    route_data = pd.read_csv(route_dir + csv_file, header=0)
+    route_data = route_data.values
+
+    ## Organize data
+    # Grid data
+    X = data[:, 1]  # x location of the image in the world_grid
+    Y = data[:, 0]  # y location of the image in the world_grid
+    img_path = data[:, 4]  # Name of the image file
+
+    # Route data
+    X_route = route_data[:, 0].tolist()  # x location of the image in the route
+    Y_route = route_data[:, 1].tolist()  # y location of the image in the route
+    Heading_route = route_data[:, 3]  # Image heading
+    imgs_route_path = route_data[:, 4]  # Name of the image file
+
+    # Load route images
+    max_norm = 1
+    route_images = []
+    for i in range(0, len(imgs_route_path)):
+        img = cv.imread(route_dir + imgs_route_path[i], cv.IMREAD_GRAYSCALE)
+        # Normalize
+        #img = img * max_norm / img.max()
+        route_images.append(img)
+
+    # Load world grid images
+    max_norm = 1
+    X_inlimit = []
+    Y_inlimit = []
+    world_grid_imgs = []
+
+    # Fetch images from the grid that are located nearby route images.
+    for i in range(0, len(X_route), 1):
+        dist = []
+        for j in range(0, len(X), 1):
+            d = (math.sqrt((X_route[i] - X[j]) ** 2 + (Y_route[i] - Y[j]) ** 2))
+            dist.append(d)
+            if grid_pos_limit > d > 0.1:  # Maximum distance limit from the Route images
+                X_inlimit.append(X[j])
+                Y_inlimit.append(Y[j])
+                img_dir = grid_dir + img_path[j][1:]
+                img = cv.imread(img_dir, cv.IMREAD_GRAYSCALE)
+                # Normalize
+                # img = img * max_norm / img.max()
+                world_grid_imgs.append(img)
+
+    if route_direction == 'right2left':
+        X_inlimit = list(reversed(X_inlimit))
+        Y_inlimit = list(reversed(Y_inlimit))
+        world_grid_imgs = list(reversed(world_grid_imgs))
+    elif route_direction == 'left2right':
+        # If direction is left to right the order of indexes is in the correct order.
+        pass
+    else:
+        raise Exception('Provided wrong route direction parameter')
+
+    return world, X_inlimit, Y_inlimit, world_grid_imgs, X_route, Y_route, Heading_route, route_images
