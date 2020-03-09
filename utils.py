@@ -379,22 +379,25 @@ def flatten_imgs(imgs):
 
 
 def cross_corr(sub_series, series):
-
     return [np.dot(s, sub_series) for s in series]
 
 
-def mean_degree_error(x_cords, y_cords, x_route_cords, y_route_cords, route_heading, recovered_headings):
-    k = []  # Holds the position of the memmory with the shortest diatance to the wg possition
-    error = []  # Holds the error between the world grid image and the closest route imageroute
-    for i in range(0, len(x_cords)):  # For every grid possition
+def degree_error(x_cords, y_cords, x_route_cords, y_route_cords, route_heading, recovered_headings):
+    k = []  # Holds the position of the memory with the shortest distance to the wg position
+    errors = []  # Holds the error between the world grid image and the closest route image
+    for i in range(0, len(x_cords)):  # For every grid position
         distance = []
-        for j in range(0, len(x_route_cords)):
+        for j in range(0, len(x_route_cords)):  # For every route position
             d = math.sqrt((x_cords[i] - x_route_cords[j]) ** 2 + ((y_cords[i] - y_route_cords[j]) ** 2))
             distance.append(d)
 
         k.append(distance.index(min(distance)))
-        error.append(abs(recovered_headings[i] - route_heading[distance.index(min(distance))]))
+        errors.append(abs(recovered_headings[i] - route_heading[distance.index(min(distance))]))
+    return errors
 
+
+def mean_degree_error(x_cords, y_cords, x_route_cords, y_route_cords, route_heading, recovered_headings):
+    error = degree_error(x_cords, y_cords, x_route_cords, y_route_cords, route_heading, recovered_headings)
     return sum(error) / len(error)
 
 
