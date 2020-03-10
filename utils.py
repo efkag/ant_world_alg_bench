@@ -158,7 +158,7 @@ def element_index(l, elem):
         return False
 
 
-def load_route(route_id, grid_pos_limit=200, route_direction='left2right'):
+def load_route(route_id, grid_pos_limit=200):
     # Path/ Directory settings
     route_id = str(route_id)
     route_id_dir = 'ant1_route' + route_id + '/'
@@ -219,16 +219,6 @@ def load_route(route_id, grid_pos_limit=200, route_direction='left2right'):
                 # Normalize
                 # img = img * max_norm / img.max()
                 world_grid_imgs.append(img)
-
-    if route_direction == 'right2left':
-        X_inlimit = list(reversed(X_inlimit))
-        Y_inlimit = list(reversed(Y_inlimit))
-        world_grid_imgs = list(reversed(world_grid_imgs))
-    elif route_direction == 'left2right':
-        # If direction is left to right the order of indexes is in the correct order.
-        pass
-    else:
-        raise Exception('Provided wrong route direction parameter')
 
     return world, X_inlimit, Y_inlimit, world_grid_imgs, X_route, Y_route, Heading_route, route_images
 
@@ -426,7 +416,7 @@ def check_for_dir_and_create(directory):
         os.makedirs(directory)
 
 
-def load_grid_route(route_dir, route_id=1, grid_pos_limit=200, route_direction='left2right'):
+def load_grid_route(route_dir, route_id=1, grid_pos_limit=200):
     # Path/ Directory settings
     route_id_dir = 'route_' + str(route_id) + '/'
     csv_file = 'route_' + str(route_id) + '.csv'
@@ -473,27 +463,17 @@ def load_grid_route(route_dir, route_id=1, grid_pos_limit=200, route_direction='
 
     # Fetch images from the grid that are located nearby route images.
     for i in range(0, len(X_route), 1):
-        dist = []
         for j in range(0, len(X), 1):
             d = (math.sqrt((X_route[i] - X[j]) ** 2 + (Y_route[i] - Y[j]) ** 2))
-            dist.append(d)
-            if grid_pos_limit > d > 0.1:  # Maximum distance limit from the Route images
+            if 1 < d < grid_pos_limit:  # Maximum distance limit from the Route images
                 X_inlimit.append(X[j])
                 Y_inlimit.append(Y[j])
+                X[j] = 0
+                Y[j] = 0
                 img_dir = grid_dir + img_path[j][1:]
                 img = cv.imread(img_dir, cv.IMREAD_GRAYSCALE)
                 # Normalize
                 # img = img * max_norm / img.max()
                 world_grid_imgs.append(img)
-
-    if route_direction == 'right2left':
-        X_inlimit = list(reversed(X_inlimit))
-        Y_inlimit = list(reversed(Y_inlimit))
-        world_grid_imgs = list(reversed(world_grid_imgs))
-    elif route_direction == 'left2right':
-        # If direction is left to right the order of indexes is in the correct order.
-        pass
-    else:
-        raise Exception('Provided wrong route direction parameter')
 
     return world, X_inlimit, Y_inlimit, world_grid_imgs, X_route, Y_route, Heading_route, route_images
