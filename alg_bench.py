@@ -12,10 +12,18 @@ class Benchmark():
         self.jobs = None
         self.total_jobs = None
         self.bench_logs = []
+        self.route_ids = None
+        self.routes_data = []
         self.dist = 100  # Distance between grid images and route images
         self.img_shape = (180, 50)
         self.log = {'tested routes': [], 'pre-proc': [], 'seq': [], 'window': [],
                     'matcher': [], 'mean error': [], 'errors': []}
+
+    def load_routes(self, route_ids):
+        self.route_ids = route_ids
+        for id in self.route_ids:
+            route_data = load_route(id, self.dist)
+            self.routes_data.append(route_data)
 
     def bench_seq_pm(self, route_ids=None, pre_procs=None, window_range=None, matchers=None):
         for window in window_range:
@@ -24,11 +32,7 @@ class Benchmark():
                     route_errors = []
                     for route in route_ids:  # for every route
                         _, x_inlimit, y_inlimit, world_grid_imgs, x_route, y_route, \
-                            route_heading, route_images = load_route(route, route_direction='right2left')
-
-                        x_inlimit, y_inlimit, world_grid_imgs = sample_from_wg(x_inlimit, y_inlimit,
-                                                                                x_route, y_route,
-                                                                                world_grid_imgs, DIST)
+                            route_heading, route_images = load_route(route, self.dist)
                         # Preprocess images
                         pre_world_grid_imgs = pre_process(world_grid_imgs, pre_proc)
                         pre_route_images = pre_process(route_images, pre_proc)

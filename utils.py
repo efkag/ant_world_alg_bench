@@ -162,8 +162,8 @@ def load_route(route_id, grid_pos_limit=200):
     # Path/ Directory settings
     route_id = str(route_id)
     route_id_dir = 'ant1_route' + route_id + '/'
-    route_dir = '../AntWorld/' + route_id_dir
-    grid_dir = '../AntWorld/world5000_grid/'
+    route_dir = 'AntWorld/' + route_id_dir
+    grid_dir = 'AntWorld/world5000_grid/'
 
     # World top down image
     world = mpimg.imread(grid_dir + 'world5000_grid.png')
