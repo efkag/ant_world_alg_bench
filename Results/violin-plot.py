@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 # errors,matcher,mean error,pre-proc,seq,tested routes,window
 # for partname in ('cbars','cmins','cmaxes','cmeans','cmedians')
 
-data = pd.read_csv('bench-results.csv')
+data = pd.read_csv('bench-results-full.csv')
 print(data.columns)
 # Convert list of strings to actual list of lists
 data['errors'] = pd.eval(data['errors'])
@@ -35,3 +35,16 @@ ax.set_xticks(np.arange(len(labels)))
 ax.set_xticklabels(labels)
 plt.show()
 
+
+v_data = data.groupby(['pre-proc'])['errors'].apply(sum).tolist()
+labels = data['pre-proc'].unique()
+pos = np.arange(len(labels))
+fig, ax = plt.subplots()
+parts = ax.violinplot(v_data, pos, points=100, widths=0.3, showmeans=True,
+                      showextrema=True, showmedians=True, bw_method=0.5)
+parts['cmeans'].set_edgecolor('red')
+ax.set_ylabel('Degree error')
+ax.set_xlabel('Pre-Processing')
+ax.set_xticks(np.arange(len(labels)))
+ax.set_xticklabels(labels)
+plt.show()
