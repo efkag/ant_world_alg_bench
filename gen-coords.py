@@ -11,15 +11,6 @@ y_min = -0.227704 * 1000
 y_max = 10.0896 * 1000
 step = 0.01
 
-verts = [
-   [0., 0.3],   # P0
-   [0.2, 1.],  # P1
-   [1., 0.8],  # P2
-   [1.8, 0.],  # P3
-]
-
-
-
 
 def binomial(i, n):
     """Binomial coefficient"""
@@ -48,17 +39,27 @@ def bezier_curve_range(n, points):
         t = i / float(n - 1)  # type: float
         yield bezier(t, points)
 
-x_cord = []
-y_cord = []
-n = 100
-for i in range(n):
-    t = i / float(n - 1)
-    x, y = bezier(t, verts)
-    x_cord.append(x)
-    y_cord.append(y)
+
+def bezier_curve_vert(n, verts):
+    x_cord = []
+    y_cord = []
+    for i in range(n):
+        t = i / float(n - 1)
+        x, y = bezier(t, verts)
+        x_cord.append(x)
+        y_cord.append(y)
+    return x_cord, y_cord
 
 
-xy = np.array(verts)
+points = [
+   [0., 0.3],   # P0
+   [0.2, 1.],  # P1
+   [1., 0.8],  # P2
+   [1.8, 0.],  # P3
+]
+
+x_cord, y_cord = bezier_curve_vert(100, points)
+xy = np.array(points)
 plt.scatter(xy[:, 0], xy[:, 1])
 plt.plot(x_cord, y_cord)
 plt.show()
