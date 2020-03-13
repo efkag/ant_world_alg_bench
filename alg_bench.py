@@ -51,7 +51,7 @@ class Benchmark():
                     # Mean route error
                     mean_route_error = sum(route_errors) / len(route_errors)
                     self.log['tested routes'].extend([len(route_ids)])
-                    self.log['pre-proc'].extend([pre_proc.keys()])
+                    self.log['pre-proc'].extend([str(pre_proc)])
                     self.log['seq'].extend([True])
                     self.log['window'].extend([window])
                     self.log['matcher'].extend([matching])
