@@ -11,7 +11,7 @@ def main():
     # window_range = list(range(5, 20))
     window_range = list(range(6, 21))
     # routes = [1, 2, 3]
-    routes = [1, 2, 3, 4]
+    routes = [1, 2, 3, 4, 5]
     matchers = ['corr', 'idf']
     # matchers = ['idf']
 

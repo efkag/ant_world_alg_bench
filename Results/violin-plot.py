@@ -1,10 +1,12 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import textwrap
+f = lambda x: textwrap.fill(x.get_text(), 25)
 # errors,matcher,mean error,pre-proc,seq,tested routes,window
 # for partname in ('cbars','cmins','cmaxes','cmeans','cmedians')
 
-data = pd.read_csv('bench-results-test.csv')
+data = pd.read_csv('bench-results-large.csv')
 print(data.columns)
 # Convert list of strings to actual list of lists
 data['errors'] = pd.eval(data['errors'])
@@ -47,4 +49,5 @@ ax.set_ylabel('Degree error')
 ax.set_xlabel('Pre-Processing')
 ax.set_xticks(np.arange(len(labels)))
 ax.set_xticklabels(labels)
+ax.set_xticklabels(map(f, ax.get_xticklabels()))
 plt.show()
