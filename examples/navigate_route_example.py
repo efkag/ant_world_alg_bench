@@ -3,7 +3,7 @@ import sequential_perfect_memory as spm
 
 directory = 'LoopRoutes/'
 matcher = 'corr'
-pre_proc = dict({'blur': True, 'shape': (180, 50), 'edge_range': (180, 200)})
+pre_proc = {'blur': True, 'shape': (180, 50), 'edge_range': (180, 200)}
 window = 10
 figures_path = 'Figures/'
 dist = 100

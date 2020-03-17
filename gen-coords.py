@@ -1,7 +1,6 @@
 import math
-import matplotlib.pyplot as plt
-from matplotlib.path import Path
-import matplotlib.patches as patches
+from utils import plot_map, load_grid, line_incl, pol_2cart_headings
+from matplotlib import pyplot as plt
 import numpy as np
 pi = math.pi
 # -0.158586 * 1000, 10.2428 * 1000, -0.227704 * 1000, 10.0896 * 1000
@@ -52,14 +51,30 @@ def bezier_curve_vert(n, verts):
 
 
 points = [
-   [0., 0.3],   # P0
-   [0.2, 1.],  # P1
-   [1., 0.8],  # P2
-   [1.8, 0.],  # P3
+    [972.296, 5041.41],
+    [2072.296, 5341.41],
+    [4012.296, 5351.41],
+    [7512.296, 3051.41],
+    [3012.296, 751.41],
+    [312.296, 3351.41],
+    [2412.296, 5051.41],
+    [3412.296, 5351.41],
+    [4412.296, 5451.41],
+    [5412.296, 4451.41],
+    [6412.296, 5451.41],
+    [7412.296, 4451.41],
+    [8412.296, 5451.41],
 ]
 
-x_cord, y_cord = bezier_curve_vert(100, points)
 xy = np.array(points)
+plt.plot(xy[:, 0], xy[:, 1])
 plt.scatter(xy[:, 0], xy[:, 1])
-plt.plot(x_cord, y_cord)
 plt.show()
+
+x_route, y_route = bezier_curve_vert(400, points)
+heading = line_incl(x_route, y_route)
+u, v = pol_2cart_headings(heading)
+
+x, y, w = load_grid()
+
+plot_map(w, [x_route, y_route], vectors=[u, v], size=(15, 15))

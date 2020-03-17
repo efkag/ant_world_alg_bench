@@ -267,7 +267,7 @@ def line_incl(x, y):
     :param y:
     :return:
     '''
-    incl = np.arctan((y[1:] - y[:-1]) / (x[1:] - x[:-1])) * 180 / np.pi
+    incl = np.arctan2(np.subtract(y[1:], y[:-1]), np.subtract(x[1:], x[:-1])) * 180 / np.pi
     return incl
 
 
