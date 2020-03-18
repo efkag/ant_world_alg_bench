@@ -65,7 +65,7 @@ points = [
     [7412.296, 4451.41],
     [8412.296, 5451.41],
 ]
-
+# Show control points
 xy = np.array(points)
 plt.plot(xy[:, 0], xy[:, 1])
 plt.scatter(xy[:, 0], xy[:, 1])
@@ -74,7 +74,11 @@ plt.show()
 x_route, y_route = bezier_curve_vert(400, points)
 heading = line_incl(x_route, y_route)
 u, v = pol_2cart_headings(heading)
-
 x, y, w = load_grid()
-
 plot_map(w, [x_route, y_route], vectors=[u, v], size=(15, 15))
+
+# Save to file
+z = 10
+path = 'route.bin'
+data = np.array([x_route, y_route, [z]*len(x_route)])
+data.tofile(path)
