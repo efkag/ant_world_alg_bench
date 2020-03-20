@@ -1,7 +1,7 @@
 import alg_bench
 
 def main():
-    results_path = 'Results/bench-results-large.csv'
+    results_path = 'Results/bench-results-pm.csv'
     # pre_processing = [dict({'blur': True, 'shape': (180, 50)})]
 
     pre_processing = [{'blur': True, 'shape': (180, 50), 'edge_range': (180, 200)},
@@ -14,9 +14,9 @@ def main():
     routes = [1, 2, 3, 4, 5]
     matchers = ['corr', 'idf']
     # matchers = ['idf']
-
+    alg = 'pm'
     bench = alg_bench.Benchmark(results_path)
-    bench.benchmark_init(routes, pre_processing, window_range, matchers)
+    bench.benchmark_init(alg, routes, pre_processing, window_range, matchers)
 
 
 if __name__ == "__main__":
