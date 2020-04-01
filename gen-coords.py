@@ -79,6 +79,6 @@ plot_map(w, [x_route, y_route], vectors=[u, v], size=(15, 15))
 
 # Save to file
 z = 10
-path = 'route.bin'
+path = 'XYZbins/route_1.bin'
 data = np.array([x_route, y_route, [z]*len(x_route)])
 data.tofile(path)

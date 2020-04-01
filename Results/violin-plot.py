@@ -9,9 +9,26 @@ f = lambda x: textwrap.fill(x.get_text(), 25)
 
 fig_save_path = 'violins.png'
 data = pd.read_csv('bench-results-large.csv')
-print(data.columns)
+data_pm = pd.read_csv('bench-results-pm.csv')
 # Convert list of strings to actual list of lists
 data['errors'] = pd.eval(data['errors'])
+data_pm['errors'] = pd.eval(data_pm['errors'])
+
+pos = data['window'].unique()
+pos = np.append(pos, pos[-1] + 1)
+v_data = data.groupby(['window'])['errors'].apply(sum).tolist()
+v_data_pm = data_pm['errors'].sum()
+v_data.append(v_data_pm)
+# Filter list for values greater than x using lamda function
+greater_than = lambda n: n > 20.0
+v_data = [list(filter(greater_than, row)) for row in v_data]
+#v_data[0] = list(filter(greater_than, v_data[0]))
+parts = plt.violinplot(v_data, pos, points=100, widths=0.7, showmeans=True,
+                      showextrema=True, showmedians=True, bw_method=0.5)
+parts['cmeans'].set_edgecolor('red')
+plt.ylabel('Degree error')
+plt.xlabel('Window size')
+plt.show()
 
 
 fig, ax = plt.subplots(2, 3, figsize=(30, 15))
@@ -22,7 +39,10 @@ ax[1][1].axis('off')
 
 # Plot violin by window size
 pos = data['window'].unique()
+pos = np.append(pos, pos[-1] + 1)
 v_data = data.groupby(['window'])['errors'].apply(sum).tolist()
+v_data_pm = data_pm['errors'].sum()
+v_data.append(v_data_pm)
 parts = ax[0][1].violinplot(v_data, pos, points=100, widths=0.7, showmeans=True,
                       showextrema=True, showmedians=True, bw_method=0.5)
 parts['cmeans'].set_edgecolor('red')
