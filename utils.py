@@ -55,10 +55,11 @@ def plot_map(world, route_cords=None, grid_cords=None, size=(10, 10), save=False
     # Plot stars for grid image locations
     if grid_cords and not grid_vectors: plt.scatter(grid_cords[0][0:save_id], grid_cords[1][0:save_id], marker="*", s=marker_size,
                                                     color='red')
+    # TODO: Need to fix the plotting function to convert heading to U, V coordinates for the quivers plots
     # Plot route images heading vectors
-    if vectors: plt.quiver(route_cords[0], route_cords[1], vectors[0], vectors[1], scale=scale, color='b')
+    if vectors: plt.quiver(route_cords[0], route_cords[1], vectors[0], vectors[1], scale=scale, color='b', angles="xy")
     # Plot world grid images heading vectors
-    # if grid_vectors: plt.quiver(grid_cords[0], grid_cords[1], grid_vectors[0], grid_vectors[1], scale=scale, color='r')
+    #if grid_vectors: plt.quiver(grid_cords[0], grid_cords[1], grid_vectors[0], grid_vectors[1], scale=scale, color='r')
     # The variable save_id is used here to plot the vectors that have been matched with a window so far
     if grid_vectors: plt.quiver(grid_cords[0][0:save_id], grid_cords[1][0:save_id],
                                 grid_vectors[0][0:save_id], grid_vectors[1][0:save_id], scale=scale, color='r')
@@ -162,8 +163,8 @@ def load_route(route_id, grid_pos_limit=200):
     # Path/ Directory settings
     route_id = str(route_id)
     route_id_dir = 'ant1_route' + route_id + '/'
-    route_dir = 'AntWorld/' + route_id_dir
-    grid_dir = 'AntWorld/world5000_grid/'
+    route_dir = '../AntWorld/' + route_id_dir
+    grid_dir = '../AntWorld/world5000_grid/'
 
     # World top down image
     world = mpimg.imread(grid_dir + 'world5000_grid.png')
@@ -178,14 +179,14 @@ def load_route(route_id, grid_pos_limit=200):
 
     ## Organize data
     # Grid data
-    X = data[:, 1]  # x location of the image in the world_grid
-    Y = data[:, 0]  # y location of the image in the world_grid
+    X = data[:, 0]  # x location of the image in the world_grid
+    Y = data[:, 1]  # y location of the image in the world_grid
     img_path = data[:, 4]  # Name of the image file
 
     # Route data
-    X_route = route_data[:, 1].tolist()  # x location of the image in the route
-    Y_route = route_data[:, 0].tolist()  # y location of the image in the route
-    Heading_route = route_data[:, 3]  # Image heading
+    X_route = route_data[:, 0].tolist()  # x location of the image in the route
+    Y_route = route_data[:, 1].tolist()  # y location of the image in the route
+    Heading_route = route_data[:, 3]     # Image heading
     imgs_route_path = route_data[:, 4]  # Name of the image file
 
     # Load route images
