@@ -55,10 +55,11 @@ def plot_map(world, route_cords=None, grid_cords=None, size=(10, 10), save=False
     # Plot stars for grid image locations
     if grid_cords and not grid_vectors: plt.scatter(grid_cords[0][0:save_id], grid_cords[1][0:save_id], marker="*", s=marker_size,
                                                     color='red')
+    # TODO: Need to fix the plotting function to convert heading to U, V coordinates for the quivers plots
     # Plot route images heading vectors
-    if vectors: plt.quiver(route_cords[0], route_cords[1], vectors[0], vectors[1], scale=scale, color='b')
+    if vectors: plt.quiver(route_cords[0], route_cords[1], vectors[0], vectors[1], scale=scale, color='b', angles="xy")
     # Plot world grid images heading vectors
-    # if grid_vectors: plt.quiver(grid_cords[0], grid_cords[1], grid_vectors[0], grid_vectors[1], scale=scale, color='r')
+    #if grid_vectors: plt.quiver(grid_cords[0], grid_cords[1], grid_vectors[0], grid_vectors[1], scale=scale, color='r')
     # The variable save_id is used here to plot the vectors that have been matched with a window so far
     if grid_vectors: plt.quiver(grid_cords[0][0:save_id], grid_cords[1][0:save_id],
                                 grid_vectors[0][0:save_id], grid_vectors[1][0:save_id], scale=scale, color='r')
@@ -151,8 +152,16 @@ def route_imgs_from_indexes(indexes, headings, directory):
     return images
 
 
+def element_index(l, elem):
+    try:
+        return l.index(elem)
+    except ValueError:
+        return False
+
+
 def load_route(route_id, grid_pos_limit=200):
     # Path/ Directory settings
+    route_id = str(route_id)
     route_id_dir = 'ant1_route' + route_id + '/'
     route_dir = 'AntWorld/' + route_id_dir
     grid_dir = 'AntWorld/world5000_grid/'
@@ -170,14 +179,14 @@ def load_route(route_id, grid_pos_limit=200):
 
     ## Organize data
     # Grid data
-    X = data[:, 1]  # x location of the image in the world_grid
-    Y = data[:, 0]  # y location of the image in the world_grid
+    X = data[:, 0]  # x location of the image in the world_grid
+    Y = data[:, 1]  # y location of the image in the world_grid
     img_path = data[:, 4]  # Name of the image file
 
     # Route data
-    X_route = route_data[:, 1].tolist()  # x location of the image in the route
-    Y_route = route_data[:, 0].tolist()  # y location of the image in the route
-    Heading_route = route_data[:, 3]  # Image heading
+    X_route = route_data[:, 0].tolist()  # x location of the image in the route
+    Y_route = route_data[:, 1].tolist()  # y location of the image in the route
+    Heading_route = route_data[:, 3]     # Image heading
     imgs_route_path = route_data[:, 4]  # Name of the image file
 
     # Load route images
@@ -196,19 +205,21 @@ def load_route(route_id, grid_pos_limit=200):
     world_grid_imgs = []
 
     # Fetch images from the grid that are located nearby route images.
-    for i in range(0, len(X), 1):
+    for i in range(0, len(X_route)):
         dist = []
-        for j in range(0, len(X_route), 1):
-            d = (math.sqrt((X_route[j] - X[i]) ** 2 + (Y_route[j] - Y[i]) ** 2))
+        for j in range(0, len(X)):
+            d = (math.sqrt((X_route[i] - X[j]) ** 2 + (Y_route[i] - Y[j]) ** 2))
             dist.append(d)
-        if min(dist) < grid_pos_limit:  # Maximum distance limit from the Route images
-            X_inlimit.append(X[i])
-            Y_inlimit.append(Y[i])
-            img_dir = grid_dir + img_path[i][1:]
-            img = cv.imread(img_dir, cv.IMREAD_GRAYSCALE)
-            # Normalize
-            # img = img * max_norm / img.max()
-            world_grid_imgs.append(img)
+            if grid_pos_limit > d:  # Maximum distance limit from the Route images
+                X_inlimit.append(X[j])
+                Y_inlimit.append(Y[j])
+                X[j] = 0
+                Y[j] = 0
+                img_dir = grid_dir + img_path[j][1:]
+                img = cv.imread(img_dir, cv.IMREAD_GRAYSCALE)
+                # Normalize
+                # img = img * max_norm / img.max()
+                world_grid_imgs.append(img)
 
     return world, X_inlimit, Y_inlimit, world_grid_imgs, X_route, Y_route, Heading_route, route_images
 
@@ -257,7 +268,7 @@ def line_incl(x, y):
     :param y:
     :return:
     '''
-    incl = np.arctan((y[1:] - y[:-1]) / (x[1:] - x[:-1])) * 180 / np.pi
+    incl = np.arctan2(np.subtract(y[1:], y[:-1]), np.subtract(x[1:], x[:-1])) * 180 / np.pi
     return incl
 
 
@@ -390,9 +401,8 @@ def degree_error(x_cords, y_cords, x_route_cords, y_route_cords, route_heading, 
         for j in range(0, len(x_route_cords)):  # For every route position
             d = math.sqrt((x_cords[i] - x_route_cords[j]) ** 2 + ((y_cords[i] - y_route_cords[j]) ** 2))
             distance.append(d)
-
         k.append(distance.index(min(distance)))
-        errors.append(abs(recovered_headings[i] - route_heading[distance.index(min(distance))]))
+        errors.append(180 - abs(abs(recovered_headings[i] - route_heading[k[-1]]) - 180))
     return errors
 
 
@@ -406,7 +416,7 @@ def check_for_dir_and_create(directory):
         os.makedirs(directory)
 
 
-def load_grid_route(route_dir, route_id=1, grid_pos_limit=200, route_direction='left2right'):
+def load_grid_route(route_dir, route_id=1, grid_pos_limit=200):
     # Path/ Directory settings
     route_id_dir = 'route_' + str(route_id) + '/'
     csv_file = 'route_' + str(route_id) + '.csv'
@@ -453,27 +463,17 @@ def load_grid_route(route_dir, route_id=1, grid_pos_limit=200, route_direction='
 
     # Fetch images from the grid that are located nearby route images.
     for i in range(0, len(X_route), 1):
-        dist = []
         for j in range(0, len(X), 1):
             d = (math.sqrt((X_route[i] - X[j]) ** 2 + (Y_route[i] - Y[j]) ** 2))
-            dist.append(d)
-            if grid_pos_limit > d > 0.1:  # Maximum distance limit from the Route images
+            if 1 < d < grid_pos_limit:  # Maximum distance limit from the Route images
                 X_inlimit.append(X[j])
                 Y_inlimit.append(Y[j])
+                X[j] = 0
+                Y[j] = 0
                 img_dir = grid_dir + img_path[j][1:]
                 img = cv.imread(img_dir, cv.IMREAD_GRAYSCALE)
                 # Normalize
                 # img = img * max_norm / img.max()
                 world_grid_imgs.append(img)
-
-    if route_direction == 'right2left':
-        X_inlimit = list(reversed(X_inlimit))
-        Y_inlimit = list(reversed(Y_inlimit))
-        world_grid_imgs = list(reversed(world_grid_imgs))
-    elif route_direction == 'left2right':
-        # If direction is left to right the order of indexes is in the correct order.
-        pass
-    else:
-        raise Exception('Provided wrong route direction parameter')
 
     return world, X_inlimit, Y_inlimit, world_grid_imgs, X_route, Y_route, Heading_route, route_images

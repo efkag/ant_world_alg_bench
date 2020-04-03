@@ -11,11 +11,11 @@ import numpy as np
 # down_l = left + down
 
 x, y, w = load_grid()
-route_id = 2
+route_id = 3
 
 # ---------------- Amend code here below to change route
 step = 105
-start = 900
+start = 1635
 stop = 3500
 
 headings = []
@@ -44,7 +44,7 @@ indexes, headings = gen_route_line(indexes, headings, 'down', 4)
 
 indexes, headings = gen_route_line(indexes, headings, 'down_r', 15)
 
-indexes, headings = gen_route_line(indexes, headings, 'right', 8)
+indexes, headings = gen_route_line(indexes, headings, 'right', 5)
 
 
 # ------------------Amend code here above to change route

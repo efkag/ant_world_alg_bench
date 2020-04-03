@@ -1,21 +1,22 @@
 import alg_bench
 
 def main():
-    pre_processing = [dict({'blur': True, 'shape': (180, 50)})]
+    results_path = 'Results/bench-results-pm.csv'
+    # pre_processing = [dict({'blur': True, 'shape': (180, 50)})]
 
-    # pre_processing = [dict({'blur': True, 'shape': (180, 50), 'edge_range': (180, 200)}),
-    #                   dict({'blur': True, 'shape': (180, 50)})]
+    pre_processing = [{'blur': True, 'shape': (180, 50), 'edge_range': (180, 200)},
+                      {'blur': True, 'shape': (180, 50)},
+                      {'blur': True, 'shape': (90, 25)}]
 
     # window_range = list(range(5, 20))
-    window_range = list(range(6, 13))
+    window_range = list(range(6, 21))
     # routes = [1, 2, 3]
-    routes = [1]
-    # matchers = ['corr', 'idf']
-    matchers = ['idf']
-
-
-    bench = alg_bench.Benchmark()
-    bench.benchmark_init(routes, pre_processing, window_range, matchers)
+    routes = [1, 2, 3, 4, 5]
+    matchers = ['corr', 'idf']
+    # matchers = ['idf']
+    alg = 'pm'
+    bench = alg_bench.Benchmark(results_path)
+    bench.benchmark_init(alg, routes, pre_processing, window_range, matchers)
 
 
 if __name__ == "__main__":
