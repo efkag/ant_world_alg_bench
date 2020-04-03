@@ -4,10 +4,10 @@ import perfect_memory as pm
 import timeit
 import pandas as pd
 
-route_ids = [1, 2]
+route_ids = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 matcher = 'idf'
 pre_proc = {'blur': True, 'shape': (180, 50)}
-window = 14
+window = 17  # Best performance window
 dist = 100
 performance_sheet = pd.DataFrame()
 

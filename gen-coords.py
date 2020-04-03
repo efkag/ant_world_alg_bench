@@ -73,9 +73,8 @@ plt.show()
 
 x_route, y_route = bezier_curve_vert(400, points)
 heading = line_incl(x_route, y_route)
-u, v = pol_2cart_headings(heading)
 x, y, w = load_grid()
-plot_map(w, [x_route, y_route], vectors=[u, v], size=(15, 15))
+plot_map(w, [x_route, y_route], route_headings=heading, size=(15, 15))
 
 # Save to file
 z = 10

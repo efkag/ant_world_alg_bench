@@ -14,24 +14,21 @@ check_for_dir_and_create(figures_path)
 w, x_inlimit, y_inlimit, world_grid_imgs, x_route, y_route, \
                             route_heading, route_images = load_route(route_id=1, grid_pos_limit=dist)
 
-
-U, V = pol_2cart_headings(90.0 - np.array(route_heading))
 plot_map(w, [x_route, y_route], [x_inlimit, y_inlimit], size=(15, 15),
-         vectors=[U, V], scale=40)
+         route_headings=route_heading, scale=40)
 
 pre_world_grid_imgs = pre_process(world_grid_imgs, pre_proc)
 pre_route_images = pre_process(route_images, pre_proc)
 
-# nav = spm.SequentialPerfectMemory(pre_route_images, matcher)
-# recovered_heading, logs, window_log = nav.navigate(pre_world_grid_imgs, window)
-nav = pm.PerfectMemory(pre_route_images, matcher)
-recovered_heading, logs = nav.navigate(pre_world_grid_imgs)
+nav = spm.SequentialPerfectMemory(pre_route_images, matcher)
+recovered_heading, logs, window_log = nav.navigate(pre_world_grid_imgs, window)
+# nav = pm.PerfectMemory(pre_route_images, matcher)
+# recovered_heading, logs = nav.navigate(pre_world_grid_imgs)
 
 print(mean_degree_error(x_inlimit, y_inlimit, x_route, y_route, route_heading, recovered_heading))
 
-grid_U, grid_V = pol_2cart_headings(90.0 - np.array(recovered_heading))
 plot_map(w, [x_route, y_route], [x_inlimit, y_inlimit], size=(15, 15),
-         vectors=[U, V], grid_vectors=[grid_U, grid_V], scale=40)
+         route_headings=route_heading, grid_headings=recovered_heading, scale=40)
 
 
 # id = 0

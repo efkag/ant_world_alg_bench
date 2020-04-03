@@ -26,7 +26,7 @@ def save_image(img, path):
 
 
 def plot_map(world, route_cords=None, grid_cords=None, size=(10, 10), save=False, zoom=(), zoom_factor=1000,
-             vectors=None, grid_vectors=None, marker_size=10, scale=40, route_zoom=False, save_id=None, window=None,
+             route_headings=None, grid_headings=None, marker_size=10, scale=40, route_zoom=False, save_id=None, window=None,
              path='', show=True):
     '''
     Plots a top down view of the grid world, with markers or quivers of route and grid positions
@@ -51,18 +51,20 @@ def plot_map(world, route_cords=None, grid_cords=None, size=(10, 10), save=False
     plt.xlabel('x coordinates', fontsize=14, fontweight='bold')
     plt.ylabel('y coordinates', fontsize=13, fontweight='bold')
     # Plot circles for route image locations
-    if route_cords and not vectors: plt.scatter(route_cords[0], route_cords[1], marker="o", s=marker_size, color='blue')
+    if route_cords and not route_headings.all(): plt.scatter(route_cords[0], route_cords[1], marker="o", s=marker_size, color='blue')
     # Plot stars for grid image locations
-    if grid_cords and not grid_vectors: plt.scatter(grid_cords[0][0:save_id], grid_cords[1][0:save_id], marker="*", s=marker_size,
+    if grid_cords and not grid_headings: plt.scatter(grid_cords[0][0:save_id], grid_cords[1][0:save_id], marker="*", s=marker_size,
                                                     color='red')
-    # TODO: Need to fix the plotting function to convert heading to U, V coordinates for the quivers plots
     # Plot route images heading vectors
-    if vectors: plt.quiver(route_cords[0], route_cords[1], vectors[0], vectors[1], scale=scale, color='b', angles="xy")
+    if route_headings.all():
+        route_U, route_V = pol_2cart_headings(90.0 - np.array(route_headings))
+        plt.quiver(route_cords[0], route_cords[1], route_U, route_V, scale=scale, color='b', angles="xy")
     # Plot world grid images heading vectors
-    #if grid_vectors: plt.quiver(grid_cords[0], grid_cords[1], grid_vectors[0], grid_vectors[1], scale=scale, color='r')
     # The variable save_id is used here to plot the vectors that have been matched with a window so far
-    if grid_vectors: plt.quiver(grid_cords[0][0:save_id], grid_cords[1][0:save_id],
-                                grid_vectors[0][0:save_id], grid_vectors[1][0:save_id], scale=scale, color='r')
+    if grid_headings:
+        grid_U, grid_V = pol_2cart_headings(90.0 - np.array(grid_headings))
+        plt.quiver(grid_cords[0][0:save_id], grid_cords[1][0:save_id],
+                                grid_U[0:save_id], grid_V[0:save_id], scale=scale, color='r')
     # Plot window vectors only
     if window:
         window = range(window[0], window[1])
@@ -163,8 +165,8 @@ def load_route(route_id, grid_pos_limit=200):
     # Path/ Directory settings
     route_id = str(route_id)
     route_id_dir = 'ant1_route' + route_id + '/'
-    route_dir = 'AntWorld/' + route_id_dir
-    grid_dir = 'AntWorld/world5000_grid/'
+    route_dir = '../AntWorld/' + route_id_dir
+    grid_dir = '../AntWorld/world5000_grid/'
 
     # World top down image
     world = mpimg.imread(grid_dir + 'world5000_grid.png')
