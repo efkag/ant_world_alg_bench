@@ -21,8 +21,8 @@ def display_image(image, size=(10, 10), save_id=None):
     if save_id: plt.savefig(str(save_id) + ".png")
 
 
-def save_image(img, path):
-    mpimg.imsave(path + '.png', img, cmap='gray')
+def save_image(path, img):
+    cv.imwrite(path, img)# , cmap='gray')
 
 
 def plot_map(world, route_cords=None, grid_cords=None, size=(10, 10), save=False, zoom=(), zoom_factor=1000,
@@ -51,17 +51,17 @@ def plot_map(world, route_cords=None, grid_cords=None, size=(10, 10), save=False
     plt.xlabel('x coordinates', fontsize=14, fontweight='bold')
     plt.ylabel('y coordinates', fontsize=13, fontweight='bold')
     # Plot circles for route image locations
-    if route_cords and not route_headings.all(): plt.scatter(route_cords[0], route_cords[1], marker="o", s=marker_size, color='blue')
+    if route_cords and route_headings is None: plt.scatter(route_cords[0], route_cords[1], marker="o", s=marker_size, color='blue')
     # Plot stars for grid image locations
-    if grid_cords and not grid_headings: plt.scatter(grid_cords[0][0:save_id], grid_cords[1][0:save_id], marker="*", s=marker_size,
+    if grid_cords and grid_headings is None: plt.scatter(grid_cords[0][0:save_id], grid_cords[1][0:save_id], marker="*", s=marker_size,
                                                     color='red')
     # Plot route images heading vectors
-    if route_headings.all():
+    if route_headings is not None:
         route_U, route_V = pol_2cart_headings(90.0 - np.array(route_headings))
         plt.quiver(route_cords[0], route_cords[1], route_U, route_V, scale=scale, color='b', angles="xy")
     # Plot world grid images heading vectors
     # The variable save_id is used here to plot the vectors that have been matched with a window so far
-    if grid_headings:
+    if grid_headings is not None:
         grid_U, grid_V = pol_2cart_headings(90.0 - np.array(grid_headings))
         plt.quiver(grid_cords[0][0:save_id], grid_cords[1][0:save_id],
                                 grid_U[0:save_id], grid_V[0:save_id], scale=scale, color='r')
@@ -80,6 +80,7 @@ def plot_map(world, route_cords=None, grid_cords=None, size=(10, 10), save=False
         plt.ylim([4700, 6500])
     if save: fig.savefig(path + 'graph' + str(save_id) + '.png')
     if show: plt.show()
+    if save: plt.close()
 
 
 def load_grid():
@@ -147,7 +148,7 @@ def route_imgs_from_indexes(indexes, headings, directory):
     for i, h in zip(indexes, headings):
         img = cv.imread(grid_dir + img_path[i][1:], cv.IMREAD_GRAYSCALE)
         img = rotate(h, img)
-        save_image(img, directory + str(id))
+        save_image(directory + str(id) + '.png', img)
         images.append(img)
         id += 1
 
@@ -162,11 +163,13 @@ def element_index(l, elem):
 
 
 def load_route(route_id, grid_pos_limit=200):
+    #TODO: Add parameter and functionality for paths route and grid to be passed in the function
     # Path/ Directory settings
+    antworld_path = '/home/efkag/PycharmProjects/ant_world_alg_bench/AntWorld'
     route_id = str(route_id)
-    route_id_dir = 'ant1_route' + route_id + '/'
-    route_dir = '../AntWorld/' + route_id_dir
-    grid_dir = '../AntWorld/world5000_grid/'
+    route_id_dir = '/ant1_route' + route_id + '/'
+    route_dir = antworld_path + route_id_dir
+    grid_dir = antworld_path + '/world5000_grid/'
 
     # World top down image
     world = mpimg.imread(grid_dir + 'world5000_grid.png')
@@ -393,6 +396,30 @@ def flatten_imgs(imgs):
 
 def cross_corr(sub_series, series):
     return [np.dot(s, sub_series) for s in series]
+
+
+def degree_error_logs(x_cords, y_cords, x_route_cords, y_route_cords, route_heading, recovered_headings, degree_thresh=30):
+    k = []  # Holds the position of the memory with the shortest distance to the wg position
+    logs = {'x_route': [], 'y_route': [], 'route_heading': [], 'route_idx': [],
+            'x_grid': [], 'y_grid': [], 'grid_heading': [], 'grid_idx': [], 'errors': []}
+    for i in range(0, len(x_cords)):  # For every grid position
+        distance = []
+        for j in range(0, len(x_route_cords)):  # For every route position
+            d = math.sqrt((x_cords[i] - x_route_cords[j]) ** 2 + ((y_cords[i] - y_route_cords[j]) ** 2))
+            distance.append(d)
+        k.append(distance.index(min(distance)))
+        error = (180 - abs(abs(recovered_headings[i] - route_heading[k[-1]]) - 180))
+        if error > degree_thresh:
+            logs['x_route'].append(x_route_cords[k[-1]])
+            logs['y_route'].append(y_route_cords[k[-1]])
+            logs['route_heading'].append(route_heading[k[-1]])
+            logs['route_idx'].append(k[-1])
+            logs['x_grid'].append(x_cords[i])
+            logs['y_grid'].append(y_cords[i])
+            logs['grid_heading'].append(recovered_headings[i])
+            logs['grid_idx'].append(i)
+            logs['errors'].append(error)
+    return logs
 
 
 def degree_error(x_cords, y_cords, x_route_cords, y_route_cords, route_heading, recovered_headings):
