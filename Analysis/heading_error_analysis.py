@@ -1,6 +1,8 @@
 from utils import pre_process, mean_degree_error, degree_error_logs, display_image, load_route, \
     check_for_dir_and_create, plot_map, save_image
 import sequential_perfect_memory as spm
+import seaborn as sns
+import matplotlib.pyplot as plt
 import perfect_memory as pm
 import numpy as np
 
@@ -46,9 +48,28 @@ heading_grid_error = error_logs['grid_heading']
 # Write error threshold images to a new directory
 destination = 'Images/'
 check_for_dir_and_create(destination)
-for i, idx in enumerate(error_logs['grid_idx']):
+for i, v in enumerate(zip(error_logs['route_idx'], error_logs['grid_idx'])):
+    # Index of the route position closest to the grid test position
+    route_idx = v[0]
+    # Index of the gird position tha generated error
+    grid_idx = v[1]
     error_dir_path = destination + 'error_' + str(i) + '_' + str(int(error_logs['errors'][i])) + 'deg/'
     check_for_dir_and_create(error_dir_path)
-    save_image(error_dir_path + 'grid_' + str(idx) + '.png', grid_imgs[idx])
-    save_image(error_dir_path + 'route_' + str(error_logs['route_idx'][i]) + '.png', route_images[error_logs['route_idx'][i]])
-
+    # Save the test image and the closest route image.
+    save_image(error_dir_path + 'grid_' + str(grid_idx) + '.png', grid_imgs[grid_idx])
+    save_image(error_dir_path + 'route_' + str(route_idx) + '.png', route_images[route_idx])
+    fig_title = 'route heading = ' + str(route_heading[route_idx]) \
+                + ', recovered heading = ' + str(recovered_heading[grid_idx])
+    plot_map(w, [[x_route[route_idx]], [y_route[route_idx]]], [[x_inlimit[grid_idx]], [y_inlimit[grid_idx]]],
+             route_headings=[route_heading[route_idx]], grid_headings=[recovered_heading[grid_idx]],
+             path=error_dir_path, save=True, show=False)
+    # Save every image in the window
+    window = range(window_log[grid_idx][0], window_log[grid_idx][1])
+    for idx in window:
+        save_image(error_dir_path + 'window_' + str(idx) + '.png', route_images[idx])
+    # Save a heat-map of the window similarity matrix
+    ax = sns.heatmap(logs[grid_idx])
+    plt.xlabel('Degrees')
+    plt.ylabel('Route memory index')
+    ax.figure.savefig(error_dir_path + 'heat.png')
+    plt.close()

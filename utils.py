@@ -27,7 +27,7 @@ def save_image(path, img):
 
 def plot_map(world, route_cords=None, grid_cords=None, size=(10, 10), save=False, zoom=(), zoom_factor=1000,
              route_headings=None, grid_headings=None, marker_size=10, scale=40, route_zoom=False, save_id=None, window=None,
-             path='', show=True):
+             path='', show=True, title='World Map'):
     '''
     Plots a top down view of the grid world, with markers or quivers of route and grid positions
     :param world: Top down image of the world
@@ -35,10 +35,10 @@ def plot_map(world, route_cords=None, grid_cords=None, size=(10, 10), save=False
     :param grid_cords: X and Y grid coordinates
     :param size: size of the figure
     :param save: If to save the image
-    :param zoom: x and Y tuple of zoom centre
-    :param zoom_factor: Magnitute of zoom. (lower values is greater zoom)
-    :param vectors: X and Y coordinates of route vectors
-    :param grid_vectors: X and Y coordinates of grid vectors
+    :param zoom: x and y tuple of zoom centre
+    :param zoom_factor: Magnitude of zoom. (lower values is greater zoom)
+    :param route_headings: Heading in degrees of the route positions
+    :param grid_headings: Heading in degrees of grid positions
     :param marker_size: Size of route of grid marker
     :param scale: Size of quiver scale. (relative to image size)
     :param route_zoom: Rectangle zoom around the route
@@ -47,7 +47,7 @@ def plot_map(world, route_cords=None, grid_cords=None, size=(10, 10), save=False
     :return: -
     '''
     fig = plt.figure(figsize=size)
-    fig.suptitle('World Grid', fontsize=16, fontweight='bold')
+    fig.suptitle(title, fontsize=16, fontweight='bold')
     plt.xlabel('x coordinates', fontsize=14, fontweight='bold')
     plt.ylabel('y coordinates', fontsize=13, fontweight='bold')
     # Plot circles for route image locations
@@ -68,8 +68,9 @@ def plot_map(world, route_cords=None, grid_cords=None, size=(10, 10), save=False
     # Plot window vectors only
     if window:
         window = range(window[0], window[1])
+        route_U, route_V = pol_2cart_headings(90.0 - np.array(grid_headings))
         plt.quiver([route_cords[0][i] for i in window], [route_cords[1][i] for i in window],
-                   [vectors[0][i] for i in window], [vectors[1][i] for i in window], scale=scale, color='c')
+                   [route_U[i] for i in window], [route_V[i] for i in window], scale=scale, color='c')
 
     plt.imshow(world, zorder=0, extent=[-0.158586 * 1000, 10.2428 * 1000, -0.227704 * 1000, 10.0896 * 1000])
     if zoom:
