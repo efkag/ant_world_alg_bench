@@ -31,8 +31,8 @@ recovered_heading, logs, window_log = nav.navigate(pre_grid_imgs, window)
 
 print(mean_degree_error(x_inlimit, y_inlimit, x_route, y_route, route_heading, recovered_heading))
 
-# plot_map(w, [x_route, y_route], [x_inlimit, y_inlimit], size=(15, 15),
-#          route_headings=route_heading, grid_headings=recovered_heading, scale=40)
+plot_map(w, [x_route, y_route], [x_inlimit, y_inlimit], size=(15, 15),
+         route_headings=route_heading, grid_headings=recovered_heading, scale=40)
 error_threshold = 45
 error_logs = degree_error_logs(x_inlimit, y_inlimit, x_route, y_route,
                                route_heading, recovered_heading, error_threshold)
@@ -62,13 +62,14 @@ for i, v in enumerate(zip(error_logs['route_idx'], error_logs['grid_idx'])):
                 + ', recovered heading = ' + str(recovered_heading[grid_idx])
     plot_map(w, [[x_route[route_idx]], [y_route[route_idx]]], [[x_inlimit[grid_idx]], [y_inlimit[grid_idx]]],
              route_headings=[route_heading[route_idx]], grid_headings=[recovered_heading[grid_idx]],
-             path=error_dir_path, save=True, show=False)
+             path=error_dir_path, save=True, show=False, title=fig_title)
     # Save every image in the window
     window = range(window_log[grid_idx][0], window_log[grid_idx][1])
     for idx in window:
         save_image(error_dir_path + 'window_' + str(idx) + '.png', route_images[idx])
     # Save a heat-map of the window similarity matrix
-    ax = sns.heatmap(logs[grid_idx])
+    fig = plt.figure(figsize=(20, 10))
+    ax = sns.heatmap(logs[grid_idx], yticklabels=window)
     plt.xlabel('Degrees')
     plt.ylabel('Route memory index')
     ax.figure.savefig(error_dir_path + 'heat.png')
