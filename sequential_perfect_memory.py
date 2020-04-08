@@ -60,3 +60,21 @@ class SequentialPerfectMemory:
 
         return self.recovered_heading, self.logs, self.window_log
 
+
+class Seq2PerfectMemory:
+
+    def __init__(self, route_images, matching, degree_shift=1):
+        self.route_end = len(route_images)
+        self.route_images = route_images
+        self.degree_shift = degree_shift
+        self.degrees = list(range(0, 360, degree_shift))
+        self.degrees_iter = range(0, 360, degree_shift)
+        self.recovered_heading = []
+        self.logs = []
+        self.window_log = []
+        if matching == 'corr':
+            self.matcher = correlation_coefficient.CorrelationCoefficient()
+        elif matching == 'idf':
+            self.matcher = idf.RotationalIDF()
+        else:
+            raise Exception('Non valid matching method name')

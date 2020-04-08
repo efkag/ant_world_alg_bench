@@ -164,7 +164,6 @@ def element_index(l, elem):
 
 
 def load_route(route_id, grid_pos_limit=200):
-    #TODO: Add parameter and functionality for paths route and grid to be passed in the function
     # Path/ Directory settings
     antworld_path = '/home/efkag/PycharmProjects/ant_world_alg_bench/AntWorld'
     route_id = str(route_id)
@@ -334,19 +333,19 @@ def rotate(d, image):
     :return: Returns the rotated image.
     """
     if abs(d) > 360:
-      deg = abs(d) - 360
+        deg = abs(d) - 360
     if d < 0:
         d = -d
         num_of_cols = image.shape[1]
-        num_of_cols_perdegree = num_of_cols/360
-        cols_to_shift = round(d * num_of_cols_perdegree)
+        num_of_cols_perdegree = num_of_cols / 360
+        cols_to_shift = num_of_cols - round(d * num_of_cols_perdegree)
         img1 = image[:, cols_to_shift:num_of_cols]
         img2 = image[:, 0: cols_to_shift]
         return np.concatenate((img1, img2), axis=1)
     else:
         num_of_cols = image.shape[1]
         num_of_cols_perdegree = num_of_cols / 360
-        cols_to_shift = num_of_cols - round(d * num_of_cols_perdegree)
+        cols_to_shift = round(d * num_of_cols_perdegree)
         img1 = image[:, cols_to_shift:num_of_cols]
         img2 = image[:, 0: cols_to_shift]
         return np.concatenate((img1, img2), axis=1)
