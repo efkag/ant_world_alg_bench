@@ -274,7 +274,7 @@ def line_incl(x, y):
     :return:
     '''
     incl = np.arctan2(np.subtract(y[1:], y[:-1]), np.subtract(x[1:], x[:-1])) * 180 / np.pi
-    return incl
+    return np.append(incl, incl[-1])
 
 
 def pol2cart(theta, r):
@@ -409,7 +409,7 @@ def degree_error_logs(x_cords, y_cords, x_route_cords, y_route_cords, route_head
             distance.append(d)
         k.append(distance.index(min(distance)))
         error = (180 - abs(abs(recovered_headings[i] - route_heading[k[-1]]) - 180))
-        if error > degree_thresh:
+        if error > degree_thresh or error < -degree_thresh:
             logs['x_route'].append(x_route_cords[k[-1]])
             logs['y_route'].append(y_route_cords[k[-1]])
             logs['route_heading'].append(route_heading[k[-1]])
@@ -445,7 +445,7 @@ def check_for_dir_and_create(directory):
         os.makedirs(directory)
 
 
-def load_grid_route(route_dir, route_id=1, grid_pos_limit=200):
+def load_loop_route(route_dir, route_id=1, grid_pos_limit=200):
     # Path/ Directory settings
     route_id_dir = 'route_' + str(route_id) + '/'
     csv_file = 'route_' + str(route_id) + '.csv'
@@ -465,8 +465,8 @@ def load_grid_route(route_dir, route_id=1, grid_pos_limit=200):
 
     ## Organize data
     # Grid data
-    X = data[:, 1]  # x location of the image in the world_grid
-    Y = data[:, 0]  # y location of the image in the world_grid
+    X = data[:, 0]  # x location of the image in the world_grid
+    Y = data[:, 1]  # y location of the image in the world_grid
     img_path = data[:, 4]  # Name of the image file
 
     # Route data
@@ -479,7 +479,8 @@ def load_grid_route(route_dir, route_id=1, grid_pos_limit=200):
     max_norm = 1
     route_images = []
     for i in range(0, len(imgs_route_path)):
-        img = cv.imread(route_dir + imgs_route_path[i], cv.IMREAD_GRAYSCALE)
+        temp = route_dir + imgs_route_path[i]
+        img = cv.imread(route_dir + imgs_route_path[i][1:], cv.IMREAD_GRAYSCALE)
         # Normalize
         #img = img * max_norm / img.max()
         route_images.append(img)

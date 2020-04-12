@@ -2,32 +2,36 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import textwrap
+import seaborn as sns
+from ast import literal_eval
+sns.set(font_scale=1)
 f = lambda x: textwrap.fill(x.get_text(), 25)
 # errors,matcher,mean error,pre-proc,seq,tested routes,window
 # for partname in ('cbars','cmins','cmaxes','cmeans','cmedians')
 
 
 fig_save_path = 'violins.png'
-data = pd.read_csv('bench-results-large.csv')
+data = pd.read_csv('bench-results-spm.csv')
 data_pm = pd.read_csv('bench-results-pm.csv')
 # Convert list of strings to actual list of lists
-data['errors'] = pd.eval(data['errors'])
-data_pm['errors'] = pd.eval(data_pm['errors'])
+data['errors'] = data['errors'].apply(literal_eval)
+data_pm['errors'] = data_pm['errors'].apply(literal_eval)
 
 pos = data['window'].unique()
 pos = np.append(pos, pos[-1] + 1)
 v_data = data.groupby(['window'])['errors'].apply(sum).tolist()
 v_data_pm = data_pm['errors'].sum()
 v_data.append(v_data_pm)
+# Take the absolute values of the angle diffs
+v_data = [list(map(abs, row)) for row in v_data]
+a = np.array([np.array(row) for row in v_data])
 # Filter list for values greater than x using lamda function
-greater_than = lambda n: n > 20.0
-v_data = [list(filter(greater_than, row)) for row in v_data]
-#v_data[0] = list(filter(greater_than, v_data[0]))
-parts = plt.violinplot(v_data, pos, points=100, widths=0.7, showmeans=True,
-                      showextrema=True, showmedians=True, bw_method=0.5)
-parts['cmeans'].set_edgecolor('red')
-plt.ylabel('Degree error')
-plt.xlabel('Window size')
+# greater_than = lambda n: n > 20.0
+# v_data = [list(filter(greater_than, row)) for row in v_data]
+
+ax = sns.violinplot(data=v_data)
+ax.set_ylabel('Degree error')
+ax.set_xlabel('Window size')
 plt.show()
 
 
@@ -43,11 +47,9 @@ pos = np.append(pos, pos[-1] + 1)
 v_data = data.groupby(['window'])['errors'].apply(sum).tolist()
 v_data_pm = data_pm['errors'].sum()
 v_data.append(v_data_pm)
-parts = ax[0][1].violinplot(v_data, pos, points=100, widths=0.7, showmeans=True,
-                      showextrema=True, showmedians=True, bw_method=0.5)
-parts['cmeans'].set_edgecolor('red')
-ax[0][1].set_ylabel('Degree error')
-ax[0][1].set_xlabel('Window size')
+axis = sns.violinplot(data=v_data, ax=ax[0][1])
+axis.set_ylabel('Degree error')
+axis.set_xlabel('Window size')
 #plt.show()
 
 

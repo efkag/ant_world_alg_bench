@@ -57,13 +57,11 @@ points = [
     [7512.296, 3051.41],
     [3012.296, 751.41],
     [312.296, 3351.41],
-    [2412.296, 5051.41],
+    [2012.296, 5051.41],
     [3412.296, 5351.41],
     [4412.296, 5451.41],
     [5412.296, 4451.41],
     [6412.296, 5451.41],
-    [7412.296, 4451.41],
-    [8412.296, 5451.41],
 ]
 # Show control points
 xy = np.array(points)
@@ -71,8 +69,8 @@ plt.plot(xy[:, 0], xy[:, 1])
 plt.scatter(xy[:, 0], xy[:, 1])
 plt.show()
 
-x_route, y_route = bezier_curve_vert(400, points)
-heading = line_incl(x_route, y_route)
+x_route, y_route = bezier_curve_vert(100, points)
+heading = 450 - line_incl(x_route, y_route)
 x, y, w = load_grid()
 plot_map(w, [x_route, y_route], route_headings=heading, size=(15, 15))
 
@@ -80,4 +78,6 @@ plot_map(w, [x_route, y_route], route_headings=heading, size=(15, 15))
 z = 10
 path = 'XYZbins/route_1.bin'
 data = np.array([x_route, y_route, [z]*len(x_route)])
+# Divide by 10 to convert to centimetres
+data = data / 10
 data.tofile(path)

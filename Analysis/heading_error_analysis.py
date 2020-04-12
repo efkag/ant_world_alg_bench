@@ -13,6 +13,7 @@ window = 14
 figures_path = 'Figures/'
 dist = 100
 route = 1
+error_threshold = 6
 check_for_dir_and_create(figures_path)
 
 w, x_inlimit, y_inlimit, grid_imgs, x_route, y_route, \
@@ -33,10 +34,10 @@ print(mean_degree_error(x_inlimit, y_inlimit, x_route, y_route, route_heading, r
 
 plot_map(w, [x_route, y_route], [x_inlimit, y_inlimit], size=(15, 15),
          route_headings=route_heading, grid_headings=recovered_heading, scale=40)
-error_threshold = 45
+
 error_logs = degree_error_logs(x_inlimit, y_inlimit, x_route, y_route,
                                route_heading, recovered_heading, error_threshold)
-
+temp = np.array(error_logs['errors'])
 xy_route_error = [error_logs['x_route'], error_logs['y_route']]
 xy_grid_error = [error_logs['x_grid'], error_logs['y_grid']]
 heading_route_error = error_logs['route_heading']
