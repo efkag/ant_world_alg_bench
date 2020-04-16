@@ -1,10 +1,11 @@
 from utils import pre_process, mean_degree_error, degree_error_logs, display_image, load_route, \
     check_for_dir_and_create, plot_map, save_image
 import sequential_perfect_memory as spm
-import seaborn as sns
 import matplotlib.pyplot as plt
 import perfect_memory as pm
 import numpy as np
+import seaborn as sns
+sns.set(font_scale=2.5)
 
 
 matcher = 'idf'
@@ -69,7 +70,7 @@ for i, v in enumerate(zip(error_logs['route_idx'], error_logs['grid_idx'])):
     for idx in window:
         save_image(error_dir_path + 'window_' + str(idx) + '.png', route_images[idx])
     # Save a heat-map of the window similarity matrix
-    fig = plt.figure(figsize=(20, 10))
+    fig = plt.figure(figsize=(35, 15))
     ax = sns.heatmap(logs[grid_idx], yticklabels=window)
     plt.xlabel('Degrees')
     plt.ylabel('Route memory index')
