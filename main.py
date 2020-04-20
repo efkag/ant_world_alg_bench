@@ -22,28 +22,25 @@ def main():
 
 
 def bench_proc(process, pre_proc_set):
-    results_path = 'Results/bench-results-pm-' + process + '.csv'
+    results_path = 'Results/bench-results-spm-' + process + '.csv'
     pre_processing = [pre_proc_set]
-    window_range = list(range(6, 8))
+    window_range = list(range(6, 21))
     routes = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     matchers = ['corr', 'idf']
     # matchers = ['idf']
-    alg = 'pm'
+    alg = 'spm'
     bench = alg_bench.Benchmark(results_path)
     bench.benchmark_init(alg, routes, pre_processing, window_range=window_range, matchers=matchers)
     print(process + ' is complete!')
 
 if __name__ == "__main__":
     # main()
-    # p1 = Process(target=bench_proc, args=('p1', {'blur': True, 'shape': (180, 50), 'edge_range': (180, 200)}))
-    # p1.start()
+    p1 = Process(target=bench_proc, args=('p1', {'shape': (180, 50), 'edge_range': (180, 200)}))
+    p1.start()
 
-    p2 = Process(target=bench_proc, args=('p2', {'blur': True, 'shape': (180, 50)}))
+    p2 = Process(target=bench_proc, args=('p2', {'shape': (90, 25), 'edge_range': (180, 200)}))
     p2.start()
 
-    p3 = Process(target=bench_proc, args=('p3', {'blur': True, 'shape': (90, 25)}))
-    p3.start()
-
+    p1.join()
     p2.join()
-    p3.join()
 

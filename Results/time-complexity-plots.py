@@ -10,7 +10,7 @@ spm = data['spm']
 pm = data['pm']
 
 
-fig = plt.subplots(figsize=(20, 20))
+fig = plt.subplots(figsize=(10, 10))
 ax = sns.barplot(data=[spm, pm])
 plt.ylabel('Seconds')
 plt.xlabel('Algorithms')
@@ -19,9 +19,8 @@ ax.figure.savefig('time-complex-barplot.png')
 plt.show()
 
 
-fig = plt.subplots(figsize=(20, 20))
-ax = sns.scatterplot(x=data['spm'], y=data['pm'], s=200)
-ax = sns.lineplot(x=data['spm'], y=data['pm'])
+fig = plt.subplots(figsize=(15, 15))
+ax = sns.scatterplot(x=data['spm'], y=data['pm'], s=400)
 ax.set(title='B', ylabel='pm (seconds)', xlabel='spm (seconds)')
-ax.figure.savefig('time-complex-scatter.png')
+ax.figure.savefig('Figures/time-complex-scatter.png')
 plt.show()

@@ -58,7 +58,7 @@ def plot_map(world, route_cords=None, grid_cords=None, size=(10, 10), save=False
     # Plot route images heading vectors
     if route_headings is not None:
         route_U, route_V = pol_2cart_headings(90.0 - np.array(route_headings))
-        plt.quiver(route_cords[0], route_cords[1], route_U, route_V, scale=scale, color='b', angles="xy")
+        plt.quiver(route_cords[0], route_cords[1], route_U, route_V, scale=scale, color='b')
     # Plot world grid images heading vectors
     # The variable save_id is used here to plot the vectors that have been matched with a window so far
     if grid_headings is not None:
@@ -402,12 +402,19 @@ def degree_error_logs(x_cords, y_cords, x_route_cords, y_route_cords, route_head
     k = []  # Holds the position of the memory with the shortest distance to the wg position
     logs = {'x_route': [], 'y_route': [], 'route_heading': [], 'route_idx': [],
             'x_grid': [], 'y_grid': [], 'grid_heading': [], 'grid_idx': [], 'errors': []}
+    route_end = len(x_route_cords)
+    search_step = 10
+    memory_pointer = 0
+    limit = memory_pointer + search_step
     for i in range(0, len(x_cords)):  # For every grid position
         distance = []
-        for j in range(0, len(x_route_cords)):  # For every route position
+        for j in range(memory_pointer, limit):  # For every route position
             d = math.sqrt((x_cords[i] - x_route_cords[j]) ** 2 + ((y_cords[i] - y_route_cords[j]) ** 2))
             distance.append(d)
-        k.append(distance.index(min(distance)))
+        k.append(distance.index(min(distance)) + memory_pointer)
+        memory_pointer = k[-1]
+        limit = memory_pointer + search_step
+        if limit > route_end: limit = route_end
         error = (180 - abs(abs(recovered_headings[i] - route_heading[k[-1]]) - 180))
         if error > degree_thresh or error < -degree_thresh:
             logs['x_route'].append(x_route_cords[k[-1]])
@@ -423,15 +430,22 @@ def degree_error_logs(x_cords, y_cords, x_route_cords, y_route_cords, route_head
 
 
 def degree_error(x_cords, y_cords, x_route_cords, y_route_cords, route_heading, recovered_headings):
-    k = []  # Holds the position of the memory with the shortest distance to the wg position
+    k = []  # Holds the index of the memory with the shortest distance to the grid position
     errors = []  # Holds the error between the world grid image and the closest route image
+    route_end = len(x_route_cords)
+    search_step = 10
+    memory_pointer = 0
+    limit = memory_pointer + search_step
     for i in range(0, len(x_cords)):  # For every grid position
         distance = []
-        for j in range(0, len(x_route_cords)):  # For every route position
+        for j in range(memory_pointer, limit):  # For every route position
             d = math.sqrt((x_cords[i] - x_route_cords[j]) ** 2 + ((y_cords[i] - y_route_cords[j]) ** 2))
             distance.append(d)
-        k.append(distance.index(min(distance)))
+        k.append(distance.index(min(distance)) + memory_pointer)
         errors.append(180 - abs(abs(recovered_headings[i] - route_heading[k[-1]]) - 180))
+        memory_pointer = k[-1]
+        limit = memory_pointer + search_step
+        if limit > route_end: limit = route_end
     return errors
 
 
@@ -445,12 +459,12 @@ def check_for_dir_and_create(directory):
         os.makedirs(directory)
 
 
-def load_loop_route(route_dir, route_id=1, grid_pos_limit=200):
+def load_loop_route(route_dir, route_id=1, grid_pos_limit=100):
     # Path/ Directory settings
     route_id_dir = 'route_' + str(route_id) + '/'
     csv_file = 'route_' + str(route_id) + '.csv'
     route_dir = route_dir + route_id_dir
-    grid_dir = 'AntWorld/world5000_grid/'
+    grid_dir = '/home/efkag/PycharmProjects/ant_world_alg_bench/AntWorld/world5000_grid/'
 
     # World top down image
     world = mpimg.imread(grid_dir + 'world5000_grid.png')
