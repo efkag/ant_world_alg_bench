@@ -68,5 +68,4 @@ route_imgs = route_imgs_from_indexes(indexes, headings, directory)
 route.to_csv(directory + route_dir + '.csv', index=False)
 
 
-u, v = pol_2cart_headings(headings)
-plot_map(w, route_cords=[route_x, route_y], vectors=[u, v])
+plot_map(w, route_cords=[route_x, route_y], route_headings=headings)

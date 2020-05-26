@@ -1,22 +1,23 @@
-from utils import pre_process, mean_degree_error, load_grid_route, check_for_dir_and_create, plot_map, pol_2cart_headings
+from utils import pre_process, mean_degree_error, load_loop_route, check_for_dir_and_create, plot_map, pol_2cart_headings
 import sequential_perfect_memory as spm
 import perfect_memory as pm
+import numpy as np
 
 directory = 'LoopRoutes/'
-route_id = 3
-matcher = 'corr'
-pre_proc = dict({'blur': True, 'shape': (180, 50)})
-window = 5
+route_id = 1
+matcher = 'idf'
+pre_proc = {'blur': True, 'shape': (180, 50)}
+window = 15
+dist = 100
 figures_path = 'Figures/'
 check_for_dir_and_create(figures_path)
 
 w, x_inlimit, y_inlimit, world_grid_imgs, x_route, y_route, \
-                            route_heading, route_images = load_grid_route(directory, route_id=route_id, grid_pos_limit=120)
+                            route_heading, route_images = load_loop_route(directory, route_id=route_id, grid_pos_limit=dist)
 
-
-U, V = pol_2cart_headings(route_heading)
+zoom = [np.mean(x_route), np.mean(y_route)]
 plot_map(w, [x_route, y_route], [x_inlimit, y_inlimit], size=(15, 15),
-          vectors=[U, V], scale=70)
+          route_headings=route_heading, scale=40, zoom=zoom)
 
 pre_world_grid_imgs = pre_process(world_grid_imgs, pre_proc)
 pre_route_images = pre_process(route_images, pre_proc)
@@ -24,17 +25,15 @@ pre_route_images = pre_process(route_images, pre_proc)
 nav = spm.SequentialPerfectMemory(pre_route_images, matcher)
 recovered_heading, logs, window_log = nav.navigate(pre_world_grid_imgs, window)
 print(mean_degree_error(x_inlimit, y_inlimit, x_route, y_route, route_heading, recovered_heading))
-grid_U, grid_V = pol_2cart_headings(recovered_heading)
 plot_map(w, [x_route, y_route], [x_inlimit, y_inlimit], size=(15, 15),
-         vectors=[U, V], grid_vectors=[grid_U, grid_V], scale=70)
+         route_headings=route_heading, grid_headings=recovered_heading, scale=40, zoom=(3000, 5000), save=True)
 
 
 nav = pm.PerfectMemory(pre_route_images, matcher)
 recovered_heading, logs = nav.navigate(pre_world_grid_imgs)
-grid_U, grid_V = pol_2cart_headings(recovered_heading)
 print(mean_degree_error(x_inlimit, y_inlimit, x_route, y_route, route_heading, recovered_heading))
 plot_map(w, [x_route, y_route], [x_inlimit, y_inlimit], size=(15, 15),
-         vectors=[U, V], grid_vectors=[grid_U, grid_V], scale=70)
+         route_headings=route_heading, grid_headings=recovered_heading, scale=40, zoom=(3000, 5000), save=True)
 
 # id = 0
 # for window in window_log:

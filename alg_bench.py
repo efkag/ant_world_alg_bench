@@ -2,7 +2,7 @@ from utils import pre_process, mean_degree_error, load_route, sample_from_wg, pl
 import sequential_perfect_memory as spm
 import perfect_memory as pm
 import pandas as pd
-import numpy as np
+import timeit
 
 DIST = 100
 
@@ -17,7 +17,8 @@ class Benchmark():
         self.dist = 100  # Distance between grid images and route images
         self.img_shape = (180, 50)
         self.log = {'tested routes': [], 'pre-proc': [], 'seq': [], 'window': [],
-                    'matcher': [], 'mean error': [], 'errors': []}
+                    'matcher': [], 'mean error': [], 'errors': [], 'seconds': [],
+                    'abs index diff': []}
 
     def load_routes(self, route_ids):
         self.route_ids = route_ids
@@ -30,24 +31,30 @@ class Benchmark():
             for matching in matchers:
                 for pre_proc in pre_procs:
                     route_errors = []
+                    time_compl = []
+                    abs_index_diffs = []
                     for route in route_ids:  # for every route
                         _, x_inlimit, y_inlimit, world_grid_imgs, x_route, y_route, \
                             route_heading, route_images = load_route(route, self.dist)
+                        tic = timeit.default_timer()
                         # Preprocess images
                         pre_world_grid_imgs = pre_process(world_grid_imgs, pre_proc)
                         pre_route_images = pre_process(route_images, pre_proc)
                         # Run navigation algorithm
                         nav = spm.SequentialPerfectMemory(pre_route_images, matching)
                         recovered_heading, logs, window_log = nav.navigate(pre_world_grid_imgs, window)
-
-                        route_errors.append(degree_error(x_inlimit, y_inlimit, x_route, y_route,
-                                                              route_heading, recovered_heading))
-
+                        toc = timeit.default_timer()
+                        time_compl.append(toc-tic)
+                        # Get the errors and the minimum distant index of the route memory
+                        errors, min_dist_index = degree_error(x_inlimit, y_inlimit, x_route, y_route, route_heading, recovered_heading)
+                        route_errors.extend(errors)
+                        # Difference between matched index and minimum distance index
+                        abs_index_diffs.extend([abs(i - j) for i, j in zip(nav.get_index_log(), min_dist_index)])
                         self.jobs += 1
                         print('Jobs completed: {}/{}'.format(self.jobs, self.total_jobs))
 
                     # Flatten errors
-                    route_errors = [item for sublist in route_errors for item in sublist]
+                    # route_errors = [item for sublist in route_errors for item in sublist]
                     # Mean route error
                     mean_route_error = sum(route_errors) / len(route_errors)
                     self.log['tested routes'].extend([len(route_ids)])
@@ -57,25 +64,28 @@ class Benchmark():
                     self.log['matcher'].extend([matching])
                     self.log['mean error'].extend([mean_route_error])
                     self.log['errors'].append(route_errors)
-
+                    self.log['seconds'].append(time_compl)
+                    self.log['abs index diff'].append(abs_index_diffs)
         return self.log
 
     def bench_pm(self, route_ids=None, pre_procs=None, matchers=None):
         for matching in matchers:
             for pre_proc in pre_procs:
                 route_errors = []
+                time_compl = []
                 for route in route_ids:  # for every route
                     _, x_inlimit, y_inlimit, world_grid_imgs, x_route, y_route, \
                         route_heading, route_images = load_route(route, self.dist)
-
+                    tic = timeit.default_timer()
                     # Preprocess images
                     pre_world_grid_imgs = pre_process(world_grid_imgs, pre_proc)
                     pre_route_images = pre_process(route_images, pre_proc)
                     # Run navigation algorithm
                     nav = pm.PerfectMemory(pre_route_images, matching)
                     recovered_heading, logs = nav.navigate(pre_world_grid_imgs)
-
-                    route_errors.append(degree_error(x_inlimit, y_inlimit, x_route, y_route,
+                    toc = timeit.default_timer()
+                    time_compl.extend([toc - tic])
+                    route_errors.extend(degree_error(x_inlimit, y_inlimit, x_route, y_route,
                                                           route_heading, recovered_heading))
                     # #plot the full route with headings_heading
                     # U, V = pol_2cart_headings(recovered_heading)
@@ -84,7 +94,7 @@ class Benchmark():
                     self.jobs += 1
                     print('Jobs completed: {}/{}'.format(self.jobs, self.total_jobs))
                 # Flatten errors
-                route_errors = [item for sublist in route_errors for item in sublist]
+                # route_errors = [item for sublist in route_errors for item in sublist]
                 # Mean route error
                 mean_route_error = sum(route_errors) / len(route_errors)
                 self.log['tested routes'].extend([len(route_ids)])
@@ -94,6 +104,7 @@ class Benchmark():
                 self.log['matcher'].extend([matching])
                 self.log['mean error'].extend([mean_route_error])
                 self.log['errors'].append(route_errors)
+                self.log['seconds'].append(time_compl)
         return self.log
 
     def benchmark_init(self, alg, route_ids, pre_processing, window_range=None, matchers=None):

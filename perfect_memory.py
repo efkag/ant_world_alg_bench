@@ -11,6 +11,7 @@ class PerfectMemory:
         self.degrees_iter = range(0, 360, degree_shift)
         self.recovered_heading = []
         self.logs = []
+        self.matched_index_log = []
         if matching == 'corr':
             self.matcher = correlation_coefficient.CorrelationCoefficient()
         elif matching == 'idf':
@@ -44,5 +45,8 @@ class PerfectMemory:
             self.logs.append(route_logs)  # append the rsims of all route images for that wg image
             best, index = self.matcher.best_match(mem_sims)
             self.recovered_heading.append(mem_headings[index])
+            self.matched_index_log.append(index)
 
         return self.recovered_heading, self.logs
+
+    def get_index_log(self): return self.matched_index_log

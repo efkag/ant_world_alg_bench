@@ -1,10 +1,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
+import seaborn as sns
 import pandas as pd
 import cv2 as cv
 import math
 import os
+sns.set(font_scale=0.8)
 
 
 def display_image(image, size=(10, 10), save_id=None):
@@ -18,16 +20,19 @@ def display_image(image, size=(10, 10), save_id=None):
     plt.imshow(image, cmap='gray', interpolation='bilinear')
     plt.xticks([]), plt.yticks([])  # to hide tick values on X and Y axis
     # or plt.axis('off')
-    if save_id: plt.savefig(str(save_id) + ".png")
+    plt.title("C", loc="left")
+    plt.tight_layout(pad=0)
+    if save_id: fig.savefig(str(save_id) + ".png", bbox_inches="tight")
+    plt.show()
 
 
-def save_image(img, path):
-    mpimg.imsave(path + '.png', img, cmap='gray')
+def save_image(path, img):
+    cv.imwrite(path, img)# , cmap='gray')
 
 
-def plot_map(world, route_cords=None, grid_cords=None, size=(10, 10), save=False, zoom=(), zoom_factor=1000,
-             vectors=None, grid_vectors=None, marker_size=10, scale=40, route_zoom=False, save_id=None, window=None,
-             path='', show=True):
+def plot_map(world, route_cords=None, grid_cords=None, size=(10, 10), save=False, zoom=(), zoom_factor=1500,
+             route_headings=None, grid_headings=None, error_indexes=None, marker_size=5, scale=40, route_zoom=False, save_id=None, window=None,
+             path='', show=True, title=None):
     '''
     Plots a top down view of the grid world, with markers or quivers of route and grid positions
     :param world: Top down image of the world
@@ -35,10 +40,10 @@ def plot_map(world, route_cords=None, grid_cords=None, size=(10, 10), save=False
     :param grid_cords: X and Y grid coordinates
     :param size: size of the figure
     :param save: If to save the image
-    :param zoom: x and Y tuple of zoom centre
-    :param zoom_factor: Magnitute of zoom. (lower values is greater zoom)
-    :param vectors: X and Y coordinates of route vectors
-    :param grid_vectors: X and Y coordinates of grid vectors
+    :param zoom: x and y tuple of zoom centre
+    :param zoom_factor: Magnitude of zoom. (lower values is greater zoom)
+    :param route_headings: Heading in degrees of the route positions
+    :param grid_headings: Heading in degrees of grid positions
     :param marker_size: Size of route of grid marker
     :param scale: Size of quiver scale. (relative to image size)
     :param route_zoom: Rectangle zoom around the route
@@ -47,37 +52,55 @@ def plot_map(world, route_cords=None, grid_cords=None, size=(10, 10), save=False
     :return: -
     '''
     fig = plt.figure(figsize=size)
-    fig.suptitle('World Grid', fontsize=16, fontweight='bold')
+    fig.suptitle(title, fontsize=16, fontweight='bold')
     plt.xlabel('x coordinates', fontsize=14, fontweight='bold')
     plt.ylabel('y coordinates', fontsize=13, fontweight='bold')
     # Plot circles for route image locations
-    if route_cords and not vectors: plt.scatter(route_cords[0], route_cords[1], marker="o", s=marker_size, color='blue')
+    if route_cords and route_headings is None: plt.plot(route_cords[0], route_cords[1],
+                                                        marker="o", markersize=marker_size, linewidth=1, color='blue')
     # Plot stars for grid image locations
-    if grid_cords and not grid_vectors: plt.scatter(grid_cords[0][0:save_id], grid_cords[1][0:save_id], marker="*", s=marker_size,
-                                                    color='red')
-    # TODO: Need to fix the plotting function to convert heading to U, V coordinates for the quivers plots
+    if grid_cords and grid_headings is None: plt.scatter(grid_cords[0][0:save_id], grid_cords[1][0:save_id],
+                                                         marker="*", s=marker_size, color='red')
     # Plot route images heading vectors
-    if vectors: plt.quiver(route_cords[0], route_cords[1], vectors[0], vectors[1], scale=scale, color='b', angles="xy")
+    if route_headings is not None:
+        route_U, route_V = pol_2cart_headings(90.0 - np.array(route_headings))
+        plt.quiver(route_cords[0], route_cords[1], route_U, route_V, scale=scale, color='b')
     # Plot world grid images heading vectors
-    #if grid_vectors: plt.quiver(grid_cords[0], grid_cords[1], grid_vectors[0], grid_vectors[1], scale=scale, color='r')
     # The variable save_id is used here to plot the vectors that have been matched with a window so far
-    if grid_vectors: plt.quiver(grid_cords[0][0:save_id], grid_cords[1][0:save_id],
-                                grid_vectors[0][0:save_id], grid_vectors[1][0:save_id], scale=scale, color='r')
+    if grid_headings is not None and error_indexes is None:
+        grid_U, grid_V = pol_2cart_headings(90.0 - np.array(grid_headings))
+        plt.quiver(grid_cords[0][0:save_id], grid_cords[1][0:save_id],
+                                grid_U[0:save_id], grid_V[0:save_id], scale=scale, color='r')
+    if error_indexes:
+        grid_U, grid_V = pol_2cart_headings(90.0 - np.array(grid_headings))
+        plt.quiver(grid_cords[0], grid_cords[1], grid_U, grid_V, scale=scale, color='b')
+        error_headings = [grid_headings[i] for i in error_indexes]
+        error_X = [grid_cords[0][i] for i in error_indexes]
+        error_Y = [grid_cords[1][i] for i in error_indexes]
+        error_U, error_V = pol_2cart_headings(90.0 - np.array(error_headings))
+        plt.quiver(error_X, error_Y, error_U, error_V, scale=scale, color='r')
+
     # Plot window vectors only
     if window:
         window = range(window[0], window[1])
+        route_U, route_V = pol_2cart_headings(90.0 - np.array(route_headings))
         plt.quiver([route_cords[0][i] for i in window], [route_cords[1][i] for i in window],
-                   [vectors[0][i] for i in window], [vectors[1][i] for i in window], scale=scale, color='c')
+                   [route_U[i] for i in window], [route_V[i] for i in window], scale=scale, color='c')
 
     plt.imshow(world, zorder=0, extent=[-0.158586 * 1000, 10.2428 * 1000, -0.227704 * 1000, 10.0896 * 1000])
     if zoom:
         plt.xlim([zoom[0] - zoom_factor, zoom[0] + zoom_factor])
         plt.ylim([zoom[1] - zoom_factor, zoom[1] + zoom_factor])
     if route_zoom:
-        # plt.xlim([])
-        plt.ylim([4700, 6500])
-    if save: fig.savefig(path + 'graph' + str(save_id) + '.png')
+        # plt.ylim([])
+        plt.xlim([4700, 6500])
+    plt.xticks([]), plt.yticks([])
+    plt.title("A", loc="left", fontsize=20)
+    plt.tight_layout(pad=0)
+    if save and save_id: fig.savefig(path + 'graph' + str(save_id) + '.png')
+    if save and not save_id: fig.savefig(path)
     if show: plt.show()
+    if save: plt.close()
 
 
 def load_grid():
@@ -145,7 +168,7 @@ def route_imgs_from_indexes(indexes, headings, directory):
     for i, h in zip(indexes, headings):
         img = cv.imread(grid_dir + img_path[i][1:], cv.IMREAD_GRAYSCALE)
         img = rotate(h, img)
-        save_image(img, directory + str(id))
+        save_image(directory + str(id) + '.png', img)
         images.append(img)
         id += 1
 
@@ -161,10 +184,11 @@ def element_index(l, elem):
 
 def load_route(route_id, grid_pos_limit=200):
     # Path/ Directory settings
+    antworld_path = '/home/efkag/PycharmProjects/ant_world_alg_bench/AntWorld'
     route_id = str(route_id)
-    route_id_dir = 'ant1_route' + route_id + '/'
-    route_dir = 'AntWorld/' + route_id_dir
-    grid_dir = 'AntWorld/world5000_grid/'
+    route_id_dir = '/ant1_route' + route_id + '/'
+    route_dir = antworld_path + route_id_dir
+    grid_dir = antworld_path + '/world5000_grid/'
 
     # World top down image
     world = mpimg.imread(grid_dir + 'world5000_grid.png')
@@ -269,7 +293,7 @@ def line_incl(x, y):
     :return:
     '''
     incl = np.arctan2(np.subtract(y[1:], y[:-1]), np.subtract(x[1:], x[:-1])) * 180 / np.pi
-    return incl
+    return np.append(incl, incl[-1])
 
 
 def pol2cart(theta, r):
@@ -328,19 +352,19 @@ def rotate(d, image):
     :return: Returns the rotated image.
     """
     if abs(d) > 360:
-      deg = abs(d) - 360
+        deg = abs(d) - 360
     if d < 0:
         d = -d
         num_of_cols = image.shape[1]
-        num_of_cols_perdegree = num_of_cols/360
-        cols_to_shift = round(d * num_of_cols_perdegree)
+        num_of_cols_perdegree = num_of_cols / 360
+        cols_to_shift = num_of_cols - round(d * num_of_cols_perdegree)
         img1 = image[:, cols_to_shift:num_of_cols]
         img2 = image[:, 0: cols_to_shift]
         return np.concatenate((img1, img2), axis=1)
     else:
         num_of_cols = image.shape[1]
         num_of_cols_perdegree = num_of_cols / 360
-        cols_to_shift = num_of_cols - round(d * num_of_cols_perdegree)
+        cols_to_shift = round(d * num_of_cols_perdegree)
         img1 = image[:, cols_to_shift:num_of_cols]
         img2 = image[:, 0: cols_to_shift]
         return np.concatenate((img1, img2), axis=1)
@@ -393,16 +417,54 @@ def cross_corr(sub_series, series):
     return [np.dot(s, sub_series) for s in series]
 
 
-def degree_error(x_cords, y_cords, x_route_cords, y_route_cords, route_heading, recovered_headings):
+def degree_error_logs(x_cords, y_cords, x_route_cords, y_route_cords, route_heading, recovered_headings, degree_thresh=30):
     k = []  # Holds the position of the memory with the shortest distance to the wg position
-    errors = []  # Holds the error between the world grid image and the closest route image
+    logs = {'x_route': [], 'y_route': [], 'route_heading': [], 'route_idx': [],
+            'x_grid': [], 'y_grid': [], 'grid_heading': [], 'grid_idx': [], 'errors': []}
+    route_end = len(x_route_cords)
+    search_step = 10
+    memory_pointer = 0
+    limit = memory_pointer + search_step
     for i in range(0, len(x_cords)):  # For every grid position
         distance = []
-        for j in range(0, len(x_route_cords)):  # For every route position
+        for j in range(memory_pointer, limit):  # For every route position
             d = math.sqrt((x_cords[i] - x_route_cords[j]) ** 2 + ((y_cords[i] - y_route_cords[j]) ** 2))
             distance.append(d)
-        k.append(distance.index(min(distance)))
+        k.append(distance.index(min(distance)) + memory_pointer)
+        memory_pointer = k[-1]
+        limit = memory_pointer + search_step
+        if limit > route_end: limit = route_end
+        error = (180 - abs(abs(recovered_headings[i] - route_heading[k[-1]]) - 180))
+        if error > degree_thresh or error < -degree_thresh:
+            logs['x_route'].append(x_route_cords[k[-1]])
+            logs['y_route'].append(y_route_cords[k[-1]])
+            logs['route_heading'].append(route_heading[k[-1]])
+            logs['route_idx'].append(k[-1])
+            logs['x_grid'].append(x_cords[i])
+            logs['y_grid'].append(y_cords[i])
+            logs['grid_heading'].append(recovered_headings[i])
+            logs['grid_idx'].append(i)
+            logs['errors'].append(error)
+    return logs
+
+
+def degree_error(x_cords, y_cords, x_route_cords, y_route_cords, route_heading, recovered_headings):
+    k = []  # Holds the index of the memory with the shortest distance to the grid position
+    errors = []  # Holds the error between the world grid image and the closest route image
+    route_end = len(x_route_cords)
+    search_step = 10
+    memory_pointer = 0
+    limit = memory_pointer + search_step
+    for i in range(0, len(x_cords)):  # For every grid position
+        distance = []
+        for j in range(memory_pointer, limit):  # For every route position
+            d = math.sqrt((x_cords[i] - x_route_cords[j]) ** 2 + ((y_cords[i] - y_route_cords[j]) ** 2))
+            distance.append(d)
+        k.append(distance.index(min(distance)) + memory_pointer)
         errors.append(180 - abs(abs(recovered_headings[i] - route_heading[k[-1]]) - 180))
+        memory_pointer = k[-1]
+        limit = memory_pointer + search_step
+        if limit > route_end: limit = route_end
     return errors
 
 
@@ -416,12 +478,12 @@ def check_for_dir_and_create(directory):
         os.makedirs(directory)
 
 
-def load_grid_route(route_dir, route_id=1, grid_pos_limit=200):
+def load_loop_route(route_dir, route_id=1, grid_pos_limit=100):
     # Path/ Directory settings
     route_id_dir = 'route_' + str(route_id) + '/'
     csv_file = 'route_' + str(route_id) + '.csv'
     route_dir = route_dir + route_id_dir
-    grid_dir = 'AntWorld/world5000_grid/'
+    grid_dir = '/home/efkag/PycharmProjects/ant_world_alg_bench/AntWorld/world5000_grid/'
 
     # World top down image
     world = mpimg.imread(grid_dir + 'world5000_grid.png')
@@ -436,8 +498,8 @@ def load_grid_route(route_dir, route_id=1, grid_pos_limit=200):
 
     ## Organize data
     # Grid data
-    X = data[:, 1]  # x location of the image in the world_grid
-    Y = data[:, 0]  # y location of the image in the world_grid
+    X = data[:, 0]  # x location of the image in the world_grid
+    Y = data[:, 1]  # y location of the image in the world_grid
     img_path = data[:, 4]  # Name of the image file
 
     # Route data
@@ -450,7 +512,8 @@ def load_grid_route(route_dir, route_id=1, grid_pos_limit=200):
     max_norm = 1
     route_images = []
     for i in range(0, len(imgs_route_path)):
-        img = cv.imread(route_dir + imgs_route_path[i], cv.IMREAD_GRAYSCALE)
+        temp = route_dir + imgs_route_path[i]
+        img = cv.imread(route_dir + imgs_route_path[i][1:], cv.IMREAD_GRAYSCALE)
         # Normalize
         #img = img * max_norm / img.max()
         route_images.append(img)
