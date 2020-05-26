@@ -16,7 +16,7 @@ def main():
     routes = [1, 2, 3, 4, 5]
     matchers = ['corr', 'idf']
     # matchers = ['idf']
-    alg = 'pm'
+    alg = 'spm'
     bench = alg_bench.Benchmark(results_path)
     bench.benchmark_init(alg, routes, pre_processing, window_range, matchers)
 
@@ -35,12 +35,16 @@ def bench_proc(process, pre_proc_set):
 
 if __name__ == "__main__":
     # main()
-    p1 = Process(target=bench_proc, args=('p1', {'shape': (180, 50), 'edge_range': (180, 200)}))
+    p1 = Process(target=bench_proc, args=('p1', {'shape': (360, 75), 'edge_range': (180, 200)}))
     p1.start()
 
-    p2 = Process(target=bench_proc, args=('p2', {'shape': (90, 25), 'edge_range': (180, 200)}))
+    p2 = Process(target=bench_proc, args=('p2', {'shape': (180, 50), 'edge_range': (180, 200)}))
     p2.start()
+
+    p3 = Process(target=bench_proc, args=('p3', {'shape': (90, 25), 'edge_range': (180, 200)}))
+    p3.start()
 
     p1.join()
     p2.join()
+    p3.join()
 

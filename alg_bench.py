@@ -17,7 +17,8 @@ class Benchmark():
         self.dist = 100  # Distance between grid images and route images
         self.img_shape = (180, 50)
         self.log = {'tested routes': [], 'pre-proc': [], 'seq': [], 'window': [],
-                    'matcher': [], 'mean error': [], 'errors': [], 'seconds': []}
+                    'matcher': [], 'mean error': [], 'errors': [], 'seconds': [],
+                    'abs index diff': []}
 
     def load_routes(self, route_ids):
         self.route_ids = route_ids
@@ -31,6 +32,7 @@ class Benchmark():
                 for pre_proc in pre_procs:
                     route_errors = []
                     time_compl = []
+                    abs_index_diffs = []
                     for route in route_ids:  # for every route
                         _, x_inlimit, y_inlimit, world_grid_imgs, x_route, y_route, \
                             route_heading, route_images = load_route(route, self.dist)
@@ -43,9 +45,11 @@ class Benchmark():
                         recovered_heading, logs, window_log = nav.navigate(pre_world_grid_imgs, window)
                         toc = timeit.default_timer()
                         time_compl.append(toc-tic)
-                        route_errors.extend(degree_error(x_inlimit, y_inlimit, x_route, y_route,
-                                                              route_heading, recovered_heading))
-
+                        # Get the errors and the minimum distant index of the route memory
+                        errors, min_dist_index = degree_error(x_inlimit, y_inlimit, x_route, y_route, route_heading, recovered_heading)
+                        route_errors.extend(errors)
+                        # Difference between matched index and minimum distance index
+                        abs_index_diffs.extend([abs(i - j) for i, j in zip(nav.get_index_log(), min_dist_index)])
                         self.jobs += 1
                         print('Jobs completed: {}/{}'.format(self.jobs, self.total_jobs))
 
@@ -61,6 +65,7 @@ class Benchmark():
                     self.log['mean error'].extend([mean_route_error])
                     self.log['errors'].append(route_errors)
                     self.log['seconds'].append(time_compl)
+                    self.log['abs index diff'].append(abs_index_diffs)
         return self.log
 
     def bench_pm(self, route_ids=None, pre_procs=None, matchers=None):

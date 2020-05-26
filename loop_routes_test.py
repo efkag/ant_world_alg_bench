@@ -1,12 +1,13 @@
 from utils import pre_process, mean_degree_error, load_loop_route, check_for_dir_and_create, plot_map, pol_2cart_headings
 import sequential_perfect_memory as spm
 import perfect_memory as pm
+import numpy as np
 
 directory = 'LoopRoutes/'
 route_id = 1
 matcher = 'idf'
 pre_proc = {'blur': True, 'shape': (180, 50)}
-window = 16
+window = 15
 dist = 100
 figures_path = 'Figures/'
 check_for_dir_and_create(figures_path)
@@ -14,9 +15,9 @@ check_for_dir_and_create(figures_path)
 w, x_inlimit, y_inlimit, world_grid_imgs, x_route, y_route, \
                             route_heading, route_images = load_loop_route(directory, route_id=route_id, grid_pos_limit=dist)
 
-
+zoom = [np.mean(x_route), np.mean(y_route)]
 plot_map(w, [x_route, y_route], [x_inlimit, y_inlimit], size=(15, 15),
-          route_headings=route_heading, scale=40, zoom=(3000, 5000))
+          route_headings=route_heading, scale=40, zoom=zoom)
 
 pre_world_grid_imgs = pre_process(world_grid_imgs, pre_proc)
 pre_route_images = pre_process(route_images, pre_proc)

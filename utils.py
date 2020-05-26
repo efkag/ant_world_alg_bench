@@ -1,10 +1,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
+import seaborn as sns
 import pandas as pd
 import cv2 as cv
 import math
 import os
+sns.set(font_scale=0.8)
 
 
 def display_image(image, size=(10, 10), save_id=None):
@@ -18,16 +20,19 @@ def display_image(image, size=(10, 10), save_id=None):
     plt.imshow(image, cmap='gray', interpolation='bilinear')
     plt.xticks([]), plt.yticks([])  # to hide tick values on X and Y axis
     # or plt.axis('off')
-    if save_id: plt.savefig(str(save_id) + ".png")
+    plt.title("C", loc="left")
+    plt.tight_layout(pad=0)
+    if save_id: fig.savefig(str(save_id) + ".png", bbox_inches="tight")
+    plt.show()
 
 
 def save_image(path, img):
     cv.imwrite(path, img)# , cmap='gray')
 
 
-def plot_map(world, route_cords=None, grid_cords=None, size=(10, 10), save=False, zoom=(), zoom_factor=1000,
-             route_headings=None, grid_headings=None, marker_size=10, scale=40, route_zoom=False, save_id=None, window=None,
-             path='', show=True, title='World Map'):
+def plot_map(world, route_cords=None, grid_cords=None, size=(10, 10), save=False, zoom=(), zoom_factor=1500,
+             route_headings=None, grid_headings=None, error_indexes=None, marker_size=5, scale=40, route_zoom=False, save_id=None, window=None,
+             path='', show=True, title=None):
     '''
     Plots a top down view of the grid world, with markers or quivers of route and grid positions
     :param world: Top down image of the world
@@ -51,24 +56,34 @@ def plot_map(world, route_cords=None, grid_cords=None, size=(10, 10), save=False
     plt.xlabel('x coordinates', fontsize=14, fontweight='bold')
     plt.ylabel('y coordinates', fontsize=13, fontweight='bold')
     # Plot circles for route image locations
-    if route_cords and route_headings is None: plt.scatter(route_cords[0], route_cords[1], marker="o", s=marker_size, color='blue')
+    if route_cords and route_headings is None: plt.plot(route_cords[0], route_cords[1],
+                                                        marker="o", markersize=marker_size, linewidth=1, color='blue')
     # Plot stars for grid image locations
-    if grid_cords and grid_headings is None: plt.scatter(grid_cords[0][0:save_id], grid_cords[1][0:save_id], marker="*", s=marker_size,
-                                                    color='red')
+    if grid_cords and grid_headings is None: plt.scatter(grid_cords[0][0:save_id], grid_cords[1][0:save_id],
+                                                         marker="*", s=marker_size, color='red')
     # Plot route images heading vectors
     if route_headings is not None:
         route_U, route_V = pol_2cart_headings(90.0 - np.array(route_headings))
         plt.quiver(route_cords[0], route_cords[1], route_U, route_V, scale=scale, color='b')
     # Plot world grid images heading vectors
     # The variable save_id is used here to plot the vectors that have been matched with a window so far
-    if grid_headings is not None:
+    if grid_headings is not None and error_indexes is None:
         grid_U, grid_V = pol_2cart_headings(90.0 - np.array(grid_headings))
         plt.quiver(grid_cords[0][0:save_id], grid_cords[1][0:save_id],
                                 grid_U[0:save_id], grid_V[0:save_id], scale=scale, color='r')
+    if error_indexes:
+        grid_U, grid_V = pol_2cart_headings(90.0 - np.array(grid_headings))
+        plt.quiver(grid_cords[0], grid_cords[1], grid_U, grid_V, scale=scale, color='b')
+        error_headings = [grid_headings[i] for i in error_indexes]
+        error_X = [grid_cords[0][i] for i in error_indexes]
+        error_Y = [grid_cords[1][i] for i in error_indexes]
+        error_U, error_V = pol_2cart_headings(90.0 - np.array(error_headings))
+        plt.quiver(error_X, error_Y, error_U, error_V, scale=scale, color='r')
+
     # Plot window vectors only
     if window:
         window = range(window[0], window[1])
-        route_U, route_V = pol_2cart_headings(90.0 - np.array(grid_headings))
+        route_U, route_V = pol_2cart_headings(90.0 - np.array(route_headings))
         plt.quiver([route_cords[0][i] for i in window], [route_cords[1][i] for i in window],
                    [route_U[i] for i in window], [route_V[i] for i in window], scale=scale, color='c')
 
@@ -77,9 +92,13 @@ def plot_map(world, route_cords=None, grid_cords=None, size=(10, 10), save=False
         plt.xlim([zoom[0] - zoom_factor, zoom[0] + zoom_factor])
         plt.ylim([zoom[1] - zoom_factor, zoom[1] + zoom_factor])
     if route_zoom:
-        # plt.xlim([])
-        plt.ylim([4700, 6500])
-    if save: fig.savefig(path + 'graph' + str(save_id) + '.png')
+        # plt.ylim([])
+        plt.xlim([4700, 6500])
+    plt.xticks([]), plt.yticks([])
+    plt.title("A", loc="left", fontsize=20)
+    plt.tight_layout(pad=0)
+    if save and save_id: fig.savefig(path + 'graph' + str(save_id) + '.png')
+    if save and not save_id: fig.savefig(path)
     if show: plt.show()
     if save: plt.close()
 

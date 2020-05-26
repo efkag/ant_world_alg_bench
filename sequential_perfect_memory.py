@@ -14,6 +14,7 @@ class SequentialPerfectMemory:
         self.recovered_heading = []
         self.logs = []
         self.window_log = []
+        self.matched_index_log = []
         if matching == 'corr':
             self.matcher = correlation_coefficient.CorrelationCoefficient()
         elif matching == 'idf':
@@ -57,8 +58,12 @@ class SequentialPerfectMemory:
             # recovered_heading.append(sum(wind_headings)/len(wind_headings))
             # Update memory pointer
             mem_pointer = index + mem_pointer
+            self.matched_index_log.append(mem_pointer)
 
         return self.recovered_heading, self.logs, self.window_log
+
+    def get_index_log(self):
+        return self.matched_index_log
 
 
 class Seq2PerfectMemory:

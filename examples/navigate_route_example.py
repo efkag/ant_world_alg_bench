@@ -14,6 +14,8 @@ check_for_dir_and_create(figures_path)
 w, x_inlimit, y_inlimit, world_grid_imgs, x_route, y_route, \
                             route_heading, route_images = load_route(route_id=1, grid_pos_limit=dist)
 
+
+
 plot_map(w, [x_route, y_route], [x_inlimit, y_inlimit], size=(15, 15),
          route_headings=route_heading, scale=40)
 
