@@ -1,10 +1,7 @@
-from utils import pre_process, mean_degree_error, degree_error_logs, load_route, check_for_dir_and_create, plot_map
-import sequential_perfect_memory as spm
-import perfect_memory as pm
+from source.utils import pre_process, mean_degree_error, load_route
+from source import sequential_perfect_memory as spm
 from multiprocessing import Process
-import timeit
-import time
-import numpy as np
+
 
 def f1(route_id):
     matcher = 'idf'

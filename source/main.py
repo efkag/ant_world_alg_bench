@@ -1,4 +1,4 @@
-import alg_bench
+from source import alg_bench
 from multiprocessing import Process
 
 

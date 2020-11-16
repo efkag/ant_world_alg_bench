@@ -1,7 +1,6 @@
-from utils import pre_process, mean_degree_error, degree_error_logs, display_image, load_route, \
-    check_for_dir_and_create, plot_map, save_image, load_loop_route
+from source.utils import pre_process, mean_degree_error, degree_error_logs, check_for_dir_and_create, plot_map, save_image, load_loop_route
 import matplotlib.pyplot as plt
-import perfect_memory as pm
+from source import perfect_memory as pm
 import numpy as np
 import seaborn as sns
 sns.set(font_scale=2.5)

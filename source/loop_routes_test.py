@@ -1,6 +1,5 @@
-from utils import pre_process, mean_degree_error, load_loop_route, check_for_dir_and_create, plot_map, pol_2cart_headings
-import sequential_perfect_memory as spm
-import perfect_memory as pm
+from source.utils import pre_process, mean_degree_error, load_loop_route, check_for_dir_and_create, plot_map
+from source import sequential_perfect_memory as spm, perfect_memory as pm
 import numpy as np
 
 directory = 'LoopRoutes/'

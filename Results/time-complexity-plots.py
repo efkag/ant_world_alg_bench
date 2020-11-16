@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from ast import literal_eval
-sns.set_context("paper", font_scale=0.8)
+sns.set_context("paper", font_scale=1.5)
 def mean(l):
     return sum(l)/len(l)
 
@@ -12,12 +12,13 @@ data = pd.read_csv('time_complexities.csv', index_col=False)
 spm = data['spm']
 pm = data['pm']
 
-fig = plt.subplots(figsize=(2.4, 2.4))
-ax = sns.scatterplot(x=data['spm'], y=data['pm'])
-ax.set(ylabel='PM (seconds)', xlabel='SPM (seconds)')
-ax.set_title("A", loc="left")
-plt.tight_layout(pad=0)
-ax.figure.savefig('Figures/time-complex-scatter.pdf')
+# fig = plt.subplots(figsize=(2.4, 2.4))
+fig = plt.subplots(figsize=(7, 7))
+ax = sns.scatterplot(x=data['spm'], y=data['pm'], s=100)
+ax.set(ylabel='PM (seconds)', xlabel='SMW (seconds)')
+# ax.set_title("A", loc="left")
+# plt.tight_layout(pad=0)
+ax.figure.savefig('Figures/time-complex-scatter.png')
 plt.show()
 
 
