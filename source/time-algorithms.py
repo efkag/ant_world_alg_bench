@@ -1,6 +1,5 @@
-from utils import load_route, pre_process
-import sequential_perfect_memory as spm
-import perfect_memory as pm
+from source.utils import load_route, pre_process
+from source import sequential_perfect_memory as spm, perfect_memory as pm
 import timeit
 import pandas as pd
 

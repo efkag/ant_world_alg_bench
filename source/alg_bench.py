@@ -1,6 +1,5 @@
-from utils import pre_process, mean_degree_error, load_route, sample_from_wg, plot_map, degree_error
-import sequential_perfect_memory as spm
-import perfect_memory as pm
+from source.utils import pre_process, load_route, degree_error
+from source import sequential_perfect_memory as spm, perfect_memory as pm
 import pandas as pd
 import timeit
 

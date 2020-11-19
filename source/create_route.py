@@ -1,6 +1,6 @@
-from utils import load_grid, plot_map, gen_route_line, pol_2cart_headings, route_imgs_from_indexes, check_for_dir_and_create
+from source.utils import load_grid, plot_map, gen_route_line, route_imgs_from_indexes, check_for_dir_and_create
 import pandas as pd
-import numpy as np
+
 # right = 105
 # left = -105
 # up = 1

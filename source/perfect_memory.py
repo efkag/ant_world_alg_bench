@@ -1,6 +1,6 @@
-from utils import rotate
-import correlation_coefficient
-import idf
+from source.utils import rotate
+from source import correlation_coefficient, idf
+
 
 class PerfectMemory:
 

@@ -26,6 +26,23 @@ def display_image(image, size=(10, 10), save_id=None):
     plt.show()
 
 
+def display_split(image_l, image_r, size=(10, 10), file_name=None):
+    image_l = np.squeeze(image_l)
+    image_r = np.squeeze(image_r)
+
+    fig = plt.figure(figsize=size)
+    fig.add_subplot(1, 2, 1)
+    plt.imshow(image_l, cmap='gray', interpolation='bilinear')
+    plt.xticks([]), plt.yticks([])  # to hide tick values on X and Y axis
+
+    fig.add_subplot(1, 2, 2)
+    plt.imshow(image_r, cmap='gray', interpolation='bilinear')
+    plt.xticks([]), plt.yticks([])  # to hide tick values on X and Y axis
+    # or plt.axis('off')
+    if file_name: plt.savefig(file_name + ".png")
+    plt.show()
+
+
 def save_image(path, img):
     cv.imwrite(path, img)# , cmap='gray')
 
@@ -95,7 +112,7 @@ def plot_map(world, route_cords=None, grid_cords=None, size=(10, 10), save=False
         # plt.ylim([])
         plt.xlim([4700, 6500])
     plt.xticks([]), plt.yticks([])
-    plt.title("A", loc="left", fontsize=20)
+    # plt.title("A", loc="left", fontsize=20)
     plt.tight_layout(pad=0)
     if save and save_id: fig.savefig(path + 'graph' + str(save_id) + '.png')
     if save and not save_id: fig.savefig(path)
@@ -184,7 +201,7 @@ def element_index(l, elem):
 
 def load_route(route_id, grid_pos_limit=200):
     # Path/ Directory settings
-    antworld_path = '/home/efkag/PycharmProjects/ant_world_alg_bench/AntWorld'
+    antworld_path = '../AntWorld'
     route_id = str(route_id)
     route_id_dir = '/ant1_route' + route_id + '/'
     route_dir = antworld_path + route_id_dir
@@ -333,15 +350,46 @@ def pre_process(imgs, sets):
     :param edges:
     :return:
     """
+    if sets.get('shape'):
+        shape = sets['shape']
+        imgs = [cv.resize(img, shape) for img in imgs]
     if sets.get('edge_range'):
         lims = sets['edge_range']
         imgs = [cv.Canny(img, lims[0], lims[1]) for img in imgs]
     if sets.get('blur'):
         imgs = [cv.GaussianBlur(img, (5, 5), 0) for img in imgs]
-    if sets.get('shape'):
-        shape = sets['shape']
-        imgs = [cv.resize(img, shape) for img in imgs]
     return imgs
+
+
+def image_split(image, overlap=None, blind=0):
+    '''
+    Splits an image to 2 left and right part evenly when no overlap is provided.
+    :param image: Image to split. 2 dimentional ndarray
+    :param overlap: Degrees of overlap between the 2 images
+    :param blind: Degrees of blind visual field at the back of the agent
+    :return:
+    '''
+    num_of_cols = image.shape[1]
+    if blind:
+        num_of_cols_perdegree = int(num_of_cols / 360)
+        blind_pixels = blind * num_of_cols_perdegree
+        blind_pixels_per_side = int(blind_pixels/2)
+        image = image[:, blind_pixels_per_side:-blind_pixels_per_side]
+
+    num_of_cols = image.shape[1]
+    split_point = int(num_of_cols / 2)
+    if overlap:
+        num_of_cols_perdegree = int(num_of_cols / (360-blind))
+        pixel_overlap = overlap * num_of_cols_perdegree
+        l_split = split_point + int(pixel_overlap/2)
+        r_split = split_point - int(pixel_overlap/2)
+        left = image[:, :l_split]
+        right = image[:, r_split:]
+    else:
+        left = image[:, :split_point]
+        right = image[:, split_point:]
+
+    return left, right
 
 
 def rotate(d, image):
@@ -380,6 +428,16 @@ def idf(img, ref_img):
     return math.sqrt(((ref_img - img)**2).mean())
 
 
+def idf2(img, ref_img):
+    """
+    Image Differencing Function AMSE
+    :param img:
+    :param ref_img:
+    :return:
+    """
+    return abs(ref_img - img).mean()
+
+
 def cov(a, b):
     """
     Calculates covariance (non sample)
@@ -407,6 +465,33 @@ def cor_coef(a, b):
     a = a.flatten()
     b = b.flatten()
     return cov(a, b) / (np.std(a) * np.std(b))
+
+def r_cor_coef(ref_img, current_img,  degrees, step):
+    '''
+    Calculates rotational correlation coefficients
+    :param ref_img:
+    :param current_img:
+    :param degrees:
+    :param step:
+    :return:
+    '''
+    degrees = round(degrees/2)  # degrees to rotate for left and right
+    r_coef = []   # Hold the r_coefs between the current and the image of the route for every degree
+    for k in range(-degrees, degrees, step):
+        curr_image = rotate(k, current_img)    #Rotate the current image
+        # coe_coef function to find the correlation between the selected route image and the rotated current
+        r_coef.append(cor_coef(curr_image, ref_img))
+    return r_coef
+
+
+def ridf(ref_img, current_img,  degrees, step):
+    degrees = round(degrees/2)
+    rmse = []   # Hold the RMSEs between the current and the image of the route for every degree
+    for k in range(-degrees, degrees, step):
+        curr_image = rotate(k, current_img)    #Rotate the current image
+        rmse.append(idf2(curr_image, ref_img))  #IDF function to find the error between the selected route image and the rotated current
+        #TODO: Need to include options for using multiple idf functions.
+    return rmse
 
 
 def flatten_imgs(imgs):
@@ -455,6 +540,8 @@ def degree_error(x_cords, y_cords, x_route_cords, y_route_cords, route_heading, 
     search_step = 10
     memory_pointer = 0
     limit = memory_pointer + search_step
+    # TODO: Need to iterate the total number of window comparisons instead of the total coord points
+    #   they are not equal for current window seq. algorithms
     for i in range(0, len(x_cords)):  # For every grid position
         distance = []
         for j in range(memory_pointer, limit):  # For every route position

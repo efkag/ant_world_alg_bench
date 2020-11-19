@@ -1,5 +1,5 @@
 import math
-from utils import plot_map, load_grid, line_incl, pol_2cart_headings
+from source.utils import plot_map, load_grid, line_incl
 from matplotlib import pyplot as plt
 import numpy as np
 pi = math.pi
