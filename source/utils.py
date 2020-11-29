@@ -342,22 +342,23 @@ def pol_2cart_headings(headings):
     return U, V
 
 
-def pre_process(imgs, sets):
+def pre_process(imgs, sets, keys):
     """
     Gaussian blur, edge detection and image resize
     :param imgs:
-    :param shape:
-    :param edges:
+    :param sets:
+
     :return:
     """
-    if sets.get('shape'):
-        shape = sets['shape']
+    if keys.get('shape'):
+        shape = sets[keys['shape']]
         imgs = [cv.resize(img, shape) for img in imgs]
-    if sets.get('edge_range'):
-        lims = sets['edge_range']
-        imgs = [cv.Canny(img, lims[0], lims[1]) for img in imgs]
-    if sets.get('blur'):
+    if keys.get('blur'):
         imgs = [cv.GaussianBlur(img, (5, 5), 0) for img in imgs]
+    if keys.get('edge_range'):
+        lims = sets[keys['edge_range']]
+        imgs = [cv.Canny(img, lims[0], lims[1]) for img in imgs]
+
     return imgs
 
 
@@ -552,7 +553,7 @@ def degree_error(x_cords, y_cords, x_route_cords, y_route_cords, route_heading, 
         memory_pointer = k[-1]
         limit = memory_pointer + search_step
         if limit > route_end: limit = route_end
-    return errors
+    return errors, k
 
 
 def mean_degree_error(x_cords, y_cords, x_route_cords, y_route_cords, route_heading, recovered_headings):

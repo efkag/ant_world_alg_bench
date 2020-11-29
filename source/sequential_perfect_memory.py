@@ -64,24 +64,24 @@ class SequentialPerfectMemory:
             self.recovered_heading.append(wind_headings[index])
             # recovered_heading.append(sum(wind_headings)/len(wind_headings))
             # Dynamic window adaptation based on match gradient.
-            if best > self.prev_match or window < 5:
-                window += 1
-            elif window > 20:
-                window -= 2
-            else:
-                window -= 1
-            self.prev_match = best
-
-            # Lower confidence of the memories depending on the match score
-            window_mean = sum(wind_sims)/len(wind_sims)
-            if i == 0: # If this is the first window
-                self.CMA.extend([window_mean] * 2)
-            else:
-                cma = self.CMA[-1]
-                self.CMA.append(cma + ((window_mean-cma)/(len(self.CMA)+1)))
-            for j in range(mem_pointer, limit):
-                if wind_sims[j-mem_pointer] > self.CMA[-1]:
-                    self.confidence[j] -= 0.1
+            # if best > self.prev_match or window < 5:
+            #     window += 1
+            # elif window > 20:
+            #     window -= 2
+            # else:
+            #     window -= 1
+            # self.prev_match = best
+            #
+            # # Lower confidence of the memories depending on the match score
+            # window_mean = sum(wind_sims)/len(wind_sims)
+            # if i == 0: # If this is the first window
+            #     self.CMA.extend([window_mean] * 2)
+            # else:
+            #     cma = self.CMA[-1]
+            #     self.CMA.append(cma + ((window_mean-cma)/(len(self.CMA)+1)))
+            # for j in range(mem_pointer, limit):
+            #     if wind_sims[j-mem_pointer] > self.CMA[-1]:
+            #         self.confidence[j] -= 0.1
 
             # Update memory pointer
             mem_pointer = index + mem_pointer
