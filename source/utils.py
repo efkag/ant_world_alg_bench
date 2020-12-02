@@ -347,7 +347,7 @@ def pre_process(imgs, sets, keys):
     Gaussian blur, edge detection and image resize
     :param imgs:
     :param sets:
-
+    :param keys:
     :return:
     """
     if keys.get('shape'):
@@ -431,7 +431,7 @@ def idf(img, ref_img):
 
 def idf2(img, ref_img):
     """
-    Image Differencing Function AMSE
+    Image Differencing Function MAE
     :param img:
     :param ref_img:
     :return:

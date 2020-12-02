@@ -8,10 +8,12 @@ def main():
     parameters = {'blur': [True], 'shape': [(180, 50), (90, 25)], 'edge_range': [(180, 200)],
                   'window': list(range(10, 12)), 'matcher': ['corr', 'idf']}
 
-    routes = [1, 2, 3] #, 4, 5]
+    routes = [1, 2]
     alg = 'spm'
     bench = alg_bench.Benchmark(results_path)
-    bench.benchmark_init(alg, routes, parameters)
+    bench.benchmark(alg, routes, parameters)
+
+    bench.bench_paral(parameters, routes)
 
 
 # def bench_proc(process, pre_proc_set):
@@ -23,7 +25,7 @@ def main():
 #     # matchers = ['idf']
 #     alg = 'spm'
 #     bench = alg_bench.Benchmark(results_path)
-#     bench.benchmark_init(alg, routes, params=parameters)
+#     bench.benchmark(alg, routes, params=parameters)
 #     print(process + ' is complete!')
 
 if __name__ == "__main__":
