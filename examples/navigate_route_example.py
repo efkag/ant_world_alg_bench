@@ -2,7 +2,7 @@ from source.utils import pre_process, mean_degree_error, load_route, check_for_d
 from source import sequential_perfect_memory as spm
 
 directory = 'LoopRoutes/'
-matcher = 'idf'
+matcher = 'rmse'
 pre_proc = {'blur': True, 'shape': (180, 50)}
 window = 14
 figures_path = 'Figures/'

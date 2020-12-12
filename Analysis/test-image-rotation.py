@@ -1,4 +1,4 @@
-from source.utils import rotate, idf, cor_coef, pre_process  # , r_cor_coef, ridf
+from source.utils import rotate, rmse, cor_coef, pre_process  # , r_cor_coef, ridf
 import matplotlib.pyplot as plt
 import cv2 as cv
 import numpy as np
@@ -10,7 +10,7 @@ import seaborn as sns
 # grid_img_path = error_path + 'grid_35.png'
 # route_img_path = error_path + 'matched_733.png'
 
-error_path = 'Figures/spm/route_1_alt__error/idf/error_5_95deg/'
+error_path = 'Figures/spm/route_1_alt__error/rmse/error_5_95deg/'
 grid_img_path = error_path + 'grid_95.png'
 route_img_path = error_path + 'window_455.png'
 
@@ -26,7 +26,7 @@ def ridf(ref_img, current_img,  degrees, step):
     rmse = []   # Hold the RMSEs between the current and the image of the route for every degree
     for k in range(0, degrees, step):
         curr_image = rotate(k, current_img)    #Rotate the current image
-        rmse.append(idf(curr_image, ref_img))  #IDF function to find the error between the selected route image and the rotated current
+        rmse.append(rmse(curr_image, ref_img))  #IDF function to find the error between the selected route image and the rotated current
     return rmse
 
 

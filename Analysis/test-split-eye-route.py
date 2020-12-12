@@ -10,7 +10,7 @@ def split_eyes_sim(route_eyes, test_eyes):
 
     return [le_v_le, le_v_re, re_v_re, re_v_le]
 
-matcher = 'idf'
+matcher = 'rmse'
 pre_proc = {'blur': True, 'shape': (180, 50)}
 dist = 100
 overlap = None

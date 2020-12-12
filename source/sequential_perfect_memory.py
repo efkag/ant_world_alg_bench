@@ -21,7 +21,7 @@ class SequentialPerfectMemory:
         if matching == 'corr':
             self.matcher = correlation_coefficient.CorrelationCoefficient()
             self.prev_match = 1.0
-        elif matching == 'idf':
+        elif matching == 'rmse':
             self.matcher = idf.RotationalIDF()
             self.prev_match = 255
         else:
@@ -120,7 +120,7 @@ class Seq2SeqPerfectMemory:
         if matching == 'corr':
             self.matcher = correlation_coefficient.CorrelationCoefficient()
             self.prev_match = 1.0
-        elif matching == 'idf':
+        elif matching == 'rmse':
             self.matcher = idf.RotationalIDF()
             self.prev_match = 255
         else:

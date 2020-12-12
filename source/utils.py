@@ -400,43 +400,38 @@ def rotate(d, image):
     :param image: An np.array that we want to shift.
     :return: Returns the rotated image.
     """
-    if abs(d) > 360:
-        deg = abs(d) - 360
-    if d < 0:
-        d = -d
-        num_of_cols = image.shape[1]
-        num_of_cols_perdegree = num_of_cols / 360
-        cols_to_shift = num_of_cols - round(d * num_of_cols_perdegree)
-        img1 = image[:, cols_to_shift:num_of_cols]
-        img2 = image[:, 0: cols_to_shift]
-        return np.concatenate((img1, img2), axis=1)
-    else:
-        num_of_cols = image.shape[1]
-        num_of_cols_perdegree = num_of_cols / 360
-        cols_to_shift = round(d * num_of_cols_perdegree)
-        img1 = image[:, cols_to_shift:num_of_cols]
-        img2 = image[:, 0: cols_to_shift]
-        return np.concatenate((img1, img2), axis=1)
+    assert abs(d) <= 360
+
+    num_of_cols = image.shape[1]
+    num_of_cols_perdegree = num_of_cols / 360
+    cols_to_shift = round(d * num_of_cols_perdegree)
+    return np.roll(image, cols_to_shift, axis=1)
 
 
-def idf(img, ref_img):
+def rmse(a, b):
     """
     Image Differencing Function RMSE
-    :param img:
-    :param ref_img:
+    :param a: A single query image
+    :param b: One or more reference images
     :return:
     """
-    return math.sqrt(((ref_img - img)**2).mean())
+    if isinstance(b, list):
+        return [np.sqrt(np.subtract(ref_img, a).mean()) for ref_img in b]
+
+    return np.sqrt(np.subtract(b, a).mean())
 
 
-def idf2(img, ref_img):
+def mae(a, b):
     """
     Image Differencing Function MAE
-    :param img:
-    :param ref_img:
+    :param a: A single query image
+    :param b: One or more reference images
     :return:
     """
-    return abs(ref_img - img).mean()
+    if isinstance(b, list):
+        return [cv.absdiff(a, img).mean() for img in b]
+
+    return cv.absdiff(a, b).mean()
 
 
 def cov(a, b):
@@ -447,8 +442,7 @@ def cov(a, b):
     :param b:
     :return:
     """
-    if len(a) != len(b):
-        return
+    assert len(a) == len(b)
 
     a_mean = np.mean(a)
     b_mean = np.mean(b)
@@ -459,13 +453,26 @@ def cov(a, b):
 def cor_coef(a, b):
     """
     Calculate correlation coefficient
-    :param a:
-    :param b:
+    :param a: A single image or vector
+    :param b: A single image or vector
     :return:
     """
     a = a.flatten()
     b = b.flatten()
     return cov(a, b) / (np.std(a) * np.std(b))
+
+def cc(a, b):
+    """
+    Calculates the correlation coefficient
+    between a (list of) vector(s) b and reference vector a
+    :param a: A single query image
+    :param b: One or more reference images
+    :return:
+    """
+    if isinstance(b, list):
+        return [cor_coef(a, img) for img in b]
+
+    return cor_coef(a, b)
 
 def r_cor_coef(ref_img, current_img,  degrees, step):
     '''
@@ -485,14 +492,31 @@ def r_cor_coef(ref_img, current_img,  degrees, step):
     return r_coef
 
 
-def ridf(ref_img, current_img,  degrees, step):
-    degrees = round(degrees/2)
-    rmse = []   # Hold the RMSEs between the current and the image of the route for every degree
-    for k in range(-degrees, degrees, step):
-        curr_image = rotate(k, current_img)    #Rotate the current image
-        rmse.append(idf2(curr_image, ref_img))  #IDF function to find the error between the selected route image and the rotated current
-        #TODO: Need to include options for using multiple idf functions.
-    return rmse
+def rmf(query_img, ref_imgs, matcher=mae, d_range=(0, 360), d_step=1):
+    """
+    Rotational matching function.
+    Rotates a query image and compares it with one or more reference images
+    :param query_img:
+    :param ref_imgs:
+    :param matcher:
+    :param d_range:
+    :param d_step:
+    :return:
+    """
+    assert d_step > 0
+    assert not isinstance(query_img, list)
+    if not isinstance(ref_imgs, list):
+        ref_imgs = [ref_imgs]
+
+    degrees = range(*d_range, d_step)
+    total_search_angle = round((d_range[1] - d_range[0]) / d_step)
+    sims = np.empty((len(ref_imgs), total_search_angle), dtype=np.float)
+
+    for i, rot in enumerate(degrees):
+        rqimg = rotate(rot, query_img)
+        sims[:, i] = matcher(rqimg, ref_imgs)
+
+    return sims if sims.shape[0] > 1 else sims[0]
 
 
 def flatten_imgs(imgs):

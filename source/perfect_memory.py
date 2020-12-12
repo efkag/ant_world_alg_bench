@@ -14,7 +14,7 @@ class PerfectMemory:
         self.matched_index_log = []
         if matching == 'corr':
             self.matcher = correlation_coefficient.CorrelationCoefficient()
-        elif matching == 'idf':
+        elif matching == 'rmse':
             self.matcher = idf.RotationalIDF()
         else:
             raise Exception('Non valid matching method name')

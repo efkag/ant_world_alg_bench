@@ -4,7 +4,7 @@ from multiprocessing import Process
 
 
 def f1(route_id):
-    matcher = 'idf'
+    matcher = 'rmse'
     pre_proc = {'blur': True, 'shape': (180, 50)}
     window = 14
     dist = 100
@@ -21,7 +21,7 @@ def f1(route_id):
 
 
 def f2(route_id):
-    matcher = 'idf'
+    matcher = 'rmse'
     pre_proc = {'blur': True, 'shape': (180, 50)}
     window = 14
     dist = 100

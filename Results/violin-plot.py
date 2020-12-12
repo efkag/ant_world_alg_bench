@@ -23,9 +23,9 @@ Plot for one specific matcher with one specific pre-proc
 '''
 fig, ax = plt.subplots(figsize=(15, 9))
 plt.title('correlation and high-res edges (360, 75)')
-# plt.title('idf and low-res blur (90, 25)')
-# v_data = data.loc[(data['matcher'] == 'idf') & (data['pre-proc'] == '{\'shape\': (90, 25), \'blur\': True}')]
-# v_data_pm = data_pm[(data_pm['matcher'] == 'idf') & (data_pm['pre-proc'] == '{\'shape\': (90, 25), \'blur\': True}')]
+# plt.title('rmse and low-res blur (90, 25)')
+# v_data = data.loc[(data['matcher'] == 'rmse') & (data['pre-proc'] == '{\'shape\': (90, 25), \'blur\': True}')]
+# v_data_pm = data_pm[(data_pm['matcher'] == 'rmse') & (data_pm['pre-proc'] == '{\'shape\': (90, 25), \'blur\': True}')]
 v_data = data.loc[(data['matcher'] == 'corr') & (data['pre-proc'] == '{\'edge_range\': (180, 200), \'shape\': (360, 75)}')]
 v_data_pm = data_pm[(data_pm['matcher'] == 'corr') & (data_pm['pre-proc'].str.contains('(180, 200)'))]
 v_data = v_data['errors'].tolist()
@@ -40,7 +40,7 @@ ax.set_xticklabels(labels)
 ax.set_ylabel('Degree error')
 ax.set_xlabel('Window size')
 fig_save_path = 'Figures/correlation and high-res edges.png'
-# fig_save_path = 'Figures/idf and low-res blur.png'
+# fig_save_path = 'Figures/rmse and low-res blur.png'
 fig.savefig(fig_save_path)
 plt.show()
 
@@ -50,8 +50,8 @@ plt.show()
 Plot for one specific matcher with one specific pre-proc
 '''
 fig, ax = plt.subplots(figsize=(4.8, 2.4))
-v_data = data.loc[(data['matcher'] == 'idf') & (data['pre-proc'] == '{\'shape\': (90, 25), \'blur\': True}')]
-v_data_pm = data_pm[(data_pm['matcher'] == 'idf') & (data_pm['pre-proc'] == '{\'shape\': (90, 25), \'blur\': True}')]
+v_data = data.loc[(data['matcher'] == 'rmse') & (data['pre-proc'] == '{\'shape\': (90, 25), \'blur\': True}')]
+v_data_pm = data_pm[(data_pm['matcher'] == 'rmse') & (data_pm['pre-proc'] == '{\'shape\': (90, 25), \'blur\': True}')]
 v_data = v_data['errors'].tolist()
 v_data_pm = v_data_pm['errors'].tolist()
 # Here i use index 0 because the tolist() func above returns a single nested list
@@ -65,7 +65,7 @@ ax.set_ylabel('Degree error')
 ax.set_xlabel('Window size')
 # ax.set_title("A", loc="left")
 plt.tight_layout(pad=0)
-fig_save_path = 'Figures/idf and low-res blur.pdf'
+fig_save_path = 'Figures/rmse and low-res blur.pdf'
 fig.savefig(fig_save_path)
 plt.show()
 
@@ -83,7 +83,7 @@ plt.ylim([0, 30])
 plt.xlim([5.5, 15.5])
 ax.set_title("B", loc="left")
 plt.tight_layout(pad=0)
-fig_save_path = 'Figures/idf-and-low-res-blur-zoomed.pdf'
+fig_save_path = 'Figures/rmse-and-low-res-blur-zoomed.pdf'
 fig.savefig(fig_save_path)
 plt.show()
 
@@ -109,7 +109,7 @@ axis.set_xlabel('Window size')
 #plt.show()
 
 
-# # Plot violin for idf v corr
+# # Plot violin for rmse v corr
 # v_data = data.groupby(['matcher'])['errors'].apply(sum).tolist()
 # labels = data['matcher'].unique()
 # # fig, ax = plt.subplots()
@@ -129,11 +129,11 @@ Plot for one specific matcher with one specific pre-proc
 '''
 less_than = lambda n: n <= 50.0
 fig, ax = plt.subplots(figsize=(15, 9))
-plt.title('idf and low-res blur (90, 25)')
+plt.title('rmse and low-res blur (90, 25)')
 v_data = data[data['window'] >= 12]
 labels = v_data['window'].unique().tolist()
-v_data = v_data.loc[(v_data['matcher'] == 'idf') & (v_data['pre-proc'] == '{\'shape\': (90, 25), \'blur\': True}')]
-v_data_pm = data_pm[(data_pm['matcher'] == 'idf') & (data_pm['pre-proc'] == '{\'shape\': (90, 25), \'blur\': True}')]
+v_data = v_data.loc[(v_data['matcher'] == 'rmse') & (v_data['pre-proc'] == '{\'shape\': (90, 25), \'blur\': True}')]
+v_data_pm = data_pm[(data_pm['matcher'] == 'rmse') & (data_pm['pre-proc'] == '{\'shape\': (90, 25), \'blur\': True}')]
 v_data = v_data['errors'].tolist()
 v_data_pm = v_data_pm['errors'].tolist()
 # Here i use index 0 because the tolist() func above returns a single nested list
@@ -145,7 +145,7 @@ labels.append('pm')
 ax.set_xticklabels(labels)
 ax.set_ylabel('Degree error')
 ax.set_xlabel('Window size')
-fig_save_path = 'Figures/window>12-error<50-idf-and-low-res-blur.png'
+fig_save_path = 'Figures/window>12-error<50-rmse-and-low-res-blur.png'
 fig.savefig(fig_save_path)
 plt.show()
 
@@ -167,7 +167,7 @@ plt.show()
 #
 #
 # '''
-# Plot violin for idf v corr for large window values
+# Plot violin for rmse v corr for large window values
 # '''
 # # Use only window values larger than x
 # v_data = data[data['window'] >= 12]

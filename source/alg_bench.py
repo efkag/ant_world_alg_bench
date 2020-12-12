@@ -15,7 +15,7 @@ class Benchmark:
         self.route_ids = None
         self.routes_data = []
         self.dist = 100  # Distance between grid images and route images
-        self.log = {'tested routes': [], 'pre-proc': [], 'window': [],
+        self.log = {'tested routes': [], 'blur': [], 'edge':[], 'window': [],
                     'matcher': [], 'mean error': [], 'errors': [], 'seconds': [],
                     'abs index diff': []}
 
@@ -29,6 +29,12 @@ class Benchmark:
         lst = list(grid_gen)
         return [lst[i::chunks] for i in range(chunks)]
 
+    @staticmethod
+    def _init_shared():
+        manager = multiprocessing.Manager()
+        shared = manager.list([0, 0])
+        return shared
+
     def bench_paral(self, params, route_ids=None):
         print(multiprocessing.cpu_count(), ' CPU cores found')
         self._total_jobs(params)
@@ -36,26 +42,26 @@ class Benchmark:
         params_ind = {}
         for i, k in enumerate(params):
             params_ind[k] = i
-        global total_jobs, jobs
-        jobs = 0
-        total_jobs = self.total_jobs
+
+        shared = self._init_shared()
+        shared[1] = self.total_jobs
+
         # Generate grid iterable
         grid = itertools.product(*[params[k] for k in params])
-        # Generate chunks
-        chunks =  self.get_grid_chunks(grid, multiprocessing.cpu_count())
-
-        worker = functools.partial(self.worker_bench, params_ind, route_ids, self.dist)
+        # Generate list chunks of grid combinations
+        chunks =  self.get_grid_chunks(grid, multiprocessing.cpu_count() - 1)
+        # Partial callable
+        worker = functools.partial(self.worker_bench, params_ind, route_ids, self.dist, shared)
 
         pool = multiprocessing.Pool()
 
-        logs = pool.map(worker, chunks)
+        logs = pool.map_async(worker, chunks)
         pool.close()
         pool.join()
-        print(logs)
+
         return logs
 
-    def bench_seq_pm(self, params, route_ids=None):
-
+    def bench_singe_core(self, params, route_ids=None):
         grid = itertools.product(*[params[k] for k in params])
 
         # get the indices of each parameter
@@ -90,8 +96,8 @@ class Benchmark:
                 route_errors.extend(errors)
                 # Difference between matched index and minimum distance index
                 abs_index_diffs.extend([abs(i - j) for i, j in zip(nav.get_index_log(), min_dist_index)])
-                self.jobs += 1
-                print('Jobs completed: {}/{}'.format(self.jobs, self.total_jobs))
+            self.jobs += 1
+            print('Jobs completed: {}/{}'.format(self.jobs, self.total_jobs))
 
 
             mean_route_error = sum(route_errors) / len(route_errors)
@@ -111,16 +117,17 @@ class Benchmark:
             self.total_jobs = self.total_jobs * len(params[k])
         print('Total number of jobs: {}'.format(self.total_jobs))
 
-    def benchmark(self, alg, route_ids, params):
-        if alg == 'spm':
+    def benchmark(self, params, route_ids, parallel = False):
+
+        assert isinstance(params, dict)
+        assert isinstance(route_ids, list)
+
+        if parallel:
             # Benchmark for sequential-pm
             # Get the total number of jobs form the params dictionary
-            self._total_jobs(params)
-            self.bench_seq_pm(params, route_ids)
-        # elif alg == 'pm':
-        #     self.total_jobs = len(pre_processing) * len(route_ids) * len(matchers)
-        #     print('Total number of jobs: {}'.format(self.total_jobs))
-        #     self.bench_pm(route_ids, pre_processing, matchers)
+            self.bench_paral(params, route_ids)
+        else:
+            self.log = self.bench_singe_core(params, route_ids)
 
         bench_results = pd.DataFrame(self.log)
 
@@ -128,8 +135,8 @@ class Benchmark:
         print(bench_results)
 
     @staticmethod
-    def worker_bench(params_ind, route_ids, dist, chunk):
-        log = {'tested routes': [], 'pre-proc': [], 'window': [],
+    def worker_bench(params_ind, route_ids, dist, shared, chunk):
+        log = {'tested routes': [], 'blur': [], 'edge':[], 'window': [],
                'matcher': [], 'mean error': [], 'errors': [], 'seconds': [],
                'abs index diff': []}
 
@@ -161,9 +168,9 @@ class Benchmark:
                 route_errors.extend(errors)
                 # Difference between matched index and minimum distance index
                 abs_index_diffs.extend([abs(i - j) for i, j in zip(nav.get_index_log(), min_dist_index)])
-                # TODO: need to figure out how to pass messages  between processes to update the jobs parameter
-                # jobs.value += 1
-                # print('Jobs completed: {}/{}'.format(jobs, total_jobs))
+            # Increment the complete jobs shared variable
+            shared[0] = shared[0] + 1
+            print(multiprocessing.current_process(),' jobs completed: {}/{}'.format(shared[0], shared[1]))
 
             mean_route_error = sum(route_errors) / len(route_errors)
             log['tested routes'].extend([no_of_routes])

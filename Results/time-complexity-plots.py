@@ -44,7 +44,7 @@ seconds_data = [mean(x) for x in seconds_data]
 sns.lineplot(y=error_data, x=seconds_data, ax=ax, label='CC, blur', linewidth=1)
 sns.scatterplot(y=error_data, x=seconds_data, ax=ax)
 
-time_data = data[(data['matcher'] == 'idf') & (data['pre-proc'].str.contains('edge'))]
+time_data = data[(data['matcher'] == 'rmse') & (data['pre-proc'].str.contains('edge'))]
 error_data = time_data.groupby(['window'])['errors'].apply(sum)
 error_data = error_data.tolist()
 error_data = [mean(x) for x in error_data]
