@@ -6,6 +6,7 @@ import pandas as pd
 import cv2 as cv
 import math
 import os
+from scipy.spatial.distance import cosine, correlation
 sns.set(font_scale=0.8)
 
 
@@ -342,7 +343,7 @@ def pol_2cart_headings(headings):
     return U, V
 
 
-def pre_process(imgs, sets, keys):
+def pre_process(imgs, sets):
     """
     Gaussian blur, edge detection and image resize
     :param imgs:
@@ -350,13 +351,13 @@ def pre_process(imgs, sets, keys):
     :param keys:
     :return:
     """
-    if keys.get('shape'):
-        shape = sets[keys['shape']]
+    if sets.get('shape'):
+        shape = sets['shape']
         imgs = [cv.resize(img, shape) for img in imgs]
-    if keys.get('blur'):
+    if sets.get('blur'):
         imgs = [cv.GaussianBlur(img, (5, 5), 0) for img in imgs]
-    if keys.get('edge_range'):
-        lims = sets[keys['edge_range']]
+    if sets.get('edge_range'):
+        lims = sets['edge_range']
         imgs = [cv.Canny(img, lims[0], lims[1]) for img in imgs]
 
     return imgs
@@ -461,7 +462,7 @@ def cor_coef(a, b):
     b = b.flatten()
     return cov(a, b) / (np.std(a) * np.std(b))
 
-def cc(a, b):
+def cor_dist(a, b):
     """
     Calculates the correlation coefficient
     between a (list of) vector(s) b and reference vector a
@@ -469,28 +470,24 @@ def cc(a, b):
     :param b: One or more reference images
     :return:
     """
+    a = a.flatten()
     if isinstance(b, list):
-        return [cor_coef(a, img) for img in b]
+        return [correlation(a, img.flatten()) for img in b]
 
-    return cor_coef(a, b)
+    return correlation(a, b.flatten())
 
-def r_cor_coef(ref_img, current_img,  degrees, step):
-    '''
-    Calculates rotational correlation coefficients
-    :param ref_img:
-    :param current_img:
-    :param degrees:
-    :param step:
+def cos_dist(a, b):
+    """
+    Calculates cosine similarity
+    between a (list of) vector(s) b and reference vector a
+    :param a:
+    :param b:
     :return:
-    '''
-    degrees = round(degrees/2)  # degrees to rotate for left and right
-    r_coef = []   # Hold the r_coefs between the current and the image of the route for every degree
-    for k in range(-degrees, degrees, step):
-        curr_image = rotate(k, current_img)    #Rotate the current image
-        # coe_coef function to find the correlation between the selected route image and the rotated current
-        r_coef.append(cor_coef(curr_image, ref_img))
-    return r_coef
+    """
+    if isinstance(b, list):
+        return [cosine(a, img) for img in b]
 
+    return cosine(a, b)
 
 def rmf(query_img, ref_imgs, matcher=mae, d_range=(0, 360), d_step=1):
     """
@@ -513,11 +510,11 @@ def rmf(query_img, ref_imgs, matcher=mae, d_range=(0, 360), d_step=1):
     sims = np.empty((len(ref_imgs), total_search_angle), dtype=np.float)
 
     for i, rot in enumerate(degrees):
+        # rotated query image
         rqimg = rotate(rot, query_img)
         sims[:, i] = matcher(rqimg, ref_imgs)
 
     return sims if sims.shape[0] > 1 else sims[0]
-
 
 def flatten_imgs(imgs):
     return [img.flatten() for img in imgs]
@@ -581,7 +578,7 @@ def degree_error(x_cords, y_cords, x_route_cords, y_route_cords, route_heading, 
 
 
 def mean_degree_error(x_cords, y_cords, x_route_cords, y_route_cords, route_heading, recovered_headings):
-    error = degree_error(x_cords, y_cords, x_route_cords, y_route_cords, route_heading, recovered_headings)
+    error, k = degree_error(x_cords, y_cords, x_route_cords, y_route_cords, route_heading, recovered_headings)
     return sum(error) / len(error)
 
 

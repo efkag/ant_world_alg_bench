@@ -62,29 +62,37 @@ class Benchmark:
         return logs
 
     def bench_singe_core(self, params, route_ids=None):
-        grid = itertools.product(*[params[k] for k in params])
 
-        # get the indices of each parameter
-        params_ind = {}
-        for i, k in enumerate(params):
-            params_ind[k] = i
+        # Get list of parameter keys
+        keys = [*params]
+
+        grid = itertools.product(*[params[k] for k in params])
 
         no_of_routes = len(route_ids)
         #  Go though all combinations in the grid
         for combo in grid:
+
+            # create combo dictionary
+            combo_dict = {}
+            for i, k in enumerate(keys):
+                combo_dict[k] = combo[i]
+
             route_errors = []
             time_compl = []
             abs_index_diffs = []
 
             matcher = combo[params_ind['matcher']]
             window = combo[params_ind['window']]
+
+            matcher = combo_dict['matcher']
+            window = combo_dict['window']
             for route in route_ids:  # for every route
                 _, test_x, test_y, test_imgs, route_x, route_y, \
                     route_heading, route_imgs = load_route(route, self.dist)
                 tic = timeit.default_timer()
                 # Preprocess images
-                test_imgs = pre_process(test_imgs, combo, params_ind)
-                route_imgs = pre_process(route_imgs, combo, params_ind)
+                test_imgs = pre_process(test_imgs, combo_dict)
+                route_imgs = pre_process(route_imgs, combo_dict)
                 # Run navigation algorithm
                 nav = spm.SequentialPerfectMemory(route_imgs, matcher)
                 recovered_heading, logs, window_log = nav.navigate(test_imgs, window)
@@ -117,14 +125,12 @@ class Benchmark:
             self.total_jobs = self.total_jobs * len(params[k])
         print('Total number of jobs: {}'.format(self.total_jobs))
 
-    def benchmark(self, params, route_ids, parallel = False):
+    def benchmark(self, params, route_ids, parallel=False):
 
         assert isinstance(params, dict)
         assert isinstance(route_ids, list)
 
         if parallel:
-            # Benchmark for sequential-pm
-            # Get the total number of jobs form the params dictionary
             self.bench_paral(params, route_ids)
         else:
             self.log = self.bench_singe_core(params, route_ids)

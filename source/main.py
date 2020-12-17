@@ -11,9 +11,9 @@ def main():
     routes = [1, 2]
     alg = 'spm'
     bench = alg_bench.Benchmark(results_path)
-    # bench.benchmark(alg, routes, parameters)
+    bench.benchmark(parameters, routes)
 
-    bench.bench_paral(parameters, routes)
+    # bench.bench_paral(parameters, routes)
 
 
 if __name__ == "__main__":

@@ -1,4 +1,4 @@
-from source.utils import load_route, pre_process, r_cor_coef, display_image, rmf, cc
+from source.utils import load_route, pre_process, r_cor_coef, display_image, rmf, cor_dist
 from matplotlib import pyplot as plt
 import matplotlib
 # matplotlib.use( 'tkagg' )
@@ -12,7 +12,7 @@ original_img = route_images[img_indx]
 
 fig = plt.figure()
 
-logs = r_cor_coef(original_img, original_img, 360, 1)
+logs = rmf(original_img, original_img, matcher=cor_dist, d_range=(-180, 180), d_step=1)
 plt.plot(range(len(logs)), logs, label='original')
 
 low_bounds = list(range(150, 200, 20))
