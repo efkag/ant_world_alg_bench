@@ -9,7 +9,7 @@ class PerfectMemory:
         self.route_images = route_images
         self.deg_step = deg_step
         self.deg_range = deg_range
-        self.degrees = list((range(*deg_range, deg_step)))
+        self.degrees = np.arange(*deg_range)
         self.recovered_heading = []
         self.logs = []
         self.matched_index_log = []
@@ -35,14 +35,14 @@ class PerfectMemory:
             mem_headings = []
 
             for rsim in rsims:
-                index = self.argminmax(rsim)
+                index = int(self.argminmax(rsim))
                 mem_sims.append(rsim[index])
                 mem_headings.append(self.degrees[index])
 
             # append the rsims between one query image and all route images
             self.logs.append(rsims)
             # Get best image match
-            index = self.argminmax(mem_sims)
+            index = int(self.argminmax(mem_sims))
             # Get best image heading
             self.recovered_heading.append(mem_headings[index])
             self.matched_index_log.append(index)

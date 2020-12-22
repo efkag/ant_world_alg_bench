@@ -1,5 +1,4 @@
-from source.utils import mae, rmse, cor_dist, rmf
-from source.utils import rotate
+from source.utils import mae, rmse, cor_dist, rmf, rotate
 import numpy as np
 
 
@@ -10,7 +9,7 @@ class SequentialPerfectMemory:
         self.route_images = route_images
         self.deg_range = deg_range
         self.deg_step = degree_shift
-        self.degrees = list(range(*deg_range, degree_shift))
+        self.degrees = np.arange(*deg_range)
         self.recovered_heading = []
         self.logs = []
         self.window_log = []
@@ -25,17 +24,21 @@ class SequentialPerfectMemory:
         self.argminmax = np.argmin
         self.prev_match = 0.0
 
+
     def navigate(self, query_imgs, window=10, mem_pointer=0):
+        assert isinstance(query_imgs, list)
+        assert window > 2
 
-
-        for query_img in query_imgs:  # For every world grid image
-
+        # For every query image
+        for i,query_img in enumerate(query_imgs):
             limit = mem_pointer + window
-            if limit > self.route_end: limit = self.route_end
+            if limit > self.route_end:
+                limit = self.route_end
+                mem_pointer = self.route_end - window
             self.window_log.append([mem_pointer, limit])
 
             # get the rotational similarities between a query image and a window of route images
-            wrsims = rmf(query_img, self.route_images, self.matcher, self.deg_range, self.deg_step)
+            wrsims = rmf(query_img, self.route_images[mem_pointer:limit], self.matcher, self.deg_range, self.deg_step)
 
             # Holds the best rot. similarity between the query image and route images
             wind_sims = []
@@ -51,8 +54,12 @@ class SequentialPerfectMemory:
             self.window_sims.append(wind_sims)
             # append the rsims of all window route images for that current image
             self.logs.append(wrsims)
-            best, index = self.argminmax(wind_sims)
+            index = self.argminmax(wind_sims)
             self.recovered_heading.append(wind_headings[index])
+            # Update memory pointer
+            mem_pointer += index
+            self.matched_index_log.append(mem_pointer)
+
             # recovered_heading.append(sum(wind_headings)/len(wind_headings))
             # Dynamic window adaptation based on match gradient.
             # if best > self.prev_match or window < 5:
@@ -74,9 +81,7 @@ class SequentialPerfectMemory:
             #     if wind_sims[j-mem_pointer] > self.CMA[-1]:
             #         self.confidence[j] -= 0.1
 
-            # Update memory pointer
-            mem_pointer = index + mem_pointer
-            self.matched_index_log.append(mem_pointer)
+
 
         return self.recovered_heading, self.logs, self.window_log
 
@@ -91,6 +96,7 @@ class SequentialPerfectMemory:
 
     def get_CMA(self):
         return self.CMA
+
 
 
 class Seq2SeqPerfectMemory:

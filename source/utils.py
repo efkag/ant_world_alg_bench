@@ -491,7 +491,7 @@ def cos_dist(a, b):
 
 def rmf(query_img, ref_imgs, matcher=mae, d_range=(0, 360), d_step=1):
     """
-    Rotational matching function.
+    Rotational Matching Function.
     Rotates a query image and compares it with one or more reference images
     :param query_img:
     :param ref_imgs:
@@ -516,9 +516,33 @@ def rmf(query_img, ref_imgs, matcher=mae, d_range=(0, 360), d_step=1):
 
     return sims if sims.shape[0] > 1 else sims[0]
 
-def flatten_imgs(imgs):
-    return [img.flatten() for img in imgs]
+def pair_rmf(query_imgs, ref_imgs, matcher=mae, d_range=(0, 360), d_step=1):
+    """
+    Pairwise Rotational Matching Function
+    :param query_imgs:
+    :param ref_imgs:
+    :param matcher:
+    :param d_range:
+    :param d_step:
+    :return:
+    """
+    assert d_step > 0
+    assert isinstance(query_imgs, list)
+    assert isinstance(ref_imgs, list)
+    assert len(query_imgs) == len(ref_imgs)
 
+    degrees = range(*d_range, d_step)
+    total_search_angle = round((d_range[1] - d_range[0]) / d_step)
+    sims = np.empty((len(ref_imgs), total_search_angle), dtype=np.float)
+
+    for i, q_img, r_img in enumerate(zip(query_imgs, ref_imgs)):
+        sims[i] = [matcher(rotate(rot, q_img), r_img) for rot in degrees]
+
+    return sims
+
+def flatten_imgs(imgs):
+    assert isinstance(imgs, list)
+    return [img.flatten() for img in imgs]
 
 def cross_corr(sub_series, series):
     return [np.dot(s, sub_series) for s in series]

@@ -38,10 +38,9 @@ class Benchmark:
     def bench_paral(self, params, route_ids=None):
         print(multiprocessing.cpu_count(), ' CPU cores found')
         self._total_jobs(params)
-        # get the indices of each parameter
-        params_ind = {}
-        for i, k in enumerate(params):
-            params_ind[k] = i
+
+        # Get list of parameter keys
+        keys = [*params]
 
         shared = self._init_shared()
         shared[1] = self.total_jobs
@@ -51,7 +50,7 @@ class Benchmark:
         # Generate list chunks of grid combinations
         chunks =  self.get_grid_chunks(grid, multiprocessing.cpu_count() - 1)
         # Partial callable
-        worker = functools.partial(self.worker_bench, params_ind, route_ids, self.dist, shared)
+        worker = functools.partial(self.worker_bench, keys, route_ids, self.dist, shared)
 
         pool = multiprocessing.Pool()
 
@@ -81,9 +80,6 @@ class Benchmark:
             time_compl = []
             abs_index_diffs = []
 
-            matcher = combo[params_ind['matcher']]
-            window = combo[params_ind['window']]
-
             matcher = combo_dict['matcher']
             window = combo_dict['window']
             for route in route_ids:  # for every route
@@ -110,8 +106,8 @@ class Benchmark:
 
             mean_route_error = sum(route_errors) / len(route_errors)
             self.log['tested routes'].extend([no_of_routes])
-            self.log['blur'].extend([combo[params_ind['blur']]])
-            self.log['edge'].extend([combo[params_ind['edge_range']]])
+            self.log['blur'].extend([combo_dict['blur']])
+            self.log['edge'].extend([combo_dict['edge_range']])
             self.log['window'].extend([window])
             self.log['matcher'].extend([matcher])
             self.log['mean error'].extend([mean_route_error])
@@ -141,7 +137,8 @@ class Benchmark:
         print(bench_results)
 
     @staticmethod
-    def worker_bench(params_ind, route_ids, dist, shared, chunk):
+    def worker_bench(keys, route_ids, dist, shared, chunk):
+
         log = {'tested routes': [], 'blur': [], 'edge':[], 'window': [],
                'matcher': [], 'mean error': [], 'errors': [], 'seconds': [],
                'abs index diff': []}
@@ -153,15 +150,20 @@ class Benchmark:
             time_compl = []
             abs_index_diffs = []
 
-            matcher = combo[params_ind['matcher']]
-            window = combo[params_ind['window']]
+            # create combo dictionary
+            combo_dict = {}
+            for i, k in enumerate(keys):
+                combo_dict[k] = combo[i]
+
+            matcher = combo_dict['matcher']
+            window = combo_dict['window']
             for route in route_ids:  # for every route
                 _, test_x, test_y, test_imgs, route_x, route_y, \
                 route_heading, route_imgs = load_route(route, dist)
                 tic = timeit.default_timer()
                 # Preprocess images
-                test_imgs = pre_process(test_imgs, combo, params_ind)
-                route_imgs = pre_process(route_imgs, combo, params_ind)
+                test_imgs = pre_process(test_imgs, combo_dict)
+                route_imgs = pre_process(route_imgs, combo_dict)
                 # Run navigation algorithm
                 nav = spm.SequentialPerfectMemory(route_imgs, matcher)
                 recovered_heading, logs, window_log = nav.navigate(test_imgs, window)
@@ -180,8 +182,8 @@ class Benchmark:
 
             mean_route_error = sum(route_errors) / len(route_errors)
             log['tested routes'].extend([no_of_routes])
-            log['blur'].extend([combo[params_ind['blur']]])
-            log['edge'].extend([combo[params_ind['edge_range']]])
+            log['blur'].extend([combo_dict['blur']])
+            log['edge'].extend([combo_dict['edge_range']])
             log['window'].extend([window])
             log['matcher'].extend([matcher])
             log['mean error'].extend([mean_route_error])
