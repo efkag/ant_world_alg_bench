@@ -16,13 +16,13 @@ data['errors'] = data['errors'].apply(literal_eval)
 data_pm['errors'] = data_pm['errors'].apply(literal_eval)
 
 '''
-Plot idf and correlation blur percentiles
+Plot rmse and correlation blur percentiles
 '''
 fig, ax = plt.subplots(figsize=(15, 9))
-plt.title('idf v correlation')
+plt.title('rmse v correlation')
 blur_data = data[data['pre-proc'].str.contains('blur')]
 corr_data = blur_data.loc[(blur_data['matcher'] == 'corr')]
-idf_data = blur_data.loc[(blur_data['matcher'] == 'idf')]
+idf_data = blur_data.loc[(blur_data['matcher'] == 'rmse')]
 percentile = 85
 corr_data = corr_data.groupby(['window'])['errors'].apply(sum).tolist()
 idf_data = idf_data.groupby(['window'])['errors'].apply(sum).tolist()
@@ -31,26 +31,26 @@ idf_data = [list(map(abs, row)) for row in idf_data]
 idf_percentiles = np.percentile(np.array(idf_data), percentile, axis=1)
 corr_percentiles = np.percentile(np.array(corr_data), percentile, axis=1)
 x = np.arange(6, 21)
-sns.lineplot(y=idf_percentiles, x=x, ax=ax, label='idf', linewidth=5)
+sns.lineplot(y=idf_percentiles, x=x, ax=ax, label='rmse', linewidth=5)
 sns.lineplot(y=corr_percentiles, x=x,  ax=ax, label='correlation', linewidth=5)
 ax.set_yticks(np.arange(0, 170), 20)
 labels = data['window'].unique()
 ax.set_ylabel(str(percentile) + 'th percentile error')
 ax.set_xlabel('Window size')
-fig_save_path = 'Figures/blured idf vs corr percentiles.eps'
+fig_save_path = 'Figures/blured rmse vs corr percentiles.eps'
 fig.savefig(fig_save_path)
 plt.show()
 
 
 '''
-Back to back violin for idf v corr for all windows
+Back to back violin for rmse v corr for all windows
 '''
 hue = []
 x = []
 y = []
 for i, row in enumerate(idf_data):
     x.extend([i + 6] * len(row))
-    hue.extend(['idf'] * len(row))
+    hue.extend(['rmse'] * len(row))
     y.extend(row)
 
 for i, row in enumerate(corr_data):
@@ -66,20 +66,20 @@ ax.set_xlabel('Window size')
 ax.set_ylabel('Error')
 ax.set_title("A", loc="left")
 plt.tight_layout(pad=0)
-fig_save_path = 'Figures/blur-idf-vs-corr-violins.pdf'
+fig_save_path = 'Figures/blur-rmse-vs-corr-violins.pdf'
 fig.savefig(fig_save_path)
 plt.show()
 
 
 
 '''
-Plot idf and correlation edges percentiles
+Plot rmse and correlation edges percentiles
 '''
 fig, ax = plt.subplots(figsize=(15, 9))
-plt.title('idf v correlation')
+plt.title('rmse v correlation')
 blur_data = data[data['pre-proc'].str.contains('edge')]
 corr_data = blur_data.loc[(blur_data['matcher'] == 'corr')]
-idf_data = blur_data.loc[(blur_data['matcher'] == 'idf')]
+idf_data = blur_data.loc[(blur_data['matcher'] == 'rmse')]
 percentile = 85
 corr_data = corr_data.groupby(['window'])['errors'].apply(sum).tolist()
 idf_data = idf_data.groupby(['window'])['errors'].apply(sum).tolist()
@@ -88,13 +88,13 @@ idf_data = [list(map(abs, row)) for row in idf_data]
 idf_percentiles = np.percentile(np.array(idf_data), percentile, axis=1)
 corr_percentiles = np.percentile(np.array(corr_data), percentile, axis=1)
 x = np.arange(6, 21)
-sns.lineplot(y=idf_percentiles, x=x, ax=ax, label='idf', linewidth=5)
+sns.lineplot(y=idf_percentiles, x=x, ax=ax, label='rmse', linewidth=5)
 sns.lineplot(y=corr_percentiles, x=x,  ax=ax, label='correlation', linewidth=5)
 ax.set_yticks(np.arange(0, 170), 20)
 labels = data['window'].unique()
 ax.set_ylabel(str(percentile) + 'th percentile error')
 ax.set_xlabel('Window size')
-fig_save_path = 'Figures/edges idf vs corr percentiles.eps'
+fig_save_path = 'Figures/edges rmse vs corr percentiles.eps'
 fig.savefig(fig_save_path)
 plt.show()
 
@@ -123,7 +123,7 @@ for i,row in enumerate(corr_idx_data):
     corr_data.append(errors)
 
 # Get IDf data
-idf_data = edge_data.loc[(edge_data['matcher'] == 'idf')]
+idf_data = edge_data.loc[(edge_data['matcher'] == 'rmse')]
 idf_error_data = idf_data.groupby(['window'])['errors'].apply(sum).tolist()
 idf_error_data = [list(map(abs, row)) for row in idf_error_data]
 idf_idx_data = idf_data.groupby(['window'])['abs index diff'].apply(sum).tolist()
@@ -142,31 +142,31 @@ corr_percentiles = [np.percentile(np.array(row), percentile) for row in corr_dat
 idf_percentiles = [np.percentile(np.array(row), percentile) for row in idf_data]
 
 '''
-Plot idf and correlation edges percentiles
+Plot rmse and correlation edges percentiles
 '''
 fig, ax = plt.subplots(figsize=(15, 9))
-plt.title('idf v correlation')
+plt.title('rmse v correlation')
 x = np.arange(6, 21)
-sns.lineplot(y=idf_percentiles, x=x, ax=ax, label='idf', linewidth=5)
+sns.lineplot(y=idf_percentiles, x=x, ax=ax, label='rmse', linewidth=5)
 sns.lineplot(y=corr_percentiles, x=x,  ax=ax, label='correlation', linewidth=5)
 # ax.set_yticks(np.arange(0, 170), 20)
 labels = data['window'].unique()
 ax.set_ylabel(str(percentile) + 'th percentile error')
 ax.set_xlabel('Window size')
-fig_save_path = 'Figures/edges-idf-vs-corr-percentiles-wrt-index.png'
+fig_save_path = 'Figures/edges-rmse-vs-corr-percentiles-wrt-index.png'
 fig.savefig(fig_save_path)
 plt.show()
 
 
 '''
-Back to back violin for idf v corr for all windows
+Back to back violin for rmse v corr for all windows
 '''
 hue = []
 x = []
 y = []
 for i, row in enumerate(idf_data):
     x.extend([i + 6] * len(row))
-    hue.extend(['idf'] * len(row))
+    hue.extend(['rmse'] * len(row))
     y.extend(row)
 
 for i, row in enumerate(corr_data):
@@ -182,6 +182,6 @@ ax.set_xlabel('Window size')
 ax.set_ylabel('Error')
 ax.set_title("B", loc="left")
 plt.tight_layout(pad=0)
-fig_save_path = 'Figures/edges-idf-vs-corr-violins-wrt-index.pdf'
+fig_save_path = 'Figures/edges-rmse-vs-corr-violins-wrt-index.pdf'
 fig.savefig(fig_save_path)
 plt.show()

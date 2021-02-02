@@ -1,4 +1,4 @@
-from source.utils import load_route, rotate, idf, cor_coef, pre_process# , r_cor_coef, ridf
+from source.utils import load_route, rotate, rmse, cor_coef, pre_process# , r_cor_coef, ridf
 import matplotlib.pyplot as plt
 
 _, x_inlimit, y_inlimit, world_grid_imgs, x_route, y_route, \
@@ -9,7 +9,7 @@ def ridf(ref_img, current_img,  degrees, step):
     rmse = []   # Hold the RMSEs between the current and the image of the route for every degree
     for k in range(-degrees, degrees, step):
         curr_image = rotate(k, current_img)    #Rotate the current image
-        rmse.append(idf(curr_image, ref_img))  #IDF function to find the error between the selected route image and the rotated current
+        rmse.append(rmse(curr_image, ref_img))  #IDF function to find the error between the selected route image and the rotated current
     return rmse
 
 def r_cor_coef(ref_img, current_img,  degrees, step):

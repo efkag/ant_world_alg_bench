@@ -1,4 +1,4 @@
-from source.utils import pre_process, load_route, idf, display_image, image_split, display_split, rotate, cor_coef, idf
+from source.utils import pre_process, load_route, rmse, display_image, image_split, display_split, rotate, cor_coef, rmse
 import matplotlib.pyplot as plt
 import seaborn as sns
 sns.set_context("talk", font_scale=1)

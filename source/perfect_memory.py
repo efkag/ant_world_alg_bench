@@ -1,49 +1,49 @@
-from source.utils import rotate
-from source import correlation_coefficient, idf
+from source.utils import mae, rmse, cor_dist, rmf
+import numpy as np
+
 
 
 class PerfectMemory:
 
-    def __init__(self, route_images, matching, degree_shift=1):
+    def __init__(self, route_images, matching, deg_range=(0, 360), deg_step=1):
         self.route_images = route_images
-        self.degree_shift = degree_shift
-        self.degrees = list(range(0, 360, degree_shift))
-        self.degrees_iter = range(0, 360, degree_shift)
+        self.deg_step = deg_step
+        self.deg_range = deg_range
+        self.degrees = np.arange(*deg_range)
         self.recovered_heading = []
         self.logs = []
         self.matched_index_log = []
-        if matching == 'corr':
-            self.matcher = correlation_coefficient.CorrelationCoefficient()
-        elif matching == 'idf':
-            self.matcher = idf.RotationalIDF()
-        else:
-            raise Exception('Non valid matching method name')
+        matchers = {'corr': cor_dist, 'rmse': rmse, 'mae':mae}
+        self.matcher = matchers.get(matching)
+        if not self.matcher:
+            raise Exception('Non valid matcher method name')
+        self.argminmax = np.argmin
 
-    def navigate(self, w_g_imgs):
-        for i in range(0, len(w_g_imgs)):  # For every world grid image
-            current_image = w_g_imgs[i]  # set the current image
+    def navigate(self, query_imgs):
 
-            mem_sims = []  # Memory similarity between the current image and route images
-            mem_headings = []  # Hold the recovered Headings for the current image by the different route images
-            route_logs = []
-            for j in range(0, len(self.route_images)):  # For every goal Image
+        assert isinstance(query_imgs, list)
 
-                goal_image = self.route_images[j]  # Set the goal Image
-                rsims = []  # Hold the rsims between the current and the image of the route for every degree
-                for k in self.degrees_iter:
-                    # Rotate the current image
-                    curr_image = rotate(k, current_image)
-                    # IDF function to find the error between the selected route image and the rotated current
-                    rsims.append(self.matcher.match(curr_image, goal_image))
+        # For every query image image
+        for query_img in query_imgs:
 
-                # log the rsims for that on route image on all the degrees
-                route_logs.append(rsims)
-                best, index = self.matcher.best_match(rsims)
-                mem_sims.append(best)
+            # get the rotational similarities between a query image and a list of all route images
+            rsims = rmf(query_img, self.route_images, self.matcher, self.deg_range, self.deg_step)
+
+            # Holds the best rot. similarity between the query image and route images
+            mem_sims = []
+            # Hold the recovered Headings for the current image by the different route images
+            mem_headings = []
+
+            for rsim in rsims:
+                index = int(self.argminmax(rsim))
+                mem_sims.append(rsim[index])
                 mem_headings.append(self.degrees[index])
 
-            self.logs.append(route_logs)  # append the rsims of all route images for that wg image
-            best, index = self.matcher.best_match(mem_sims)
+            # append the rsims between one query image and all route images
+            self.logs.append(rsims)
+            # Get best image match
+            index = int(self.argminmax(mem_sims))
+            # Get best image heading
             self.recovered_heading.append(mem_headings[index])
             self.matched_index_log.append(index)
 

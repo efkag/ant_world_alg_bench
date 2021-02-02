@@ -4,7 +4,7 @@ import timeit
 import pandas as pd
 
 route_ids = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-matcher = 'idf'
+matcher = 'rmse'
 pre_proc = {'blur': True, 'shape': (180, 50)}
 window = 17  # Best performance window
 dist = 100

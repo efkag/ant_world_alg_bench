@@ -4,7 +4,7 @@ import numpy as np
 
 directory = 'LoopRoutes/'
 route_id = 1
-matcher = 'idf'
+matcher = 'rmse'
 pre_proc = {'blur': True, 'shape': (180, 50)}
 window = 15
 dist = 100

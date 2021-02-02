@@ -1,18 +1,17 @@
 from source.utils import pre_process, mean_degree_error, load_route, check_for_dir_and_create, plot_map
 from source import sequential_perfect_memory as spm
+from source import perfect_memory as pm
 
 directory = 'LoopRoutes/'
-matcher = 'idf'
+matcher = 'mae'
 pre_proc = {'blur': True, 'shape': (180, 50)}
-window = 14
+window = 11
 figures_path = 'Figures/'
 dist = 100
 check_for_dir_and_create(figures_path)
 
 w, x_inlimit, y_inlimit, world_grid_imgs, x_route, y_route, \
                             route_heading, route_images = load_route(route_id=1, grid_pos_limit=dist)
-
-
 
 plot_map(w, [x_route, y_route], [x_inlimit, y_inlimit], size=(15, 15),
          route_headings=route_heading, scale=40)
@@ -25,7 +24,7 @@ recovered_heading, logs, window_log = nav.navigate(pre_world_grid_imgs, window)
 # nav = pm.PerfectMemory(pre_route_images, matcher)
 # recovered_heading, logs = nav.navigate(pre_world_grid_imgs)
 
-print(mean_degree_error(x_inlimit, y_inlimit, x_route, y_route, route_heading, recovered_heading))
+# print(mean_degree_error(x_inlimit, y_inlimit, x_route, y_route, route_heading, recovered_heading))
 
 plot_map(w, [x_route, y_route], [x_inlimit, y_inlimit], size=(15, 15),
          route_headings=route_heading, grid_headings=recovered_heading, scale=40)

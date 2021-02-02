@@ -6,7 +6,7 @@ import seaborn as sns
 sns.set(font_scale=2.5)
 
 directory = '../LoopRoutes/'
-matcher = 'idf'
+matcher = 'rmse'
 pre_proc = {'blur': True, 'shape': (90, 25)}
 dist = 100
 route = 1
