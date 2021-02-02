@@ -24,7 +24,6 @@ class SequentialPerfectMemory:
         self.argminmax = np.argmin
         self.prev_match = 0.0
 
-
     def navigate(self, query_imgs, window=10, mem_pointer=0):
         assert isinstance(query_imgs, list)
         assert window > 2

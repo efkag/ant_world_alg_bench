@@ -138,43 +138,6 @@ def load_grid():
     return x, y, world
 
 
-def gen_route_line(indexes, headings, direction, length):
-    if direction == 'right':
-        index_jump = 105
-        head = [0]
-    elif direction == 'left':
-        index_jump = -105
-        head = [180]
-    elif direction == 'up':
-        index_jump = 1
-        head = [90]
-    elif direction == 'down':
-        index_jump = -1
-        head = [270]
-    elif direction == 'up_r':
-        index_jump = 106
-        head = [45]
-    elif direction == 'up_l':
-        index_jump = -104
-        head = [135]
-    elif direction == 'down_r':
-        index_jump = 104
-        head = [315]
-    elif direction == 'down_l':
-        index_jump = -106
-        head = [225]
-    else: raise Exception('Wrong direction given')
-
-    # for i in range(length):
-    #     indexes.append(indexes[-1] + index_jump)
-    # Add indexes using the range
-    end = indexes[-1] + length*index_jump + index_jump
-    indexes.extend(list(range(indexes[-1]+index_jump, end, index_jump)))
-    headings.extend(head * length)
-
-    return indexes, headings
-
-
 def route_imgs_from_indexes(indexes, headings, directory):
     grid_dir = 'AntWorld/world5000_grid/'
     data = pd.read_csv(grid_dir + 'world5000_grid.csv', header=0)
@@ -319,7 +282,7 @@ def pol2cart(theta, r):
     This function converts the cartesian coordinates into polar coordinates.
     of the quiver.
     :param theta: represents the heading in degrees
-    :param r: represens the lenghth of the quiver
+    :param r: represens the length of the quiver
     :return: This function returns a tuple (float, float) which represents the u and v coordinates
     """
     x = r * math.cos(math.radians(theta))
@@ -464,7 +427,7 @@ def cor_coef(a, b):
 
 def cor_dist(a, b):
     """
-    Calculates the correlation coefficient
+    Calculates the correlation coefficient distance
     between a (list of) vector(s) b and reference vector a
     :param a: A single query image
     :param b: One or more reference images
