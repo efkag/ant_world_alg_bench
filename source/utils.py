@@ -7,7 +7,7 @@ import cv2 as cv
 import math
 import os
 from scipy.spatial.distance import cosine, correlation
-sns.set(font_scale=0.8)
+# sns.set(font_scale=0.8)
 
 
 def display_image(image, size=(10, 10), save_id=None):
@@ -277,14 +277,22 @@ def line_incl(x, y):
     return np.append(incl, incl[-1])
 
 
+def pol2cartnp(r, theta):
+
+    x = np.multiply(r, np.cos(theta))
+    y = np.multiply(r, np.sin(theta))
+    return x, y
+
+
 def pol2cart(theta, r):
     """
     This function converts the cartesian coordinates into polar coordinates.
     of the quiver.
-    :param theta: represents the heading in degrees
+    :param theta: represents the heading in radians
     :param r: represens the length of the quiver
     :return: This function returns a tuple (float, float) which represents the u and v coordinates
     """
+    # TODO: may need to update the function to convert theta to radians
     x = r * math.cos(math.radians(theta))
     y = r * math.sin(math.radians(theta))
     return x, y
@@ -296,12 +304,14 @@ def pol_2cart_headings(headings):
     :param headings: list of degrees
     :return: 2D coordinates
     """
+    # TODO: may need to update the function to convert theta to radians
     U = []
     V = []
-
-    for i in range(0, len(headings)):
-        U.append(pol2cart(headings[i], 1)[0])
-        V.append(pol2cart(headings[i], 1)[1])
+    # rads = np.radians(headings)
+    for i in headings:
+        u, v = pol2cart(i, 1)
+        U.append(u)
+        V.append(v)
 
     return U, V
 
@@ -360,7 +370,7 @@ def image_split(image, overlap=None, blind=0):
 def rotate(d, image):
     """
     Converts the degrees into columns and rotates the image.
-    :param d: number of degrees the the agent will rotate its view
+    :param d: number of degrees the agent will rotate its view
     :param image: An np.array that we want to shift.
     :return: Returns the rotated image.
     """
