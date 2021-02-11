@@ -1,5 +1,5 @@
 import math
-from source.utils import pol2cartnp, line_incl, pol_2cart_headings, check_for_dir_and_create
+from source.utils import line_incl, pol2cart_headings, check_for_dir_and_create, pol2cart
 from matplotlib import pyplot as plt
 import numpy as np
 pi = math.pi
@@ -26,7 +26,7 @@ def meancurv2d(x, y):
     return np.mean(curvature)
 
 
-def random_points(r, no_of_points):
+def random_circle_points(r, no_of_points):
     '''
     Generates random points within a circle given the desired radius.
     It assumes the center is (0,0)
@@ -35,9 +35,9 @@ def random_points(r, no_of_points):
     :return:
     '''
     r = r * np.sqrt(np.random.rand(no_of_points))
-    theta = np.random.rand() * 2 * pi
+    theta = np.random.rand(no_of_points) * 2 * pi
 
-    x, y = pol2cartnp(r, theta)
+    x, y = pol2cart(r, theta)
     return x, y
 
 
@@ -65,7 +65,7 @@ def bezier(t, points):
 def bezier_curve_range(n, points):
     """Range of points in a curve bezier"""
     for i in range(n):
-        t = i / float(n - 1)  # type: float
+        t = i / float(n - 1)  # type:float
         yield bezier(t, points)
 
 
@@ -80,9 +80,10 @@ def bezier_curve_vert(n, verts):
     return x_cord, y_cord
 
 
-def generate(mean, save_path, no_of_points=5, curve_points=100, plot=True):
+def generate(mean, save_path, no_of_points=5, curve_points=100, plot=True, route_id=1):
     '''
-    Generates points on a bezier curve given
+    Generates control points froma distribution.
+    Uses the control pints to generate points on a bezier curve.
 
     :param mean:
     :param save_path:
@@ -105,54 +106,57 @@ def generate(mean, save_path, no_of_points=5, curve_points=100, plot=True):
 
     z = 1.5
     data = np.array([x_route, y_route, [z] * len(x_route), heading])
-    np.savetxt(save_path + "data.csv", data, delimiter=',')
+    np.savetxt(save_path + 'route' + str(route_id) + '.csv', data, delimiter=',')
 
     print(meancurv2d(x_route, y_route))
     if plot:
-        u, v = pol_2cart_headings(90 - heading)
+        u, v = pol2cart_headings(90 - heading)
         plt.scatter(x_route, y_route)
         plt.quiver(x_route, y_route, u, v, scale=60)
         plt.scatter(xy[:, 0], xy[:, 1])
         plt.show()
 
 
-generate([0, 0], "../test_data/route1/", no_of_points=5)
-
-
-# np.random.seed(10)
-# mean = np.array([0, 0])
-# cov = np.array([[1, 10], [10, 1]])
-# xy = np.random.multivariate_normal(mean, cov, 6)
-#
-# # points = [
-# #     [0., 0.],
-# #     [0.5, 0.5],
-# #     [1.0, 1.0],
-# #     [2.5, 2.5],
-# # ]
-# # # Show control points
-# # xy = np.array(points)
-#
-# np.savetxt('../XYZbins/new_points_3.csv', xy, delimiter=',')
-# plt.plot(xy[:, 0], xy[:, 1])
-# plt.scatter(xy[:, 0], xy[:, 1])
-#
-# x_route, y_route = bezier_curve_vert(100, xy)
-# heading = 90 - line_incl(x_route, y_route)
-# # heading = line_incl(x_route, y_route)
-# u, v = pol_2cart_headings(90 - heading)
-# # plt.plot(x_route, y_route)
-# plt.scatter(x_route, y_route)
-# plt.quiver(x_route, y_route, u, v, scale=70)
+# x, y = random_circle_points(10, 6)
+# plt.scatter(x, y)
 # plt.show()
-#
-# # Save to file
-# z = 1.5
-# path = '../XYZbins/new_route_3.csv'
-# data = np.array([x_route, y_route, [z]*len(x_route), heading])
-#
-# # data.tofile(path)
-# np.savetxt(path, data, delimiter=',')
-#
-# print(meancurv2d(x_route, y_route))
+# generate([0, 0], "../test_data/route1/", no_of_points=5, route_id=1)
+
+
+np.random.seed(10)
+mean = np.array([0, 0])
+cov = np.array([[1, 10], [10, 1]])
+xy = np.random.multivariate_normal(mean, cov, 6)
+
+points = [
+    [0., 0.],
+    [0.5, 0.5],
+    [1.0, 1.0],
+    [2.5, 2.5],
+]
+# Show control points
+xy = np.array(points)
+
+np.savetxt('../XYZbins/new_points_3.csv', xy, delimiter=',')
+plt.plot(xy[:, 0], xy[:, 1])
+plt.scatter(xy[:, 0], xy[:, 1])
+
+x_route, y_route = bezier_curve_vert(100, xy)
+heading = 90 - line_incl(x_route, y_route)
+# heading = line_incl(x_route, y_route)
+u, v = pol2cart_headings(90 - heading)
+# plt.plot(x_route, y_route)
+plt.scatter(x_route, y_route)
+plt.quiver(x_route, y_route, u, v, scale=50)
+plt.show()
+
+# Save to file
+z = 1.5
+path = '../XYZbins/new_route_3.csv'
+data = np.array([x_route, y_route, [z]*len(x_route), heading])
+
+# data.tofile(path)
+np.savetxt(path, data, delimiter=',')
+
+print(meancurv2d(x_route, y_route))
 

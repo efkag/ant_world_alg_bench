@@ -43,8 +43,8 @@ print(xlim, ylim, zlim)
 
 
 
-def record_route(datapoints, target_path):
-    check_for_dir_and_create(target_path)
+def record_route(datapoints, path):
+    check_for_dir_and_create(path)
     x = datapoints[0]
     y = datapoints[1]
     z = datapoints[2]
@@ -55,8 +55,27 @@ def record_route(datapoints, target_path):
         agent.set_position(xi, yi, z)
         agent.set_attitude(h1, 0, 0)
         img = agent.read_frame()
-        filename = target_path + "img%i.png" % i
+        filename = path + "img%i.png" % i
         cv2.imwrite(filename, img)
+
+
+def rec_route_from_points(path, target_path):
+    datapoints = np.genfromtxt(path, delimiter=',')
+    check_for_dir_and_create(target_path)
+    np.savetxt(target_path + "route3.csv", datapoints, delimiter=',')
+    record_route(datapoints, target_path)
+
+
+def get_img(xy, deg):
+    '''
+    Render a greyscale image from the antworld given an xy position and heading
+    :param xy:
+    :param deg:
+    :return:
+    '''
+    agent.set_position(xy[0], xy[1], z)
+    agent.set_attitude(deg, 0, 0)
+    return cv2.cvtColor(agent.read_frame(), cv2.COLOR_BGR2GRAY)
 
 
 def update_position(xy, deg, r):
@@ -69,8 +88,44 @@ def update_position(xy, deg, r):
     agent.set_attitude(deg, 0, 0)
 
     img = agent.read_frame()
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
     return (xx, yy), img
+
+
+def test_nav(path, nav, matcher='mae'):
+    # initial position and heading
+    xy = (0, 0)
+    h = 0
+    # step size for the agent movement (in cm)
+    r = 0.2
+    # timesteps to run the simulations
+    t = 10
+
+    data = np.genfromtxt(path + 'route3.csv', delimiter=',')
+    x = data[0]
+    y = data[1]
+    z = data[2]
+    headings = data[3]
+
+    imgs = []
+    for i in range(len(x)):
+        img = cv2.imread(path + '/img' + str(i) + '.png', cv2.IMREAD_GRAYSCALE)
+        imgs.append(img)
+
+    # set up the navigator
+    nav = nav(imgs, matcher)
+    img = get_img(xy, h)
+    headings = np.empty(t)
+    traj = np.empty((2, t))
+    for i in range(t):
+        h = nav.get_heading(img)
+        headings[i] = h
+        xy, img = update_position(xy, h, r)
+        traj[0, i] = xy[0]
+        traj[1, i] = xy[1]
+
+    return headings, traj, nav
 
 
 """
@@ -85,3 +140,5 @@ Testing
 # xy, img = update_position((0, 0), 45, 0.5)
 #
 # print(xy, img.shape)
+
+# rec_route_from_points('../XYZbins/new_route_3.csv', '../new-antworld/route3/')
