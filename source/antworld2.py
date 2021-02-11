@@ -14,21 +14,23 @@ z = 1.5 # m (for some reason the ground is at ~1.5m for this world)
 agent = antworld.Agent(720, 150)
 (xlim, ylim, zlim) = agent.load_world(worldpath)
 print(xlim, ylim, zlim)
-#
-# pitch = 0
-# roll = 0
+
+# pitch = 0.0
+# roll = 0.0
 # x=0
 # y=0
 #
 # deg = [0, 90, 180, 270, 360]
+# # deg = [0, -90, -180, -270, -360]
+#
 #
 # for i, yaw in enumerate(deg):
 #     agent.set_position(x, y, z)
 #     agent.set_attitude(yaw, pitch, roll)
 #     im = agent.read_frame()
-#     filename = "test_data/antworld%i.png" % i
+#     filename = "test_data/antworld%i.png" % yaw
 #     cv2.imwrite(filename, im)
-#
+
 #
 # ys = np.arange(0, 2, 0.1)
 # yaw = 0
@@ -85,6 +87,7 @@ def update_position(xy, deg, r):
     yy = xy[1] + (r * np.sin(rad))
 
     agent.set_position(xx, yy, z)
+    # TODO: Might be a good idea to center the angle search around the current heading.
     agent.set_attitude(deg, 0, 0)
 
     img = agent.read_frame()
@@ -93,12 +96,12 @@ def update_position(xy, deg, r):
     return (xx, yy), img
 
 
-def test_nav(path, nav, matcher='mae'):
+def test_nav(path, nav, matcher='mae', deg_range=(-180, 180)):
     # initial position and heading
     xy = (0, 0)
     h = 0
     # step size for the agent movement (in cm)
-    r = 0.2
+    r = 0.05
     # timesteps to run the simulations
     t = 10
 
@@ -114,20 +117,36 @@ def test_nav(path, nav, matcher='mae'):
         imgs.append(img)
 
     # set up the navigator
-    nav = nav(imgs, matcher)
+    nav = nav(imgs, matcher, deg_range)
+    # set the initial conditions
     img = get_img(xy, h)
-    headings = np.empty(t)
-    traj = np.empty((2, t))
-    for i in range(t):
+    #initialise the variables
+    headings = []
+    headings.append(h)
+    traj = np.empty((2, t + 1))
+    traj[0, 0] = xy[0]
+    traj[1, 0] = xy[1]
+
+    for i in range(1, t):
         h = nav.get_heading(img)
-        headings[i] = h
+        h = headings[-1] + h
+        # h = validate_heading(h)
+        headings.append(h)
         xy, img = update_position(xy, h, r)
         traj[0, i] = xy[0]
         traj[1, i] = xy[1]
 
+    headings = np.array(headings)
     return headings, traj, nav
 
 
+def validate_heading(h):
+    if h >= 360:
+        return h - 360
+    elif h < 0:
+        return 360 + h
+    else:
+        return h
 """
 Testing
 """
