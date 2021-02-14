@@ -17,12 +17,61 @@ class SequentialPerfectMemory:
         self.confidence = [1] * self.route_end
         self.window_sims = []
         self.CMA = []
-        matchers = {'corr': cor_dist, 'rmse': rmse, 'mae':mae}
+        matchers = {'corr': cor_dist, 'rmse': rmse, 'mae': mae}
         self.matcher = matchers.get(matching)
         if not self.matcher:
             raise Exception('Non valid matcher method name')
         self.argminmax = np.argmin
         self.prev_match = 0.0
+
+        # Used for continous heading search
+        self.mem_pointer = 0
+        self.window = 14
+
+    def get_heading(self, query_img, dynamic_window=False):
+        # get the rotational similarities between a query image and a window of route images
+        limit = self.mem_pointer + self.window
+        wrsims = rmf(query_img, self.route_images[self.mem_pointer:limit], self.matcher, self.deg_range, self.deg_step)
+
+        # Holds the best rot. match between the query image and route images
+        wind_sims = []
+        # Recovered headings for the current image
+        wind_headings = []
+        for rsim in wrsims:
+            # get best similarity match adn index w.r.t degrees
+            index = self.argminmax(rsim)
+            wind_sims.append(rsim[index])
+            wind_headings.append(self.degrees[index])
+
+        # Save the best degree match for window similarities
+        self.window_sims.append(wind_sims)
+        # append the rsims of all window route images for that query image
+        self.logs.append(wrsims)
+        # find best image match and heading
+        index = self.argminmax(wind_sims)
+        heading = wind_headings[index]
+        self.recovered_heading.append(heading)
+        # Update memory pointer
+        self.mem_pointer += index
+        self.matched_index_log.append(self.mem_pointer)
+
+        # recovered_heading.append(sum(wind_headings)/len(wind_headings))
+
+        if dynamic_window:
+            best = wind_sims[index]
+            self.update_window(best)
+
+        return heading
+
+    def update_window(self, best):
+        # Dynamic window adaptation based on match gradient.
+        if best > self.prev_match or self.window < 5:
+            self.window += 1
+        elif self.window > 20:
+            self.window -= 2
+        else:
+            self.window -= 1
+        self.prev_match = best
 
     def navigate(self, query_imgs, window=10, mem_pointer=0):
         assert isinstance(query_imgs, list)
@@ -39,12 +88,12 @@ class SequentialPerfectMemory:
             # get the rotational similarities between a query image and a window of route images
             wrsims = rmf(query_img, self.route_images[mem_pointer:limit], self.matcher, self.deg_range, self.deg_step)
 
-            # Holds the best rot. similarity between the query image and route images
+            # Holds the best rot. match between the query image and route images
             wind_sims = []
             # Recovered headings for the current image
             wind_headings = []
             for rsim in wrsims:
-                # get best similarity match for degrees and its index(heading)
+                # get best similarity match adn index w.r.t degrees
                 index = self.argminmax(rsim)
                 wind_sims.append(rsim[index])
                 wind_headings.append(self.degrees[index])
@@ -79,8 +128,6 @@ class SequentialPerfectMemory:
             # for j in range(mem_pointer, limit):
             #     if wind_sims[j-mem_pointer] > self.CMA[-1]:
             #         self.confidence[j] -= 0.1
-
-
 
         return self.recovered_heading, self.logs, self.window_log
 

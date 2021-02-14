@@ -1,14 +1,44 @@
 import math
-from source.utils import plot_map, load_grid, line_incl
+from source.utils import line_incl, pol2cart_headings, check_for_dir_and_create, pol2cart
 from matplotlib import pyplot as plt
 import numpy as np
 pi = math.pi
-# -0.158586 * 1000, 10.2428 * 1000, -0.227704 * 1000, 10.0896 * 1000
-x_min = -0.158586 * 1000
-x_max = 10.2428 * 1000
-y_min = -0.227704 * 1000
-y_max = 10.0896 * 1000
-step = 0.01
+
+
+def meancurv2d(x, y):
+    '''
+    Calculates the mean curvature of a set of points (x, y) that belong to a curve.
+    :param x:
+    :param y:
+    :return:
+    '''
+    # first derivatives
+    dx = np.gradient(x)
+    dy = np.gradient(y)
+
+    # second derivatives
+    d2x = np.gradient(dx)
+    d2y = np.gradient(dy)
+
+    # calculate the mean curvature from first and second derivatives
+    curvature = np.abs(dx * d2y - d2x * dy) / (dx * dx + dy * dy) ** 1.5
+
+    return np.mean(curvature)
+
+
+def random_circle_points(r, no_of_points):
+    '''
+    Generates random points within a circle given the desired radius.
+    It assumes the center is (0,0)
+    :param r:
+    :param no_of_points:
+    :return:
+    '''
+    r = r * np.sqrt(np.random.rand(no_of_points))
+    theta = np.random.rand(no_of_points) * 2 * pi
+
+    x, y = pol2cart(r, theta)
+    return x, y
 
 
 def binomial(i, n):
@@ -35,7 +65,7 @@ def bezier(t, points):
 def bezier_curve_range(n, points):
     """Range of points in a curve bezier"""
     for i in range(n):
-        t = i / float(n - 1)  # type: float
+        t = i / float(n - 1)  # type:float
         yield bezier(t, points)
 
 
@@ -50,32 +80,84 @@ def bezier_curve_vert(n, verts):
     return x_cord, y_cord
 
 
-points = [
-    [2002.296, 5741.41],
-    [2302.296, 6341.41],
-    [2902.296, 6841.41],
-    [3602.296, 6141.41],
-    [3202.296, 5141.41],
-    [2302.296, 5241.41],
-    [2102.296, 6241.41],
-    [2302.296, 6541.41],
-]
-# Show control points
-xy = np.array(points)
-np.savetxt('XYZbins/points_3.csv', xy, delimiter=',')
-plt.plot(xy[:, 0], xy[:, 1])
-plt.scatter(xy[:, 0], xy[:, 1])
-plt.show()
+def generate(mean, save_path, no_of_points=5, curve_points=100, plot=True, route_id=1):
+    '''
+    Generates control points froma distribution.
+    Uses the control pints to generate points on a bezier curve.
 
-x_route, y_route = bezier_curve_vert(80, points)
-heading = 450 - line_incl(x_route, y_route)
-x, y, w = load_grid()
-plot_map(w, [x_route, y_route], route_headings=heading, size=(15, 15))
+    :param mean:
+    :param save_path:
+    :param no_of_points:
+    :param curve_points:
+    :param plot:
+    :return:
+    '''
+    check_for_dir_and_create(save_path)
+    mean = np.array(mean)
+    cov = np.array([[1, 10], [10, 1]])
+    xy = np.random.multivariate_normal(mean, cov, no_of_points)
 
-# Save to file
-z = 10
-path = 'XYZbins/route_3.bin'
-data = np.array([x_route, y_route, [z]*len(x_route)])
-# Divide by 10 to convert to centimetres
-data = data / 10
-data.tofile(path)
+    np.savetxt(save_path + "points.csv", X=xy, delimiter=',')
+
+    x_route, y_route = bezier_curve_vert(curve_points, xy)
+    # 90- rotates the origin of the degrees by 90 degrees counter clokwise
+    # setting the origin (0 degrees) at the north
+    heading = 90 - line_incl(x_route, y_route)
+
+    z = 1.5
+    data = np.array([x_route, y_route, [z] * len(x_route), heading])
+    np.savetxt(save_path + 'route' + str(route_id) + '.csv', data, delimiter=',')
+
+    print('mean curvature:', meancurv2d(x_route, y_route))
+    if plot:
+        u, v = pol2cart_headings(90 - heading)
+        plt.scatter(x_route, y_route)
+        plt.quiver(x_route, y_route, u, v, scale=60)
+        plt.scatter(xy[:, 0], xy[:, 1])
+        plt.show()
+
+
+# x, y = random_circle_points(10, 6)
+# plt.scatter(x, y)
+# plt.show()
+route_id = 5
+generate([0, 0], '../new-antworld/route' + str(route_id) + '/', no_of_points=4, curve_points=200, route_id=route_id)
+
+#
+# np.random.seed(10)
+# mean = np.array([0, 0])
+# cov = np.array([[1, 10], [10, 1]])
+# xy = np.random.multivariate_normal(mean, cov, 6)
+#
+# points = [
+#     [0., 0.],
+#     [0.5, 0.5],
+#     [1.0, 1.0],
+#     [2.5, 2.5],
+# ]
+# # Show control points
+# xy = np.array(points)
+#
+# np.savetxt('../XYZbins/new_points_3.csv', xy, delimiter=',')
+# plt.plot(xy[:, 0], xy[:, 1])
+# plt.scatter(xy[:, 0], xy[:, 1])
+#
+# x_route, y_route = bezier_curve_vert(100, xy)
+# heading = 90 - line_incl(x_route, y_route)
+# # heading = line_incl(x_route, y_route)
+# u, v = pol2cart_headings(90 - heading)
+# # plt.plot(x_route, y_route)
+# plt.scatter(x_route, y_route)
+# plt.quiver(x_route, y_route, u, v, scale=50)
+# plt.show()
+#
+# # Save to file
+# z = 1.5
+# path = '../XYZbins/new_route_3.csv'
+# data = np.array([x_route, y_route, [z]*len(x_route), heading])
+#
+# # data.tofile(path)
+# np.savetxt(path, data, delimiter=',')
+#
+# print(meancurv2d(x_route, y_route))
+

@@ -7,7 +7,7 @@ import cv2 as cv
 import math
 import os
 from scipy.spatial.distance import cosine, correlation
-sns.set(font_scale=0.8)
+# sns.set(font_scale=0.8)
 
 
 def display_image(image, size=(10, 10), save_id=None):
@@ -48,6 +48,21 @@ def save_image(path, img):
     cv.imwrite(path, img)# , cmap='gray')
 
 
+def plot_route(route, traj=None, scale=70):
+    # Plot the route
+    u, v = pol2cart_headings(90 - route['heading'])
+    plt.scatter(route['x'], route['y'])
+    plt.quiver(route['x'], route['y'], u, v, scale=scale)
+    # Plot th trajectory of the agent when repeating the route
+    if traj:
+        # u, v = pol2cart_headings(90 - traj['heading'])
+        u, v = pol2cart_headings(traj['heading'])
+        plt.scatter(traj['x'], traj['y'])
+        plt.quiver(traj['x'], traj['y'], u, v, scale=scale)
+
+    plt.show()
+
+
 def plot_map(world, route_cords=None, grid_cords=None, size=(10, 10), save=False, zoom=(), zoom_factor=1500,
              route_headings=None, grid_headings=None, error_indexes=None, marker_size=5, scale=40, route_zoom=False, save_id=None, window=None,
              path='', show=True, title=None):
@@ -81,27 +96,27 @@ def plot_map(world, route_cords=None, grid_cords=None, size=(10, 10), save=False
                                                          marker="*", s=marker_size, color='red')
     # Plot route images heading vectors
     if route_headings is not None:
-        route_U, route_V = pol_2cart_headings(90.0 - np.array(route_headings))
+        route_U, route_V = pol2cart_headings(90.0 - np.array(route_headings))
         plt.quiver(route_cords[0], route_cords[1], route_U, route_V, scale=scale, color='b')
     # Plot world grid images heading vectors
     # The variable save_id is used here to plot the vectors that have been matched with a window so far
     if grid_headings is not None and error_indexes is None:
-        grid_U, grid_V = pol_2cart_headings(90.0 - np.array(grid_headings))
+        grid_U, grid_V = pol2cart_headings(90.0 - np.array(grid_headings))
         plt.quiver(grid_cords[0][0:save_id], grid_cords[1][0:save_id],
                                 grid_U[0:save_id], grid_V[0:save_id], scale=scale, color='r')
     if error_indexes:
-        grid_U, grid_V = pol_2cart_headings(90.0 - np.array(grid_headings))
+        grid_U, grid_V = pol2cart_headings(90.0 - np.array(grid_headings))
         plt.quiver(grid_cords[0], grid_cords[1], grid_U, grid_V, scale=scale, color='b')
         error_headings = [grid_headings[i] for i in error_indexes]
         error_X = [grid_cords[0][i] for i in error_indexes]
         error_Y = [grid_cords[1][i] for i in error_indexes]
-        error_U, error_V = pol_2cart_headings(90.0 - np.array(error_headings))
+        error_U, error_V = pol2cart_headings(90.0 - np.array(error_headings))
         plt.quiver(error_X, error_Y, error_U, error_V, scale=scale, color='r')
 
     # Plot window vectors only
     if window:
         window = range(window[0], window[1])
-        route_U, route_V = pol_2cart_headings(90.0 - np.array(route_headings))
+        route_U, route_V = pol2cart_headings(90.0 - np.array(route_headings))
         plt.quiver([route_cords[0][i] for i in window], [route_cords[1][i] for i in window],
                    [route_U[i] for i in window], [route_V[i] for i in window], scale=scale, color='c')
 
@@ -161,6 +176,22 @@ def element_index(l, elem):
         return l.index(elem)
     except ValueError:
         return False
+
+# TODO: here
+def load_route_naw(path, route_id=1):
+    route_data = {}
+    data = np.genfromtxt(path + 'route' + str(route_id) + '.csv', delimiter=',')
+    x = data[0]
+    y = data[1]
+    z = data[2]
+    headings = data[3]
+
+    route_data['x'] = x
+    route_data['y'] = y
+    route_data['z'] = z
+    route_data['heading'] = headings
+    return route_data
+
 
 
 def load_route(route_id, grid_pos_limit=200):
@@ -277,32 +308,26 @@ def line_incl(x, y):
     return np.append(incl, incl[-1])
 
 
-def pol2cart(theta, r):
-    """
-    This function converts the cartesian coordinates into polar coordinates.
-    of the quiver.
-    :param theta: represents the heading in degrees
-    :param r: represens the length of the quiver
-    :return: This function returns a tuple (float, float) which represents the u and v coordinates
-    """
-    x = r * math.cos(math.radians(theta))
-    y = r * math.sin(math.radians(theta))
+def pol2cart(r, theta):
+    '''
+    Coverts polar cordinates to cartesian coordinates
+    :param r: An array or single value of radial values
+    :param theta: An array or single values ot angles theta
+    :return:
+    '''
+    x = np.multiply(r, np.cos(theta))
+    y = np.multiply(r, np.sin(theta))
     return x, y
 
 
-def pol_2cart_headings(headings):
+def pol2cart_headings(headings):
     """
     Convert degree headings to U,V cartesian coordinates
     :param headings: list of degrees
     :return: 2D coordinates
     """
-    U = []
-    V = []
-
-    for i in range(0, len(headings)):
-        U.append(pol2cart(headings[i], 1)[0])
-        V.append(pol2cart(headings[i], 1)[1])
-
+    rads = np.radians(headings)
+    U, V = pol2cart(1, rads)
     return U, V
 
 
@@ -360,7 +385,9 @@ def image_split(image, overlap=None, blind=0):
 def rotate(d, image):
     """
     Converts the degrees into columns and rotates the image.
-    :param d: number of degrees the the agent will rotate its view
+    Positive degrees turn the image clockwise
+    and negative degrees rotate the image counter clockwise
+    :param d: number of degrees the agent will rotate its view
     :param image: An np.array that we want to shift.
     :return: Returns the rotated image.
     """
@@ -369,7 +396,7 @@ def rotate(d, image):
     num_of_cols = image.shape[1]
     num_of_cols_perdegree = num_of_cols / 360
     cols_to_shift = round(d * num_of_cols_perdegree)
-    return np.roll(image, cols_to_shift, axis=1)
+    return np.roll(image, -cols_to_shift, axis=1)
 
 
 def rmse(a, b):
@@ -562,6 +589,37 @@ def degree_error(x_cords, y_cords, x_route_cords, y_route_cords, route_heading, 
         limit = memory_pointer + search_step
         if limit > route_end: limit = route_end
     return errors, k
+
+
+def angular_error(route, trajectory):
+    # Holds the angular error between the query position and the closest route position
+    errors = []
+    index_wrt_dist = []
+    route_end = len(route['x'])
+    search_step = 15
+    memory_pointer = 0
+    limit = memory_pointer + search_step
+
+    x_cords = trajectory['x']
+    y_cords = trajectory['y']
+    x_route_cords = route['x']
+    y_route_cords = route['y']
+    recovered_headings = trajectory['heading']
+    route_heading = route['heading']
+
+    # For every query position
+    for i in range(0, len(trajectory['heading'])):
+        distance = []
+        for j in range(memory_pointer, limit):  # For every route position
+            d = math.sqrt((x_cords[i] - x_route_cords[j]) ** 2 + ((y_cords[i] - y_route_cords[j]) ** 2))
+            distance.append(d)
+        index_wrt_dist.append(distance.index(min(distance)) + memory_pointer)
+        errors.append(180 - abs(abs(recovered_headings[i] - route_heading[index_wrt_dist[-1]]) - 180))
+        memory_pointer = index_wrt_dist[-1]
+        # update the limit
+        limit = memory_pointer + search_step
+        if limit > route_end: limit = route_end
+    return errors
 
 
 def mean_degree_error(x_cords, y_cords, x_route_cords, y_route_cords, route_heading, recovered_headings):

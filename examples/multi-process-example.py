@@ -1,5 +1,5 @@
 from source.utils import pre_process, mean_degree_error, load_route
-from source import sequential_perfect_memory as spm
+from source import seqnav as spm
 from multiprocessing import Process
 
 

@@ -1,10 +1,11 @@
 from source.utils import pre_process, load_route, degree_error
-from source import sequential_perfect_memory as spm, perfect_memory as pm
+from source import seqnav as spm, perfect_memory as pm
 import pandas as pd
 import timeit
 import itertools
 import multiprocessing
 import functools
+
 
 class Benchmark:
     def __init__(self, results_path):
