@@ -17,7 +17,7 @@ class SequentialPerfectMemory:
         self.confidence = [1] * self.route_end
         self.window_sims = []
         self.CMA = []
-        matchers = {'corr': cor_dist, 'rmse': rmse, 'mae' :mae}
+        matchers = {'corr': cor_dist, 'rmse': rmse, 'mae': mae}
         self.matcher = matchers.get(matching)
         if not self.matcher:
             raise Exception('Non valid matcher method name')
@@ -26,7 +26,7 @@ class SequentialPerfectMemory:
 
         # Used for continous heading search
         self.mem_pointer = 0
-        self.window = 10
+        self.window = 14
 
     def get_heading(self, query_img, dynamic_window=False):
         # get the rotational similarities between a query image and a window of route images
@@ -55,6 +55,8 @@ class SequentialPerfectMemory:
         self.mem_pointer += index
         self.matched_index_log.append(self.mem_pointer)
 
+        # recovered_heading.append(sum(wind_headings)/len(wind_headings))
+
         if dynamic_window:
             best = wind_sims[index]
             self.update_window(best)
@@ -62,7 +64,6 @@ class SequentialPerfectMemory:
         return heading
 
     def update_window(self, best):
-        # recovered_heading.append(sum(wind_headings)/len(wind_headings))
         # Dynamic window adaptation based on match gradient.
         if best > self.prev_match or self.window < 5:
             self.window += 1

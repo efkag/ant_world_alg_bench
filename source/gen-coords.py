@@ -108,7 +108,7 @@ def generate(mean, save_path, no_of_points=5, curve_points=100, plot=True, route
     data = np.array([x_route, y_route, [z] * len(x_route), heading])
     np.savetxt(save_path + 'route' + str(route_id) + '.csv', data, delimiter=',')
 
-    print(meancurv2d(x_route, y_route))
+    print('mean curvature:', meancurv2d(x_route, y_route))
     if plot:
         u, v = pol2cart_headings(90 - heading)
         plt.scatter(x_route, y_route)
@@ -120,43 +120,44 @@ def generate(mean, save_path, no_of_points=5, curve_points=100, plot=True, route
 # x, y = random_circle_points(10, 6)
 # plt.scatter(x, y)
 # plt.show()
-# generate([0, 0], "../test_data/route1/", no_of_points=5, route_id=1)
+route_id = 5
+generate([0, 0], '../new-antworld/route' + str(route_id) + '/', no_of_points=4, curve_points=200, route_id=route_id)
 
-
-np.random.seed(10)
-mean = np.array([0, 0])
-cov = np.array([[1, 10], [10, 1]])
-xy = np.random.multivariate_normal(mean, cov, 6)
-
-points = [
-    [0., 0.],
-    [0.5, 0.5],
-    [1.0, 1.0],
-    [2.5, 2.5],
-]
-# Show control points
-xy = np.array(points)
-
-np.savetxt('../XYZbins/new_points_3.csv', xy, delimiter=',')
-plt.plot(xy[:, 0], xy[:, 1])
-plt.scatter(xy[:, 0], xy[:, 1])
-
-x_route, y_route = bezier_curve_vert(100, xy)
-heading = 90 - line_incl(x_route, y_route)
-# heading = line_incl(x_route, y_route)
-u, v = pol2cart_headings(90 - heading)
-# plt.plot(x_route, y_route)
-plt.scatter(x_route, y_route)
-plt.quiver(x_route, y_route, u, v, scale=50)
-plt.show()
-
-# Save to file
-z = 1.5
-path = '../XYZbins/new_route_3.csv'
-data = np.array([x_route, y_route, [z]*len(x_route), heading])
-
-# data.tofile(path)
-np.savetxt(path, data, delimiter=',')
-
-print(meancurv2d(x_route, y_route))
+#
+# np.random.seed(10)
+# mean = np.array([0, 0])
+# cov = np.array([[1, 10], [10, 1]])
+# xy = np.random.multivariate_normal(mean, cov, 6)
+#
+# points = [
+#     [0., 0.],
+#     [0.5, 0.5],
+#     [1.0, 1.0],
+#     [2.5, 2.5],
+# ]
+# # Show control points
+# xy = np.array(points)
+#
+# np.savetxt('../XYZbins/new_points_3.csv', xy, delimiter=',')
+# plt.plot(xy[:, 0], xy[:, 1])
+# plt.scatter(xy[:, 0], xy[:, 1])
+#
+# x_route, y_route = bezier_curve_vert(100, xy)
+# heading = 90 - line_incl(x_route, y_route)
+# # heading = line_incl(x_route, y_route)
+# u, v = pol2cart_headings(90 - heading)
+# # plt.plot(x_route, y_route)
+# plt.scatter(x_route, y_route)
+# plt.quiver(x_route, y_route, u, v, scale=50)
+# plt.show()
+#
+# # Save to file
+# z = 1.5
+# path = '../XYZbins/new_route_3.csv'
+# data = np.array([x_route, y_route, [z]*len(x_route), heading])
+#
+# # data.tofile(path)
+# np.savetxt(path, data, delimiter=',')
+#
+# print(meancurv2d(x_route, y_route))
 

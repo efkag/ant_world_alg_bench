@@ -48,15 +48,15 @@ def save_image(path, img):
     cv.imwrite(path, img)# , cmap='gray')
 
 
-def plot_route(route, traj=None):
-    scale = 50
+def plot_route(route, traj=None, scale=70):
     # Plot the route
     u, v = pol2cart_headings(90 - route['heading'])
     plt.scatter(route['x'], route['y'])
     plt.quiver(route['x'], route['y'], u, v, scale=scale)
     # Plot th trajectory of the agent when repeating the route
     if traj:
-        u, v = pol2cart_headings(90 - traj['heading'])
+        # u, v = pol2cart_headings(90 - traj['heading'])
+        u, v = pol2cart_headings(traj['heading'])
         plt.scatter(traj['x'], traj['y'])
         plt.quiver(traj['x'], traj['y'], u, v, scale=scale)
 
@@ -589,6 +589,37 @@ def degree_error(x_cords, y_cords, x_route_cords, y_route_cords, route_heading, 
         limit = memory_pointer + search_step
         if limit > route_end: limit = route_end
     return errors, k
+
+
+def angular_error(route, trajectory):
+    # Holds the angular error between the query position and the closest route position
+    errors = []
+    index_wrt_dist = []
+    route_end = len(route['x'])
+    search_step = 15
+    memory_pointer = 0
+    limit = memory_pointer + search_step
+
+    x_cords = trajectory['x']
+    y_cords = trajectory['y']
+    x_route_cords = route['x']
+    y_route_cords = route['y']
+    recovered_headings = trajectory['heading']
+    route_heading = route['heading']
+
+    # For every query position
+    for i in range(0, len(trajectory['heading'])):
+        distance = []
+        for j in range(memory_pointer, limit):  # For every route position
+            d = math.sqrt((x_cords[i] - x_route_cords[j]) ** 2 + ((y_cords[i] - y_route_cords[j]) ** 2))
+            distance.append(d)
+        index_wrt_dist.append(distance.index(min(distance)) + memory_pointer)
+        errors.append(180 - abs(abs(recovered_headings[i] - route_heading[index_wrt_dist[-1]]) - 180))
+        memory_pointer = index_wrt_dist[-1]
+        # update the limit
+        limit = memory_pointer + search_step
+        if limit > route_end: limit = route_end
+    return errors
 
 
 def mean_degree_error(x_cords, y_cords, x_route_cords, y_route_cords, route_heading, recovered_headings):

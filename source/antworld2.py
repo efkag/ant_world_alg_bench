@@ -61,10 +61,10 @@ def record_route(datapoints, path):
         cv2.imwrite(filename, img)
 
 
-def rec_route_from_points(path, target_path):
-    datapoints = np.genfromtxt(path, delimiter=',')
+def rec_route_from_points(path, target_path, route_id=1):
+    datapoints = np.genfromtxt(path + 'route' + str(route_id) + '.csv', delimiter=',')
     check_for_dir_and_create(target_path)
-    np.savetxt(target_path + "route3.csv", datapoints, delimiter=',')
+    np.savetxt(target_path + 'route' + str(route_id) + '.csv', datapoints, delimiter=',')
     record_route(datapoints, target_path)
 
 
@@ -96,20 +96,22 @@ def update_position(xy, deg, r):
     return (xx, yy), img
 
 
-def test_nav(path, nav, matcher='mae', deg_range=(-180, 180)):
+def test_nav(path, nav, matcher='mae', deg_range=(-180, 180), route_id=1):
     # initial position and heading
     xy = (0, 0)
     h = 0
     # step size for the agent movement (in cm)
     r = 0.05
     # timesteps to run the simulations
-    t = 10
+    t = 40
 
-    data = np.genfromtxt(path + 'route3.csv', delimiter=',')
+    data = np.genfromtxt(path + 'route' + str(route_id) + '.csv', delimiter=',')
     x = data[0]
     y = data[1]
     z = data[2]
     headings = data[3]
+
+    xy = (x[0], y[0]+0.1)
 
     imgs = []
     for i in range(len(x)):
@@ -123,14 +125,14 @@ def test_nav(path, nav, matcher='mae', deg_range=(-180, 180)):
     #initialise the variables
     headings = []
     headings.append(h)
-    traj = np.empty((2, t + 1))
+    traj = np.empty((2, t))
     traj[0, 0] = xy[0]
     traj[1, 0] = xy[1]
 
     for i in range(1, t):
         h = nav.get_heading(img)
         h = headings[-1] + h
-        # h = validate_heading(h)
+        h = validate_heading(h)
         headings.append(h)
         xy, img = update_position(xy, h, r)
         traj[0, i] = xy[0]
@@ -150,6 +152,9 @@ def validate_heading(h):
 """
 Testing
 """
+# route_id = 3
+# path = '../new-antworld/route' + str(route_id) + '/'
+# rec_route_from_points(path, target_path=path, route_id=route_id)
 # datapoints = np.genfromtxt('../XYZbins/new_route_1.csv', delimiter=',')
 #
 # record_route(datapoints, "../new-antworld/route2/")
@@ -159,5 +164,5 @@ Testing
 # xy, img = update_position((0, 0), 45, 0.5)
 #
 # print(xy, img.shape)
-
-# rec_route_from_points('../XYZbins/new_route_3.csv', '../new-antworld/route3/')
+#
+# rec_route_from_points('../XYZbins/new_route_3.csv', '../new-antworld/route4/')
