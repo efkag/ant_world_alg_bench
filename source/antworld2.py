@@ -1,6 +1,8 @@
-import antworld, cv2
+import antworld
+import cv2
 import numpy as np
-from source.utils import check_for_dir_and_create
+from source.utils import check_for_dir_and_create, load_route_naw, write_route
+from source.gencoords import generate
 
 # Old Seville data (lower res, but loads faster)
 worldpath = antworld.bob_robotics_path + "/resources/antworld/world5000_gray.bin"
@@ -45,13 +47,17 @@ print(xlim, ylim, zlim)
 
 
 
-def record_route(datapoints, path):
+def record_route(route, path):
     check_for_dir_and_create(path)
-    x = datapoints[0]
-    y = datapoints[1]
-    z = datapoints[2]
-    headings = datapoints[3]
+    x = route['x']
+    y = route['y']
+    z = route['z']
+    headings = route['yaw']
+    # Fixed high for now
+    # TODO: in the future it may be a good idea to adap the coed to use the elevation
+    #   and the pitch, roll noise
     z = 1.5
+    route['filename'] = []
 
     for i, (xi, yi, h1) in enumerate(zip(x, y, headings)):
         agent.set_position(xi, yi, z)
@@ -59,13 +65,20 @@ def record_route(datapoints, path):
         img = agent.read_frame()
         filename = path + "img%i.png" % i
         cv2.imwrite(filename, img)
+        route['filename'].append("img%i.png" % i)
+
+    write_route(path, route)
 
 
-def rec_route_from_points(path, target_path, route_id=1):
-    datapoints = np.genfromtxt(path + 'route' + str(route_id) + '.csv', delimiter=',')
-    check_for_dir_and_create(target_path)
-    np.savetxt(target_path + 'route' + str(route_id) + '.csv', datapoints, delimiter=',')
-    record_route(datapoints, target_path)
+def rec_route_from_points(path, route_id=1):
+    # Augment the directory containing all route
+    # to create a new directory w.r.t the new route
+    path = path + 'route' + str(route_id) + '/'
+    check_for_dir_and_create(path)
+    # Generate coordinates and write them to file
+    route = generate([0, 0], path, route_id=route_id)
+    d = load_route_naw(path, route_id)
+    record_route(route, path)
 
 
 def get_img(xy, deg):
@@ -105,6 +118,7 @@ def test_nav(path, nav, matcher='mae', deg_range=(-180, 180), route_id=1):
     # timesteps to run the simulations
     t = 40
 
+    load_route_naw(path, route_id)
     data = np.genfromtxt(path + 'route' + str(route_id) + '.csv', delimiter=',')
     x = data[0]
     y = data[1]
@@ -152,9 +166,9 @@ def validate_heading(h):
 """
 Testing
 """
-# route_id = 3
-# path = '../new-antworld/route' + str(route_id) + '/'
-# rec_route_from_points(path, target_path=path, route_id=route_id)
+route_id = 1
+path = '../new-antworld/'
+rec_route_from_points(path, route_id=route_id)
 # datapoints = np.genfromtxt('../XYZbins/new_route_1.csv', delimiter=',')
 #
 # record_route(datapoints, "../new-antworld/route2/")

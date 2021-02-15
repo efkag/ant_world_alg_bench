@@ -2,6 +2,7 @@ import math
 from source.utils import line_incl, pol2cart_headings, check_for_dir_and_create, pol2cart
 from matplotlib import pyplot as plt
 import numpy as np
+import pandas as pd
 pi = math.pi
 
 
@@ -92,6 +93,7 @@ def generate(mean, save_path, no_of_points=5, curve_points=100, plot=True, route
     :param plot:
     :return:
     '''
+    route = {}
     check_for_dir_and_create(save_path)
     mean = np.array(mean)
     cov = np.array([[1, 10], [10, 1]])
@@ -104,9 +106,17 @@ def generate(mean, save_path, no_of_points=5, curve_points=100, plot=True, route
     # setting the origin (0 degrees) at the north
     heading = 90 - line_incl(x_route, y_route)
 
+    route['x'] = np.array(x_route)
+    route['y'] = np.array(y_route)
+    #fixed z (elevation)
     z = 1.5
-    data = np.array([x_route, y_route, [z] * len(x_route), heading])
-    np.savetxt(save_path + 'route' + str(route_id) + '.csv', data, delimiter=',')
+    route['z'] = np.full(curve_points, z)
+    route['yaw'] = heading
+    route['pitch'] = np.zeros(curve_points)
+    route['roll'] = np.zeros(curve_points)
+
+    # df = pd.DataFrame.from_dict(route)
+    # df.to_csv(save_path + 'route' + str(route_id) + '.csv', index=False)
 
     print('mean curvature:', meancurv2d(x_route, y_route))
     if plot:
@@ -116,12 +126,13 @@ def generate(mean, save_path, no_of_points=5, curve_points=100, plot=True, route
         plt.scatter(xy[:, 0], xy[:, 1])
         plt.show()
 
+    return route
 
 # x, y = random_circle_points(10, 6)
 # plt.scatter(x, y)
 # plt.show()
-route_id = 5
-generate([0, 0], '../new-antworld/route' + str(route_id) + '/', no_of_points=4, curve_points=200, route_id=route_id)
+# route_id = 6
+# generate([0, 0], '../new-antworld/route' + str(route_id) + '/', no_of_points=4, curve_points=200, route_id=route_id)
 
 #
 # np.random.seed(10)

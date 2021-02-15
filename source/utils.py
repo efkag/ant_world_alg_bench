@@ -177,21 +177,16 @@ def element_index(l, elem):
     except ValueError:
         return False
 
-# TODO: here
-def load_route_naw(path, route_id=1):
-    route_data = {}
-    data = np.genfromtxt(path + 'route' + str(route_id) + '.csv', delimiter=',')
-    x = data[0]
-    y = data[1]
-    z = data[2]
-    headings = data[3]
 
-    route_data['x'] = x
-    route_data['y'] = y
-    route_data['z'] = z
-    route_data['heading'] = headings
+def load_route_naw(path, route_id=1):
+    route_data = pd.read_csv(path + 'route' + str(route_id) + '.csv')
+    route_data = route_data.to_dict('list')
     return route_data
 
+
+def write_route(path, route, route_id=1):
+    route = pd.DataFrame(route)
+    route.to_csv(path + 'route' + str(route_id) + '.csv')
 
 
 def load_route(route_id, grid_pos_limit=200):
