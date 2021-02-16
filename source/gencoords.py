@@ -125,6 +125,38 @@ def generate(mean, save_path, no_of_points=5, curve_points=100, plot=True, route
 
     return route
 
+
+def generate_grid(steps):
+    grid = {}
+    xv = np.linspace(-10, 10, steps)
+    yv = np.linspace(-10, 10, steps)
+
+    x, y = np.meshgrid(xv, yv)
+
+    x = x.flatten()
+    y = y.flatten()
+
+    grid['x'] = x
+    grid['y'] = y
+    z =1.5
+    grid['z'] = np.full(steps*steps, z)
+    grid['yaw'] = np.full(steps*steps, 0)
+    grid['pitch'] = np.full(steps * steps, 0)
+    grid['roll'] = np.full(steps * steps, 0)
+
+    return grid
+
+
+
+    # x = np.empty(steps*steps)
+    # y = np.empty(steps*steps)
+    # for x in xv:
+    #     for j in yv:
+    #         print(i, j)
+
+
+generate_grid(100)
+
 # x, y = random_circle_points(10, 6)
 # plt.scatter(x, y)
 # plt.show()

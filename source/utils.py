@@ -510,6 +510,7 @@ def rmf(query_img, ref_imgs, matcher=mae, d_range=(0, 360), d_step=1):
 
     return sims if sims.shape[0] > 1 else sims[0]
 
+
 def pair_rmf(query_imgs, ref_imgs, matcher=mae, d_range=(0, 360), d_step=1):
     """
     Pairwise Rotational Matching Function
@@ -534,9 +535,11 @@ def pair_rmf(query_imgs, ref_imgs, matcher=mae, d_range=(0, 360), d_step=1):
 
     return sims
 
+
 def flatten_imgs(imgs):
     assert isinstance(imgs, list)
     return [img.flatten() for img in imgs]
+
 
 def cross_corr(sub_series, series):
     return [np.dot(s, sub_series) for s in series]

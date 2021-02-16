@@ -2,7 +2,7 @@ import antworld
 import cv2
 import numpy as np
 from source.utils import check_for_dir_and_create, load_route_naw, write_route
-from source.gencoords import generate
+from source.gencoords import generate, generate_grid
 
 # Old Seville data (lower res, but loads faster)
 worldpath = antworld.bob_robotics_path + "/resources/antworld/world5000_gray.bin"
@@ -77,7 +77,6 @@ def rec_route_from_points(path, route_id=1):
     check_for_dir_and_create(path)
     # Generate coordinates and write them to file
     route = generate([0, 0], path, route_id=route_id)
-    d = load_route_naw(path, route_id)
     record_route(route, path)
 
 
@@ -100,7 +99,6 @@ def update_position(xy, deg, r):
     yy = xy[1] + (r * np.sin(rad))
 
     agent.set_position(xx, yy, z)
-    # TODO: Might be a good idea to center the angle search around the current heading.
     agent.set_attitude(deg, 0, 0)
 
     img = agent.read_frame()
@@ -155,9 +153,21 @@ def validate_heading(h):
         return 360 + h
     else:
         return h
+
+
+def rec_grid(steps, path):
+    path = path + 'grid' + str(steps) + '/'
+    grid = generate_grid(steps)
+    record_route(grid, path)
+
+
+
 """
 Testing
 """
+
+
+# rec_grid(70, path='../new-antworld/')
 # route_id = 1
 # path = '../new-antworld/'
 # rec_route_from_points(path, route_id=route_id)
