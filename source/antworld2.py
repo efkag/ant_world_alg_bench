@@ -118,22 +118,14 @@ def test_nav(path, nav, matcher='mae', deg_range=(-180, 180), route_id=1):
     # timesteps to run the simulations
     t = 40
 
-    load_route_naw(path, route_id)
-    data = np.genfromtxt(path + 'route' + str(route_id) + '.csv', delimiter=',')
-    x = data[0]
-    y = data[1]
-    z = data[2]
-    headings = data[3]
-
+    route = load_route_naw(path, route_id, imgs=True)
+    x = route['x']
+    y = route['y']
+    z = route['z']
     xy = (x[0], y[0]+0.1)
 
-    imgs = []
-    for i in range(len(x)):
-        img = cv2.imread(path + '/img' + str(i) + '.png', cv2.IMREAD_GRAYSCALE)
-        imgs.append(img)
-
     # set up the navigator
-    nav = nav(imgs, matcher, deg_range)
+    nav = nav(route['imgs'], matcher, deg_range)
     # set the initial conditions
     img = get_img(xy, h)
     #initialise the variables
@@ -166,9 +158,9 @@ def validate_heading(h):
 """
 Testing
 """
-route_id = 1
-path = '../new-antworld/'
-rec_route_from_points(path, route_id=route_id)
+# route_id = 1
+# path = '../new-antworld/'
+# rec_route_from_points(path, route_id=route_id)
 # datapoints = np.genfromtxt('../XYZbins/new_route_1.csv', delimiter=',')
 #
 # record_route(datapoints, "../new-antworld/route2/")

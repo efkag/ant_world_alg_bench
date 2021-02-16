@@ -115,9 +115,6 @@ def generate(mean, save_path, no_of_points=5, curve_points=100, plot=True, route
     route['pitch'] = np.zeros(curve_points)
     route['roll'] = np.zeros(curve_points)
 
-    # df = pd.DataFrame.from_dict(route)
-    # df.to_csv(save_path + 'route' + str(route_id) + '.csv', index=False)
-
     print('mean curvature:', meancurv2d(x_route, y_route))
     if plot:
         u, v = pol2cart_headings(90 - heading)

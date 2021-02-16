@@ -50,7 +50,7 @@ def save_image(path, img):
 
 def plot_route(route, traj=None, scale=70):
     # Plot the route
-    u, v = pol2cart_headings(90 - route['heading'])
+    u, v = pol2cart_headings(90 - route['yaw'])
     plt.scatter(route['x'], route['y'])
     plt.quiver(route['x'], route['y'], u, v, scale=scale)
     # Plot th trajectory of the agent when repeating the route
@@ -178,15 +178,24 @@ def element_index(l, elem):
         return False
 
 
-def load_route_naw(path, route_id=1):
-    route_data = pd.read_csv(path + 'route' + str(route_id) + '.csv')
+def load_route_naw(path, route_id=1, imgs=False):
+    route_data = pd.read_csv(path + 'route' + str(route_id) + '.csv', index_col=0)
     route_data = route_data.to_dict('list')
+    # convert the lists to numpy arrays
+    for k in route_data:
+        route_data[k] = np.array(route_data[k])
+    if imgs:
+        imgs = []
+        for i in route_data['filename']:
+            img = cv.imread(path + i, cv.IMREAD_GRAYSCALE)
+            imgs.append(img)
+        route_data['imgs'] = imgs
     return route_data
 
 
 def write_route(path, route, route_id=1):
     route = pd.DataFrame(route)
-    route.to_csv(path + 'route' + str(route_id) + '.csv')
+    route.to_csv(path + 'route' + str(route_id) + '.csv', index=False)
 
 
 def load_route(route_id, grid_pos_limit=200):
