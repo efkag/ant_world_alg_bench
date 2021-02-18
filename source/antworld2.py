@@ -1,7 +1,7 @@
 import antworld
 import cv2
 import numpy as np
-from source.utils import check_for_dir_and_create, load_route_naw, write_route
+from source.utils import check_for_dir_and_create, load_route_naw, write_route, squash_deg
 from source.gencoords import generate, generate_grid
 
 # Old Seville data (lower res, but loads faster)
@@ -136,7 +136,7 @@ def test_nav(path, nav, matcher='mae', deg_range=(-180, 180), route_id=1):
     for i in range(1, t):
         h = nav.get_heading(img)
         h = headings[-1] + h
-        h = validate_heading(h)
+        h = squash_deg(h)
         headings.append(h)
         xy, img = update_position(xy, h, r)
         traj[0, i] = xy[0]
@@ -144,15 +144,6 @@ def test_nav(path, nav, matcher='mae', deg_range=(-180, 180), route_id=1):
 
     headings = np.array(headings)
     return headings, traj, nav
-
-
-def validate_heading(h):
-    if h >= 360:
-        return h - 360
-    elif h < 0:
-        return 360 + h
-    else:
-        return h
 
 
 def rec_grid(steps, path):
@@ -165,7 +156,6 @@ def rec_grid(steps, path):
 """
 Testing
 """
-
 
 # rec_grid(70, path='../new-antworld/')
 # route_id = 1

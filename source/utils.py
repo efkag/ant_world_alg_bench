@@ -53,7 +53,7 @@ def plot_route(route, traj=None, scale=70):
     u, v = pol2cart_headings(90 - route['yaw'])
     plt.scatter(route['x'], route['y'])
     plt.quiver(route['x'], route['y'], u, v, scale=scale)
-    # Plot th trajectory of the agent when repeating the route
+    # Plot the trajectory of the agent when repeating the route
     if traj:
         # u, v = pol2cart_headings(90 - traj['heading'])
         u, v = pol2cart_headings(traj['heading'])
@@ -179,7 +179,7 @@ def element_index(l, elem):
 
 
 def load_route_naw(path, route_id=1, imgs=False):
-    route_data = pd.read_csv(path + 'route' + str(route_id) + '.csv', index_col=0)
+    route_data = pd.read_csv(path + 'route' + str(route_id) + '.csv', index_col=False)
     route_data = route_data.to_dict('list')
     # convert the lists to numpy arrays
     for k in route_data:
@@ -309,7 +309,19 @@ def line_incl(x, y):
     :return:
     '''
     incl = np.arctan2(np.subtract(y[1:], y[:-1]), np.subtract(x[1:], x[:-1])) * 180 / np.pi
-    return np.append(incl, incl[-1])
+    incl = np.append(incl, incl[-1])
+    return incl % 360
+
+
+def squash_deg(degrees):
+    '''
+    Squashes degrees into the range of 0-360
+    This is useful when dealing with negative degrees or degrees over 360
+    :param degrees: A numpy array of values in degrees
+    :return:
+    '''
+    assert isinstance(degrees, np.ndarray)
+    return degrees % 360
 
 
 def pol2cart(r, theta):
@@ -456,6 +468,7 @@ def cor_coef(a, b):
     b = b.flatten()
     return cov(a, b) / (np.std(a) * np.std(b))
 
+
 def cor_dist(a, b):
     """
     Calculates the correlation coefficient distance
@@ -470,6 +483,7 @@ def cor_dist(a, b):
 
     return correlation(a, b.flatten())
 
+
 def cos_dist(a, b):
     """
     Calculates cosine similarity
@@ -482,6 +496,7 @@ def cos_dist(a, b):
         return [cosine(a, img) for img in b]
 
     return cosine(a, b)
+
 
 def rmf(query_img, ref_imgs, matcher=mae, d_range=(0, 360), d_step=1):
     """
@@ -612,7 +627,7 @@ def angular_error(route, trajectory):
     x_route_cords = route['x']
     y_route_cords = route['y']
     recovered_headings = trajectory['heading']
-    route_heading = route['heading']
+    route_heading = route['yaw']
 
     # For every query position
     for i in range(0, len(trajectory['heading'])):

@@ -18,9 +18,6 @@ traj = {'x': xy[0], 'y': xy[1], 'heading': headings}
 #TODO: headings are also stored in the navigator class
 
 
-# plt.scatter(traj['x'], traj['y'])
-# plt.show()
-
 plot_route(route, traj)
 
 errors = angular_error(route, traj)
