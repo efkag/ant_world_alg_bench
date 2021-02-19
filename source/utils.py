@@ -656,6 +656,7 @@ def degree_error(x_cords, y_cords, x_route_cords, y_route_cords, route_heading, 
 
 
 def angular_error(route, trajectory):
+    # TODO: Edit the angular_error function to also calculate the index difference between matched and minimum distance index
     # Holds the angular error between the query position and the closest route position
     errors = []
     index_wrt_dist = []

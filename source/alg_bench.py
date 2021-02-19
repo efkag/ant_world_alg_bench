@@ -1,4 +1,4 @@
-from source.utils import pre_process, load_route, degree_error, load_route_naw
+from source.utils import pre_process, load_route, degree_error, load_route_naw, angular_error
 from source import seqnav as spm, perfect_memory as pm
 import pandas as pd
 import timeit
@@ -86,14 +86,13 @@ class Benchmark:
             path = '../new-antworld/'
             for route_id in route_ids:  # for every route
                 route_path = '../new-antworld/route' + str(route_id) + '/'
-                route = load_route_naw(route_path, route_id=route_id, imgs=True)
+                route = load_route_naw(route_path, route_id=route_id, imgs=True, query=True, max_dist=0.2)
                 # _, test_x, test_y, test_imgs, route_x, route_y, \
                 #     route_heading, route_imgs = load_route(route, self.dist)
 
                 tic = timeit.default_timer()
                 # Preprocess images
-                test_imgs = None
-                # TODO: Modify the load function to return test images
+                test_imgs = route['qimgs']
                 test_imgs = pre_process(test_imgs, combo_dict)
                 route_imgs = route['imgs']
                 route_imgs = pre_process(route_imgs, combo_dict)
@@ -104,10 +103,13 @@ class Benchmark:
                 # Get time complexity
                 time_compl.append(toc-tic)
                 # Get the errors and the minimum distant index of the route memory
-                errors, min_dist_index = degree_error(test_x, test_y, route_x, route_y, route_heading, recovered_heading)
+                # errors, min_dist_index = degree_error(test_x, test_y, route_x, route_y, route_heading, recovered_heading)
+                traj = {'x': route['qx'], 'y': route['qy'], 'heading': recovered_heading}
+                errors = angular_error(route, traj)
                 route_errors.extend(errors)
+                # TODO: Edit the angular_error function to also calculate the index difference between matched and minimum distance index
                 # Difference between matched index and minimum distance index
-                abs_index_diffs.extend([abs(i - j) for i, j in zip(nav.get_index_log(), min_dist_index)])
+                # abs_index_diffs.extend([abs(i - j) for i, j in zip(nav.get_index_log(), min_dist_index)])
             self.jobs += 1
             print('Jobs completed: {}/{}'.format(self.jobs, self.total_jobs))
 
