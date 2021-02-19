@@ -155,7 +155,7 @@ def generate_grid(steps):
     #         print(i, j)
 
 
-generate_grid(100)
+# generate_grid(100)
 
 # x, y = random_circle_points(10, 6)
 # plt.scatter(x, y)

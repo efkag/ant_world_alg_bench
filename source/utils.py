@@ -6,7 +6,7 @@ import pandas as pd
 import cv2 as cv
 import math
 import os
-from scipy.spatial.distance import cosine, correlation
+from scipy.spatial.distance import cosine, correlation, cdist
 # sns.set(font_scale=0.8)
 
 
@@ -178,7 +178,7 @@ def element_index(l, elem):
         return False
 
 
-def load_route_naw(path, route_id=1, imgs=False):
+def load_route_naw(path, route_id=1, imgs=False, query=False, max_dist=0.5):
     route_data = pd.read_csv(path + 'route' + str(route_id) + '.csv', index_col=False)
     route_data = route_data.to_dict('list')
     # convert the lists to numpy arrays
@@ -190,6 +190,43 @@ def load_route_naw(path, route_id=1, imgs=False):
             img = cv.imread(path + i, cv.IMREAD_GRAYSCALE)
             imgs.append(img)
         route_data['imgs'] = imgs
+
+    # Sample positions and images from the grid near the route for testing
+    if query:
+        path = '../new-antworld/grid70/'
+        grid = pd.read_csv(path + 'grid70.csv')
+        grid = grid.to_dict('list')
+        for k in grid:
+            grid[k] = np.array(grid[k])
+
+        grid_xy = np.transpose(np.array([grid['x'], grid['y']]))
+        query_indexes = np.empty(0, dtype=int)
+        qx = np.empty(0)
+        qy = np.empty(0)
+        qimg = []
+        # Fetch images from the grid that are located nearby route images.
+        # for each route position
+        for i, (x, y) in enumerate(zip(route_data['x'], route_data['y'])):
+            # get distance between route point and all grid points
+            dist = np.squeeze(cdist([(x, y)], grid_xy, 'euclidean'))
+            indexes = np.where(dist <= max_dist)
+            # check which indexes have not been encountered before
+            mask = np.isin(indexes, query_indexes, invert=True)
+            # get the un-encountered indexes
+            indexes = [mask]
+            # save the indexes
+            query_indexes = np.append(query_indexes, indexes)
+
+            for i in indexes:
+                qx = np.append(qx, grid_xy[i, 0])
+                qy = np.append(qx, grid_xy[i, 1])
+                imgfile = path + grid['imgs'][i]
+                qimg.append(cv.imread(imgfile, cv.IMREAD_GRAYSCALE))
+
+        route_data['qx'] = qx
+        route_data['qy'] = qy
+        route_data['qimgs'] = qimg
+
     return route_data
 
 
