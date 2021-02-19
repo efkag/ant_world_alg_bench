@@ -53,6 +53,10 @@ def plot_route(route, traj=None, scale=70):
     u, v = pol2cart_headings(90 - route['yaw'])
     plt.scatter(route['x'], route['y'])
     plt.quiver(route['x'], route['y'], u, v, scale=scale)
+    # Plot grid test points
+    if 'qx' in route:
+        plt.scatter(route['qx'], route['qy'])
+
     # Plot the trajectory of the agent when repeating the route
     if traj:
         # u, v = pol2cart_headings(90 - traj['heading'])
@@ -209,18 +213,19 @@ def load_route_naw(path, route_id=1, imgs=False, query=False, max_dist=0.5):
         for i, (x, y) in enumerate(zip(route_data['x'], route_data['y'])):
             # get distance between route point and all grid points
             dist = np.squeeze(cdist([(x, y)], grid_xy, 'euclidean'))
-            indexes = np.where(dist <= max_dist)
+            # indexes of distances within the limit
+            indexes = np.where(dist <= max_dist)[0]
             # check which indexes have not been encountered before
             mask = np.isin(indexes, query_indexes, invert=True)
             # get the un-encountered indexes
-            indexes = [mask]
+            indexes = indexes[mask]
             # save the indexes
             query_indexes = np.append(query_indexes, indexes)
 
             for i in indexes:
                 qx = np.append(qx, grid_xy[i, 0])
-                qy = np.append(qx, grid_xy[i, 1])
-                imgfile = path + grid['imgs'][i]
+                qy = np.append(qy, grid_xy[i, 1])
+                imgfile = path + grid['filename'][i]
                 qimg.append(cv.imread(imgfile, cv.IMREAD_GRAYSCALE))
 
         route_data['qx'] = qx
@@ -357,7 +362,7 @@ def squash_deg(degrees):
     :param degrees: A numpy array of values in degrees
     :return:
     '''
-    assert isinstance(degrees, np.ndarray)
+    assert not isinstance(degrees, list)
     return degrees % 360
 
 

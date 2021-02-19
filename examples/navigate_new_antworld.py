@@ -7,7 +7,7 @@ from source import antworld2 as aw
 
 route_id = 1
 path = '../new-antworld/route' + str(route_id) + '/'
-route = load_route_naw(path, route_id=route_id, query=True)
+route = load_route_naw(path, route_id=route_id, query=True, max_dist=0.2)
 
 plot_route(route)
 
