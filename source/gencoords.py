@@ -1,5 +1,5 @@
 import math
-from source.utils import line_incl, pol2cart_headings, check_for_dir_and_create, pol2cart
+from source.utils import line_incl, pol2cart_headings, check_for_dir_and_create, pol2cart, squash_deg
 from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
@@ -81,7 +81,7 @@ def bezier_curve_vert(n, verts):
     return x_cord, y_cord
 
 
-def generate(mean, save_path, no_of_points=5, curve_points=100, plot=True, route_id=1):
+def generate(mean, save_path, no_of_points=5, curve_points=250, plot=True, route_id=1):
     '''
     Generates control points froma distribution.
     Uses the control pints to generate points on a bezier curve.
@@ -105,6 +105,7 @@ def generate(mean, save_path, no_of_points=5, curve_points=100, plot=True, route
     # 90- rotates the origin of the degrees by 90 degrees counter clokwise
     # setting the origin (0 degrees) at the north
     heading = 90 - line_incl(x_route, y_route)
+    heading = squash_deg(heading)
 
     route['x'] = np.array(x_route)
     route['y'] = np.array(y_route)

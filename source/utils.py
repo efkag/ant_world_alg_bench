@@ -679,6 +679,8 @@ def angular_error(route, trajectory):
             d = math.sqrt((x_cords[i] - x_route_cords[j]) ** 2 + ((y_cords[i] - y_route_cords[j]) ** 2))
             distance.append(d)
         index_wrt_dist.append(distance.index(min(distance)) + memory_pointer)
+        recovered = recovered_headings[i]
+        rh = route_heading[index_wrt_dist[-1]]
         errors.append(180 - abs(abs(recovered_headings[i] - route_heading[index_wrt_dist[-1]]) - 180))
         memory_pointer = index_wrt_dist[-1]
         # update the limit

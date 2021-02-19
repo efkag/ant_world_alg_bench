@@ -47,7 +47,7 @@ print(xlim, ylim, zlim)
 
 
 
-def record_route(route, path):
+def record_route(route, path, route_id=1):
     check_for_dir_and_create(path)
     x = route['x']
     y = route['y']
@@ -67,7 +67,7 @@ def record_route(route, path):
         cv2.imwrite(filename, img)
         route['filename'].append("img%i.png" % i)
 
-    write_route(path, route)
+    write_route(path, route, route_id=route_id)
 
 
 def rec_route_from_points(path, route_id=1):
@@ -77,7 +77,7 @@ def rec_route_from_points(path, route_id=1):
     check_for_dir_and_create(path)
     # Generate coordinates and write them to file
     route = generate([0, 0], path, route_id=route_id)
-    record_route(route, path)
+    record_route(route, path, route_id=route_id)
 
 
 def get_img(xy, deg):
@@ -157,11 +157,11 @@ def rec_grid(steps, path):
 Testing
 """
 
-# rec_grid(70, path='../new-antworld/')
-# route_id = 1
-# path = '../new-antworld/'
-# rec_route_from_points(path, route_id=route_id)
-# datapoints = np.genfromtxt('../XYZbins/new_route_1.csv', delimiter=',')
+# # rec_grid(70, path='../new-antworld/')
+route_id = 2
+path = '../new-antworld/'
+rec_route_from_points(path, route_id=route_id)
+
 #
 # record_route(datapoints, "../new-antworld/route2/")
 # agent.set_position(0, 0, z)

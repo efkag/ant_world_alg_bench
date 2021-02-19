@@ -1,4 +1,4 @@
-from source.utils import pre_process, load_route, degree_error, load_route_naw, angular_error
+from source.utils import pre_process, load_route, degree_error, load_route_naw, angular_error, check_for_dir_and_create
 from source import seqnav as spm, perfect_memory as pm
 import pandas as pd
 import timeit
@@ -8,8 +8,9 @@ import functools
 
 
 class Benchmark:
-    def __init__(self, results_path):
-        self.results_path = results_path
+    def __init__(self, results_path, filename='results.csv'):
+        self.results_path = results_path + filename
+        check_for_dir_and_create(results_path)
         self.jobs = 0
         self.total_jobs = 1
         self.bench_logs = []
@@ -17,8 +18,8 @@ class Benchmark:
         self.routes_data = []
         self.dist = 100  # Distance between grid images and route images
         self.log = {'tested routes': [], 'blur': [], 'edge':[], 'window': [],
-                    'matcher': [], 'mean error': [], 'errors': [], 'seconds': [],
-                    'abs index diff': []}
+                    'matcher': [], 'mean error': [], 'errors': [], 'seconds': []}
+            #,'abs index diff': []}
 
     def load_routes(self, route_ids):
         self.route_ids = route_ids
@@ -62,6 +63,7 @@ class Benchmark:
         return logs
 
     def bench_singe_core(self, params, route_ids=None):
+        self._total_jobs(params)
 
         # Get list of parameter keys
         keys = [*params]
@@ -97,8 +99,13 @@ class Benchmark:
                 route_imgs = route['imgs']
                 route_imgs = pre_process(route_imgs, combo_dict)
                 # Run navigation algorithm
-                nav = spm.SequentialPerfectMemory(route_imgs, matcher)
-                recovered_heading, logs, window_log = nav.navigate(test_imgs, window)
+                if window:
+                    nav = spm.SequentialPerfectMemory(route_imgs, matcher)
+                    recovered_heading, logs, window_log = nav.navigate(test_imgs, window)
+                else:
+                    nav = pm.PerfectMemory(route_imgs, matcher)
+                    recovered_heading, logs = nav.navigate(test_imgs)
+
                 toc = timeit.default_timer()
                 # Get time complexity
                 time_compl.append(toc-tic)
@@ -115,14 +122,14 @@ class Benchmark:
 
             mean_route_error = sum(route_errors) / len(route_errors)
             self.log['tested routes'].extend([no_of_routes])
-            self.log['blur'].extend([combo_dict['blur']])
-            self.log['edge'].extend([combo_dict['edge_range']])
+            self.log['blur'].extend([combo_dict.get('blur')])
+            self.log['edge'].extend([combo_dict.get('edge_range')])
             self.log['window'].extend([window])
             self.log['matcher'].extend([matcher])
             self.log['mean error'].extend([mean_route_error])
             self.log['errors'].append(route_errors)
             self.log['seconds'].append(time_compl)
-            self.log['abs index diff'].append(abs_index_diffs)
+            # self.log['abs index diff'].append(abs_index_diffs)
         return self.log
 
     def _total_jobs(self, params):
@@ -136,13 +143,13 @@ class Benchmark:
         assert isinstance(route_ids, list)
 
         if parallel:
-            self.bench_paral(params, route_ids)
+            self.log = self.bench_paral(params, route_ids)
         else:
             self.log = self.bench_singe_core(params, route_ids)
 
         bench_results = pd.DataFrame(self.log)
 
-        bench_results.to_csv(self.results_path)
+        bench_results.to_csv(self.results_path, index=False)
         print(bench_results)
 
     @staticmethod
