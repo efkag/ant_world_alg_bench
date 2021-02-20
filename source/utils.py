@@ -48,23 +48,31 @@ def save_image(path, img):
     cv.imwrite(path, img)# , cmap='gray')
 
 
-def plot_route(route, traj=None, scale=70):
-    # Plot the route
+def plot_route(route, traj=None, scale=70, window=None, windex=None, save=False, size=(10, 10)):
+    fig, ax = plt.subplots(figsize=size)
     u, v = pol2cart_headings(90 - route['yaw'])
-    plt.scatter(route['x'], route['y'])
-    plt.quiver(route['x'], route['y'], u, v, scale=scale)
+    ax.scatter(route['x'], route['y'])
+    ax.quiver(route['x'], route['y'], u, v, scale=scale)
+    if window and windex:
+        start = window[0]
+        end = window[1]
+        ax.quiver(route['x'][start:end], route['y'][start:end], u[start:end], v[start:end], color='r', scale=scale)
+        ax.scatter(route['qx'][:windex], route['qy'][:windex])
     # Plot grid test points
-    if 'qx' in route:
-        plt.scatter(route['qx'], route['qy'])
-
+    if 'qx' in route and window is None:
+        ax.scatter(route['qx'], route['qy'])
     # Plot the trajectory of the agent when repeating the route
     if traj:
-        # u, v = pol2cart_headings(90 - traj['heading'])
-        u, v = pol2cart_headings(traj['heading'])
-        plt.scatter(traj['x'], traj['y'])
-        plt.quiver(traj['x'], traj['y'], u, v, scale=scale)
+        u, v = pol2cart_headings(90 - traj['heading'])
+        ax.scatter(traj['x'], traj['y'])
+        ax.quiver(traj['x'], traj['y'], u, v, scale=scale)
 
-    plt.show()
+    if save: fig.savefig('../test_data/windowplots/graph' + str(windex) + '.png')
+    if not save: plt.show()
+
+
+def animateq(i):
+    pass
 
 
 def plot_map(world, route_cords=None, grid_cords=None, size=(10, 10), save=False, zoom=(), zoom_factor=1500,

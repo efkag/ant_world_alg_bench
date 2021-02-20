@@ -29,7 +29,8 @@ v_data_pm = v_data_pm['errors'].tolist()
 # Here i use index 0 because the tolist() func above returns a single nested list
 v_data.append(v_data_pm[0])
 sns.violinplot(data=v_data, cut=0, ax=ax)
-labels = reversed(data['window'].unique().tolist())
+labels = data['window'].unique().tolist()
+labels = [* labels[1:], labels[0]]
 ax.set_xticklabels(labels)
 ax.set_ylabel('Degree error')
 ax.set_xlabel('Window size')

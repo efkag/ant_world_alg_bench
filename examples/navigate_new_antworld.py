@@ -1,8 +1,6 @@
-import numpy as np
-import cv2 as cv
-import matplotlib.pyplot as plt
 from source.utils import load_route_naw, plot_route, angular_error, squash_deg
 from source import seqnav
+from source import perfect_memory
 from source import antworld2 as aw
 
 route_id = 1

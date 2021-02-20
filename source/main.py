@@ -9,10 +9,10 @@ def main():
     #               'window': list(range(10, 12)), 'matcher': ['corr', 'rmse']}
 
     parameters = {'blur': [True], 'shape': [(180, 50)],
-                  'window': [5, 10, 15], 'matcher': ['mae', 'corr', 'rmse']}
+                  'window': [15, 20, 25], 'matcher': ['mae']}
 
     routes = [1, 2, 3]
-    bench = alg_bench.Benchmark(results_path, filename='wresults.csv')
+    bench = alg_bench.Benchmark(results_path, filename='w2results.csv')
     bench.benchmark(parameters, routes)
 
     # bench.bench_paral(parameters, routes)
