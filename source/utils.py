@@ -48,7 +48,7 @@ def save_image(path, img):
     cv.imwrite(path, img)# , cmap='gray')
 
 
-def plot_route(route, traj=None, scale=70, window=None, windex=None, save=False, size=(10, 10)):
+def plot_route(route, traj=None, scale=70, window=None, windex=None, save=False, size=(10, 10), path=None):
     fig, ax = plt.subplots(figsize=size)
     u, v = pol2cart_headings(90 - route['yaw'])
     ax.scatter(route['x'], route['y'])
@@ -67,12 +67,16 @@ def plot_route(route, traj=None, scale=70, window=None, windex=None, save=False,
         ax.scatter(traj['x'], traj['y'])
         ax.quiver(traj['x'], traj['y'], u, v, scale=scale)
 
-    if save: fig.savefig('../test_data/windowplots/graph' + str(windex) + '.png')
+    if save:
+        fig.savefig(path + str(windex) + '.png')
+        plt.close(fig)
     if not save: plt.show()
 
 
-def animateq(i):
-    pass
+def animated_window(route, path=None, scale=70, window=None, save=False, size=(10, 10)):
+    assert isinstance(window, list)
+    for i, w in enumerate(window):
+        plot_route(route, window=w, windex=i, save=save, scale=scale, size=size)
 
 
 def plot_map(world, route_cords=None, grid_cords=None, size=(10, 10), save=False, zoom=(), zoom_factor=1500,
@@ -146,23 +150,6 @@ def plot_map(world, route_cords=None, grid_cords=None, size=(10, 10), save=False
     if save and not save_id: fig.savefig(path)
     if show: plt.show()
     if save: plt.close()
-
-
-def load_grid():
-    grid_dir = 'AntWorld/world5000_grid/'
-
-    data = pd.read_csv(grid_dir + 'world5000_grid.csv', header=0)
-    data = data.values
-
-    # World top down image
-    world = mpimg.imread(grid_dir + 'world5000_grid.png')
-
-    # Grid data
-    x = data[:, 1]  # x location of the image in the world_grid
-    y = data[:, 0]  # y location of the image in the world_grid
-    # img_path = data[:, 4]  # Name of the image file
-
-    return x, y, world
 
 
 def route_imgs_from_indexes(indexes, headings, directory):
@@ -312,43 +299,6 @@ def load_route(route_id, grid_pos_limit=200):
                 world_grid_imgs.append(img)
 
     return world, X_inlimit, Y_inlimit, world_grid_imgs, X_route, Y_route, Heading_route, route_images
-
-
-def sample_from_wg(x_cords, y_cords, x_route_cords, y_route_cords, world_grid_imgs, min_dist):
-    '''
-    Samples images and their coordinates from the world grid
-    given a routes coordinates and a min distance.
-    The min distance would be the distance between
-    a grid image and the nearest route image.
-
-
-    :param x_cords: world grid coordinate
-    :param y_cords: world grid coordinate
-    :param x_route_cords: x route coordinate
-    :param y_route_cords: y route coordinate
-    :param world_grid_imgs: Grid images
-    :param min_dist: Minimum distance between grid poit and route point.
-    :return:
-    '''
-    x_inrange = []
-    y_inrange = []
-    w_g_imgs_inrange = []
-
-    for i in range(0, len(x_cords), 1):
-        dist = []
-        for j in range(0, len(x_route_cords), 1):
-            d = (math.sqrt((x_route_cords[j] - x_cords[i]) ** 2 + (y_route_cords[j] - y_cords[i]) ** 2))
-            dist.append(d)
-        if min(dist) < min_dist:
-            x_inrange.append(x_cords[i])
-            y_inrange.append(y_cords[i])
-            w_g_imgs_inrange.append(world_grid_imgs[i])
-
-    x_inrange = list(reversed(x_inrange))
-    y_inrange = list(reversed(y_inrange))
-    w_g_imgs_inrange = list(reversed(w_g_imgs_inrange))
-
-    return x_inrange, y_inrange, w_g_imgs_inrange
 
 
 def line_incl(x, y):
