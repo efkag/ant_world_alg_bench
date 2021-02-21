@@ -1,5 +1,6 @@
 from source.utils import load_route_naw, plot_route, angular_error
 from source import seqnav
+import time
 import copy
 
 
@@ -24,9 +25,6 @@ recovered_heading, logs, window_log = nav.navigate(route['qimgs'], window)
 traj = {'x': route['qx'], 'y': route['qy'], 'heading': recovered_heading}
 # plot_route(route, traj)
 
+errors = angular_error(route, traj)
 
-for i, w in enumerate(window_log):
-    plot_route(route, window=w, windex=i, save=True)
-
-print(window_log)
 
