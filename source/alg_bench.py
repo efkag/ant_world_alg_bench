@@ -1,7 +1,7 @@
 from source.utils import pre_process, load_route, degree_error, load_route_naw, angular_error, check_for_dir_and_create
 from source import seqnav as spm, perfect_memory as pm
 import pandas as pd
-import timeit
+import time
 import itertools
 import multiprocessing
 import functools
@@ -50,7 +50,7 @@ class Benchmark:
         # Generate grid iterable
         grid = itertools.product(*[params[k] for k in params])
         # Generate list chunks of grid combinations
-        chunks =  self.get_grid_chunks(grid, multiprocessing.cpu_count() - 1)
+        chunks = self.get_grid_chunks(grid, multiprocessing.cpu_count() - 1)
         # Partial callable
         worker = functools.partial(self.worker_bench, keys, route_ids, self.dist, shared)
 
@@ -92,7 +92,7 @@ class Benchmark:
                 # _, test_x, test_y, test_imgs, route_x, route_y, \
                 #     route_heading, route_imgs = load_route(route, self.dist)
 
-                tic = timeit.default_timer()
+                tic = time.perf_counter()
                 # Preprocess images
                 test_imgs = route['qimgs']
                 test_imgs = pre_process(test_imgs, combo_dict)
@@ -106,7 +106,7 @@ class Benchmark:
                     nav = pm.PerfectMemory(route_imgs, matcher)
                     recovered_heading, logs = nav.navigate(test_imgs)
 
-                toc = timeit.default_timer()
+                toc = time.perf_counter()
                 # Get time complexity
                 time_compl.append(toc-tic)
                 # Get the errors and the minimum distant index of the route memory
@@ -173,25 +173,29 @@ class Benchmark:
 
             matcher = combo_dict['matcher']
             window = combo_dict['window']
-            for route in route_ids:  # for every route
-                _, test_x, test_y, test_imgs, route_x, route_y, \
-                route_heading, route_imgs = load_route(route, dist)
-                tic = timeit.default_timer()
+            for route_id in route_ids:  # for every route
+                route_path = '../new-antworld/route' + str(route_id) + '/'
+                route = load_route_naw(route_path, route_id=route_id, imgs=True, query=True, max_dist=0.2)
+                # _, test_x, test_y, test_imgs, route_x, route_y, \
+                # route_heading, route_imgs = load_route(route, dist)
+                tic = time.perf_counter()
                 # Preprocess images
+                test_imgs = route['qimgs']
                 test_imgs = pre_process(test_imgs, combo_dict)
+                route_imgs = route['imgs']
                 route_imgs = pre_process(route_imgs, combo_dict)
                 # Run navigation algorithm
                 nav = spm.SequentialPerfectMemory(route_imgs, matcher)
                 recovered_heading, logs, window_log = nav.navigate(test_imgs, window)
-                toc = timeit.default_timer()
+                toc = time.perf_counter()
                 # Get time complexity
                 time_compl.append(toc - tic)
                 # Get the errors and the minimum distant index of the route memory
-                errors, min_dist_index = degree_error(test_x, test_y, route_x, route_y, route_heading,
-                                                      recovered_heading)
+                traj = {'x': route['qx'], 'y': route['qy'], 'heading': recovered_heading}
+                errors = angular_error(route, traj)
                 route_errors.extend(errors)
                 # Difference between matched index and minimum distance index
-                abs_index_diffs.extend([abs(i - j) for i, j in zip(nav.get_index_log(), min_dist_index)])
+                # abs_index_diffs.extend([abs(i - j) for i, j in zip(nav.get_index_log(), min_dist_index)])
             # Increment the complete jobs shared variable
             shared[0] = shared[0] + 1
             print(multiprocessing.current_process(),' jobs completed: {}/{}'.format(shared[0], shared[1]))
@@ -205,5 +209,5 @@ class Benchmark:
             log['mean error'].extend([mean_route_error])
             log['errors'].append(route_errors)
             log['seconds'].append(time_compl)
-            log['abs index diff'].append(abs_index_diffs)
+            # log['abs index diff'].append(abs_index_diffs)
         return log
