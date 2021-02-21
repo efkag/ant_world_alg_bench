@@ -615,6 +615,8 @@ def degree_error(x_cords, y_cords, x_route_cords, y_route_cords, route_heading, 
 
 def angular_error(route, trajectory):
     # TODO: Edit the angular_error function to also calculate the index difference between matched and minimum distance index
+    # TODO: Modify the function to calculate all the distances first (distance matrix)
+    # TODO: and then calculate the minimum argument and extract the error.
     # Holds the angular error between the query position and the closest route position
     errors = []
     mindist_index = []
@@ -640,11 +642,11 @@ def angular_error(route, trajectory):
         # update the limit
         limit = memory_pointer + search_step
         if limit > route_end: limit = route_end
-    return errors
+    return errors, mindist_index
 
 
 def mean_angular_error(route, trajectory):
-    errors = angular_error(route, trajectory)
+    errors, _ = angular_error(route, trajectory)
     return np.mean(errors)
 
 

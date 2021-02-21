@@ -5,6 +5,7 @@ import time
 import itertools
 import multiprocessing
 import functools
+import numpy as np
 
 
 class Benchmark:
@@ -16,7 +17,7 @@ class Benchmark:
         self.bench_logs = []
         self.route_ids = None
         self.routes_data = []
-        self.dist = 100  # Distance between grid images and route images
+        self.dist = 0.2  # Distance between grid images and route images
         self.log = {'tested routes': [], 'blur': [], 'edge':[], 'window': [],
                     'matcher': [], 'mean error': [], 'errors': [], 'seconds': []}
             #,'abs index diff': []}
@@ -112,15 +113,15 @@ class Benchmark:
                 # Get the errors and the minimum distant index of the route memory
                 # errors, min_dist_index = degree_error(test_x, test_y, route_x, route_y, route_heading, recovered_heading)
                 traj = {'x': route['qx'], 'y': route['qy'], 'heading': recovered_heading}
-                errors = angular_error(route, traj)
+                errors, min_dist_index = angular_error(route, traj)
                 route_errors.extend(errors)
                 # TODO: Edit the angular_error function to also calculate the index difference between matched and minimum distance index
                 # Difference between matched index and minimum distance index
-                # abs_index_diffs.extend([abs(i - j) for i, j in zip(nav.get_index_log(), min_dist_index)])
+                abs_index_diffs.extend(np.subtract(nav.get_index_log(), min_dist_index))
             self.jobs += 1
             print('Jobs completed: {}/{}'.format(self.jobs, self.total_jobs))
 
-            mean_route_error = sum(route_errors) / len(route_errors)
+            mean_route_error = np.mean(route_errors)
             self.log['tested routes'].extend([no_of_routes])
             self.log['blur'].extend([combo_dict.get('blur')])
             self.log['edge'].extend([combo_dict.get('edge_range')])
@@ -192,15 +193,15 @@ class Benchmark:
                 time_compl.append(toc - tic)
                 # Get the errors and the minimum distant index of the route memory
                 traj = {'x': route['qx'], 'y': route['qy'], 'heading': recovered_heading}
-                errors = angular_error(route, traj)
+                errors, min_dist_index = angular_error(route, traj)
                 route_errors.extend(errors)
                 # Difference between matched index and minimum distance index
-                # abs_index_diffs.extend([abs(i - j) for i, j in zip(nav.get_index_log(), min_dist_index)])
+                abs_index_diffs.extend(np.subtract(nav.get_index_log(), min_dist_index))
             # Increment the complete jobs shared variable
             shared[0] = shared[0] + 1
             print(multiprocessing.current_process(),' jobs completed: {}/{}'.format(shared[0], shared[1]))
 
-            mean_route_error = sum(route_errors) / len(route_errors)
+            mean_route_error = np.mean(route_errors)
             log['tested routes'].extend([no_of_routes])
             log['blur'].extend([combo_dict['blur']])
             log['edge'].extend([combo_dict['edge_range']])
@@ -209,5 +210,5 @@ class Benchmark:
             log['mean error'].extend([mean_route_error])
             log['errors'].append(route_errors)
             log['seconds'].append(time_compl)
-            # log['abs index diff'].append(abs_index_diffs)
+            log['abs index diff'].append(abs_index_diffs)
         return log
