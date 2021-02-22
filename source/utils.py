@@ -6,7 +6,7 @@ import pandas as pd
 import cv2 as cv
 import math
 import os
-from scipy.spatial.distance import cosine, correlation, cdist
+from scipy.spatial.distance import cosine, correlation, cdist, pdist
 # sns.set(font_scale=0.8)
 
 
@@ -73,10 +73,10 @@ def plot_route(route, traj=None, scale=70, window=None, windex=None, save=False,
     if not save: plt.show()
 
 
-def animated_window(route, path=None, scale=70, window=None, save=False, size=(10, 10)):
+def animated_window(route, window, path=None, scale=70, save=False, size=(10, 10)):
     assert isinstance(window, list)
     for i, w in enumerate(window):
-        plot_route(route, window=w, windex=i, save=save, scale=scale, size=size)
+        plot_route(route, window=w, windex=i, save=save, scale=scale, size=size, path=path)
 
 
 def plot_map(world, route_cords=None, grid_cords=None, size=(10, 10), save=False, zoom=(), zoom_factor=1500,
@@ -152,31 +152,6 @@ def plot_map(world, route_cords=None, grid_cords=None, size=(10, 10), save=False
     if save: plt.close()
 
 
-def route_imgs_from_indexes(indexes, headings, directory):
-    grid_dir = 'AntWorld/world5000_grid/'
-    data = pd.read_csv(grid_dir + 'world5000_grid.csv', header=0)
-    data = data.values
-    img_path = data[:, 4]  # Name of the image files
-
-    images = []
-    id = 0
-    for i, h in zip(indexes, headings):
-        img = cv.imread(grid_dir + img_path[i][1:], cv.IMREAD_GRAYSCALE)
-        img = rotate(h, img)
-        save_image(directory + str(id) + '.png', img)
-        images.append(img)
-        id += 1
-
-    return images
-
-
-def element_index(l, elem):
-    try:
-        return l.index(elem)
-    except ValueError:
-        return False
-
-
 def load_route_naw(path, route_id=1, imgs=False, query=False, max_dist=0.5):
     route_data = pd.read_csv(path + 'route' + str(route_id) + '.csv', index_col=False)
     route_data = route_data.to_dict('list')
@@ -233,6 +208,15 @@ def load_route_naw(path, route_id=1, imgs=False, query=False, max_dist=0.5):
 def write_route(path, route, route_id=1):
     route = pd.DataFrame(route)
     route.to_csv(path + 'route' + str(route_id) + '.csv', index=False)
+
+
+def travel_dist(route):
+    x = route['x']
+    y = route['y']
+    dx = x[1:] - x[:-1]
+    dy = y[1:] - y[:-1]
+    steps = np.sqrt(dx**2+dy**2)
+    return np.sum(steps)
 
 
 def load_route(route_id, grid_pos_limit=200):
@@ -614,7 +598,6 @@ def degree_error(x_cords, y_cords, x_route_cords, y_route_cords, route_heading, 
 
 
 def angular_error(route, trajectory):
-    # TODO: Edit the angular_error function to also calculate the index difference between matched and minimum distance index
     # TODO: Modify the function to calculate all the distances first (distance matrix)
     # TODO: and then calculate the minimum argument and extract the error.
     # Holds the angular error between the query position and the closest route position

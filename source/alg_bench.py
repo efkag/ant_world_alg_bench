@@ -18,14 +18,16 @@ class Benchmark:
         self.route_ids = None
         self.routes_data = []
         self.dist = 0.2  # Distance between grid images and route images
-        self.log = {'tested routes': [], 'blur': [], 'edge':[], 'window': [],
-                    'matcher': [], 'mean error': [], 'errors': [], 'seconds': []}
-            #,'abs index diff': []}
+        self.log = {'tested routes': [], 'blur': [], 'edge': [], 'window': [],
+                    'matcher': [], 'mean error': [], 'errors': [], 'seconds': [],
+                    'abs index diff': []}
 
     def load_routes(self, route_ids):
+        path = '../new-antworld/'
         self.route_ids = route_ids
-        for id in self.route_ids:
-            route_data = load_route(id, self.dist)
+        for rid in self.route_ids:
+            route_path = path + '/route' + str(rid) + '/'
+            route_data = load_route_naw(route_path, route_id=id, query=True,  max_dist=self.dist)
             self.routes_data.append(route_data)
 
     def get_grid_chunks(self, grid_gen, chunks=1):
@@ -88,6 +90,7 @@ class Benchmark:
             window = combo_dict['window']
             path = '../new-antworld/'
             for route_id in route_ids:  # for every route
+                # TODO: In the future the code below (inside the loop) should all be moved inside the navigator class
                 route_path = '../new-antworld/route' + str(route_id) + '/'
                 route = load_route_naw(route_path, route_id=route_id, imgs=True, query=True, max_dist=0.2)
                 # _, test_x, test_y, test_imgs, route_x, route_y, \
@@ -115,9 +118,8 @@ class Benchmark:
                 traj = {'x': route['qx'], 'y': route['qy'], 'heading': recovered_heading}
                 errors, min_dist_index = angular_error(route, traj)
                 route_errors.extend(errors)
-                # TODO: Edit the angular_error function to also calculate the index difference between matched and minimum distance index
                 # Difference between matched index and minimum distance index
-                abs_index_diffs.extend(np.subtract(nav.get_index_log(), min_dist_index))
+                abs_index_diffs.extend(np.absolute(np.subtract(nav.get_index_log(), min_dist_index)))
             self.jobs += 1
             print('Jobs completed: {}/{}'.format(self.jobs, self.total_jobs))
 
@@ -130,7 +132,7 @@ class Benchmark:
             self.log['mean error'].extend([mean_route_error])
             self.log['errors'].append(route_errors)
             self.log['seconds'].append(time_compl)
-            # self.log['abs index diff'].append(abs_index_diffs)
+            self.log['abs index diff'].append(abs_index_diffs)
         return self.log
 
     def _total_jobs(self, params):
@@ -199,7 +201,7 @@ class Benchmark:
                 abs_index_diffs.extend(np.subtract(nav.get_index_log(), min_dist_index))
             # Increment the complete jobs shared variable
             shared[0] = shared[0] + 1
-            print(multiprocessing.current_process(),' jobs completed: {}/{}'.format(shared[0], shared[1]))
+            print(multiprocessing.current_process(), ' jobs completed: {}/{}'.format(shared[0], shared[1]))
 
             mean_route_error = np.mean(route_errors)
             log['tested routes'].extend([no_of_routes])
