@@ -294,7 +294,7 @@ def line_incl(x, y):
     '''
     incl = np.arctan2(np.subtract(y[1:], y[:-1]), np.subtract(x[1:], x[:-1])) * 180 / np.pi
     incl = np.append(incl, incl[-1])
-    return incl % 360
+    return incl
 
 
 def squash_deg(degrees):

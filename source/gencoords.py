@@ -6,42 +6,6 @@ import pandas as pd
 pi = math.pi
 
 
-def meancurv2d(x, y):
-    '''
-    Calculates the mean curvature of a set of points (x, y) that belong to a curve.
-    :param x:
-    :param y:
-    :return:
-    '''
-    # first derivatives
-    dx = np.gradient(x)
-    dy = np.gradient(y)
-
-    # second derivatives
-    d2x = np.gradient(dx)
-    d2y = np.gradient(dy)
-
-    # calculate the mean curvature from first and second derivatives
-    curvature = np.abs(dx * d2y - d2x * dy) / (dx * dx + dy * dy) ** 1.5
-
-    return np.mean(curvature)
-
-
-def random_circle_points(r, no_of_points):
-    '''
-    Generates random points within a circle given the desired radius.
-    It assumes the center is (0,0)
-    :param r:
-    :param no_of_points:
-    :return:
-    '''
-    r = r * np.sqrt(np.random.rand(no_of_points))
-    theta = np.random.rand(no_of_points) * 2 * pi
-
-    x, y = pol2cart(r, theta)
-    return x, y
-
-
 def binomial(i, n):
     """Binomial coefficient"""
     return math.factorial(n) / float(math.factorial(i) * math.factorial(n - i))
@@ -81,24 +45,89 @@ def bezier_curve_vert(n, verts):
     return x_cord, y_cord
 
 
-def generate(mean, save_path, no_of_points=5, curve_points=250, plot=True, route_id=1):
+def meancurv2d(x, y):
     '''
-    Generates control points froma distribution.
-    Uses the control pints to generate points on a bezier curve.
+    Calculates the mean curvature of a set of points (x, y) that belong to a curve.
+    :param x:
+    :param y:
+    :return:
+    '''
+    # first derivatives
+    dx = np.gradient(x)
+    dy = np.gradient(y)
+
+    # second derivatives
+    d2x = np.gradient(dx)
+    d2y = np.gradient(dy)
+
+    # calculate the mean curvature from first and second derivatives
+    curvature = np.abs(dx * d2y - d2x * dy) / (dx * dx + dy * dy) ** 1.5
+
+    return np.mean(curvature)
+
+
+def random_circle_points(r, no_of_points=5):
+    '''
+    Generates random points within a circle given the desired radius.
+    It assumes the center is (0,0)
+    :param r:
+    :param no_of_points:
+    :return:
+    '''
+    r = r * np.sqrt(np.random.rand(no_of_points))
+    theta = np.random.rand(no_of_points) * 2 * pi
+
+    x, y = pol2cart(r, theta)
+    xy = np.column_stack((x, y))
+    return xy
+
+
+def random_gauss_points(mean, sigma, no_of_points=5):
+    '''
 
     :param mean:
-    :param save_path:
+    :param sigma:
     :param no_of_points:
+    :return:
+    '''
+    mean = np.array(mean)
+    cov = np.array([[sigma, sigma], [sigma, sigma]])
+    return np.random.multivariate_normal(mean, cov, no_of_points)
+
+
+def random_line_points(start=-10, end=10, sigma=5, steps=10):
+    x = np.linspace(start, end, steps)
+    y = x + np.random.normal(0, sigma, steps)
+    xy = np.column_stack((x, y))
+    return xy
+
+
+def generate_from_points(path, generator='gauss'):
+    if generator == 'points':
+        points = np.genfromtxt(path + 'points.csv', delimiter=',')
+    elif generator == 'gauss':
+        points = random_gauss_points([0, 0], 10)
+    elif generator == 'circle':
+        points = random_circle_points(10)
+    elif generator == 'line':
+        points = random_line_points()
+    else:
+        raise Exception('Provide a valid generator method')
+    return generate(points, path)
+
+
+def generate(xy, save_path, curve_points=250, plot=True):
+    '''
+    Generates control points from a distribution.
+    Uses the control points to generate points on a bezier curve.
+    :param xy:
+    :param save_path:
     :param curve_points:
     :param plot:
     :return:
     '''
     route = {}
     check_for_dir_and_create(save_path)
-    mean = np.array(mean)
-    cov = np.array([[1, 10], [10, 1]])
-    xy = np.random.multivariate_normal(mean, cov, no_of_points)
-
     np.savetxt(save_path + "points.csv", X=xy, delimiter=',')
 
     x_route, y_route = bezier_curve_vert(curve_points, xy)
@@ -123,7 +152,6 @@ def generate(mean, save_path, no_of_points=5, curve_points=250, plot=True, route
         plt.quiver(x_route, y_route, u, v, scale=60)
         plt.scatter(xy[:, 0], xy[:, 1])
         plt.show()
-
     return route
 
 
@@ -146,14 +174,6 @@ def generate_grid(steps):
     grid['roll'] = np.full(steps * steps, 0)
 
     return grid
-
-
-
-    # x = np.empty(steps*steps)
-    # y = np.empty(steps*steps)
-    # for x in xv:
-    #     for j in yv:
-    #         print(i, j)
 
 
 # generate_grid(100)
@@ -201,4 +221,3 @@ def generate_grid(steps):
 # np.savetxt(path, data, delimiter=',')
 #
 # print(meancurv2d(x_route, y_route))
-

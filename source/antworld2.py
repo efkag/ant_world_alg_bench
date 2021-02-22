@@ -2,7 +2,7 @@ import antworld
 import cv2
 import numpy as np
 from source.utils import check_for_dir_and_create, load_route_naw, write_route, squash_deg
-from source.gencoords import generate, generate_grid
+from source.gencoords import generate_from_points, generate_grid
 
 # Old Seville data (lower res, but loads faster)
 worldpath = antworld.bob_robotics_path + "/resources/antworld/world5000_gray.bin"
@@ -46,7 +46,6 @@ print(xlim, ylim, zlim)
 #     imgid += 1
 
 
-
 def record_route(route, path, route_id=1):
     check_for_dir_and_create(path)
     x = route['x']
@@ -70,13 +69,13 @@ def record_route(route, path, route_id=1):
     write_route(path, route, route_id=route_id)
 
 
-def rec_route_from_points(path, route_id=1):
+def rec_route_from_points(path, route_id=1, generator='circle'):
     # Augment the directory containing all route
     # to create a new directory w.r.t the new route
     path = path + 'route' + str(route_id) + '/'
     check_for_dir_and_create(path)
     # Generate coordinates and write them to file
-    route = generate([0, 0], path, route_id=route_id)
+    route = generate_from_points(path, generator=generator)
     record_route(route, path, route_id=route_id)
 
 
@@ -158,9 +157,9 @@ Testing
 """
 
 # # rec_grid(70, path='../new-antworld/')
-route_id = 4
-path = '../new-antworld/'
-rec_route_from_points(path, route_id=route_id)
+route_id = 3
+path = '../new-antworld/exp1/'
+rec_route_from_points(path, route_id=route_id, generator='line')
 
 #
 # record_route(datapoints, "../new-antworld/route2/")
