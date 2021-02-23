@@ -385,7 +385,7 @@ def image_split(image, overlap=None, blind=0):
 def rotate(d, image):
     """
     Converts the degrees into columns and rotates the image.
-    Positive degrees turn the image clockwise
+    Positive degrees rotate the image clockwise
     and negative degrees rotate the image counter clockwise
     :param d: number of degrees the agent will rotate its view
     :param image: An np.array that we want to shift.

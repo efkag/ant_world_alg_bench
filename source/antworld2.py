@@ -69,13 +69,13 @@ def record_route(route, path, route_id=1):
     write_route(path, route, route_id=route_id)
 
 
-def rec_route_from_points(path, route_id=1, generator='circle'):
+def rec_route_from_points(path, route_id=1, generator='circle', **kwargs):
     # Augment the directory containing all route
     # to create a new directory w.r.t the new route
     path = path + 'route' + str(route_id) + '/'
     check_for_dir_and_create(path)
     # Generate coordinates and write them to file
-    route = generate_from_points(path, generator=generator)
+    route = generate_from_points(path, generator=generator, **kwargs)
     record_route(route, path, route_id=route_id)
 
 
@@ -107,6 +107,8 @@ def update_position(xy, deg, r):
 
 
 def test_nav(path, nav, matcher='mae', deg_range=(-180, 180), route_id=1):
+    # TODO Need to refactor this to take a navigator object for testing in the antworld
+    # TODO: Alternatively I would need to pass all the params in here
     # initial position and heading
     xy = (0, 0)
     h = 0
@@ -156,10 +158,10 @@ def rec_grid(steps, path):
 Testing
 """
 
-# # rec_grid(70, path='../new-antworld/')
-route_id = 3
-path = '../new-antworld/exp1/'
-rec_route_from_points(path, route_id=route_id, generator='line')
+# # # rec_grid(70, path='../new-antworld/')
+route_id = 1
+path = '../new-antworld/fab/'
+rec_route_from_points(path, route_id=route_id, generator='gauss', mean=[0, 0], sigma=3)
 
 #
 # record_route(datapoints, "../new-antworld/route2/")

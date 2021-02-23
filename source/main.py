@@ -1,4 +1,4 @@
-from source import alg_bench
+from source import navbench
 from multiprocessing import Process
 
 
@@ -12,7 +12,7 @@ def main():
                   'window': [15, 20], 'matcher': ['mae']}
 
     routes = [1, 2]
-    bench = alg_bench.Benchmark(results_path, filename='test.csv')
+    bench = navbench.Benchmark(results_path, filename='test.csv')
     bench.benchmark(parameters, routes)
 
     # bench.bench_paral(parameters, routes)

@@ -82,7 +82,7 @@ def random_circle_points(r, no_of_points=5):
     return xy
 
 
-def random_gauss_points(mean, sigma, no_of_points=5):
+def random_gauss_points(mean, sigma=10, no_of_points=5):
     '''
 
     :param mean:
@@ -91,7 +91,7 @@ def random_gauss_points(mean, sigma, no_of_points=5):
     :return:
     '''
     mean = np.array(mean)
-    cov = np.array([[sigma, sigma], [sigma, sigma]])
+    cov = np.array([[sigma, 0], [0, sigma]])
     return np.random.multivariate_normal(mean, cov, no_of_points)
 
 
@@ -102,15 +102,21 @@ def random_line_points(start=-10, end=10, sigma=5, steps=10):
     return xy
 
 
-def generate_from_points(path, generator='gauss'):
+def generate_from_points(path, generator='gauss', **kwargs):
     if generator == 'points':
         points = np.genfromtxt(path + 'points.csv', delimiter=',')
     elif generator == 'gauss':
-        points = random_gauss_points([0, 0], 10)
+        mean = kwargs['mean']
+        sigma = kwargs['sigma']
+        points = random_gauss_points(mean, sigma)
     elif generator == 'circle':
-        points = random_circle_points(10)
+        r = kwargs['r']
+        points = random_circle_points(r)
     elif generator == 'line':
-        points = random_line_points()
+        start = kwargs['start']
+        end = kwargs['end']
+        sigma = kwargs['sigma']
+        points = random_line_points(start, end, sigma)
     else:
         raise Exception('Provide a valid generator method')
     return generate(points, path)
@@ -118,7 +124,7 @@ def generate_from_points(path, generator='gauss'):
 
 def generate(xy, save_path, curve_points=250, plot=True):
     '''
-    Generates control points from a distribution.
+    Given control points from one of the methods above.
     Uses the control points to generate points on a bezier curve.
     :param xy:
     :param save_path:
@@ -131,7 +137,7 @@ def generate(xy, save_path, curve_points=250, plot=True):
     np.savetxt(save_path + "points.csv", X=xy, delimiter=',')
 
     x_route, y_route = bezier_curve_vert(curve_points, xy)
-    # 90- rotates the origin of the degrees by 90 degrees counter clokwise
+    # 90 - rotates the origin of the degrees by 90 degrees counter clokwise
     # setting the origin (0 degrees) at the north
     heading = 90 - line_incl(x_route, y_route)
     heading = squash_deg(heading)
