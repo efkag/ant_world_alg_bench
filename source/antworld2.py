@@ -158,10 +158,10 @@ def rec_grid(steps, path):
 Testing
 """
 
-# # # rec_grid(70, path='../new-antworld/')
-route_id = 1
-path = '../new-antworld/fab/'
-rec_route_from_points(path, route_id=route_id, generator='gauss', mean=[0, 0], sigma=3)
+# # # # rec_grid(70, path='../new-antworld/')
+# route_id = 1
+# path = '../new-antworld/fab/'
+# rec_route_from_points(path, route_id=route_id, generator='gauss', mean=[0, 0], sigma=3)
 
 #
 # record_route(datapoints, "../new-antworld/route2/")

@@ -52,8 +52,12 @@ class Benchmark:
 
         # Generate grid iterable
         grid = itertools.product(*[params[k] for k in params])
+        if self.total_jobs < multiprocessing.cpu_count():
+            no_of_chunks = self.total_jobs
+        else:
+            no_of_chunks = multiprocessing.cpu_count() - 1
         # Generate list chunks of grid combinations
-        chunks = self.get_grid_chunks(grid, multiprocessing.cpu_count() - 1)
+        chunks = self.get_grid_chunks(grid, no_of_chunks)
         # Partial callable
         worker = functools.partial(self.worker_bench, keys, route_ids, self.dist, shared)
 
@@ -146,14 +150,24 @@ class Benchmark:
         assert isinstance(route_ids, list)
 
         if parallel:
+            self.log = None
             self.log = self.bench_paral(params, route_ids)
         else:
             self.log = self.bench_singe_core(params, route_ids)
+        self.unpack_results()
 
         bench_results = pd.DataFrame(self.log)
-
         bench_results.to_csv(self.results_path, index=False)
         print(bench_results)
+
+    def unpack_results(self):
+        results = self.log.get()
+        print(len(results), 'Results produced')
+        self.log = results[0]
+        for dictionary in results[1:]:
+            for k in dictionary:
+                self.log[k].extend(dictionary[k])
+
 
     @staticmethod
     def worker_bench(keys, route_ids, dist, shared, chunk):
@@ -205,8 +219,8 @@ class Benchmark:
 
             mean_route_error = np.mean(route_errors)
             log['tested routes'].extend([no_of_routes])
-            log['blur'].extend([combo_dict['blur']])
-            log['edge'].extend([combo_dict['edge_range']])
+            log['blur'].extend([combo_dict.get('blur')])
+            log['edge'].extend([combo_dict.get('edge_range')])
             log['window'].extend([window])
             log['matcher'].extend([matcher])
             log['mean error'].extend([mean_route_error])
