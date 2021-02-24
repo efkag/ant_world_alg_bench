@@ -1,6 +1,8 @@
-import antworld, cv2
+import antworld
+import cv2
 import numpy as np
-from source.utils import check_for_dir_and_create
+from source.utils import check_for_dir_and_create, load_route_naw, write_route, squash_deg
+from source.gencoords import generate_from_points, generate_grid
 
 # Old Seville data (lower res, but loads faster)
 worldpath = antworld.bob_robotics_path + "/resources/antworld/world5000_gray.bin"
@@ -44,14 +46,17 @@ print(xlim, ylim, zlim)
 #     imgid += 1
 
 
-
-def record_route(datapoints, path):
+def record_route(route, path, route_id=1):
     check_for_dir_and_create(path)
-    x = datapoints[0]
-    y = datapoints[1]
-    z = datapoints[2]
-    headings = datapoints[3]
+    x = route['x']
+    y = route['y']
+    z = route['z']
+    headings = route['yaw']
+    # Fixed high for now
+    # TODO: in the future it may be a good idea to adap the coed to use the elevation
+    #   and the pitch, roll noise
     z = 1.5
+    route['filename'] = []
 
     for i, (xi, yi, h1) in enumerate(zip(x, y, headings)):
         agent.set_position(xi, yi, z)
@@ -59,13 +64,19 @@ def record_route(datapoints, path):
         img = agent.read_frame()
         filename = path + "img%i.png" % i
         cv2.imwrite(filename, img)
+        route['filename'].append("img%i.png" % i)
+
+    write_route(path, route, route_id=route_id)
 
 
-def rec_route_from_points(path, target_path, route_id=1):
-    datapoints = np.genfromtxt(path + 'route' + str(route_id) + '.csv', delimiter=',')
-    check_for_dir_and_create(target_path)
-    np.savetxt(target_path + 'route' + str(route_id) + '.csv', datapoints, delimiter=',')
-    record_route(datapoints, target_path)
+def rec_route_from_points(path, route_id=1, generator='circle', **kwargs):
+    # Augment the directory containing all route
+    # to create a new directory w.r.t the new route
+    path = path + 'route' + str(route_id) + '/'
+    check_for_dir_and_create(path)
+    # Generate coordinates and write them to file
+    route = generate_from_points(path, generator=generator, **kwargs)
+    record_route(route, path, route_id=route_id)
 
 
 def get_img(xy, deg):
@@ -87,7 +98,6 @@ def update_position(xy, deg, r):
     yy = xy[1] + (r * np.sin(rad))
 
     agent.set_position(xx, yy, z)
-    # TODO: Might be a good idea to center the angle search around the current heading.
     agent.set_attitude(deg, 0, 0)
 
     img = agent.read_frame()
@@ -97,6 +107,8 @@ def update_position(xy, deg, r):
 
 
 def test_nav(path, nav, matcher='mae', deg_range=(-180, 180), route_id=1):
+    # TODO Need to refactor this to take a navigator object for testing in the antworld
+    # TODO: Alternatively I would need to pass all the params in here
     # initial position and heading
     xy = (0, 0)
     h = 0
@@ -105,21 +117,14 @@ def test_nav(path, nav, matcher='mae', deg_range=(-180, 180), route_id=1):
     # timesteps to run the simulations
     t = 40
 
-    data = np.genfromtxt(path + 'route' + str(route_id) + '.csv', delimiter=',')
-    x = data[0]
-    y = data[1]
-    z = data[2]
-    headings = data[3]
-
+    route = load_route_naw(path, route_id, imgs=True)
+    x = route['x']
+    y = route['y']
+    z = route['z']
     xy = (x[0], y[0]+0.1)
 
-    imgs = []
-    for i in range(len(x)):
-        img = cv2.imread(path + '/img' + str(i) + '.png', cv2.IMREAD_GRAYSCALE)
-        imgs.append(img)
-
     # set up the navigator
-    nav = nav(imgs, matcher, deg_range)
+    nav = nav(route['imgs'], matcher, deg_range)
     # set the initial conditions
     img = get_img(xy, h)
     #initialise the variables
@@ -132,7 +137,7 @@ def test_nav(path, nav, matcher='mae', deg_range=(-180, 180), route_id=1):
     for i in range(1, t):
         h = nav.get_heading(img)
         h = headings[-1] + h
-        h = validate_heading(h)
+        h = squash_deg(h)
         headings.append(h)
         xy, img = update_position(xy, h, r)
         traj[0, i] = xy[0]
@@ -142,20 +147,22 @@ def test_nav(path, nav, matcher='mae', deg_range=(-180, 180), route_id=1):
     return headings, traj, nav
 
 
-def validate_heading(h):
-    if h >= 360:
-        return h - 360
-    elif h < 0:
-        return 360 + h
-    else:
-        return h
+def rec_grid(steps, path):
+    path = path + 'grid' + str(steps) + '/'
+    grid = generate_grid(steps)
+    record_route(grid, path)
+
+
+
 """
 Testing
 """
-# route_id = 3
-# path = '../new-antworld/route' + str(route_id) + '/'
-# rec_route_from_points(path, target_path=path, route_id=route_id)
-# datapoints = np.genfromtxt('../XYZbins/new_route_1.csv', delimiter=',')
+
+# # # # rec_grid(70, path='../new-antworld/')
+# route_id = 1
+# path = '../new-antworld/fab/'
+# rec_route_from_points(path, route_id=route_id, generator='gauss', mean=[0, 0], sigma=3)
+
 #
 # record_route(datapoints, "../new-antworld/route2/")
 # agent.set_position(0, 0, z)

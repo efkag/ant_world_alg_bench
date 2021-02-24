@@ -6,7 +6,7 @@ import pandas as pd
 import cv2 as cv
 import math
 import os
-from scipy.spatial.distance import cosine, correlation
+from scipy.spatial.distance import cosine, correlation, cdist, pdist
 # sns.set(font_scale=0.8)
 
 
@@ -48,19 +48,35 @@ def save_image(path, img):
     cv.imwrite(path, img)# , cmap='gray')
 
 
-def plot_route(route, traj=None, scale=70):
-    # Plot the route
-    u, v = pol2cart_headings(90 - route['heading'])
-    plt.scatter(route['x'], route['y'])
-    plt.quiver(route['x'], route['y'], u, v, scale=scale)
-    # Plot th trajectory of the agent when repeating the route
+def plot_route(route, traj=None, scale=70, window=None, windex=None, save=False, size=(10, 10), path=None):
+    fig, ax = plt.subplots(figsize=size)
+    u, v = pol2cart_headings(90 - route['yaw'])
+    ax.scatter(route['x'], route['y'])
+    ax.quiver(route['x'], route['y'], u, v, scale=scale)
+    if window and windex:
+        start = window[0]
+        end = window[1]
+        ax.quiver(route['x'][start:end], route['y'][start:end], u[start:end], v[start:end], color='r', scale=scale)
+        ax.scatter(route['qx'][:windex], route['qy'][:windex])
+    # Plot grid test points
+    if 'qx' in route and window is None:
+        ax.scatter(route['qx'], route['qy'])
+    # Plot the trajectory of the agent when repeating the route
     if traj:
-        # u, v = pol2cart_headings(90 - traj['heading'])
-        u, v = pol2cart_headings(traj['heading'])
-        plt.scatter(traj['x'], traj['y'])
-        plt.quiver(traj['x'], traj['y'], u, v, scale=scale)
+        u, v = pol2cart_headings(90 - traj['heading'])
+        ax.scatter(traj['x'], traj['y'])
+        ax.quiver(traj['x'], traj['y'], u, v, scale=scale)
 
-    plt.show()
+    if save:
+        fig.savefig(path + str(windex) + '.png')
+        plt.close(fig)
+    if not save: plt.show()
+
+
+def animated_window(route, window, path=None, scale=70, save=False, size=(10, 10)):
+    assert isinstance(window, list)
+    for i, w in enumerate(window):
+        plot_route(route, window=w, windex=i, save=save, scale=scale, size=size, path=path)
 
 
 def plot_map(world, route_cords=None, grid_cords=None, size=(10, 10), save=False, zoom=(), zoom_factor=1500,
@@ -136,62 +152,71 @@ def plot_map(world, route_cords=None, grid_cords=None, size=(10, 10), save=False
     if save: plt.close()
 
 
-def load_grid():
-    grid_dir = 'AntWorld/world5000_grid/'
+def load_route_naw(path, route_id=1, imgs=False, query=False, max_dist=0.5):
+    route_data = pd.read_csv(path + 'route' + str(route_id) + '.csv', index_col=False)
+    route_data = route_data.to_dict('list')
+    # convert the lists to numpy arrays
+    for k in route_data:
+        route_data[k] = np.array(route_data[k])
+    if imgs:
+        imgs = []
+        for i in route_data['filename']:
+            img = cv.imread(path + i, cv.IMREAD_GRAYSCALE)
+            imgs.append(img)
+        route_data['imgs'] = imgs
 
-    data = pd.read_csv(grid_dir + 'world5000_grid.csv', header=0)
-    data = data.values
+    # Sample positions and images from the grid near the route for testing
+    if query:
+        path = '../new-antworld/grid70/'
+        grid = pd.read_csv(path + 'grid70.csv')
+        grid = grid.to_dict('list')
+        for k in grid:
+            grid[k] = np.array(grid[k])
 
-    # World top down image
-    world = mpimg.imread(grid_dir + 'world5000_grid.png')
+        grid_xy = np.transpose(np.array([grid['x'], grid['y']]))
+        query_indexes = np.empty(0, dtype=int)
+        qx = np.empty(0)
+        qy = np.empty(0)
+        qimg = []
+        # Fetch images from the grid that are located nearby route images.
+        # for each route position
+        for i, (x, y) in enumerate(zip(route_data['x'], route_data['y'])):
+            # get distance between route point and all grid points
+            dist = np.squeeze(cdist([(x, y)], grid_xy, 'euclidean'))
+            # indexes of distances within the limit
+            indexes = np.where(dist <= max_dist)[0]
+            # check which indexes have not been encountered before
+            mask = np.isin(indexes, query_indexes, invert=True)
+            # get the un-encountered indexes
+            indexes = indexes[mask]
+            # save the indexes
+            query_indexes = np.append(query_indexes, indexes)
 
-    # Grid data
-    x = data[:, 1]  # x location of the image in the world_grid
-    y = data[:, 0]  # y location of the image in the world_grid
-    # img_path = data[:, 4]  # Name of the image file
+            for i in indexes:
+                qx = np.append(qx, grid_xy[i, 0])
+                qy = np.append(qy, grid_xy[i, 1])
+                imgfile = path + grid['filename'][i]
+                qimg.append(cv.imread(imgfile, cv.IMREAD_GRAYSCALE))
 
-    return x, y, world
+        route_data['qx'] = qx
+        route_data['qy'] = qy
+        route_data['qimgs'] = qimg
 
-
-def route_imgs_from_indexes(indexes, headings, directory):
-    grid_dir = 'AntWorld/world5000_grid/'
-    data = pd.read_csv(grid_dir + 'world5000_grid.csv', header=0)
-    data = data.values
-    img_path = data[:, 4]  # Name of the image files
-
-    images = []
-    id = 0
-    for i, h in zip(indexes, headings):
-        img = cv.imread(grid_dir + img_path[i][1:], cv.IMREAD_GRAYSCALE)
-        img = rotate(h, img)
-        save_image(directory + str(id) + '.png', img)
-        images.append(img)
-        id += 1
-
-    return images
-
-
-def element_index(l, elem):
-    try:
-        return l.index(elem)
-    except ValueError:
-        return False
-
-# TODO: here
-def load_route_naw(path, route_id=1):
-    route_data = {}
-    data = np.genfromtxt(path + 'route' + str(route_id) + '.csv', delimiter=',')
-    x = data[0]
-    y = data[1]
-    z = data[2]
-    headings = data[3]
-
-    route_data['x'] = x
-    route_data['y'] = y
-    route_data['z'] = z
-    route_data['heading'] = headings
     return route_data
 
+
+def write_route(path, route, route_id=1):
+    route = pd.DataFrame(route)
+    route.to_csv(path + 'route' + str(route_id) + '.csv', index=False)
+
+
+def travel_dist(route):
+    x = route['x']
+    y = route['y']
+    dx = x[1:] - x[:-1]
+    dy = y[1:] - y[:-1]
+    steps = np.sqrt(dx**2+dy**2)
+    return np.sum(steps)
 
 
 def load_route(route_id, grid_pos_limit=200):
@@ -260,43 +285,6 @@ def load_route(route_id, grid_pos_limit=200):
     return world, X_inlimit, Y_inlimit, world_grid_imgs, X_route, Y_route, Heading_route, route_images
 
 
-def sample_from_wg(x_cords, y_cords, x_route_cords, y_route_cords, world_grid_imgs, min_dist):
-    '''
-    Samples images and their coordinates from the world grid
-    given a routes coordinates and a min distance.
-    The min distance would be the distance between
-    a grid image and the nearest route image.
-
-
-    :param x_cords: world grid coordinate
-    :param y_cords: world grid coordinate
-    :param x_route_cords: x route coordinate
-    :param y_route_cords: y route coordinate
-    :param world_grid_imgs: Grid images
-    :param min_dist: Minimum distance between grid poit and route point.
-    :return:
-    '''
-    x_inrange = []
-    y_inrange = []
-    w_g_imgs_inrange = []
-
-    for i in range(0, len(x_cords), 1):
-        dist = []
-        for j in range(0, len(x_route_cords), 1):
-            d = (math.sqrt((x_route_cords[j] - x_cords[i]) ** 2 + (y_route_cords[j] - y_cords[i]) ** 2))
-            dist.append(d)
-        if min(dist) < min_dist:
-            x_inrange.append(x_cords[i])
-            y_inrange.append(y_cords[i])
-            w_g_imgs_inrange.append(world_grid_imgs[i])
-
-    x_inrange = list(reversed(x_inrange))
-    y_inrange = list(reversed(y_inrange))
-    w_g_imgs_inrange = list(reversed(w_g_imgs_inrange))
-
-    return x_inrange, y_inrange, w_g_imgs_inrange
-
-
 def line_incl(x, y):
     '''
     Calculates the inclination of lines defined by 2 subsequent coordinates
@@ -305,12 +293,24 @@ def line_incl(x, y):
     :return:
     '''
     incl = np.arctan2(np.subtract(y[1:], y[:-1]), np.subtract(x[1:], x[:-1])) * 180 / np.pi
-    return np.append(incl, incl[-1])
+    incl = np.append(incl, incl[-1])
+    return incl
+
+
+def squash_deg(degrees):
+    '''
+    Squashes degrees into the range of 0-360
+    This is useful when dealing with negative degrees or degrees over 360
+    :param degrees: A numpy array of values in degrees
+    :return:
+    '''
+    assert not isinstance(degrees, list)
+    return degrees % 360
 
 
 def pol2cart(r, theta):
     '''
-    Coverts polar cordinates to cartesian coordinates
+    Coverts polar coordinates to cartesian coordinates
     :param r: An array or single value of radial values
     :param theta: An array or single values ot angles theta
     :return:
@@ -385,7 +385,7 @@ def image_split(image, overlap=None, blind=0):
 def rotate(d, image):
     """
     Converts the degrees into columns and rotates the image.
-    Positive degrees turn the image clockwise
+    Positive degrees rotate the image clockwise
     and negative degrees rotate the image counter clockwise
     :param d: number of degrees the agent will rotate its view
     :param image: An np.array that we want to shift.
@@ -452,6 +452,7 @@ def cor_coef(a, b):
     b = b.flatten()
     return cov(a, b) / (np.std(a) * np.std(b))
 
+
 def cor_dist(a, b):
     """
     Calculates the correlation coefficient distance
@@ -466,6 +467,7 @@ def cor_dist(a, b):
 
     return correlation(a, b.flatten())
 
+
 def cos_dist(a, b):
     """
     Calculates cosine similarity
@@ -478,6 +480,7 @@ def cos_dist(a, b):
         return [cosine(a, img) for img in b]
 
     return cosine(a, b)
+
 
 def rmf(query_img, ref_imgs, matcher=mae, d_range=(0, 360), d_step=1):
     """
@@ -506,6 +509,7 @@ def rmf(query_img, ref_imgs, matcher=mae, d_range=(0, 360), d_step=1):
 
     return sims if sims.shape[0] > 1 else sims[0]
 
+
 def pair_rmf(query_imgs, ref_imgs, matcher=mae, d_range=(0, 360), d_step=1):
     """
     Pairwise Rotational Matching Function
@@ -530,9 +534,11 @@ def pair_rmf(query_imgs, ref_imgs, matcher=mae, d_range=(0, 360), d_step=1):
 
     return sims
 
+
 def flatten_imgs(imgs):
     assert isinstance(imgs, list)
     return [img.flatten() for img in imgs]
+
 
 def cross_corr(sub_series, series):
     return [np.dot(s, sub_series) for s in series]
@@ -592,34 +598,39 @@ def degree_error(x_cords, y_cords, x_route_cords, y_route_cords, route_heading, 
 
 
 def angular_error(route, trajectory):
+    # TODO: Modify the function to calculate all the distances first (distance matrix)
+    # TODO: and then calculate the minimum argument and extract the error.
     # Holds the angular error between the query position and the closest route position
     errors = []
-    index_wrt_dist = []
+    mindist_index = []
     route_end = len(route['x'])
-    search_step = 15
+    search_step = 20
     memory_pointer = 0
     limit = memory_pointer + search_step
 
-    x_cords = trajectory['x']
-    y_cords = trajectory['y']
-    x_route_cords = route['x']
-    y_route_cords = route['y']
+    grid_xy = np.column_stack([trajectory['x'], trajectory['y']])
+    route_xy = np.column_stack([route['x'], route['y']])
     recovered_headings = trajectory['heading']
-    route_heading = route['heading']
+    route_heading = route['yaw']
 
     # For every query position
-    for i in range(0, len(trajectory['heading'])):
-        distance = []
-        for j in range(memory_pointer, limit):  # For every route position
-            d = math.sqrt((x_cords[i] - x_route_cords[j]) ** 2 + ((y_cords[i] - y_route_cords[j]) ** 2))
-            distance.append(d)
-        index_wrt_dist.append(distance.index(min(distance)) + memory_pointer)
-        errors.append(180 - abs(abs(recovered_headings[i] - route_heading[index_wrt_dist[-1]]) - 180))
-        memory_pointer = index_wrt_dist[-1]
+    for i in range(len(trajectory['heading'])):
+        # get distance between route point and all grid points
+        xy = route_xy[memory_pointer:limit]
+        dist = np.squeeze(cdist(np.expand_dims(grid_xy[i], axis=0), xy, 'euclidean'))
+        idx = np.argmin(dist)
+        mindist_index.append(idx + memory_pointer)
+        errors.append(180 - abs(abs(recovered_headings[i] - route_heading[mindist_index[-1]]) - 180))
+        memory_pointer = mindist_index[-1]
         # update the limit
         limit = memory_pointer + search_step
         if limit > route_end: limit = route_end
-    return errors
+    return errors, mindist_index
+
+
+def mean_angular_error(route, trajectory):
+    errors, _ = angular_error(route, trajectory)
+    return np.mean(errors)
 
 
 def mean_degree_error(x_cords, y_cords, x_route_cords, y_route_cords, route_heading, recovered_headings):

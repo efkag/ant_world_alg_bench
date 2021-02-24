@@ -1,29 +1,33 @@
-from source.utils import pre_process, load_route, degree_error
+from source.utils import pre_process, load_route, degree_error, load_route_naw, angular_error, check_for_dir_and_create
 from source import seqnav as spm, perfect_memory as pm
 import pandas as pd
-import timeit
+import time
 import itertools
 import multiprocessing
 import functools
+import numpy as np
 
 
 class Benchmark:
-    def __init__(self, results_path):
-        self.results_path = results_path
+    def __init__(self, results_path, filename='results.csv'):
+        self.results_path = results_path + filename
+        check_for_dir_and_create(results_path)
         self.jobs = 0
         self.total_jobs = 1
         self.bench_logs = []
         self.route_ids = None
         self.routes_data = []
-        self.dist = 100  # Distance between grid images and route images
-        self.log = {'tested routes': [], 'blur': [], 'edge':[], 'window': [],
+        self.dist = 0.2  # Distance between grid images and route images
+        self.log = {'tested routes': [], 'blur': [], 'edge': [], 'window': [],
                     'matcher': [], 'mean error': [], 'errors': [], 'seconds': [],
                     'abs index diff': []}
 
     def load_routes(self, route_ids):
+        path = '../new-antworld/'
         self.route_ids = route_ids
-        for id in self.route_ids:
-            route_data = load_route(id, self.dist)
+        for rid in self.route_ids:
+            route_path = path + '/route' + str(rid) + '/'
+            route_data = load_route_naw(route_path, route_id=id, query=True,  max_dist=self.dist)
             self.routes_data.append(route_data)
 
     def get_grid_chunks(self, grid_gen, chunks=1):
@@ -48,8 +52,12 @@ class Benchmark:
 
         # Generate grid iterable
         grid = itertools.product(*[params[k] for k in params])
+        if self.total_jobs < multiprocessing.cpu_count():
+            no_of_chunks = self.total_jobs
+        else:
+            no_of_chunks = multiprocessing.cpu_count() - 1
         # Generate list chunks of grid combinations
-        chunks =  self.get_grid_chunks(grid, multiprocessing.cpu_count() - 1)
+        chunks = self.get_grid_chunks(grid, no_of_chunks)
         # Partial callable
         worker = functools.partial(self.worker_bench, keys, route_ids, self.dist, shared)
 
@@ -62,6 +70,7 @@ class Benchmark:
         return logs
 
     def bench_singe_core(self, params, route_ids=None):
+        self._total_jobs(params)
 
         # Get list of parameter keys
         keys = [*params]
@@ -83,32 +92,45 @@ class Benchmark:
 
             matcher = combo_dict['matcher']
             window = combo_dict['window']
-            for route in route_ids:  # for every route
-                _, test_x, test_y, test_imgs, route_x, route_y, \
-                    route_heading, route_imgs = load_route(route, self.dist)
-                tic = timeit.default_timer()
+            path = '../new-antworld/'
+            for route_id in route_ids:  # for every route
+                # TODO: In the future the code below (inside the loop) should all be moved inside the navigator class
+                route_path = '../new-antworld/route' + str(route_id) + '/'
+                route = load_route_naw(route_path, route_id=route_id, imgs=True, query=True, max_dist=0.2)
+                # _, test_x, test_y, test_imgs, route_x, route_y, \
+                #     route_heading, route_imgs = load_route(route, self.dist)
+
+                tic = time.perf_counter()
                 # Preprocess images
+                test_imgs = route['qimgs']
                 test_imgs = pre_process(test_imgs, combo_dict)
+                route_imgs = route['imgs']
                 route_imgs = pre_process(route_imgs, combo_dict)
                 # Run navigation algorithm
-                nav = spm.SequentialPerfectMemory(route_imgs, matcher)
-                recovered_heading, logs, window_log = nav.navigate(test_imgs, window)
-                toc = timeit.default_timer()
+                if window:
+                    nav = spm.SequentialPerfectMemory(route_imgs, matcher)
+                    recovered_heading, logs, window_log = nav.navigate(test_imgs, window)
+                else:
+                    nav = pm.PerfectMemory(route_imgs, matcher)
+                    recovered_heading, logs = nav.navigate(test_imgs)
+
+                toc = time.perf_counter()
                 # Get time complexity
                 time_compl.append(toc-tic)
                 # Get the errors and the minimum distant index of the route memory
-                errors, min_dist_index = degree_error(test_x, test_y, route_x, route_y, route_heading, recovered_heading)
+                # errors, min_dist_index = degree_error(test_x, test_y, route_x, route_y, route_heading, recovered_heading)
+                traj = {'x': route['qx'], 'y': route['qy'], 'heading': recovered_heading}
+                errors, min_dist_index = angular_error(route, traj)
                 route_errors.extend(errors)
                 # Difference between matched index and minimum distance index
-                abs_index_diffs.extend([abs(i - j) for i, j in zip(nav.get_index_log(), min_dist_index)])
+                abs_index_diffs.extend(np.absolute(np.subtract(nav.get_index_log(), min_dist_index)))
             self.jobs += 1
             print('Jobs completed: {}/{}'.format(self.jobs, self.total_jobs))
 
-
-            mean_route_error = sum(route_errors) / len(route_errors)
+            mean_route_error = np.mean(route_errors)
             self.log['tested routes'].extend([no_of_routes])
-            self.log['blur'].extend([combo_dict['blur']])
-            self.log['edge'].extend([combo_dict['edge_range']])
+            self.log['blur'].extend([combo_dict.get('blur')])
+            self.log['edge'].extend([combo_dict.get('edge_range')])
             self.log['window'].extend([window])
             self.log['matcher'].extend([matcher])
             self.log['mean error'].extend([mean_route_error])
@@ -128,14 +150,24 @@ class Benchmark:
         assert isinstance(route_ids, list)
 
         if parallel:
-            self.bench_paral(params, route_ids)
+            self.log = None
+            self.log = self.bench_paral(params, route_ids)
         else:
             self.log = self.bench_singe_core(params, route_ids)
+        self.unpack_results()
 
         bench_results = pd.DataFrame(self.log)
-
-        bench_results.to_csv(self.results_path)
+        bench_results.to_csv(self.results_path, index=False)
         print(bench_results)
+
+    def unpack_results(self):
+        results = self.log.get()
+        print(len(results), 'Results produced')
+        self.log = results[0]
+        for dictionary in results[1:]:
+            for k in dictionary:
+                self.log[k].extend(dictionary[k])
+
 
     @staticmethod
     def worker_bench(keys, route_ids, dist, shared, chunk):
@@ -158,33 +190,37 @@ class Benchmark:
 
             matcher = combo_dict['matcher']
             window = combo_dict['window']
-            for route in route_ids:  # for every route
-                _, test_x, test_y, test_imgs, route_x, route_y, \
-                route_heading, route_imgs = load_route(route, dist)
-                tic = timeit.default_timer()
+            for route_id in route_ids:  # for every route
+                route_path = '../new-antworld/route' + str(route_id) + '/'
+                route = load_route_naw(route_path, route_id=route_id, imgs=True, query=True, max_dist=0.2)
+                # _, test_x, test_y, test_imgs, route_x, route_y, \
+                # route_heading, route_imgs = load_route(route, dist)
+                tic = time.perf_counter()
                 # Preprocess images
+                test_imgs = route['qimgs']
                 test_imgs = pre_process(test_imgs, combo_dict)
+                route_imgs = route['imgs']
                 route_imgs = pre_process(route_imgs, combo_dict)
                 # Run navigation algorithm
                 nav = spm.SequentialPerfectMemory(route_imgs, matcher)
                 recovered_heading, logs, window_log = nav.navigate(test_imgs, window)
-                toc = timeit.default_timer()
+                toc = time.perf_counter()
                 # Get time complexity
                 time_compl.append(toc - tic)
                 # Get the errors and the minimum distant index of the route memory
-                errors, min_dist_index = degree_error(test_x, test_y, route_x, route_y, route_heading,
-                                                      recovered_heading)
+                traj = {'x': route['qx'], 'y': route['qy'], 'heading': recovered_heading}
+                errors, min_dist_index = angular_error(route, traj)
                 route_errors.extend(errors)
                 # Difference between matched index and minimum distance index
-                abs_index_diffs.extend([abs(i - j) for i, j in zip(nav.get_index_log(), min_dist_index)])
+                abs_index_diffs.extend(np.subtract(nav.get_index_log(), min_dist_index))
             # Increment the complete jobs shared variable
             shared[0] = shared[0] + 1
-            print(multiprocessing.current_process(),' jobs completed: {}/{}'.format(shared[0], shared[1]))
+            print(multiprocessing.current_process(), ' jobs completed: {}/{}'.format(shared[0], shared[1]))
 
-            mean_route_error = sum(route_errors) / len(route_errors)
+            mean_route_error = np.mean(route_errors)
             log['tested routes'].extend([no_of_routes])
-            log['blur'].extend([combo_dict['blur']])
-            log['edge'].extend([combo_dict['edge_range']])
+            log['blur'].extend([combo_dict.get('blur')])
+            log['edge'].extend([combo_dict.get('edge_range')])
             log['window'].extend([window])
             log['matcher'].extend([matcher])
             log['mean error'].extend([mean_route_error])
