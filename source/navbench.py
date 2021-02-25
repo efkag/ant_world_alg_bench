@@ -77,7 +77,6 @@ class Benchmark:
 
         grid = itertools.product(*[params[k] for k in params])
 
-        no_of_routes = len(route_ids)
         #  Go though all combinations in the grid
         for combo in grid:
 
@@ -85,10 +84,6 @@ class Benchmark:
             combo_dict = {}
             for i, k in enumerate(keys):
                 combo_dict[k] = combo[i]
-
-            route_errors = []
-            time_compl = []
-            abs_index_diffs = []
 
             matcher = combo_dict['matcher']
             window = combo_dict['window']
@@ -116,23 +111,22 @@ class Benchmark:
 
                 toc = time.perf_counter()
                 # Get time complexity
-                time_compl.append(toc-tic)
+                time_compl = toc-tic
                 # Get the errors and the minimum distant index of the route memory
                 # errors, min_dist_index = degree_error(test_x, test_y, route_x, route_y, route_heading, recovered_heading)
                 traj = {'x': route['qx'], 'y': route['qy'], 'heading': recovered_heading}
                 errors, min_dist_index = angular_error(route, traj)
-                route_errors.extend(errors)
                 # Difference between matched index and minimum distance index
-                abs_index_diffs.extend(np.absolute(np.subtract(nav.get_index_log(), min_dist_index)))
+                abs_index_diffs = np.absolute(np.subtract(nav.get_index_log(), min_dist_index))
 
-                mean_route_error = np.mean(route_errors)
+                mean_route_error = np.mean(errors)
                 self.log['route_id'].extend([route_id])
                 self.log['blur'].extend([combo_dict.get('blur')])
                 self.log['edge'].extend([combo_dict.get('edge_range')])
                 self.log['window'].extend([window])
                 self.log['matcher'].extend([matcher])
-                self.log['mean_error'].extend([mean_route_error])
-                self.log['errors'].append(route_errors)
+                self.log['mean_error'].append(mean_route_error)
+                self.log['errors'].append(errors)
                 self.log['seconds'].append(time_compl)
                 self.log['abs_index_diff'].append(abs_index_diffs)
             self.jobs += 1
@@ -176,14 +170,8 @@ class Benchmark:
         log = {'route_id': [], 'blur': [], 'edge': [], 'window': [],
                'matcher': [], 'mean_error': [], 'errors': [], 'seconds': [],
                'abs_index_diff': []}
-
-        no_of_routes = len(route_ids)
         #  Go though all combinations in the chunk
         for combo in chunk:
-            route_errors = []
-            time_compl = []
-            abs_index_diffs = []
-
             # create combo dictionary
             combo_dict = {}
             for i, k in enumerate(keys):
@@ -207,35 +195,23 @@ class Benchmark:
                 recovered_heading, logs, window_log = nav.navigate(test_imgs, window)
                 toc = time.perf_counter()
                 # Get time complexity
-                time_compl.append(toc - tic)
+                time_compl = toc - tic
                 # Get the errors and the minimum distant index of the route memory
                 traj = {'x': route['qx'], 'y': route['qy'], 'heading': recovered_heading}
                 errors, min_dist_index = angular_error(route, traj)
-                route_errors.extend(errors)
                 # Difference between matched index and minimum distance index
-                abs_index_diffs.extend(np.absolute(np.subtract(nav.get_index_log(), min_dist_index)))
-                mean_route_error = np.mean(route_errors)
+                abs_index_diffs = np.absolute(np.subtract(nav.get_index_log(), min_dist_index))
+                mean_route_error = np.mean(errors)
                 log['route_id'].extend([route_id])
                 log['blur'].extend([combo_dict.get('blur')])
                 log['edge'].extend([combo_dict.get('edge_range')])
                 log['window'].extend([window])
                 log['matcher'].extend([matcher])
-                log['mean_error'].extend([mean_route_error])
-                log['errors'].append(route_errors)
+                log['mean_error'].append(mean_route_error)
+                log['errors'].append(errors)
                 log['seconds'].append(time_compl)
                 log['abs_index_diff'].append(abs_index_diffs)
             # Increment the complete jobs shared variable
             shared[0] = shared[0] + 1
             print(multiprocessing.current_process(), ' jobs completed: {}/{}'.format(shared[0], shared[1]))
-
-            mean_route_error = np.mean(route_errors)
-            log['tested routes'].extend([no_of_routes])
-            log['blur'].extend([combo_dict.get('blur')])
-            log['edge'].extend([combo_dict.get('edge_range')])
-            log['window'].extend([window])
-            log['matcher'].extend([matcher])
-            log['mean error'].extend([mean_route_error])
-            log['errors'].append(route_errors)
-            log['seconds'].append(time_compl)
-            log['abs_index_diff'].append(abs_index_diffs)
         return log
