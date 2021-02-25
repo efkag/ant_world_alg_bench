@@ -65,6 +65,7 @@ def plot_route(route, traj=None, scale=70, window=None, windex=None, save=False,
     if traj:
         u, v = pol2cart_headings(90 - traj['heading'])
         ax.scatter(traj['x'], traj['y'])
+        ax.plot(traj['x'], traj['y'])
         ax.quiver(traj['x'], traj['y'], u, v, scale=scale)
 
     if save:

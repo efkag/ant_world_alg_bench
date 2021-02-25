@@ -106,45 +106,41 @@ def update_position(xy, deg, r):
     return (xx, yy), img
 
 
-def test_nav(path, nav, matcher='mae', deg_range=(-180, 180), route_id=1):
-    # TODO Need to refactor this to take a navigator object for testing in the antworld
-    # TODO: Alternatively I would need to pass all the params in here
-    # initial position and heading
-    xy = (0, 0)
-    h = 0
-    # step size for the agent movement (in cm)
-    r = 0.05
-    # timesteps to run the simulations
-    t = 40
+def test_nav(route, nav, r=0.05, t=100, sigma=0.1):
+    # random initial position and heading
+    # near the first location of the route
+    # h = np.random.randint(0, 360)
+    # x = route['x'][0]
+    # x = np.random.normal(x, sigma)
+    # y = route['y'][0]
+    # y = np.random.normal(y, sigma)
+    # xy = (x, y)
+    xy = (route['x'][0], route['y'][0])
+    h = route['yaw'][0]
 
-    route = load_route_naw(path, route_id, imgs=True)
-    x = route['x']
-    y = route['y']
-    z = route['z']
-    xy = (x[0], y[0]+0.1)
-
-    # set up the navigator
-    nav = nav(route['imgs'], matcher, deg_range)
-    # set the initial conditions
+    # Place agent to the initial position and render the image
     img = get_img(xy, h)
-    #initialise the variables
+
+    # initialise the log variables
     headings = []
     headings.append(h)
     traj = np.empty((2, t))
     traj[0, 0] = xy[0]
     traj[1, 0] = xy[1]
-
+    # Navigation loop
     for i in range(1, t):
         h = nav.get_heading(img)
         h = headings[-1] + h
         h = squash_deg(h)
         headings.append(h)
+        # get new position and image
         xy, img = update_position(xy, h, r)
         traj[0, i] = xy[0]
         traj[1, i] = xy[1]
 
     headings = np.array(headings)
-    return headings, traj, nav
+    trajectory = {'x': traj[0], 'y': traj[1], 'heading': headings}
+    return trajectory, nav
 
 
 def rec_grid(steps, path):
@@ -159,9 +155,9 @@ Testing
 """
 
 # # # # rec_grid(70, path='../new-antworld/')
-# route_id = 1
-# path = '../new-antworld/fab/'
-# rec_route_from_points(path, route_id=route_id, generator='gauss', mean=[0, 0], sigma=3)
+# route_id = 2
+# path = '../test_data/'
+# rec_route_from_points(path, route_id=route_id, generator='line', start=-5, end=0, sigma=0.1)
 
 #
 # record_route(datapoints, "../new-antworld/route2/")
