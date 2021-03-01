@@ -18,9 +18,9 @@ class Benchmark:
         self.route_ids = None
         self.routes_data = []
         self.dist = 0.2  # Distance between grid images and route images
-        self.log = {'route_id': [], 'blur': [], 'edge': [], 'window': [],
+        self.log = {'route_id': [], 'blur': [], 'edge': [], 'res': [], 'window': [],
                     'matcher': [], 'mean_error': [], 'errors': [], 'seconds': [],
-                    'abs_index_diff': []}
+                    'abs_index_diff': [], 'window_log': [], 'tx': [], 'ty': [], 'th': []}
 
     def load_routes(self, route_ids):
         path = '../new-antworld/'
@@ -87,6 +87,7 @@ class Benchmark:
 
             matcher = combo_dict['matcher']
             window = combo_dict['window']
+            window_log = None
             path = '../new-antworld/'
             for route_id in route_ids:  # for every route
                 # TODO: In the future the code below (inside the loop) should all be moved inside the navigator class
@@ -123,12 +124,17 @@ class Benchmark:
                 self.log['route_id'].extend([route_id])
                 self.log['blur'].extend([combo_dict.get('blur')])
                 self.log['edge'].extend([combo_dict.get('edge_range')])
+                self.log['res'].append(combo_dict.get('shape'))
                 self.log['window'].extend([window])
                 self.log['matcher'].extend([matcher])
                 self.log['mean_error'].append(mean_route_error)
-                self.log['errors'].append(errors)
                 self.log['seconds'].append(time_compl)
-                self.log['abs_index_diff'].append(abs_index_diffs)
+                self.log['window_log'].append(window_log)
+                self.log['tx'].append(traj['x'].tolist())
+                self.log['ty'].append(traj['y'].tolist())
+                self.log['th'].append(traj['heading'])
+                self.log['abs_index_diff'].append(abs_index_diffs.tolist())
+                self.log['errors'].append(errors)
             self.jobs += 1
             print('Jobs completed: {}/{}'.format(self.jobs, self.total_jobs))
         return self.log
@@ -150,7 +156,6 @@ class Benchmark:
         else:
             self.log = self.bench_singe_core(params, route_ids)
 
-
         bench_results = pd.DataFrame(self.log)
         bench_results.to_csv(self.results_path, index=False)
         print(bench_results)
@@ -167,9 +172,9 @@ class Benchmark:
     @staticmethod
     def worker_bench(keys, route_ids, dist, shared, chunk):
 
-        log = {'route_id': [], 'blur': [], 'edge': [], 'window': [],
-               'matcher': [], 'mean_error': [], 'errors': [], 'seconds': [],
-               'abs_index_diff': []}
+        log = {'route_id': [], 'blur': [], 'edge': [], 'res': [], 'window': [],
+               'matcher': [], 'mean_error': [], 'seconds': [], 'errors': [],
+               'abs_index_diff': [], 'window_log': [], 'tx': [], 'ty': [], 'th': []}
         #  Go though all combinations in the chunk
         for combo in chunk:
             # create combo dictionary
@@ -205,12 +210,17 @@ class Benchmark:
                 log['route_id'].extend([route_id])
                 log['blur'].extend([combo_dict.get('blur')])
                 log['edge'].extend([combo_dict.get('edge_range')])
+                log['res'].append(combo_dict.get('shape'))
                 log['window'].extend([window])
                 log['matcher'].extend([matcher])
                 log['mean_error'].append(mean_route_error)
-                log['errors'].append(errors)
                 log['seconds'].append(time_compl)
-                log['abs_index_diff'].append(abs_index_diffs)
+                log['window_log'].append(window_log)
+                log['tx'].append(traj['x'].tolist())
+                log['ty'].append(traj['y'].tolist())
+                log['th'].append(traj['heading'])
+                log['abs_index_diff'].append(abs_index_diffs.tolist())
+                log['errors'].append(errors)
             # Increment the complete jobs shared variable
             shared[0] = shared[0] + 1
             print(multiprocessing.current_process(), ' jobs completed: {}/{}'.format(shared[0], shared[1]))

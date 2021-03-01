@@ -4,8 +4,9 @@ from source import perfect_memory
 from source import antworld2 as aw
 
 route_id = 1
-path = '../new-antworld/route' + str(route_id) + '/'
-path = '../test_data/route' + str(route_id) + '/'
+path = '../new-antworld/exp1/route' + str(route_id) + '/'
+
+# path = '../test_data/route' + str(route_id) + '/'
 route = load_route_naw(path, route_id=route_id, imgs=True)
 
 plot_route(route)

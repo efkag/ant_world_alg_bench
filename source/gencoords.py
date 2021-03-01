@@ -103,6 +103,7 @@ def random_line_points(start=-10, end=10, sigma=5, steps=10):
 
 
 def generate_from_points(path, generator='gauss', **kwargs):
+    curve_points = kwargs['curve_points']
     if generator == 'points':
         points = np.genfromtxt(path + 'points.csv', delimiter=',')
     elif generator == 'gauss':
@@ -119,7 +120,7 @@ def generate_from_points(path, generator='gauss', **kwargs):
         points = random_line_points(start, end, sigma)
     else:
         raise Exception('Provide a valid generator method')
-    return generate(points, path)
+    return generate(points, path, curve_points=curve_points)
 
 
 def generate(xy, save_path, curve_points=250, plot=True):

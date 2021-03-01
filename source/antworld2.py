@@ -1,7 +1,7 @@
 import antworld
 import cv2
 import numpy as np
-from source.utils import check_for_dir_and_create, load_route_naw, write_route, squash_deg
+from source.utils import check_for_dir_and_create, write_route, squash_deg
 from source.gencoords import generate_from_points, generate_grid
 
 # Old Seville data (lower res, but loads faster)
@@ -16,34 +16,6 @@ z = 1.5 # m (for some reason the ground is at ~1.5m for this world)
 agent = antworld.Agent(720, 150)
 (xlim, ylim, zlim) = agent.load_world(worldpath)
 print(xlim, ylim, zlim)
-
-# pitch = 0.0
-# roll = 0.0
-# x=0
-# y=0
-#
-# deg = [0, 90, 180, 270, 360]
-# # deg = [0, -90, -180, -270, -360]
-#
-#
-# for i, yaw in enumerate(deg):
-#     agent.set_position(x, y, z)
-#     agent.set_attitude(yaw, pitch, roll)
-#     im = agent.read_frame()
-#     filename = "test_data/antworld%i.png" % yaw
-#     cv2.imwrite(filename, im)
-
-#
-# ys = np.arange(0, 2, 0.1)
-# yaw = 0
-# imgid = 0
-# for i in ys:
-#     agent.set_position(x, y + i, z)
-#     agent.set_attitude(yaw, pitch, roll)
-#     im = agent.read_frame()
-#     filename = "test_data/ys%i.png" % imgid
-#     cv2.imwrite(filename, im)
-#     imgid += 1
 
 
 def record_route(route, path, route_id=1):
@@ -149,15 +121,17 @@ def rec_grid(steps, path):
     record_route(grid, path)
 
 
-
+def bench(grid, route_ids):
+    pass
+    # TODO:
 """
 Testing
 """
 
 # # # # rec_grid(70, path='../new-antworld/')
-# route_id = 2
+# route_id = 3
 # path = '../test_data/'
-# rec_route_from_points(path, route_id=route_id, generator='line', start=-5, end=0, sigma=0.1)
+# rec_route_from_points(path, route_id=route_id, generator='line', start=-5, end=5, sigma=0.1)
 
 #
 # record_route(datapoints, "../new-antworld/route2/")
@@ -168,4 +142,33 @@ Testing
 #
 # print(xy, img.shape)
 #
-# rec_route_from_points('../XYZbins/new_route_3.csv', '../new-antworld/route4/')
+
+
+
+# pitch = 0.0
+# roll = 0.0
+# x=0
+# y=0
+#
+# deg = [0, 90, 180, 270, 360]
+# # deg = [0, -90, -180, -270, -360]
+#
+#
+# for i, yaw in enumerate(deg):
+#     agent.set_position(x, y, z)
+#     agent.set_attitude(yaw, pitch, roll)
+#     im = agent.read_frame()
+#     filename = "test_data/antworld%i.png" % yaw
+#     cv2.imwrite(filename, im)
+
+#
+# ys = np.arange(0, 2, 0.1)
+# yaw = 0
+# imgid = 0
+# for i in ys:
+#     agent.set_position(x, y + i, z)
+#     agent.set_attitude(yaw, pitch, roll)
+#     im = agent.read_frame()
+#     filename = "test_data/ys%i.png" % imgid
+#     cv2.imwrite(filename, im)
+#     imgid += 1
