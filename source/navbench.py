@@ -196,8 +196,12 @@ class Benchmark:
                 route_imgs = route['imgs']
                 route_imgs = pre_process(route_imgs, combo_dict)
                 # Run navigation algorithm
-                nav = spm.SequentialPerfectMemory(route_imgs, matcher)
-                recovered_heading, logs, window_log = nav.navigate(test_imgs, window)
+                if window:
+                    nav = spm.SequentialPerfectMemory(route_imgs, matcher)
+                    recovered_heading, logs, window_log = nav.navigate(test_imgs, window)
+                else:
+                    nav = pm.PerfectMemory(route_imgs, matcher)
+                    recovered_heading, logs = nav.navigate(test_imgs)
                 toc = time.perf_counter()
                 # Get time complexity
                 time_compl = toc - tic
