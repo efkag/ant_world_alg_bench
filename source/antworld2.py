@@ -134,8 +134,8 @@ Testing
 
 # # # # rec_grid(70, path='../new-antworld/')
 # route_id = 3
-# path = '../test_data/'
-# rec_route_from_points(path, route_id=route_id, generator='line', start=-5, end=5, sigma=0.1)
+# path = '../new-antworld/exp1/'
+# rec_route_from_points(path, route_id=route_id, generator='line', start=-8, end=8, sigma=0.2, curve_points=500)
 
 #
 # record_route(datapoints, "../new-antworld/route2/")

@@ -20,7 +20,8 @@ class Benchmark:
         self.dist = 0.2  # Distance between grid images and route images
         self.log = {'route_id': [], 'blur': [], 'edge': [], 'res': [], 'window': [],
                     'matcher': [], 'mean_error': [], 'errors': [], 'seconds': [],
-                    'abs_index_diff': [], 'window_log': [], 'tx': [], 'ty': [], 'th': []}
+                    'abs_index_diff': [], 'window_log': [],
+                    'tx': [], 'ty': [], 'th': []}
 
     def load_routes(self, route_ids):
         path = '../new-antworld/'
@@ -174,7 +175,8 @@ class Benchmark:
 
         log = {'route_id': [], 'blur': [], 'edge': [], 'res': [], 'window': [],
                'matcher': [], 'mean_error': [], 'seconds': [], 'errors': [],
-               'abs_index_diff': [], 'window_log': [], 'tx': [], 'ty': [], 'th': []}
+               'abs_index_diff': [], 'window_log': [],
+               'tx': [], 'ty': [], 'th': []}
         #  Go though all combinations in the chunk
         for combo in chunk:
             # create combo dictionary
@@ -184,6 +186,7 @@ class Benchmark:
 
             matcher = combo_dict['matcher']
             window = combo_dict['window']
+            window_log = None
             for route_id in route_ids:  # for every route
                 route_path = '../new-antworld/route' + str(route_id) + '/'
                 route = load_route_naw(route_path, route_id=route_id, imgs=True, query=True, max_dist=0.2)

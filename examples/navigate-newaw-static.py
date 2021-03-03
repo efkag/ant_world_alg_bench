@@ -15,6 +15,6 @@ recovered_heading, logs, window_log = nav.navigate(route['qimgs'], window)
 traj = {'x': route['qx'], 'y': route['qy'], 'heading': recovered_heading}
 plot_route(route, traj)
 
-errors = angular_error(route, traj)
+errors, _ = angular_error(route, traj)
 
 

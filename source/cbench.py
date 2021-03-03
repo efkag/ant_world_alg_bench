@@ -24,7 +24,8 @@ def get_grid_dict(params):
 def bench(params, route_ids):
     log = {'route_id': [], 'blur': [], 'edge': [], 'res': [], 'window': [],
            'matcher': [], 'mean_error': [], 'seconds': [], 'errors': [],
-           'abs_index_diff': [], 'window_log': [], 'tx': [], 'ty': [], 'th': []}
+           'abs_index_diff': [], 'window_log': [],
+           'tx': [], 'ty': [], 'th': []}
 
     grid = get_grid_dict(params)
     #  Go though all combinations in the chunk
@@ -32,6 +33,7 @@ def bench(params, route_ids):
 
         matcher = combo['matcher']
         window = combo['window']
+        window_log = None
         for route_id in route_ids:  # for every route
             route_path = '../new-antworld/route' + str(route_id) + '/'
             route = load_route_naw(route_path, route_id=route_id, imgs=True)
@@ -84,8 +86,8 @@ def benchmark(results_path, params, route_ids):
     bench_results.to_csv(results_path, index=False)
 
 
-results_path = '../Results/newant/test.csv'
-parameters = {'blur': [True], 'shape': [(180, 50), (90, 25)], 'edge_range': [(180, 200)],
-              'window': list(range(10, 12)), 'matcher': ['corr', 'rmse']}
-
-benchmark(results_path, parameters, [1, 2])
+# results_path = '../Results/newant/test.csv'
+# parameters = {'blur': [True], 'shape': [(180, 50), (90, 25)], 'edge_range': [(180, 200)],
+#               'window': list(range(10, 12)), 'matcher': ['corr', 'rmse']}
+#
+# benchmark(results_path, parameters, [1, 2])
