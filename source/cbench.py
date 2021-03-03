@@ -41,12 +41,12 @@ def bench(params, route_ids):
             route_imgs = pre_process(route_imgs, combo)
             # Run navigation algorithm
             if window:
-                nav = spm.SequentialPerfectMemory(route_imgs, matcher)
+                nav = spm.SequentialPerfectMemory(route_imgs, matcher, deg_range=(-180, 180))
             else:
-                nav = pm.PerfectMemory(route_imgs, matcher)
+                nav = pm.PerfectMemory(route_imgs, matcher, deg_range=(-180, 180))
 
             tic = time.perf_counter()
-            traj, nav = aw.test_nav(route, nav, t=20, r=0.1)
+            traj, nav = aw.test_nav(route, nav, t=20, r=0.1, preproc=combo)
             toc = time.perf_counter()
 
             time_compl = toc - tic

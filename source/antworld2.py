@@ -94,7 +94,7 @@ def test_nav(route, nav, r=0.05, t=100, sigma=0.1, preproc={}):
 
     # Place agent to the initial position and render the image
     img = get_img(xy, h)
-    pre_process(img, preproc)
+    img = pre_process(img, preproc)
 
     # initialise the log variables
     headings = []
@@ -110,7 +110,7 @@ def test_nav(route, nav, r=0.05, t=100, sigma=0.1, preproc={}):
         headings.append(h)
         # get new position and image
         xy, img = update_position(xy, h, r)
-        pre_process(img, preproc)
+        img = pre_process(img, preproc)
         traj[0, i] = xy[0]
         traj[1, i] = xy[1]
 
