@@ -1,7 +1,7 @@
 import antworld
 import cv2
 import numpy as np
-from source.utils import check_for_dir_and_create, write_route, squash_deg
+from source.utils import check_for_dir_and_create, write_route, squash_deg, pre_process
 from source.gencoords import generate_from_points, generate_grid
 
 # Old Seville data (lower res, but loads faster)
@@ -78,20 +78,23 @@ def update_position(xy, deg, r):
     return (xx, yy), img
 
 
-def test_nav(route, nav, r=0.05, t=100, sigma=0.1):
+def test_nav(route, nav, r=0.05, t=100, sigma=0.1, preproc={}):
     # random initial position and heading
     # near the first location of the route
-    # h = np.random.randint(0, 360)
-    # x = route['x'][0]
-    # x = np.random.normal(x, sigma)
-    # y = route['y'][0]
-    # y = np.random.normal(y, sigma)
-    # xy = (x, y)
-    xy = (route['x'][0], route['y'][0])
-    h = route['yaw'][0]
+    if sigma:
+        h = np.random.randint(0, 360)
+        x = route['x'][0]
+        x = np.random.normal(x, sigma)
+        y = route['y'][0]
+        y = np.random.normal(y, sigma)
+        xy = (x, y)
+    else:
+        xy = (route['x'][0], route['y'][0])
+        h = route['yaw'][0]
 
     # Place agent to the initial position and render the image
     img = get_img(xy, h)
+    pre_process(img, preproc)
 
     # initialise the log variables
     headings = []
@@ -107,6 +110,7 @@ def test_nav(route, nav, r=0.05, t=100, sigma=0.1):
         headings.append(h)
         # get new position and image
         xy, img = update_position(xy, h, r)
+        pre_process(img, preproc)
         traj[0, i] = xy[0]
         traj[1, i] = xy[1]
 

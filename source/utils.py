@@ -337,9 +337,10 @@ def pre_process(imgs, sets):
     Gaussian blur, edge detection and image resize
     :param imgs:
     :param sets:
-    :param keys:
     :return:
     """
+    if not isinstance(imgs, list):
+        imgs = [imgs]
     if sets.get('shape'):
         shape = sets['shape']
         imgs = [cv.resize(img, shape) for img in imgs]
@@ -349,7 +350,7 @@ def pre_process(imgs, sets):
         lims = sets['edge_range']
         imgs = [cv.Canny(img, lims[0], lims[1]) for img in imgs]
 
-    return imgs
+    return imgs if len(imgs) > 1 else imgs[0]
 
 
 def image_split(image, overlap=None, blind=0):

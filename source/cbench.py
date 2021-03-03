@@ -71,3 +71,21 @@ def bench(params, route_ids):
             log['errors'].append(errors)
         # Increment the complete jobs shared variable
     return log
+
+
+def benchmark(results_path, params, route_ids):
+
+    assert isinstance(params, dict)
+    assert isinstance(route_ids, list)
+
+    log = bench(params, route_ids)
+
+    bench_results = pd.DataFrame(log)
+    bench_results.to_csv(results_path, index=False)
+
+
+results_path = '../Results/newant/test.csv'
+parameters = {'blur': [True], 'shape': [(180, 50), (90, 25)], 'edge_range': [(180, 200)],
+              'window': list(range(10, 12)), 'matcher': ['corr', 'rmse']}
+
+benchmark(results_path, parameters, [1, 2])
