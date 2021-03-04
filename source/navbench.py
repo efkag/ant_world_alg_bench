@@ -1,4 +1,4 @@
-from source.utils import pre_process, load_route, degree_error, load_route_naw, angular_error, check_for_dir_and_create
+from source.utils import pre_process, load_route, degree_error, load_route_naw, angular_error, check_for_dir_and_create, calc_dists
 from source import seqnav as spm, perfect_memory as pm
 import pandas as pd
 import time
@@ -20,7 +20,7 @@ class Benchmark:
         self.dist = 0.2  # Distance between grid images and route images
         self.log = {'route_id': [], 'blur': [], 'edge': [], 'res': [], 'window': [],
                     'matcher': [], 'mean_error': [], 'errors': [], 'seconds': [],
-                    'abs_index_diff': [], 'window_log': [],
+                    'abs_index_diff': [], 'window_log': [], 'dist_diff': [],
                     'tx': [], 'ty': [], 'th': []}
 
     def load_routes(self, route_ids):
@@ -118,9 +118,10 @@ class Benchmark:
                 # errors, min_dist_index = degree_error(test_x, test_y, route_x, route_y, route_heading, recovered_heading)
                 traj = {'x': route['qx'], 'y': route['qy'], 'heading': recovered_heading}
                 errors, min_dist_index = angular_error(route, traj)
-                # Difference between matched index and minimum distance index
+                # Difference between matched index and minimum distance index and distance between points
+                matched_index = nav.get_index_log()
                 abs_index_diffs = np.absolute(np.subtract(nav.get_index_log(), min_dist_index))
-
+                dist_diff = calc_dists(route, min_dist_index, matched_index)
                 mean_route_error = np.mean(errors)
                 self.log['route_id'].extend([route_id])
                 self.log['blur'].extend([combo_dict.get('blur')])
@@ -135,6 +136,7 @@ class Benchmark:
                 self.log['ty'].append(traj['y'].tolist())
                 self.log['th'].append(traj['heading'])
                 self.log['abs_index_diff'].append(abs_index_diffs.tolist())
+                self.log['dist_diff'].append(dist_diff.tolist())
                 self.log['errors'].append(errors)
             self.jobs += 1
             print('Jobs completed: {}/{}'.format(self.jobs, self.total_jobs))
@@ -212,7 +214,9 @@ class Benchmark:
                 traj = {'x': route['qx'], 'y': route['qy'], 'heading': recovered_heading}
                 errors, min_dist_index = angular_error(route, traj)
                 # Difference between matched index and minimum distance index
-                abs_index_diffs = np.absolute(np.subtract(nav.get_index_log(), min_dist_index))
+                matched_index = nav.get_index_log()
+                abs_index_diffs = np.absolute(np.subtract(matched_index, min_dist_index))
+                dist_diff = calc_dists(route, min_dist_index, matched_index)
                 mean_route_error = np.mean(errors)
                 log['route_id'].extend([route_id])
                 log['blur'].extend([combo_dict.get('blur')])
@@ -227,6 +231,7 @@ class Benchmark:
                 log['ty'].append(traj['y'].tolist())
                 log['th'].append(traj['heading'])
                 log['abs_index_diff'].append(abs_index_diffs.tolist())
+                log['dist_diff'].append(dist_diff.tolist())
                 log['errors'].append(errors)
             # Increment the complete jobs shared variable
             shared[0] = shared[0] + 1

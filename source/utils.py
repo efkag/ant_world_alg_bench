@@ -220,6 +220,19 @@ def travel_dist(route):
     return np.sum(steps)
 
 
+def calc_dists(route, indexa, indexb):
+    assert len(indexa) == len(indexb)
+    xa = route['x'][indexa]
+    ya = route['y'][indexa]
+
+    xb = route['x'][indexb]
+    yb = route['y'][indexb]
+
+    dx = xa - xb
+    dy = ya - yb
+    return np.sqrt(dx**2+dy**2)
+
+
 def load_route(route_id, grid_pos_limit=200):
     # Path/ Directory settings
     antworld_path = '../AntWorld'
@@ -605,7 +618,6 @@ def angular_error(route, trajectory):
     # Holds the angular error between the query position and the closest route position
     errors = []
     mindist_index = []
-    mindist = []
     route_end = len(route['x'])
     search_step = 20
     memory_pointer = 0
@@ -622,7 +634,6 @@ def angular_error(route, trajectory):
         xy = route_xy[memory_pointer:limit]
         dist = np.squeeze(cdist(np.expand_dims(grid_xy[i], axis=0), xy, 'euclidean'))
         idx = np.argmin(dist)
-        mindist.append(dist[idx])
         mindist_index.append(idx + memory_pointer)
         errors.append(180 - abs(abs(recovered_headings[i] - route_heading[mindist_index[-1]]) - 180))
         memory_pointer = mindist_index[-1]

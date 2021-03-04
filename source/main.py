@@ -13,7 +13,7 @@ def main():
 
     routes = [1, 2]
     bench = navbench.Benchmark(results_path, filename='test.csv')
-    bench.benchmark(parameters, routes, parallel=True)
+    bench.benchmark(parameters, routes, parallel=False)
 
 
 if __name__ == "__main__":
