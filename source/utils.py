@@ -65,6 +65,7 @@ def plot_route(route, traj=None, scale=70, window=None, windex=None, save=False,
     if traj:
         u, v = pol2cart_headings(90 - traj['heading'])
         ax.scatter(traj['x'], traj['y'])
+        ax.plot(traj['x'], traj['y'])
         ax.quiver(traj['x'], traj['y'], u, v, scale=scale)
 
     if save:
@@ -219,6 +220,19 @@ def travel_dist(route):
     return np.sum(steps)
 
 
+def calc_dists(route, indexa, indexb):
+    assert len(indexa) == len(indexb)
+    xa = route['x'][indexa]
+    ya = route['y'][indexa]
+
+    xb = route['x'][indexb]
+    yb = route['y'][indexb]
+
+    dx = xa - xb
+    dy = ya - yb
+    return np.sqrt(dx**2+dy**2)
+
+
 def load_route(route_id, grid_pos_limit=200):
     # Path/ Directory settings
     antworld_path = '../AntWorld'
@@ -336,9 +350,10 @@ def pre_process(imgs, sets):
     Gaussian blur, edge detection and image resize
     :param imgs:
     :param sets:
-    :param keys:
     :return:
     """
+    if not isinstance(imgs, list):
+        imgs = [imgs]
     if sets.get('shape'):
         shape = sets['shape']
         imgs = [cv.resize(img, shape) for img in imgs]
@@ -348,7 +363,7 @@ def pre_process(imgs, sets):
         lims = sets['edge_range']
         imgs = [cv.Canny(img, lims[0], lims[1]) for img in imgs]
 
-    return imgs
+    return imgs if len(imgs) > 1 else imgs[0]
 
 
 def image_split(image, overlap=None, blind=0):

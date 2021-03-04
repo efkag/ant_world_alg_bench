@@ -1,4 +1,4 @@
-from source.utils import mae, rmse, cor_dist, rmf, rotate, pair_rmf
+from source.utils import mae, rmse, cor_dist, rmf, pair_rmf
 import numpy as np
 
 
@@ -26,7 +26,7 @@ class SequentialPerfectMemory:
 
         # Used for continous heading search
         self.mem_pointer = 0
-        self.window = 14
+        self.window = 20
 
     def get_heading(self, query_img, dynamic_window=False):
         # get the rotational similarities between a query image and a window of route images

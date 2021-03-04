@@ -1,5 +1,5 @@
 import math
-from source.utils import line_incl, pol2cart_headings, check_for_dir_and_create, pol2cart, squash_deg
+from source.utils import line_incl, pol2cart_headings, check_for_dir_and_create, pol2cart, squash_deg, travel_dist
 from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
@@ -103,6 +103,7 @@ def random_line_points(start=-10, end=10, sigma=5, steps=10):
 
 
 def generate_from_points(path, generator='gauss', **kwargs):
+    curve_points = kwargs['curve_points']
     if generator == 'points':
         points = np.genfromtxt(path + 'points.csv', delimiter=',')
     elif generator == 'gauss':
@@ -119,7 +120,7 @@ def generate_from_points(path, generator='gauss', **kwargs):
         points = random_line_points(start, end, sigma)
     else:
         raise Exception('Provide a valid generator method')
-    return generate(points, path)
+    return generate(points, path, curve_points=curve_points)
 
 
 def generate(xy, save_path, curve_points=250, plot=True):
@@ -152,6 +153,7 @@ def generate(xy, save_path, curve_points=250, plot=True):
     route['roll'] = np.zeros(curve_points)
 
     print('mean curvature:', meancurv2d(x_route, y_route))
+    print('traveled distance', travel_dist(route))
     if plot:
         u, v = pol2cart_headings(90 - heading)
         plt.scatter(x_route, y_route)

@@ -1,7 +1,7 @@
 import antworld
 import cv2
 import numpy as np
-from source.utils import check_for_dir_and_create, load_route_naw, write_route, squash_deg
+from source.utils import check_for_dir_and_create, write_route, squash_deg, pre_process
 from source.gencoords import generate_from_points, generate_grid
 
 # Old Seville data (lower res, but loads faster)
@@ -16,34 +16,6 @@ z = 1.5 # m (for some reason the ground is at ~1.5m for this world)
 agent = antworld.Agent(720, 150)
 (xlim, ylim, zlim) = agent.load_world(worldpath)
 print(xlim, ylim, zlim)
-
-# pitch = 0.0
-# roll = 0.0
-# x=0
-# y=0
-#
-# deg = [0, 90, 180, 270, 360]
-# # deg = [0, -90, -180, -270, -360]
-#
-#
-# for i, yaw in enumerate(deg):
-#     agent.set_position(x, y, z)
-#     agent.set_attitude(yaw, pitch, roll)
-#     im = agent.read_frame()
-#     filename = "test_data/antworld%i.png" % yaw
-#     cv2.imwrite(filename, im)
-
-#
-# ys = np.arange(0, 2, 0.1)
-# yaw = 0
-# imgid = 0
-# for i in ys:
-#     agent.set_position(x, y + i, z)
-#     agent.set_attitude(yaw, pitch, roll)
-#     im = agent.read_frame()
-#     filename = "test_data/ys%i.png" % imgid
-#     cv2.imwrite(filename, im)
-#     imgid += 1
 
 
 def record_route(route, path, route_id=1):
@@ -106,45 +78,45 @@ def update_position(xy, deg, r):
     return (xx, yy), img
 
 
-def test_nav(path, nav, matcher='mae', deg_range=(-180, 180), route_id=1):
-    # TODO Need to refactor this to take a navigator object for testing in the antworld
-    # TODO: Alternatively I would need to pass all the params in here
-    # initial position and heading
-    xy = (0, 0)
-    h = 0
-    # step size for the agent movement (in cm)
-    r = 0.05
-    # timesteps to run the simulations
-    t = 40
+def test_nav(route, nav, r=0.05, t=100, sigma=0.1, preproc={}):
+    # random initial position and heading
+    # near the first location of the route
+    if sigma:
+        h = np.random.randint(0, 360)
+        x = route['x'][0]
+        x = np.random.normal(x, sigma)
+        y = route['y'][0]
+        y = np.random.normal(y, sigma)
+        xy = (x, y)
+    else:
+        xy = (route['x'][0], route['y'][0])
+        h = route['yaw'][0]
 
-    route = load_route_naw(path, route_id, imgs=True)
-    x = route['x']
-    y = route['y']
-    z = route['z']
-    xy = (x[0], y[0]+0.1)
-
-    # set up the navigator
-    nav = nav(route['imgs'], matcher, deg_range)
-    # set the initial conditions
+    # Place agent to the initial position and render the image
     img = get_img(xy, h)
-    #initialise the variables
+    img = pre_process(img, preproc)
+
+    # initialise the log variables
     headings = []
     headings.append(h)
     traj = np.empty((2, t))
     traj[0, 0] = xy[0]
     traj[1, 0] = xy[1]
-
+    # Navigation loop
     for i in range(1, t):
         h = nav.get_heading(img)
         h = headings[-1] + h
         h = squash_deg(h)
         headings.append(h)
+        # get new position and image
         xy, img = update_position(xy, h, r)
+        img = pre_process(img, preproc)
         traj[0, i] = xy[0]
         traj[1, i] = xy[1]
 
     headings = np.array(headings)
-    return headings, traj, nav
+    trajectory = {'x': traj[0], 'y': traj[1], 'heading': headings}
+    return trajectory, nav
 
 
 def rec_grid(steps, path):
@@ -153,15 +125,17 @@ def rec_grid(steps, path):
     record_route(grid, path)
 
 
-
+def bench(grid, route_ids):
+    pass
+    # TODO:
 """
 Testing
 """
 
 # # # # rec_grid(70, path='../new-antworld/')
-# route_id = 1
-# path = '../new-antworld/fab/'
-# rec_route_from_points(path, route_id=route_id, generator='gauss', mean=[0, 0], sigma=3)
+# route_id = 3
+# path = '../new-antworld/exp1/'
+# rec_route_from_points(path, route_id=route_id, generator='line', start=-8, end=8, sigma=0.2, curve_points=500)
 
 #
 # record_route(datapoints, "../new-antworld/route2/")
@@ -172,4 +146,33 @@ Testing
 #
 # print(xy, img.shape)
 #
-# rec_route_from_points('../XYZbins/new_route_3.csv', '../new-antworld/route4/')
+
+
+
+# pitch = 0.0
+# roll = 0.0
+# x=0
+# y=0
+#
+# deg = [0, 90, 180, 270, 360]
+# # deg = [0, -90, -180, -270, -360]
+#
+#
+# for i, yaw in enumerate(deg):
+#     agent.set_position(x, y, z)
+#     agent.set_attitude(yaw, pitch, roll)
+#     im = agent.read_frame()
+#     filename = "test_data/antworld%i.png" % yaw
+#     cv2.imwrite(filename, im)
+
+#
+# ys = np.arange(0, 2, 0.1)
+# yaw = 0
+# imgid = 0
+# for i in ys:
+#     agent.set_position(x, y + i, z)
+#     agent.set_attitude(yaw, pitch, roll)
+#     im = agent.read_frame()
+#     filename = "test_data/ys%i.png" % imgid
+#     cv2.imwrite(filename, im)
+#     imgid += 1
