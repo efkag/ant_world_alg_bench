@@ -177,7 +177,7 @@ class Benchmark:
 
         log = {'route_id': [], 'blur': [], 'edge': [], 'res': [], 'window': [],
                'matcher': [], 'mean_error': [], 'seconds': [], 'errors': [],
-               'abs_index_diff': [], 'window_log': [],
+               'abs_index_diff': [], 'window_log': [], 'dist_diff': [],
                'tx': [], 'ty': [], 'th': []}
         #  Go though all combinations in the chunk
         for combo in chunk:

@@ -1,4 +1,4 @@
-from source.utils import pre_process, load_route, degree_error, load_route_naw, angular_error, check_for_dir_and_create
+from source.utils import pre_process, calc_dists, load_route_naw, angular_error, check_for_dir_and_create
 from source import seqnav as spm, perfect_memory as pm
 import pandas as pd
 import time
@@ -55,7 +55,9 @@ def bench(params, route_ids):
             # Get the errors and the minimum distant index of the route memory
             errors, min_dist_index = angular_error(route, traj)
             # Difference between matched index and minimum distance index
-            abs_index_diffs = np.absolute(np.subtract(nav.get_index_log(), min_dist_index))
+            matched_index = nav.get_index_log()
+            abs_index_diffs = np.absolute(np.subtract(matched_index, min_dist_index))
+            dist_diff = calc_dists(route, min_dist_index, matched_index)
             mean_route_error = np.mean(errors)
             log['route_id'].extend([route_id])
             log['blur'].extend([combo.get('blur')])
@@ -70,6 +72,7 @@ def bench(params, route_ids):
             log['ty'].append(traj['y'].tolist())
             log['th'].append(traj['heading'])
             log['abs_index_diff'].append(abs_index_diffs.tolist())
+            log['dist_diff'].append(dist_diff.tolist())
             log['errors'].append(errors)
         # Increment the complete jobs shared variable
     return log
