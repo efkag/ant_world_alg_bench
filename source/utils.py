@@ -50,6 +50,7 @@ def save_image(path, img):
 
 def plot_route(route, traj=None, scale=70, window=None, windex=None, save=False, size=(10, 10), path=None):
     fig, ax = plt.subplots(figsize=size)
+    plt.tight_layout(pad=0)
     u, v = pol2cart_headings(90 - route['yaw'])
     ax.scatter(route['x'], route['y'])
     ax.quiver(route['x'], route['y'], u, v, scale=scale)
@@ -75,7 +76,10 @@ def plot_route(route, traj=None, scale=70, window=None, windex=None, save=False,
 
 
 def animated_window(route, window, path=None, scale=70, save=False, size=(10, 10)):
+    check_for_dir_and_create(path)
     assert isinstance(window, list)
+    if path:
+        save=True
     for i, w in enumerate(window):
         plot_route(route, window=w, windex=i, save=save, scale=scale, size=size, path=path)
 
