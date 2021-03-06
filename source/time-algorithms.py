@@ -18,10 +18,10 @@ for id in route_ids:  # for every route
     pre_world_grid_imgs = pre_process(world_grid_imgs, pre_proc)
     pre_route_images = pre_process(route_images, pre_proc)
 
-    nav = spm.SequentialPerfectMemory(pre_route_images, matcher)
+    nav = spm.SequentialPerfectMemory(pre_route_images, matcher, window=window)
     # Time the navigator. Start timer
     tic = timeit.default_timer()
-    nav.navigate(pre_world_grid_imgs, window)
+    nav.navigate(pre_world_grid_imgs)
     toc = timeit.default_timer()
     # End of timing
     time_complexity.append(toc-tic)

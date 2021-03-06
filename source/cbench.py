@@ -43,7 +43,7 @@ def bench(params, route_ids):
             route_imgs = pre_process(route_imgs, combo)
             # Run navigation algorithm
             if window:
-                nav = spm.SequentialPerfectMemory(route_imgs, matcher, deg_range=(-180, 180))
+                nav = spm.SequentialPerfectMemory(route_imgs, matcher, deg_range=(-180, 180), window=window)
             else:
                 nav = pm.PerfectMemory(route_imgs, matcher, deg_range=(-180, 180))
 

@@ -29,8 +29,8 @@ matcher = 'corr'
 figures_path = logs_path + matcher + '/'
 check_for_dir_and_create(figures_path)
 
-nav = spm.SequentialPerfectMemory(pre_route_images, matcher)
-recovered_heading, logs, window_log = nav.navigate(pre_grid_imgs, window)
+nav = spm.SequentialPerfectMemory(pre_route_images, matcher, window=window)
+recovered_heading, logs, window_log = nav.navigate(pre_grid_imgs)
 
 print(mean_degree_error(x_inlimit, y_inlimit, x_route, y_route, route_heading, recovered_heading))
 zoom = [np.mean(x_route), np.mean(y_route)]

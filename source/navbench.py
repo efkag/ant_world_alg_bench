@@ -105,8 +105,8 @@ class Benchmark:
                 route_imgs = pre_process(route_imgs, combo_dict)
                 # Run navigation algorithm
                 if window:
-                    nav = spm.SequentialPerfectMemory(route_imgs, matcher)
-                    recovered_heading, logs, window_log = nav.navigate(test_imgs, window)
+                    nav = spm.SequentialPerfectMemory(route_imgs, matcher, window=window)
+                    recovered_heading, logs, window_log = nav.navigate(test_imgs)
                 else:
                     nav = pm.PerfectMemory(route_imgs, matcher)
                     recovered_heading, logs = nav.navigate(test_imgs)
@@ -202,8 +202,8 @@ class Benchmark:
                 route_imgs = pre_process(route_imgs, combo_dict)
                 # Run navigation algorithm
                 if window:
-                    nav = spm.SequentialPerfectMemory(route_imgs, matcher)
-                    recovered_heading, logs, window_log = nav.navigate(test_imgs, window)
+                    nav = spm.SequentialPerfectMemory(route_imgs, matcher, window=window)
+                    recovered_heading, logs, window_log = nav.navigate(test_imgs)
                 else:
                     nav = pm.PerfectMemory(route_imgs, matcher)
                     recovered_heading, logs = nav.navigate(test_imgs)

@@ -19,8 +19,8 @@ plot_map(w, [x_route, y_route], [x_inlimit, y_inlimit], size=(15, 15),
 pre_world_grid_imgs = pre_process(world_grid_imgs, pre_proc)
 pre_route_images = pre_process(route_images, pre_proc)
 
-nav = spm.SequentialPerfectMemory(pre_route_images, matcher)
-recovered_heading, logs, window_log = nav.navigate(pre_world_grid_imgs, window)
+nav = spm.SequentialPerfectMemory(pre_route_images, matcher, window=window)
+recovered_heading, logs, window_log = nav.navigate(pre_world_grid_imgs)
 # nav = pm.PerfectMemory(pre_route_images, matcher)
 # recovered_heading, logs = nav.navigate(pre_world_grid_imgs)
 

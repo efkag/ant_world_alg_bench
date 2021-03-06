@@ -4,7 +4,7 @@ import numpy as np
 
 class SequentialPerfectMemory:
 
-    def __init__(self, route_images, matching, deg_range=(0, 360), degree_shift=1):
+    def __init__(self, route_images, matching, deg_range=(0, 360), degree_shift=1, window=20):
         self.route_end = len(route_images)
         self.route_images = route_images
         self.deg_range = deg_range
@@ -26,7 +26,8 @@ class SequentialPerfectMemory:
 
         # Used for continous heading search
         self.mem_pointer = 0
-        self.window = 20
+        assert window > 2
+        self.window = window
 
     def get_heading(self, query_img, dynamic_window=False):
         # get the rotational similarities between a query image and a window of route images
@@ -65,22 +66,24 @@ class SequentialPerfectMemory:
 
     def update_window(self, best):
         # Dynamic window adaptation based on match gradient.
-        if best > self.prev_match or self.window < 5:
-            self.window += 1
-        elif self.window > 20:
-            self.window -= 2
+        if best > self.prev_match or self.window < 15:
+            self.window += 2
+        # elif self.window > 20:
+        #     self.window -= 2
         else:
-            self.window -= 1
+            self.window -= 2
         self.prev_match = best
+        upper = int(self.window/2)
+        lower = self.window - upper
+        return upper, lower
 
-    def navigate(self, query_imgs, window=10, mem_pointer=0):
+    def navigate(self, query_imgs, mem_pointer=0):
         assert isinstance(query_imgs, list)
-        assert window > 2
 
-        upper = int(window/2)
-        lower = window - upper
+        upper = int(self.window/2)
+        lower = self.window - upper
         mem_pointer = upper
-        flimit = window
+        flimit = self.window
         blimit = 0
         # For every query image
         for query_img in query_imgs:
@@ -103,13 +106,16 @@ class SequentialPerfectMemory:
             # append the rsims of all window route images for that current image
             self.logs.append(wrsims)
             index = self.argminmax(wind_sims)
-            self.recovered_heading.append(wind_headings[index])
+            # self.recovered_heading.append(wind_headings[index])
+            # The heading ins the window average
+            self.recovered_heading.append(np.mean(wind_sims))
 
             # Update memory pointer
             change = index - upper
             mem_pointer += change
             self.matched_index_log.append(mem_pointer)
 
+            # Update the bounds of the window
             flimit = mem_pointer + upper
             blimit = mem_pointer - lower
             if flimit > self.route_end:
@@ -117,19 +123,13 @@ class SequentialPerfectMemory:
                 mem_pointer = self.route_end - upper
             if blimit <= 0:
                 blimit = mem_pointer
-                flimit = mem_pointer + window
+                flimit = mem_pointer + self.window
                 mem_pointer = mem_pointer + upper
             self.window_log.append([blimit, flimit])
 
-            # recovered_heading.append(sum(wind_headings)/len(wind_headings))
-            # Dynamic window adaptation based on match gradient.
-            # if best > self.prev_match or window < 5:
-            #     window += 1
-            # elif window > 20:
-            #     window -= 2
-            # else:
-            #     window -= 1
-            # self.prev_match = best
+            upper, lower = self.update_window(wind_sims[index])
+
+
             #
             # # Lower confidence of the memories depending on the match score
             # window_mean = sum(wind_sims)/len(wind_sims)

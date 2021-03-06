@@ -1,6 +1,7 @@
 from source.utils import load_route_naw, plot_route, angular_error, animated_window, pre_process
 from source import seqnav
 import numpy as np
+import matplotlib.pyplot as plt
 
 route_id = 3
 path = '../new-antworld/exp1/route' + str(route_id) + '/'
@@ -8,21 +9,27 @@ route = load_route_naw(path, route_id=route_id, imgs=True, query=True, max_dist=
 
 plot_route(route)
 
-window = 25
-matcher = 'corr'
-sets = {'shape': (180, 50), 'edge_range': (180, 200)}
+window = 20
+matcher = 'mae'
+sets = {'shape': (180, 50)}# , 'edge_range': (180, 200)}
 route_imgs = pre_process(route['imgs'], sets)
 test_imgs = pre_process(route['qimgs'], sets)
 
-nav = seqnav.SequentialPerfectMemory(route_imgs, matcher)
-recovered_heading, logs, window_log = nav.navigate(test_imgs, window)
+nav = seqnav.SequentialPerfectMemory(route_imgs, matcher, window=window)
+recovered_heading, logs, window_log = nav.navigate(test_imgs)
 
 traj = {'x': route['qx'], 'y': route['qy'], 'heading': recovered_heading}
 traj['heading'] = np.array(traj['heading'])
 plot_route(route, traj)
 
 errors, _ = angular_error(route, traj)
-np.mean(errors)
+print(np.mean(errors))
+
+window_log = np.array(window_log)
+
+diffs = window_log[:, 1] - window_log[:, 0]
+plt.plot(range(len(diffs)), diffs)
+plt.show()
 
 path = 'window_plots/'
 animated_window(route, window_log, path=path)
