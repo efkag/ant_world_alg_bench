@@ -76,6 +76,9 @@ def plot_route(route, traj=None, scale=70, window=None, windex=None, save=False,
 
 def animated_window(route, window, path=None, scale=70, save=False, size=(10, 10)):
     assert isinstance(window, list)
+    check_for_dir_and_create(path)
+    if path:
+        save = True
     for i, w in enumerate(window):
         plot_route(route, window=w, windex=i, save=save, scale=scale, size=size, path=path)
 

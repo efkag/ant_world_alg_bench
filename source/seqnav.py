@@ -77,16 +77,16 @@ class SequentialPerfectMemory:
         assert isinstance(query_imgs, list)
         assert window > 2
 
+        upper = int(window/2)
+        lower = window - upper
+        mem_pointer = upper
+        flimit = window
+        blimit = 0
         # For every query image
         for query_img in query_imgs:
-            limit = mem_pointer + window
-            if limit > self.route_end:
-                limit = self.route_end
-                mem_pointer = self.route_end - window
-            self.window_log.append([mem_pointer, limit])
 
             # get the rotational similarities between a query image and a window of route images
-            wrsims = rmf(query_img, self.route_images[mem_pointer:limit], self.matcher, self.deg_range, self.deg_step)
+            wrsims = rmf(query_img, self.route_images[blimit:flimit], self.matcher, self.deg_range, self.deg_step)
 
             # Holds the best rot. match between the query image and route images
             wind_sims = []
@@ -104,9 +104,22 @@ class SequentialPerfectMemory:
             self.logs.append(wrsims)
             index = self.argminmax(wind_sims)
             self.recovered_heading.append(wind_headings[index])
+
             # Update memory pointer
-            mem_pointer += index
+            change = index - upper
+            mem_pointer += change
             self.matched_index_log.append(mem_pointer)
+
+            flimit = mem_pointer + upper
+            blimit = mem_pointer - lower
+            if flimit > self.route_end:
+                flimit = self.route_end
+                mem_pointer = self.route_end - upper
+            if blimit <= 0:
+                blimit = mem_pointer
+                flimit = mem_pointer + window
+                mem_pointer = mem_pointer + upper
+            self.window_log.append([blimit, flimit])
 
             # recovered_heading.append(sum(wind_headings)/len(wind_headings))
             # Dynamic window adaptation based on match gradient.
