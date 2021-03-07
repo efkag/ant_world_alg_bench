@@ -50,6 +50,7 @@ def save_image(path, img):
 
 def plot_route(route, traj=None, scale=70, window=None, windex=None, save=False, size=(10, 10), path=None):
     fig, ax = plt.subplots(figsize=size)
+    plt.tight_layout(pad=0)
     u, v = pol2cart_headings(90 - route['yaw'])
     ax.scatter(route['x'], route['y'])
     ax.quiver(route['x'], route['y'], u, v, scale=scale)
@@ -65,7 +66,7 @@ def plot_route(route, traj=None, scale=70, window=None, windex=None, save=False,
     if traj:
         u, v = pol2cart_headings(90 - traj['heading'])
         ax.scatter(traj['x'], traj['y'])
-        ax.plot(traj['x'], traj['y'])
+        # ax.plot(traj['x'], traj['y'])
         ax.quiver(traj['x'], traj['y'], u, v, scale=scale)
 
     if save:
