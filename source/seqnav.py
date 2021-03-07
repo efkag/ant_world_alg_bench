@@ -4,12 +4,14 @@ import numpy as np
 
 class SequentialPerfectMemory:
 
-    def __init__(self, route_images, matching, deg_range=(0, 360), degree_shift=1, window=20):
+    def __init__(self, route_images, matching, deg_range=(0, 360), degree_shift=1, window=20, adaptive=False):
         self.route_end = len(route_images)
         self.route_images = route_images
         self.deg_range = deg_range
         self.deg_step = degree_shift
         self.degrees = np.arange(*deg_range)
+
+        # Log Variables
         self.recovered_heading = []
         self.logs = []
         self.window_log = []
@@ -17,6 +19,7 @@ class SequentialPerfectMemory:
         self.confidence = [1] * self.route_end
         self.window_sims = []
         self.CMA = []
+        #
         matchers = {'corr': cor_dist, 'rmse': rmse, 'mae': mae}
         self.matcher = matchers.get(matching)
         if not self.matcher:
@@ -24,12 +27,15 @@ class SequentialPerfectMemory:
         self.argminmax = np.argmin
         self.prev_match = 0.0
 
-        # Used for continous heading search
+        # Window parameters
         self.mem_pointer = 0
         assert window > 2
         self.window = window
+        self.adaptive = adaptive
 
     def get_heading(self, query_img, dynamic_window=False):
+        # TODO:Need to update this function to keep the memory pointer (best match)
+        # TODO: in the middle of the window
         # get the rotational similarities between a query image and a window of route images
         limit = self.mem_pointer + self.window
         wrsims = rmf(query_img, self.route_images[self.mem_pointer:limit], self.matcher, self.deg_range, self.deg_step)
@@ -77,7 +83,7 @@ class SequentialPerfectMemory:
         lower = self.window - upper
         return upper, lower
 
-    def navigate(self, query_imgs, mem_pointer=0):
+    def navigate(self, query_imgs):
         assert isinstance(query_imgs, list)
 
         upper = int(self.window/2)
@@ -127,7 +133,9 @@ class SequentialPerfectMemory:
                 mem_pointer = mem_pointer + upper
             self.window_log.append([blimit, flimit])
 
-            upper, lower = self.update_window(wind_sims[index])
+            # Change the pointer and bounds for an adaptive window.
+            if self.adaptive:
+                upper, lower = self.update_window(wind_sims[index])
 
 
             #
