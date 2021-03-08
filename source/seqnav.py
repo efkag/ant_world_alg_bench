@@ -86,11 +86,13 @@ class SequentialPerfectMemory:
     def navigate(self, query_imgs):
         assert isinstance(query_imgs, list)
 
-        upper = int(self.window/2)
-        lower = self.window - upper
-        mem_pointer = upper
+        # upper = int(self.window/2)
+        # lower = self.window - upper
+        # mem_pointer = upper
+        mem_pointer = 0
         flimit = self.window
         blimit = 0
+        self.window_log.append([blimit, flimit])
         # For every query image
         for query_img in query_imgs:
 
@@ -112,26 +114,36 @@ class SequentialPerfectMemory:
             # append the rsims of all window route images for that current image
             self.logs.append(wrsims)
             index = self.argminmax(wind_sims)
-            # self.recovered_heading.append(wind_headings[index])
-            # The heading ins the window average
-            self.recovered_heading.append(np.mean(wind_sims))
+            self.recovered_heading.append(wind_headings[index])
+            # The heading is the window average
+            # self.recovered_heading.append(np.mean(wind_headings))
 
-            # Update memory pointer
-            change = index - upper
-            mem_pointer += change
-            self.matched_index_log.append(mem_pointer)
-
-            # Update the bounds of the window
-            flimit = mem_pointer + upper
-            blimit = mem_pointer - lower
+            mem_pointer += index
+            self.matched_index_log.append(self.mem_pointer)
+            blimit = mem_pointer
+            flimit = mem_pointer + self.window
             if flimit > self.route_end:
                 flimit = self.route_end
-                mem_pointer = self.route_end - upper
-            if blimit <= 0:
-                blimit = mem_pointer
-                flimit = mem_pointer + self.window
-                mem_pointer = mem_pointer + upper
+                blimit = self.route_end - self.window
             self.window_log.append([blimit, flimit])
+
+
+            # Update memory pointer
+            # change = index - upper
+            # mem_pointer += change
+            # self.matched_index_log.append(mem_pointer)
+            #
+            # # Update the bounds of the window
+            # flimit = mem_pointer + upper
+            # blimit = mem_pointer - lower
+            # if flimit > self.route_end:
+            #     flimit = self.route_end
+            #     mem_pointer = self.route_end - upper
+            # if blimit <= 0:
+            #     blimit = mem_pointer
+            #     flimit = mem_pointer + self.window
+            #     mem_pointer = mem_pointer + upper
+            # self.window_log.append([blimit, flimit])
 
             # Change the pointer and bounds for an adaptive window.
             if self.adaptive:
