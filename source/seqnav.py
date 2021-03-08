@@ -119,7 +119,7 @@ class SequentialPerfectMemory:
             # self.recovered_heading.append(np.mean(wind_headings))
 
             mem_pointer += index
-            self.matched_index_log.append(self.mem_pointer)
+            self.matched_index_log.append(mem_pointer)
             blimit = mem_pointer
             flimit = mem_pointer + self.window
             if flimit > self.route_end:
