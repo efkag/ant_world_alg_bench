@@ -58,7 +58,7 @@ class SequentialPerfectMemory:
         # append the rsims of all window route images for that query image
         self.logs.append(wrsims)
         # find best image match and heading
-        index = self.argminmax(wind_sims)
+        index = int(self.argminmax(wind_sims))
         heading = wind_headings[index]
         self.recovered_heading.append(heading)
         # Update memory pointer
