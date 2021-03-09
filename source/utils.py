@@ -8,6 +8,7 @@ import cv2 as cv
 import math
 import os
 from scipy.spatial.distance import cosine, correlation, cdist, pdist
+from scipy.stats import circmean
 # sns.set(font_scale=0.8)
 
 
@@ -326,9 +327,9 @@ def squash_deg(degrees):
     return degrees % 360
 
 
-def mean_angle2(a, b):
-    diff = ((a - b + 180 + 360) % 360) - 180
-    return (360 + b + (diff / 2)) % 360
+def mean_angle(angles):
+    angles = np.deg2rad(angles)
+    return np.rad2deg(circmean(angles))
 
 
 def pol2cart(r, theta):

@@ -1,4 +1,4 @@
-from source.utils import mae, rmse, cor_dist, rmf, pair_rmf, cos_sim
+from source.utils import mae, rmse, cor_dist, rmf, pair_rmf, cos_sim, mean_angle
 import numpy as np
 
 
@@ -85,6 +85,15 @@ class SequentialPerfectMemory:
         else:
             self.recovered_heading.append(h)
 
+    def average_heading2(self, h):
+        if len(self.recovered_heading) > 0:
+            self.recovered_heading.append(mean_angle([h, self.recovered_heading[-1]]))
+        else:
+            self.recovered_heading.append(h)
+
+    def average_headings(self, wind_heading):
+        self.recovered_heading.append(mean_angle(wind_heading))
+
     def update_window(self, best):
         # Dynamic window adaptation based on match gradient.
         if best > self.prev_match or self.window < 15:
@@ -131,10 +140,12 @@ class SequentialPerfectMemory:
             self.logs.append(wrsims)
             index = self.argminmax(wind_sims)
             h = wind_headings[index]
-            # self.consensus_heading(wind_headings, h)
+
             self.recovered_heading.append(h)
+            # self.average_heading2(h)
+            # self.average_headings(wind_headings)
+            # self.consensus_heading(wind_headings, h)
             # The heading is the window average
-            # self.recovered_heading.append(np.mean(wind_headings))
 
             mem_pointer += index
             self.matched_index_log.append(mem_pointer)
