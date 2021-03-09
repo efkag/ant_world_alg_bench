@@ -1,4 +1,5 @@
 import numpy as np
+from numpy.linalg import norm
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import seaborn as sns
@@ -7,6 +8,7 @@ import cv2 as cv
 import math
 import os
 from scipy.spatial.distance import cosine, correlation, cdist, pdist
+from scipy.stats import circmean
 # sns.set(font_scale=0.8)
 
 
@@ -325,6 +327,11 @@ def squash_deg(degrees):
     return degrees % 360
 
 
+def mean_angle(angles):
+    angles = np.deg2rad(angles)
+    return np.rad2deg(circmean(angles))
+
+
 def pol2cart(r, theta):
     '''
     Coverts polar coordinates to cartesian coordinates
@@ -498,6 +505,16 @@ def cos_dist(a, b):
         return [cosine(a, img) for img in b]
 
     return cosine(a, b)
+
+
+def cos_sim(a, b):
+    """
+
+    :param a:
+    :param b:
+    :return:
+    """
+    return np.dot(a, b) / (norm(a) * norm(b))
 
 
 def rmf(query_img, ref_imgs, matcher=mae, d_range=(0, 360), d_step=1):
