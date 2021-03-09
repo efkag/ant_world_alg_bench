@@ -24,7 +24,7 @@ def get_grid_dict(params):
 def bench(params, route_ids):
     log = {'route_id': [], 'blur': [], 'edge': [], 'res': [], 'window': [],
            'matcher': [], 'mean_error': [], 'seconds': [], 'errors': [],
-           'abs_index_diff': [], 'window_log': [],
+           'dist_diff': [], 'abs_index_diff': [], 'window_log': [],
            'tx': [], 'ty': [], 'th': []}
 
     grid = get_grid_dict(params)

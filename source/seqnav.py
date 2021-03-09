@@ -1,4 +1,4 @@
-from source.utils import mae, rmse, cor_dist, rmf, pair_rmf
+from source.utils import mae, rmse, cor_dist, rmf, pair_rmf, cos_sim
 import numpy as np
 
 
@@ -18,6 +18,7 @@ class SequentialPerfectMemory:
         self.matched_index_log = []
         self.confidence = [1] * self.route_end
         self.window_sims = []
+        self.window_headings = []
         self.CMA = []
         #
         matchers = {'corr': cor_dist, 'rmse': rmse, 'mae': mae}
@@ -50,8 +51,10 @@ class SequentialPerfectMemory:
             wind_sims.append(rsim[index])
             wind_headings.append(self.degrees[index])
 
-        # Save the best degree match for window similarities
+
+        # Save the best degree and sim for window similarities
         self.window_sims.append(wind_sims)
+        self.window_headings.append(wind_headings)
         # append the rsims of all window route images for that query image
         self.logs.append(wrsims)
         # find best image match and heading
@@ -69,6 +72,18 @@ class SequentialPerfectMemory:
             self.update_window(best)
 
         return heading
+
+    def get_agreement(self, window_headings):
+        a = np.full(self.window, 1)
+        return cos_sim(a, window_headings)
+
+    def consensus_heading(self, wind_headings, h):
+        if self.get_agreement(wind_headings) >= 0.85:
+            self.recovered_heading.append(h)
+        elif len(self.recovered_heading) > 0:
+            self.recovered_heading.append(self.recovered_heading[-1])
+        else:
+            self.recovered_heading.append(h)
 
     def update_window(self, best):
         # Dynamic window adaptation based on match gradient.
@@ -109,12 +124,15 @@ class SequentialPerfectMemory:
                 wind_sims.append(rsim[index])
                 wind_headings.append(self.degrees[index])
 
-            # Save the best degree match for window similarities
+            # Save the best degree and sim for each window similarities
             self.window_sims.append(wind_sims)
+            self.window_headings.append(wind_headings)
             # append the rsims of all window route images for that current image
             self.logs.append(wrsims)
             index = self.argminmax(wind_sims)
-            self.recovered_heading.append(wind_headings[index])
+            h = wind_headings[index]
+            # self.consensus_heading(wind_headings, h)
+            self.recovered_heading.append(h)
             # The heading is the window average
             # self.recovered_heading.append(np.mean(wind_headings))
 
@@ -172,6 +190,9 @@ class SequentialPerfectMemory:
 
     def get_window_sims(self):
         return self.window_sims
+
+    def get_window_headings(self):
+        return self.window_headings
 
     def get_CMA(self):
         return self.CMA

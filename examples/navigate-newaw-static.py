@@ -1,18 +1,18 @@
-from source.utils import load_route_naw, plot_route, angular_error, animated_window, pre_process
+from source.utils import cos_sim, load_route_naw, plot_route, angular_error, animated_window, pre_process
 from source import seqnav
 import numpy as np
 import matplotlib.pyplot as plt
 
 route_id = 1
 path = '../new-antworld/exp1/route' + str(route_id) + '/'
-path = '../test_data/route'+ str(route_id) + '/'
+# path = '../test_data/route'+ str(route_id) + '/'
 route = load_route_naw(path, route_id=route_id, imgs=True, query=True, max_dist=0.3)
 
 plot_route(route)
 
 window = 20
 matcher = 'mae'
-sets = {'shape': (180, 50), 'edge_range': (180, 200)}
+sets = {'shape': (180, 50)}#, 'edge_range': (180, 200)}
 route_imgs = pre_process(route['imgs'], sets)
 test_imgs = pre_process(route['qimgs'], sets)
 
