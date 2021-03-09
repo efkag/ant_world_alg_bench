@@ -21,7 +21,7 @@ def get_grid_dict(params):
 
 
 # TODO: Params I will need: t? r?, random intial possition (sigma),
-def bench(params, route_ids):
+def bench(params, route_ids, r, t):
     log = {'route_id': [], 'blur': [], 'edge': [], 'res': [], 'window': [],
            'matcher': [], 'mean_error': [], 'seconds': [], 'errors': [],
            'dist_diff': [], 'abs_index_diff': [], 'window_log': [],
@@ -48,7 +48,7 @@ def bench(params, route_ids):
                 nav = pm.PerfectMemory(route_imgs, matcher, deg_range=(-180, 180))
 
             tic = time.perf_counter()
-            traj, nav = aw.test_nav(route, nav, t=20, r=0.1, preproc=combo)
+            traj, nav = aw.test_nav(route, nav, t=t, r=r, preproc=combo)
             toc = time.perf_counter()
 
             time_compl = toc - tic
@@ -205,10 +205,11 @@ def worker_bench(route_ids, dist, shared, r, t, chunk):
         print(multiprocessing.current_process(), ' jobs completed: {}/{}'.format(shared[0], shared[1]))
     return log
 
-
-results_path = '../Results/newant/test.csv'
-parameters = {'blur': [True], 'shape': [(180, 50), (90, 25)], 'edge_range': [(180, 200)],
-              'window': list(range(10, 12)), 'matcher': ['corr', 'rmse']}
+# TODO: The antworld may need to be imported inside the parallel benchmark function
+# TODO: running the simulation with the import at the start of the file seems to brake the OS
+# results_path = '../Results/newant/test.csv'
+# parameters = {'blur': [True], 'shape': [(180, 50), (90, 25)],# 'edge_range': [(180, 200)],
+#               'window': list(range(10, 12)), 'matcher': ['rmse', 'mae']}
 #
-benchmark(results_path, parameters, [1, 2], True)
+# benchmark(results_path, parameters, [1, 2], True)
 
