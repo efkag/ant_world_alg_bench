@@ -35,7 +35,7 @@ errors = np.array(traj['errors'])
 window_log = literal_eval(traj['window_log'])
 traj = {'x': np.array(traj['tx']), 'y': np.array(traj['ty']), 'heading': np.array(traj['th'])}
 
-route = load_route_naw(path, route_id)
+route = load_route_naw(path, route_id=route_id)
 route['qx'] = traj['x']
 route['qy'] = traj['y']
 

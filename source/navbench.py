@@ -9,8 +9,10 @@ import numpy as np
 
 
 class Benchmark:
-    def __init__(self, results_path, filename='results.csv'):
+    def __init__(self, results_path, routes_path, grid_path,  filename='results.csv'):
         self.results_path = results_path + filename
+        self.routes_path = routes_path
+        self.grid_path = grid_path
         check_for_dir_and_create(results_path)
         self.jobs = 0
         self.total_jobs = 1
@@ -61,7 +63,8 @@ class Benchmark:
         # Generate list chunks of grid combinations
         chunks = self.get_grid_chunks(grid, no_of_chunks)
         # Partial callable
-        worker = functools.partial(self.worker_bench, keys, route_ids, self.dist, shared)
+        worker = functools.partial(self.worker_bench, keys, route_ids,
+                                   self.dist, self.routes_path, self.grid_path, shared)
 
         pool = multiprocessing.Pool()
 
@@ -174,7 +177,7 @@ class Benchmark:
 
 
     @staticmethod
-    def worker_bench(keys, route_ids, dist, shared, chunk):
+    def worker_bench(keys, route_ids, dist, routes_path, grid_path, shared, chunk):
 
         log = {'route_id': [], 'blur': [], 'edge': [], 'res': [], 'window': [],
                'matcher': [], 'mean_error': [], 'seconds': [], 'errors': [],
@@ -191,8 +194,9 @@ class Benchmark:
             window = combo_dict['window']
             window_log = None
             for route_id in route_ids:  # for every route
-                route_path = '../new-antworld/route' + str(route_id) + '/'
-                route = load_route_naw(route_path, route_id=route_id, imgs=True, query=True, max_dist=0.2)
+                route_path = routes_path + 'route' + str(route_id) + '/'
+                route = load_route_naw(route_path, route_id=route_id, imgs=True,
+                                       query=True, max_dist=dist, grid_path=grid_path)
                 # _, test_x, test_y, test_imgs, route_x, route_y, \
                 # route_heading, route_imgs = load_route(route, dist)
                 tic = time.perf_counter()

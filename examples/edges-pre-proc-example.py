@@ -9,7 +9,7 @@ import matplotlib
 
 route_id = 3
 path = '../new-antworld/exp1/route' + str(route_id) + '/'
-route = load_route_naw(path, route_id, imgs=True)
+route = load_route_naw(path, route_id=route_id, imgs=True)
 img_indx = 98
 
 original_img = route['imgs'][img_indx]
