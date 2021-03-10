@@ -158,7 +158,12 @@ def plot_map(world, route_cords=None, grid_cords=None, size=(10, 10), save=False
     if save: plt.close()
 
 
-def load_route_naw(path, route_id=1, imgs=False, query=False, max_dist=0.5):
+def load_route_naw(path, route_id=1, imgs=False, query=False, max_dist=0.5, grid_path=None):
+    if not grid_path:
+        # TODO: Need to edit the function so that is receive the parent path of the route directory
+        grid_path = os.path.dirname(path)
+        grid_path = os.path.dirname(grid_path)
+        grid_path = os.path.dirname(grid_path) + '/grid70/'
     route_data = pd.read_csv(path + 'route' + str(route_id) + '.csv', index_col=False)
     route_data = route_data.to_dict('list')
     # convert the lists to numpy arrays
@@ -173,16 +178,15 @@ def load_route_naw(path, route_id=1, imgs=False, query=False, max_dist=0.5):
 
     # Sample positions and images from the grid near the route for testing
     if query:
-        path = '../new-antworld/grid70/'
-        grid = pd.read_csv(path + 'grid70.csv')
+        grid = pd.read_csv(grid_path + '/grid.csv')
         grid = grid.to_dict('list')
         for k in grid:
             grid[k] = np.array(grid[k])
 
         grid_xy = np.transpose(np.array([grid['x'], grid['y']]))
         query_indexes = np.empty(0, dtype=int)
-        qx = np.empty(0)
-        qy = np.empty(0)
+        qx = []
+        qy = []
         qimg = []
         # Fetch images from the grid that are located nearby route images.
         # for each route position
@@ -199,13 +203,13 @@ def load_route_naw(path, route_id=1, imgs=False, query=False, max_dist=0.5):
             query_indexes = np.append(query_indexes, indexes)
 
             for i in indexes:
-                qx = np.append(qx, grid_xy[i, 0])
-                qy = np.append(qy, grid_xy[i, 1])
-                imgfile = path + grid['filename'][i]
+                qx.append(grid_xy[i, 0])
+                qy.append(grid_xy[i, 1])
+                imgfile = grid_path + grid['filename'][i]
                 qimg.append(cv.imread(imgfile, cv.IMREAD_GRAYSCALE))
 
-        route_data['qx'] = qx
-        route_data['qy'] = qy
+        route_data['qx'] = np.array(qx)
+        route_data['qy'] = np.array(qy)
         route_data['qimgs'] = qimg
 
     return route_data

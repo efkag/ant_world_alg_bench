@@ -34,7 +34,7 @@ traj = traj.to_dict(orient='records')[0]
 errors = np.array(traj['errors'])
 traj = {'x': np.array(traj['tx']), 'y': np.array(traj['ty']), 'heading': np.array(traj['th'])}
 
-route = load_route_naw(path, route_id)
+route = load_route_naw(path, route_id=route_id)
 index = np.argwhere(errors > threshold)
 traj['x'] = traj['x'][index]
 traj['y'] = traj['y'][index]

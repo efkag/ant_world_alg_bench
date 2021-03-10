@@ -33,24 +33,25 @@ class SequentialPerfectMemory:
         assert window > 2
         self.window = window
         self.adaptive = adaptive
+        self.blimit = 0
+        self.flimit = self.window
 
     def get_heading(self, query_img, dynamic_window=False):
         # TODO:Need to update this function to keep the memory pointer (best match)
         # TODO: in the middle of the window
         # get the rotational similarities between a query image and a window of route images
         limit = self.mem_pointer + self.window
-        wrsims = rmf(query_img, self.route_images[self.mem_pointer:limit], self.matcher, self.deg_range, self.deg_step)
+        wrsims = rmf(query_img, self.route_images[self.blimit:self.flimit], self.matcher, self.deg_range, self.deg_step)
 
         # Holds the best rot. match between the query image and route images
         wind_sims = []
         # Recovered headings for the current image
         wind_headings = []
-        for rsim in wrsims:
-            # get best similarity match adn index w.r.t degrees
-            index = self.argminmax(rsim)
-            wind_sims.append(rsim[index])
-            wind_headings.append(self.degrees[index])
-
+        # get best similarity match adn index w.r.t degrees
+        indices = self.argminmax(wrsims, axis=1)
+        for i, idx in enumerate(indices):
+            wind_sims.append(wrsims[i, idx])
+            wind_headings.append(self.degrees[i])
 
         # Save the best degree and sim for window similarities
         self.window_sims.append(wind_sims)
@@ -63,7 +64,16 @@ class SequentialPerfectMemory:
         self.recovered_heading.append(heading)
         # Update memory pointer
         self.mem_pointer += index
+        if self.mem_pointer + self.window > self.route_end:
+            self.mem_pointer = blimit + index
+            self.flimit = self.route_end
+            self.blimit = self.route_end - self.window
+        else:
+            self.blimit = self.mem_pointer
+            self.flimit = self.mem_pointer + self.window
+
         self.matched_index_log.append(self.mem_pointer)
+        self.window_log.append([self.blimit, self.flimit])
 
         # recovered_heading.append(sum(wind_headings)/len(wind_headings))
 
@@ -127,11 +137,11 @@ class SequentialPerfectMemory:
             wind_sims = []
             # Recovered headings for the current image
             wind_headings = []
-            for rsim in wrsims:
-                # get best similarity match adn index w.r.t degrees
-                index = self.argminmax(rsim)
-                wind_sims.append(rsim[index])
-                wind_headings.append(self.degrees[index])
+            # get best similarity match adn index w.r.t degrees
+            indices = self.argminmax(wrsims, axis=1)
+            for i, idx in enumerate(indices):
+                wind_sims.append(wrsims[i, idx])
+                wind_headings.append(self.degrees[idx])
 
             # Save the best degree and sim for each window similarities
             self.window_sims.append(wind_sims)
@@ -145,15 +155,17 @@ class SequentialPerfectMemory:
             # self.average_heading2(h)
             # self.average_headings(wind_headings)
             # self.consensus_heading(wind_headings, h)
-            # The heading is the window average
 
             mem_pointer += index
-            self.matched_index_log.append(mem_pointer)
-            blimit = mem_pointer
-            flimit = mem_pointer + self.window
-            if flimit > self.route_end:
+            if mem_pointer + self.window > self.route_end:
+                mem_pointer = blimit + index
                 flimit = self.route_end
                 blimit = self.route_end - self.window
+            else:
+                blimit = mem_pointer
+                flimit = mem_pointer + self.window
+
+            self.matched_index_log.append(mem_pointer)
             self.window_log.append([blimit, flimit])
 
 
