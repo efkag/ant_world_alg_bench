@@ -185,8 +185,8 @@ def load_route_naw(path, route_id=1, imgs=False, query=False, max_dist=0.5, grid
 
         grid_xy = np.transpose(np.array([grid['x'], grid['y']]))
         query_indexes = np.empty(0, dtype=int)
-        qx = np.empty(0)
-        qy = np.empty(0)
+        qx = []
+        qy = []
         qimg = []
         # Fetch images from the grid that are located nearby route images.
         # for each route position
@@ -203,13 +203,13 @@ def load_route_naw(path, route_id=1, imgs=False, query=False, max_dist=0.5, grid
             query_indexes = np.append(query_indexes, indexes)
 
             for i in indexes:
-                qx = np.append(qx, grid_xy[i, 0])
-                qy = np.append(qy, grid_xy[i, 1])
+                qx.append(grid_xy[i, 0])
+                qy.append(grid_xy[i, 1])
                 imgfile = grid_path + grid['filename'][i]
                 qimg.append(cv.imread(imgfile, cv.IMREAD_GRAYSCALE))
 
-        route_data['qx'] = qx
-        route_data['qy'] = qy
+        route_data['qx'] = np.array(qx)
+        route_data['qy'] = np.array(qy)
         route_data['qimgs'] = qimg
 
     return route_data
