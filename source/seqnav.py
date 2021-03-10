@@ -47,11 +47,11 @@ class SequentialPerfectMemory:
         wind_sims = []
         # Recovered headings for the current image
         wind_headings = []
-        for rsim in wrsims:
-            # get best similarity match adn index w.r.t degrees
-            index = self.argminmax(rsim)
-            wind_sims.append(rsim[index])
-            wind_headings.append(self.degrees[index])
+        # get best similarity match adn index w.r.t degrees
+        indices = self.argminmax(wrsims, axis=1)
+        for i, idx in enumerate(indices):
+            wind_sims.append(wrsims[i, idx])
+            wind_headings.append(self.degrees[i])
 
         # Save the best degree and sim for window similarities
         self.window_sims.append(wind_sims)
@@ -137,11 +137,11 @@ class SequentialPerfectMemory:
             wind_sims = []
             # Recovered headings for the current image
             wind_headings = []
-            for rsim in wrsims:
-                # get best similarity match adn index w.r.t degrees
-                index = self.argminmax(rsim)
-                wind_sims.append(rsim[index])
-                wind_headings.append(self.degrees[index])
+            # get best similarity match adn index w.r.t degrees
+            indices = self.argminmax(wrsims, axis=1)
+            for i, idx in enumerate(indices):
+                wind_sims.append(wrsims[i, idx])
+                wind_headings.append(self.degrees[idx])
 
             # Save the best degree and sim for each window similarities
             self.window_sims.append(wind_sims)
