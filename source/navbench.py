@@ -38,7 +38,8 @@ class Benchmark:
     @staticmethod
     def _init_shared():
         manager = multiprocessing.Manager()
-        shared = manager.list([0, 0])
+        # shared = manager.list([0, 0])
+        shared = manager.dict({'jobs': 0, 'total_jobs': 0})
         return shared
 
     def bench_paral(self, params, route_ids=None):
@@ -49,7 +50,7 @@ class Benchmark:
         keys = [*params]
 
         shared = self._init_shared()
-        shared[1] = self.total_jobs
+        shared['total_jobs'] = self.total_jobs * len(route_ids)
 
         # Generate grid iterable
         grid = itertools.product(*[params[k] for k in params])
@@ -233,7 +234,7 @@ class Benchmark:
                 log['abs_index_diff'].append(abs_index_diffs.tolist())
                 log['dist_diff'].append(dist_diff.tolist())
                 log['errors'].append(errors)
-            # Increment the complete jobs shared variable
-            shared[0] = shared[0] + 1
-            print(multiprocessing.current_process(), ' jobs completed: {}/{}'.format(shared[0], shared[1]))
+                # Increment the complete jobs shared variable
+                shared['jobs'] = shared['jobs'] + 1
+                print(multiprocessing.current_process(), ' jobs completed: {}/{}'.format(shared['jobs'], shared['total_jobs']))
         return log
