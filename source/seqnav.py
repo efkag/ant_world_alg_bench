@@ -69,8 +69,8 @@ class SequentialPerfectMemory:
             self.flimit = self.route_end
             self.blimit = self.route_end - self.window
         else:
-            self.blimit = mem_pointer
-            self.flimit = mem_pointer + self.window
+            self.blimit = self.mem_pointer
+            self.flimit = self.mem_pointer + self.window
 
         self.matched_index_log.append(self.mem_pointer)
         self.window_log.append([self.blimit, self.flimit])
