@@ -36,6 +36,11 @@ class SequentialPerfectMemory:
         self.blimit = 0
         self.flimit = self.window
 
+    def reset_window(self, pointer):
+        self.mem_pointer = pointer
+        self.blimit = pointer
+        self.flimit = pointer + self.window
+
     def get_heading(self, query_img, dynamic_window=False):
         # TODO:Need to update this function to keep the memory pointer (best match)
         # TODO: in the middle of the window

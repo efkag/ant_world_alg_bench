@@ -120,18 +120,15 @@ class Agent:
         trajectory = {'x': traj[0], 'y': traj[1], 'heading': headings}
         return trajectory, nav
 
-    def segment_test(self, route, nav, matcher, window, segment_length=3, **kwargs):
+    def segment_test(self, route, nav, segment_length=3, **kwargs):
         dist = travel_dist(route)
         no_of_segments = int(round(dist/segment_length))
 
         xs = np.array_split(route['x'], no_of_segments)
         ys = np.array_split(route['y'], no_of_segments)
         hs = np.array_split(route['yaw'], no_of_segments)
-        route['imgs'] = pre_process(route['imgs'], kwargs['preproc'])
-        imgs = [route['imgs'][i::no_of_segments] for i in range(no_of_segments)]
         subroute = {}
         trajectories = {'x': [], 'y': [], 'heading': []}
-        index_log = []
 
         # get starting indices for each segment
         indices = [0]
@@ -142,14 +139,13 @@ class Agent:
             subroute['x'] = xs[i]
             subroute['y'] = ys[i]
             subroute['yaw'] = hs[i]
-            navi = nav(imgs[i], matcher, deg_range=(-180, 180), window=window)
-            traj, navi = self.test_nav(subroute, navi, **kwargs)
+            nav.reset_window(indices[i])
+            traj, nav = self.test_nav(subroute, nav, **kwargs)
 
             for k in trajectories:
                 trajectories[k] = np.append(trajectories[k], traj[k])
 
-            index_log.extend(np.array(navi.get_index_log()) + indices[i])
-        return trajectories, index_log
+        return trajectories, nav
 
 
 
