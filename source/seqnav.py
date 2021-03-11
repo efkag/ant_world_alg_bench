@@ -212,6 +212,9 @@ class SequentialPerfectMemory:
     def get_index_log(self):
         return self.matched_index_log
 
+    def get_window_log(self):
+        return self.window_log
+
     def get_confidence(self):
         return self.confidence
 

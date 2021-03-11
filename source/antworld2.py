@@ -147,10 +147,6 @@ class Agent:
 
         return trajectories, nav
 
-
-
-
-
     def rec_grid(self, steps, path):
         path = path + 'grid' + str(steps) + '/'
         grid = generate_grid(steps)

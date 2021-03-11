@@ -21,6 +21,7 @@ def get_grid_dict(params):
 
 
 def bench(params, routes_path, route_ids):
+    segmented = True
     log = {'route_id': [], 'blur': [], 'edge': [], 'res': [], 'window': [],
            'matcher': [], 'mean_error': [], 'seconds': [], 'errors': [],
            'dist_diff': [], 'abs_index_diff': [], 'window_log': [],
@@ -49,9 +50,14 @@ def bench(params, routes_path, route_ids):
             else:
                 nav = pm.PerfectMemory(route_imgs, matcher, deg_range=(-180, 180))
 
-            tic = time.perf_counter()
-            traj, nav = agent.test_nav(route, nav, t=t, r=r, sigma=None, preproc=combo)
-            toc = time.perf_counter()
+            if segmented:
+                tic = time.perf_counter()
+                traj, nav = agent.segment_test(route, nav, segment_length=3, t=t, r=r, sigma=None, preproc=combo)
+                toc = time.perf_counter()
+            else:
+                tic = time.perf_counter()
+                traj, nav = agent.test_nav(route, nav, t=t, r=r, sigma=None, preproc=combo)
+                toc = time.perf_counter()
 
             time_compl = toc - tic
             # Get the errors and the minimum distant index of the route memory
@@ -152,6 +158,7 @@ def bench_paral(params, routes_path, route_ids=None, dist=0.2):
 
 
 def worker_bench(routes_path, route_ids, dist, shared, chunk):
+    segmented = True
     log = {'route_id': [], 'blur': [], 'edge': [], 'res': [], 'window': [],
            'matcher': [], 'mean_error': [], 'seconds': [], 'errors': [],
            'dist_diff': [], 'abs_index_diff': [], 'window_log': [],
@@ -179,9 +186,14 @@ def worker_bench(routes_path, route_ids, dist, shared, chunk):
             else:
                 nav = pm.PerfectMemory(route_imgs, matcher, deg_range=(-180, 180))
 
-            tic = time.perf_counter()
-            traj, nav = agent.test_nav(route, nav, t=t, r=r, sigma=None, preproc=combo)
-            toc = time.perf_counter()
+            if segmented:
+                tic = time.perf_counter()
+                traj, nav = agent.segment_test(route, nav, segment_length=3, t=t, r=r, sigma=None, preproc=combo)
+                toc = time.perf_counter()
+            else:
+                tic = time.perf_counter()
+                traj, nav = agent.test_nav(route, nav, t=t, r=r, sigma=None, preproc=combo)
+                toc = time.perf_counter()
 
             time_compl = toc - tic
             # Get the errors and the minimum distant index of the route memory
