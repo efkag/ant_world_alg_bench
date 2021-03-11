@@ -132,6 +132,12 @@ class Agent:
         subroute = {}
         trajectories = {'x': [], 'y': [], 'heading': []}
         index_log = []
+
+        # get starting indices for each segment
+        indices = [0]
+        for i in range(1, len(xs)):
+            indices.append(indices[-1] + len(xs[i]))
+
         for i in range(no_of_segments):
             subroute['x'] = xs[i]
             subroute['y'] = ys[i]
@@ -141,7 +147,8 @@ class Agent:
 
             for k in trajectories:
                 trajectories[k] = np.append(trajectories[k], traj[k])
-            index_log.extend(navi.get_index_log())
+
+            index_log.extend(np.array(navi.get_index_log()) + indices[i])
         return trajectories, index_log
 
 
