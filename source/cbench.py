@@ -214,10 +214,10 @@ def worker_bench(routes_path, route_ids, dist, shared, chunk):
 
 # TODO: The antworld may need to be imported inside the parallel benchmark function
 # TODO: running the simulation with the import at the start of the file seems to brake the OS
-results_path = '../Results/newant/test.csv'
-routes_path = '../new-antworld/exp1'
-parameters = {'r': [0.05], 't': [10], 'blur': [True], 'shape': [(180, 50), (90, 25)],# 'edge_range': [(180, 200)],
-              'window': list(range(10, 12)), 'matcher': ['rmse', 'mae']}
-
-benchmark(results_path, routes_path, parameters, [1, 2], False)
+# results_path = '../Results/newant/test.csv'
+# routes_path = '../new-antworld/exp1'
+# parameters = {'r': [0.05], 't': [10], 'blur': [True], 'shape': [(180, 50), (90, 25)],# 'edge_range': [(180, 200)],
+#               'window': list(range(10, 12)), 'matcher': ['rmse', 'mae']}
+#
+# benchmark(results_path, routes_path, parameters, [1, 2], False)
 

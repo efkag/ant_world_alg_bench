@@ -1,7 +1,7 @@
 import antworld
 import cv2
 import numpy as np
-from source.utils import check_for_dir_and_create, write_route, squash_deg, pre_process
+from source.utils import check_for_dir_and_create, write_route, squash_deg, pre_process, travel_dist
 from source.gencoords import generate_from_points, generate_grid
 
 # Old Seville data (lower res, but loads faster)
@@ -119,6 +119,34 @@ class Agent:
         headings = np.array(headings)
         trajectory = {'x': traj[0], 'y': traj[1], 'heading': headings}
         return trajectory, nav
+
+    def segment_test(self, route, nav, matcher, window, segment_length=3, **kwargs):
+        dist = travel_dist(route)
+        no_of_segments = int(round(dist/segment_length))
+
+        xs = np.array_split(route['x'], no_of_segments)
+        ys = np.array_split(route['y'], no_of_segments)
+        hs = np.array_split(route['yaw'], no_of_segments)
+        route['imgs'] = pre_process(route['imgs'], kwargs['preproc'])
+        imgs = [route['imgs'][i::no_of_segments] for i in range(no_of_segments)]
+        subroute = {}
+        trajectories = {'x': [], 'y': [], 'heading': []}
+        index_log = []
+        for i in range(no_of_segments):
+            subroute['x'] = xs[i]
+            subroute['y'] = ys[i]
+            subroute['yaw'] = hs[i]
+            navi = nav(imgs[i], matcher, deg_range=(-180, 180), window=window)
+            traj, navi = self.test_nav(subroute, navi, **kwargs)
+
+            for k in trajectories:
+                trajectories[k] = np.append(trajectories[k], traj[k])
+            index_log.extend(navi.get_index_log())
+        return trajectories, index_log
+
+
+
+
 
     def rec_grid(self, steps, path):
         path = path + 'grid' + str(steps) + '/'

@@ -40,7 +40,6 @@ class SequentialPerfectMemory:
         # TODO:Need to update this function to keep the memory pointer (best match)
         # TODO: in the middle of the window
         # get the rotational similarities between a query image and a window of route images
-        limit = self.mem_pointer + self.window
         wrsims = rmf(query_img, self.route_images[self.blimit:self.flimit], self.matcher, self.deg_range, self.deg_step)
 
         # Holds the best rot. match between the query image and route images
@@ -65,7 +64,7 @@ class SequentialPerfectMemory:
         # Update memory pointer
         self.mem_pointer += index
         if self.mem_pointer + self.window > self.route_end:
-            self.mem_pointer = blimit + index
+            self.mem_pointer = self.blimit + index
             self.flimit = self.route_end
             self.blimit = self.route_end - self.window
         else:
