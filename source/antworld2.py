@@ -1,7 +1,7 @@
 import antworld
 import cv2
 import numpy as np
-from source.utils import check_for_dir_and_create, write_route, squash_deg, pre_process, travel_dist
+from source.utils import check_for_dir_and_create, write_route, squash_deg, pre_process, travel_dist, display_image, pol2cart
 from source.gencoords import generate_from_points, generate_grid
 
 # Old Seville data (lower res, but loads faster)
@@ -68,9 +68,11 @@ class Agent:
 
     def update_position(self, xy, deg, r):
         rad = deg * (np.pi / 180)
+        rad = np.deg2rad(deg)
+        x, y = pol2cart(r, rad)
 
-        xx = xy[0] + (r * np.cos(rad))
-        yy = xy[1] + (r * np.sin(rad))
+        xx = xy[0] + x
+        yy = xy[1] + y
 
         self.agent.set_position(xx, yy, z)
         self.agent.set_attitude(deg, 0, 0)
@@ -156,11 +158,13 @@ class Agent:
 """
 Testing
 """
-
-# # # # rec_grid(70, path='../new-antworld/')
+# agent = Agent()
+# # # rec_grid(70, path='../new-antworld/')
 # route_id = 3
 # path = '../new-antworld/exp1/'
-# rec_route_from_points(path, route_id=route_id, generator='line', start=-8, end=8, sigma=0.2, curve_points=500)
+# path = '../test_data/'
+# # agent.rec_route_from_points(path, route_id=route_id, generator='line', start=-2, end=2, sigma=0.2, curve_points=100)
+# agent.rec_route_from_points(path, route_id=route_id, generator='gauss', mean=(0, 0), sigma=3, curve_points=100)
 
 #
 # record_route(datapoints, "../new-antworld/route2/")

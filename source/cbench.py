@@ -21,7 +21,6 @@ def get_grid_dict(params):
 
 
 def bench(params, routes_path, route_ids):
-    segmented = True
     log = {'route_id': [], 'blur': [], 'edge': [], 'res': [], 'window': [],
            'matcher': [], 'mean_error': [], 'seconds': [], 'errors': [],
            'dist_diff': [], 'abs_index_diff': [], 'window_log': [],
@@ -36,6 +35,7 @@ def bench(params, routes_path, route_ids):
         window = combo['window']
         t = combo['t']
         r = combo['r']
+        segment_length = combo['segment_l']
         window_log = None
         for route_id in route_ids:  # for every route
             route_path = routes_path + '/route' + str(route_id) + '/'
@@ -50,7 +50,7 @@ def bench(params, routes_path, route_ids):
             else:
                 nav = pm.PerfectMemory(route_imgs, matcher, deg_range=(-180, 180))
 
-            if segmented:
+            if segment_length:
                 tic = time.perf_counter()
                 traj, nav = agent.segment_test(route, nav, segment_length=3, t=t, r=r, sigma=None, preproc=combo)
                 toc = time.perf_counter()
@@ -86,7 +86,7 @@ def bench(params, routes_path, route_ids):
     return log
 
 
-def benchmark(results_path, routes_path, params, route_ids, parallel=False):
+def benchmark(results_path, routes_path, params, route_ids,  parallel=False):
 
     assert isinstance(params, dict)
     assert isinstance(route_ids, list)
@@ -142,7 +142,6 @@ def bench_paral(params, routes_path, route_ids=None, dist=0.2):
         no_of_chunks = total_jobs
     else:
         no_of_chunks = multiprocessing.cpu_count() - 1
-    no_of_chunks = 2
     # Generate a list of chunks of grid combinations
     chunks = get_grid_chunks(grid, no_of_chunks)
     # Partial callable
@@ -158,7 +157,6 @@ def bench_paral(params, routes_path, route_ids=None, dist=0.2):
 
 
 def worker_bench(routes_path, route_ids, dist, shared, chunk):
-    segmented = True
     log = {'route_id': [], 'blur': [], 'edge': [], 'res': [], 'window': [],
            'matcher': [], 'mean_error': [], 'seconds': [], 'errors': [],
            'dist_diff': [], 'abs_index_diff': [], 'window_log': [],
@@ -172,6 +170,7 @@ def worker_bench(routes_path, route_ids, dist, shared, chunk):
         window = combo['window']
         t = combo['t']
         r = combo['r']
+        segment_length = combo['segment_l']
         window_log = None
         for route_id in route_ids:  # for every route
             route_path = routes_path + '/route' + str(route_id) + '/'
@@ -186,9 +185,9 @@ def worker_bench(routes_path, route_ids, dist, shared, chunk):
             else:
                 nav = pm.PerfectMemory(route_imgs, matcher, deg_range=(-180, 180))
 
-            if segmented:
+            if segment_length:
                 tic = time.perf_counter()
-                traj, nav = agent.segment_test(route, nav, segment_length=3, t=t, r=r, sigma=None, preproc=combo)
+                traj, nav = agent.segment_test(route, nav, segment_length=segment_length, t=t, r=r, sigma=None, preproc=combo)
                 toc = time.perf_counter()
             else:
                 tic = time.perf_counter()
@@ -224,11 +223,10 @@ def worker_bench(routes_path, route_ids, dist, shared, chunk):
             print(multiprocessing.current_process(), ' jobs completed: {}/{}'.format(shared['jobs'], shared['total_jobs']))
     return log
 
-# TODO: The antworld may need to be imported inside the parallel benchmark function
-# TODO: running the simulation with the import at the start of the file seems to brake the OS
 # results_path = '../Results/newant/test.csv'
 # routes_path = '../new-antworld/exp1'
-# parameters = {'r': [0.05], 't': [10], 'blur': [True], 'shape': [(180, 50), (90, 25)],# 'edge_range': [(180, 200)],
+# parameters = {'r': [0.05], 't': [10], 'segment_l':[3], 'blur': [True],
+#               'shape': [(180, 50), (90, 25)],# 'edge_range': [(180, 200)],
 #               'window': list(range(10, 12)), 'matcher': ['rmse', 'mae']}
 #
 # benchmark(results_path, routes_path, parameters, [1, 2], False)

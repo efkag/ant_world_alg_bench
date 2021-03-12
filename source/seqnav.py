@@ -55,7 +55,7 @@ class SequentialPerfectMemory:
         indices = self.argminmax(wrsims, axis=1)
         for i, idx in enumerate(indices):
             wind_sims.append(wrsims[i, idx])
-            wind_headings.append(self.degrees[i])
+            wind_headings.append(self.degrees[idx])
 
         # Save the best degree and sim for window similarities
         self.window_sims.append(wind_sims)
