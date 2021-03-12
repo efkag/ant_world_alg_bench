@@ -20,12 +20,12 @@ def get_grid_dict(params):
     return grid_dict
 
 
-# TODO: Params I will need: t? r?, random intial possition (sigma),
-def bench(params, route_ids, r, t):
+def bench(params, routes_path, route_ids):
     log = {'route_id': [], 'blur': [], 'edge': [], 'res': [], 'window': [],
            'matcher': [], 'mean_error': [], 'seconds': [], 'errors': [],
            'dist_diff': [], 'abs_index_diff': [], 'window_log': [],
            'tx': [], 'ty': [], 'th': []}
+    agent = aw.Agent()
 
     grid = get_grid_dict(params)
     #  Go though all combinations in the chunk
@@ -33,9 +33,12 @@ def bench(params, route_ids, r, t):
 
         matcher = combo['matcher']
         window = combo['window']
+        t = combo['t']
+        r = combo['r']
+        segment_length = combo['segment_l']
         window_log = None
         for route_id in route_ids:  # for every route
-            route_path = '../new-antworld/route' + str(route_id) + '/'
+            route_path = routes_path + '/route' + str(route_id) + '/'
             route = load_route_naw(route_path, route_id=route_id, imgs=True)
 
             # Preprocess images
@@ -47,15 +50,20 @@ def bench(params, route_ids, r, t):
             else:
                 nav = pm.PerfectMemory(route_imgs, matcher, deg_range=(-180, 180))
 
-            tic = time.perf_counter()
-            traj, nav = aw.test_nav(route, nav, t=t, r=r, preproc=combo)
-            toc = time.perf_counter()
+            if segment_length:
+                tic = time.perf_counter()
+                traj, nav = agent.segment_test(route, nav, segment_length=3, t=t, r=r, sigma=None, preproc=combo)
+                toc = time.perf_counter()
+            else:
+                tic = time.perf_counter()
+                traj, nav = agent.test_nav(route, nav, t=t, r=r, sigma=None, preproc=combo)
+                toc = time.perf_counter()
 
             time_compl = toc - tic
             # Get the errors and the minimum distant index of the route memory
             errors, min_dist_index = angular_error(route, traj)
             # Difference between matched index and minimum distance index
-            matched_index = nav.get_index_log()
+            matched_index = np.append([0], nav.get_index_log())
             abs_index_diffs = np.absolute(np.subtract(matched_index, min_dist_index))
             dist_diff = calc_dists(route, min_dist_index, matched_index)
             mean_route_error = np.mean(errors)
@@ -78,16 +86,16 @@ def bench(params, route_ids, r, t):
     return log
 
 
-def benchmark(results_path, params, route_ids, parallel=False):
+def benchmark(results_path, routes_path, params, route_ids,  parallel=False):
 
     assert isinstance(params, dict)
     assert isinstance(route_ids, list)
 
     if parallel:
-        log = bench_paral(params, route_ids)
+        log = bench_paral(params, routes_path, route_ids)
         log = unpack_results(log)
     else:
-        log = bench(params, route_ids)
+        log = bench(params, routes_path, route_ids)
 
     bench_results = pd.DataFrame(log)
     bench_results.to_csv(results_path, index=False)
@@ -103,7 +111,7 @@ def _total_jobs(params):
 
 def _init_shared():
     manager = multiprocessing.Manager()
-    shared = manager.list([0, 0])
+    shared = manager.dict({'jobs': 0, 'total_jobs': 0})
     return shared
 
 
@@ -122,12 +130,12 @@ def unpack_results(results):
     return log
 
 
-def bench_paral(params, route_ids=None, dist=0.2, r=0.05, t=100):
+def bench_paral(params, routes_path, route_ids=None, dist=0.2):
     print(multiprocessing.cpu_count(), ' CPU cores found')
     total_jobs = _total_jobs(params)
 
     shared = _init_shared()
-    shared[1] = total_jobs
+    shared['total_jobs'] = total_jobs * len(route_ids)
 
     grid = get_grid_dict(params)
     if total_jobs < multiprocessing.cpu_count():
@@ -137,7 +145,7 @@ def bench_paral(params, route_ids=None, dist=0.2, r=0.05, t=100):
     # Generate a list of chunks of grid combinations
     chunks = get_grid_chunks(grid, no_of_chunks)
     # Partial callable
-    worker = functools.partial(worker_bench, route_ids, dist, shared, r, t)
+    worker = functools.partial(worker_bench, routes_path, route_ids, dist, shared)
 
     pool = multiprocessing.Pool()
 
@@ -148,20 +156,24 @@ def bench_paral(params, route_ids=None, dist=0.2, r=0.05, t=100):
     return logs
 
 
-def worker_bench(route_ids, dist, shared, r, t, chunk):
+def worker_bench(routes_path, route_ids, dist, shared, chunk):
     log = {'route_id': [], 'blur': [], 'edge': [], 'res': [], 'window': [],
            'matcher': [], 'mean_error': [], 'seconds': [], 'errors': [],
            'dist_diff': [], 'abs_index_diff': [], 'window_log': [],
            'tx': [], 'ty': [], 'th': []}
+    agent = aw.Agent()
 
     #  Go though all combinations in the chunk
     for combo in chunk:
 
         matcher = combo['matcher']
         window = combo['window']
+        t = combo['t']
+        r = combo['r']
+        segment_length = combo['segment_l']
         window_log = None
         for route_id in route_ids:  # for every route
-            route_path = '../new-antworld/route' + str(route_id) + '/'
+            route_path = routes_path + '/route' + str(route_id) + '/'
             route = load_route_naw(route_path, route_id=route_id, imgs=True, max_dist=dist)
 
             # Preprocess images
@@ -173,15 +185,20 @@ def worker_bench(route_ids, dist, shared, r, t, chunk):
             else:
                 nav = pm.PerfectMemory(route_imgs, matcher, deg_range=(-180, 180))
 
-            tic = time.perf_counter()
-            traj, nav = aw.test_nav(route, nav, t=t, r=r, preproc=combo)
-            toc = time.perf_counter()
+            if segment_length:
+                tic = time.perf_counter()
+                traj, nav = agent.segment_test(route, nav, segment_length=segment_length, t=t, r=r, sigma=None, preproc=combo)
+                toc = time.perf_counter()
+            else:
+                tic = time.perf_counter()
+                traj, nav = agent.test_nav(route, nav, t=t, r=r, sigma=None, preproc=combo)
+                toc = time.perf_counter()
 
             time_compl = toc - tic
             # Get the errors and the minimum distant index of the route memory
             errors, min_dist_index = angular_error(route, traj)
             # Difference between matched index and minimum distance index
-            matched_index = nav.get_index_log()
+            matched_index = np.append([0], nav.get_index_log())
             abs_index_diffs = np.absolute(np.subtract(matched_index, min_dist_index))
             dist_diff = calc_dists(route, min_dist_index, matched_index)
             mean_route_error = np.mean(errors)
@@ -200,16 +217,17 @@ def worker_bench(route_ids, dist, shared, r, t, chunk):
             log['abs_index_diff'].append(abs_index_diffs.tolist())
             log['dist_diff'].append(dist_diff.tolist())
             log['errors'].append(errors)
-        # Increment the complete jobs shared variable
-        shared[0] = shared[0] + 1
-        print(multiprocessing.current_process(), ' jobs completed: {}/{}'.format(shared[0], shared[1]))
+
+            # Increment the complete jobs shared variable
+            shared['jobs'] = shared['jobs'] + 1
+            print(multiprocessing.current_process(), ' jobs completed: {}/{}'.format(shared['jobs'], shared['total_jobs']))
     return log
 
-# TODO: The antworld may need to be imported inside the parallel benchmark function
-# TODO: running the simulation with the import at the start of the file seems to brake the OS
 # results_path = '../Results/newant/test.csv'
-# parameters = {'blur': [True], 'shape': [(180, 50), (90, 25)],# 'edge_range': [(180, 200)],
+# routes_path = '../new-antworld/exp1'
+# parameters = {'r': [0.05], 't': [10], 'segment_l':[3], 'blur': [True],
+#               'shape': [(180, 50), (90, 25)],# 'edge_range': [(180, 200)],
 #               'window': list(range(10, 12)), 'matcher': ['rmse', 'mae']}
 #
-# benchmark(results_path, parameters, [1, 2], True)
+# benchmark(results_path, routes_path, parameters, [1, 2], False)
 

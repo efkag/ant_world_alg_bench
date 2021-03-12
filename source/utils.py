@@ -12,7 +12,7 @@ from scipy.stats import circmean
 # sns.set(font_scale=0.8)
 
 
-def display_image(image, size=(10, 10), save_id=None):
+def display_image(image, size=(10, 10), title='Title', save_id=None):
     """
     Display the image given as a 2d or 3d array of values.
     :param size: Size of the plot for the image
@@ -23,7 +23,7 @@ def display_image(image, size=(10, 10), save_id=None):
     plt.imshow(image, cmap='gray', interpolation='bilinear')
     plt.xticks([]), plt.yticks([])  # to hide tick values on X and Y axis
     # or plt.axis('off')
-    plt.title("C", loc="left")
+    plt.title(title, loc="left")
     plt.tight_layout(pad=0)
     if save_id: fig.savefig(str(save_id) + ".png", bbox_inches="tight")
     plt.show()
@@ -60,7 +60,10 @@ def plot_route(route, traj=None, scale=70, window=None, windex=None, save=False,
         start = window[0]
         end = window[1]
         ax.quiver(route['x'][start:end], route['y'][start:end], u[start:end], v[start:end], color='r', scale=scale)
-        ax.scatter(route['qx'][:windex], route['qy'][:windex])
+        if not traj:
+            ax.scatter(route['qx'][:windex], route['qy'][:windex])
+        else:
+            ax.scatter(traj['x'][:windex], traj['y'][:windex])
     # Plot grid test points
     if 'qx' in route and window is None:
         ax.scatter(route['qx'], route['qy'])
@@ -77,12 +80,12 @@ def plot_route(route, traj=None, scale=70, window=None, windex=None, save=False,
     if not save: plt.show()
 
 
-def animated_window(route, window, path=None, scale=70, save=False, size=(10, 10)):
+def animated_window(route, window, traj=None, path=None, scale=70, save=False, size=(10, 10)):
     check_for_dir_and_create(path)
     if path:
         save = True
     for i, w in enumerate(window):
-        plot_route(route, window=w, windex=i, save=save, scale=scale, size=size, path=path)
+        plot_route(route, traj=traj, window=w, windex=i, save=save, scale=scale, size=size, path=path)
 
 
 def plot_map(world, route_cords=None, grid_cords=None, size=(10, 10), save=False, zoom=(), zoom_factor=1500,
@@ -159,7 +162,7 @@ def plot_map(world, route_cords=None, grid_cords=None, size=(10, 10), save=False
 
 
 def load_route_naw(path, route_id=1, imgs=False, query=False, max_dist=0.5, grid_path=None):
-    if not grid_path:
+    if not grid_path and query:
         # TODO: Need to edit the function so that is receive the parent path of the route directory
         grid_path = os.path.dirname(path)
         grid_path = os.path.dirname(grid_path)

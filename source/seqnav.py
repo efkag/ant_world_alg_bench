@@ -36,11 +36,15 @@ class SequentialPerfectMemory:
         self.blimit = 0
         self.flimit = self.window
 
+    def reset_window(self, pointer):
+        self.mem_pointer = pointer
+        self.blimit = pointer
+        self.flimit = pointer + self.window
+
     def get_heading(self, query_img, dynamic_window=False):
         # TODO:Need to update this function to keep the memory pointer (best match)
         # TODO: in the middle of the window
         # get the rotational similarities between a query image and a window of route images
-        limit = self.mem_pointer + self.window
         wrsims = rmf(query_img, self.route_images[self.blimit:self.flimit], self.matcher, self.deg_range, self.deg_step)
 
         # Holds the best rot. match between the query image and route images
@@ -51,7 +55,7 @@ class SequentialPerfectMemory:
         indices = self.argminmax(wrsims, axis=1)
         for i, idx in enumerate(indices):
             wind_sims.append(wrsims[i, idx])
-            wind_headings.append(self.degrees[i])
+            wind_headings.append(self.degrees[idx])
 
         # Save the best degree and sim for window similarities
         self.window_sims.append(wind_sims)
@@ -65,7 +69,7 @@ class SequentialPerfectMemory:
         # Update memory pointer
         self.mem_pointer += index
         if self.mem_pointer + self.window > self.route_end:
-            self.mem_pointer = blimit + index
+            self.mem_pointer = self.blimit + index
             self.flimit = self.route_end
             self.blimit = self.route_end - self.window
         else:
@@ -207,6 +211,9 @@ class SequentialPerfectMemory:
 
     def get_index_log(self):
         return self.matched_index_log
+
+    def get_window_log(self):
+        return self.window_log
 
     def get_confidence(self):
         return self.confidence

@@ -26,10 +26,9 @@ class Benchmark:
                     'tx': [], 'ty': [], 'th': []}
 
     def load_routes(self, route_ids):
-        path = '../new-antworld/'
         self.route_ids = route_ids
         for rid in self.route_ids:
-            route_path = path + '/route' + str(rid) + '/'
+            route_path = self.routes_path + '/route' + str(rid) + '/'
             route_data = load_route_naw(route_path, route_id=id, query=True,  max_dist=self.dist)
             self.routes_data.append(route_data)
 

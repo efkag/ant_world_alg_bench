@@ -82,7 +82,7 @@ def random_circle_points(r, no_of_points=5):
     return xy
 
 
-def random_gauss_points(mean, sigma=10, no_of_points=5):
+def random_gauss_points(mean=(0, 0), sigma=10, no_of_points=5):
     '''
 
     :param mean:
