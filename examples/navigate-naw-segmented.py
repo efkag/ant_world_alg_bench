@@ -20,5 +20,5 @@ nav = nav(route['imgs'], 'mae', window=10, deg_range=(-180,  180))
 traj, nav = agent.segment_test(route, nav, segment_length=2, t=20, r=0.1, preproc=preprocessing)
 
 window_log = nav.get_window_log()
-path = 'window_plots/'
+path = 'window-plots/'
 animated_window(route, window_log, traj=traj, path=path)

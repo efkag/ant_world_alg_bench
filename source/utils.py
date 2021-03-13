@@ -56,7 +56,7 @@ def plot_route(route, traj=None, scale=70, window=None, windex=None, save=False,
     u, v = pol2cart_headings(90 - route['yaw'])
     ax.scatter(route['x'], route['y'])
     ax.quiver(route['x'], route['y'], u, v, scale=scale)
-    if window and windex:
+    if window is not None and windex:
         start = window[0]
         end = window[1]
         ax.quiver(route['x'][start:end], route['y'][start:end], u[start:end], v[start:end], color='r', scale=scale)

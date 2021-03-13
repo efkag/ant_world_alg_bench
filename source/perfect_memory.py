@@ -58,10 +58,10 @@ class PerfectMemory:
             # Hold the recovered Headings for the current image by the different route images
             mem_headings = []
 
-            for rsim in rsims:
-                index = int(self.argminmax(rsim))
-                mem_sims.append(rsim[index])
-                mem_headings.append(self.degrees[index])
+            indices = self.argminmax(rsims, axis=1)
+            for i, idx in enumerate(indices):
+                mem_sims.append(rsims[i, idx])
+                mem_headings.append(self.degrees[idx])
 
             # append the rsims between one query image and all route images
             self.logs.append(rsims)

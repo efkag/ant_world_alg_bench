@@ -4,7 +4,7 @@ import numpy as np
 
 class SequentialPerfectMemory:
 
-    def __init__(self, route_images, matching, deg_range=(0, 360), degree_shift=1, window=20, adaptive=False):
+    def __init__(self, route_images, matching, deg_range=(0, 360), degree_shift=1, window=20):
         self.route_end = len(route_images)
         self.route_images = route_images
         self.deg_range = deg_range
@@ -29,10 +29,10 @@ class SequentialPerfectMemory:
         self.prev_match = 0.0
 
         # Window parameters
+        if window < 0:
+            self.adaptive = True
         self.mem_pointer = 0
-        assert window > 2
-        self.window = window
-        self.adaptive = adaptive
+        self.window = abs(window)
         self.blimit = 0
         self.flimit = self.window
 
@@ -83,12 +83,12 @@ class SequentialPerfectMemory:
 
         if dynamic_window:
             best = wind_sims[index]
-            self.update_window(best)
+            self.dynamic_window_sim(best)
 
         return heading
 
     def get_agreement(self, window_headings):
-        a = np.full(self.window, 1)
+        a = np.full(len(window_headings), 1)
         return cos_sim(a, window_headings)
 
     def consensus_heading(self, wind_headings, h):
@@ -108,18 +108,24 @@ class SequentialPerfectMemory:
     def average_headings(self, wind_heading):
         self.recovered_heading.append(mean_angle(wind_heading))
 
-    def update_window(self, best):
+    def dynamic_window_sim(self, best):
         # Dynamic window adaptation based on match gradient.
-        if best > self.prev_match or self.window < 15:
-            self.window += 2
+        if best > self.prev_match or self.window <= 10:
+            self.window += 5
         # elif self.window > 20:
         #     self.window -= 2
         else:
-            self.window -= 2
+            self.window -= 5
         self.prev_match = best
-        upper = int(self.window/2)
-        lower = self.window - upper
-        return upper, lower
+        # upper = int(self.window/2)
+        # lower = self.window - upper
+        # return upper, lower
+
+    def dynamic_window_h(self, wind_headings):
+        if self.get_agreement(wind_headings) <= 0.9 or self.window <= 10:
+            self.window += 5
+        else:
+            self.window -= 5
 
     def navigate(self, query_imgs):
         assert isinstance(query_imgs, list)
@@ -192,7 +198,8 @@ class SequentialPerfectMemory:
 
             # Change the pointer and bounds for an adaptive window.
             if self.adaptive:
-                upper, lower = self.update_window(wind_sims[index])
+                self.dynamic_window_sim(wind_sims[index])
+                # self.dynamic_window_h(wind_headings)
 
 
             #
