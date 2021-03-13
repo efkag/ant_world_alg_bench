@@ -3,7 +3,7 @@ from source import seqnav
 import numpy as np
 import matplotlib.pyplot as plt
 
-route_id = 1
+route_id = 2
 path = '../new-antworld/exp1/route' + str(route_id) + '/'
 # path = '../test_data/route'+ str(route_id) + '/'
 route = load_route_naw(path, route_id=route_id, imgs=True, query=True, max_dist=0.2)
@@ -11,8 +11,8 @@ route = load_route_naw(path, route_id=route_id, imgs=True, query=True, max_dist=
 plot_route(route)
 
 window = 20
-matcher = 'mae'
-sets = {'shape': (180, 50)}#, 'edge_range': (180, 200)}
+matcher = 'corr'
+sets = {'shape': (180, 50), 'edge_range': (180, 200)}
 route_imgs = pre_process(route['imgs'], sets)
 test_imgs = pre_process(route['qimgs'], sets)
 

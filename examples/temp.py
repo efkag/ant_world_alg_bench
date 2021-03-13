@@ -1,22 +1,40 @@
-import seaborn as sns
-import matplotlib.pyplot as plt
+from source.utils import cos_sim, load_route_naw, plot_route, angular_error, animated_window, pre_process
+from source import seqnav
 import numpy as np
-sns.set(style="whitegrid", palette="pastel", color_codes=True)
+import matplotlib.pyplot as plt
 
-# Load the example tips dataset
-tips = sns.load_dataset("tips")
-x = np.random.choice(5, 400)
-y = np.random.rand(400)
-hue = np.random.choice(2, 400)
+route_id = 3
+path = '../new-antworld/exp1/route' + str(route_id) + '/'
+# path = '../test_data/route'+ str(route_id) + '/'
+route = load_route_naw(path, route_id=route_id, imgs=True, query=True, max_dist=0.2)
 
+plot_route(route)
 
-sns.violinplot(x=x, y=y, hue=hue, split=True, inner="quart")
+window = 20
+matcher = 'mae'
+sets = {'shape': (180, 50)}#, 'edge_range': (180, 200)}
+route_imgs = pre_process(route['imgs'], sets)
+test_imgs = pre_process(route['qimgs'], sets)
+
+nav = seqnav.SequentialPerfectMemory(route_imgs, matcher, window=window)
+recovered_heading, logs, window_log = nav.navigate(test_imgs)
+
+traj = {'x': route['qx'], 'y': route['qy'], 'heading': recovered_heading}
+traj['heading'] = np.array(traj['heading'])
+plot_route(route, traj)
+
+errors, min_dist_index = angular_error(route, traj)
+print(np.mean(errors))
+
+xs = route['x'][min_dist_index]
+ys = route['y'][min_dist_index]
+
+plt.scatter(xs, ys)
+plt.plot(xs, ys)
+plt.scatter(traj['x'], traj['y'])
+for i, (x, y) in enumerate(zip(xs, ys)):
+    plt.annotate(str(i), xy=(x, y))
+for i, (x, y) in enumerate(zip(traj['x'], traj['y'])):
+    plt.annotate(str(i), xy=(x, y))
 plt.show()
 
-# Draw a nested violinplot and split the violins for easier comparison
-sns.violinplot(x="day", y="total_bill", hue="smoker",
-               split=True, inner="quart",
-               palette={"Yes": "y", "No": "b"},
-               data=tips)
-plt.show()
-sns.despine(left=True)

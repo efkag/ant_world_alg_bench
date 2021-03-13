@@ -18,24 +18,27 @@ data['dist_diff'] = data['dist_diff'].apply(literal_eval)
 data['abs_index_diff'] = data['abs_index_diff'].apply(literal_eval)
 
 
-route_id = 5
-matcher = 'mae'
-preproc = '(220, 240)'
+route_id = 3
+matcher = 'corr'
+edge = '(220, 240)'
 figsize = (4, 3)
+res = '(180, 50)'
+route = data.loc[(data['matcher'] == matcher) & (data['route_id'] == route_id)
+                 & (data['edge'] == edge) & (data['res'] == res)]
+
 '''
 Plot for one specific matcher with one specific pre-proc
 '''
 fig, ax = plt.subplots(figsize=figsize)
 plt.title(matcher + ', route:' + str(route_id))
-route1 = data.loc[(data['matcher'] == matcher) & (data['route_id'] == route_id) & (data['route_id'] == route_id)]
 # Group then back to dataframe
-route1 = route1.groupby(['window'])['errors'].apply(sum).to_frame('errors').reset_index()
-v_data = route1['errors'].tolist()
+df = route.groupby(['window'])['errors'].apply(sum).to_frame('errors').reset_index()
+v_data = df['errors'].tolist()
 # Here i use index 0 because the tolist() func above returns a single nested list
 sns.violinplot(data=v_data, cut=0, ax=ax)
-labels = route1['window'].tolist()
+labels = df['window'].tolist()
 ax.set_xticklabels(labels)
-ax.set_ylabel('Degree error')
+ax.set_ylabel('Angular error')
 ax.set_xlabel('Window size')
 plt.tight_layout(pad=0)
 # fig_save_path = 'Figures/correlation and high-res edges.png'
@@ -52,13 +55,12 @@ missmatch_metric = 'dist_diff'
 
 fig, ax = plt.subplots(figsize=figsize)
 plt.title(matcher + ', route:' + str(route_id))
-route1 = data.loc[(data['matcher'] == matcher) & (data['route_id'] == route_id) & (data['edge'] == preproc)]
 # Group then back to dataframe
-route1 = route1.groupby(['window'])[missmatch_metric].apply(sum).to_frame(missmatch_metric).reset_index()
-v_data = route1[missmatch_metric].tolist()
+df = route.groupby(['window'])[missmatch_metric].apply(sum).to_frame(missmatch_metric).reset_index()
+v_data = df[missmatch_metric].tolist()
 # Here i use index 0 because the tolist() func above returns a single nested list
 sns.violinplot(data=v_data, cut=0, ax=ax)
-labels = route1['window'].tolist()
+labels = df['window'].tolist()
 ax.set_xticklabels(labels)
 ax.set_ylabel(missmatch_metric)
 ax.set_xlabel('Window size')
