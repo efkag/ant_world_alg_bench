@@ -11,8 +11,7 @@ sns.set_context("paper", font_scale=1)
 def to_array(x):
     return np.fromstring(x[1:-1], dtype=np.int, sep=' ').tolist()
 
-fig_save_path = 'violins.png'
-data = pd.read_csv('exp1.csv')
+data = pd.read_csv('exp3.csv')
 # Convert list of strings to actual list of lists
 data['errors'] = data['errors'].apply(literal_eval)
 data['dist_diff'] = data['dist_diff'].apply(literal_eval)
@@ -23,13 +22,17 @@ data['th'] = data['th'].apply(literal_eval)
 
 
 # Plot a specific route
-route_id = 3
+route_id = 4
 path = '../../new-antworld/exp1/route' + str(route_id) + '/'
-window = 25
+window = 20
+matcher = 'corr'
+edge = '(220, 240)'
+res = '(180, 50)'
 threshold = 30
+figsize = (4, 3)
 
-traj = data.loc[(data['matcher'] == 'mae') & (data['res'] == '(180, 50)')]
-traj = traj.loc[(data['window'] == window) & (data['route_id'] == route_id)]
+traj = data.loc[(data['matcher'] == matcher) & (data['res'] == res) & (data['edge'] == edge) &
+                (data['window'] == window) & (data['route_id'] == route_id)]
 traj = traj.to_dict(orient='records')[0]
 errors = np.array(traj['errors'])
 traj = {'x': np.array(traj['tx']), 'y': np.array(traj['ty']), 'heading': np.array(traj['th'])}

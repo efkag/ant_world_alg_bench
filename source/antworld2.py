@@ -68,7 +68,6 @@ class Agent:
 
     def update_position(self, xy, deg, r):
         rad = deg * (np.pi / 180)
-        rad = np.deg2rad(deg)
         x, y = pol2cart(r, rad)
 
         xx = xy[0] + x
