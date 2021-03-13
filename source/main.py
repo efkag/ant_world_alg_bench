@@ -24,5 +24,6 @@ def main():
     routes = [1, 2]
     cbench.benchmark(results_path, routes_path, parameters, routes, parallel=True)
 
+
 if __name__ == "__main__":
     main()
