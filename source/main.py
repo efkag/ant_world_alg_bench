@@ -9,7 +9,7 @@ def main():
     #               'window': list(range(10, 12)), 'matcher': ['corr', 'rmse']}
 
     parameters = {'blur': [True], 'shape': [(180, 50)],
-                  'window': [15, 20], 'matcher': ['mae']}
+                  'window': [15, -20], 'matcher': ['mae']}
 
     routes = [1, 2]
     bench = navbench.Benchmark(results_path, routes_path, grid_path, filename='test.csv')

@@ -31,6 +31,8 @@ class SequentialPerfectMemory:
         # Window parameters
         if window < 0:
             self.adaptive = True
+        else:
+            self.adaptive = False
         self.mem_pointer = 0
         self.window = abs(window)
         self.blimit = 0
