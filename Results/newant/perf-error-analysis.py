@@ -11,13 +11,13 @@ def to_array(x):
     return np.fromstring(x[1:-1], dtype=np.int, sep=' ').tolist()
 
 fig_save_path = 'violins.png'
-data = pd.read_csv('exp3.csv')
+data = pd.read_csv('combined-results.csv')
 # Convert list of strings to actual list of lists
 data['errors'] = data['errors'].apply(literal_eval)
 data['dist_diff'] = data['dist_diff'].apply(literal_eval)
 data['abs_index_diff'] = data['abs_index_diff'].apply(literal_eval)
 
-route_id = 3
+route_id = 5
 matcher = 'corr'
 # for the lack of edges I have to use .isna() function
 edge = '(220, 240)'
