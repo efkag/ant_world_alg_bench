@@ -17,9 +17,9 @@ data['errors'] = data['errors'].apply(literal_eval)
 data['dist_diff'] = data['dist_diff'].apply(literal_eval)
 data['abs_index_diff'] = data['abs_index_diff'].apply(literal_eval)
 
-
 route_id = 3
 matcher = 'corr'
+# for the lack of edges I have to use .isna() function
 edge = '(220, 240)'
 figsize = (4, 3)
 res = '(180, 50)'

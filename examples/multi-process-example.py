@@ -15,7 +15,7 @@ def f1(route_id):
     pre_route_images = pre_process(route_images, pre_proc)
 
     nav = spm.SequentialPerfectMemory(pre_route_images, matcher, window=window)
-    recovered_heading, logs, window_log = nav.navigate(pre_world_grid_imgs)
+    recovered_heading, window_log = nav.navigate(pre_world_grid_imgs)
 
     print(mean_degree_error(x_inlimit, y_inlimit, x_route, y_route, route_heading, recovered_heading))
 
@@ -33,7 +33,7 @@ def f2(route_id):
         pre_route_images = pre_process(route_images, pre_proc)
 
         nav = spm.SequentialPerfectMemory(pre_route_images, matcher, window=window)
-        recovered_heading, logs, window_log = nav.navigate(pre_world_grid_imgs)
+        recovered_heading, window_log = nav.navigate(pre_world_grid_imgs)
 
         # nav = pm.PerfectMemory(pre_route_images, matcher)
         # recovered_heading, logs = nav.navigate(pre_world_grid_imgs)

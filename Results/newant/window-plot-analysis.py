@@ -39,6 +39,6 @@ route = load_route_naw(path, route_id=route_id)
 route['qx'] = traj['x']
 route['qy'] = traj['y']
 
-path = 'window_plots/'
+path = 'window-plots/'
 animated_window(route, window_log, path=path)
 
