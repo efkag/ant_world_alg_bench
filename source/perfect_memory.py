@@ -71,6 +71,6 @@ class PerfectMemory:
             self.recovered_heading.append(mem_headings[index])
             self.matched_index_log.append(index)
 
-        return self.recovered_heading, self.logs
+        return self.recovered_heading
 
     def get_index_log(self): return self.matched_index_log

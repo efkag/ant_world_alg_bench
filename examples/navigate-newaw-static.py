@@ -18,9 +18,9 @@ route_imgs = pre_process(route['imgs'], sets)
 test_imgs = pre_process(route['qimgs'], sets)
 
 # nav = perfect_memory.PerfectMemory(route_imgs, matcher)
-# recovered_heading, logs = nav.navigate(test_imgs)
+# recovered_heading = nav.navigate(test_imgs)
 nav = seqnav.SequentialPerfectMemory(route_imgs, matcher, window=window)
-recovered_heading, logs, window_log = nav.navigate(test_imgs)
+recovered_heading, window_log = nav.navigate(test_imgs)
 
 traj = {'x': route['qx'], 'y': route['qy'], 'heading': recovered_heading}
 traj['heading'] = np.array(traj['heading'])

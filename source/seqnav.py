@@ -224,7 +224,7 @@ class SequentialPerfectMemory:
             #     if wind_sims[j-mem_pointer] > self.CMA[-1]:
             #         self.confidence[j] -= 0.1
 
-        return self.recovered_heading, self.logs, self.window_log
+        return self.recovered_heading, self.window_log
 
     def get_index_log(self):
         return self.matched_index_log

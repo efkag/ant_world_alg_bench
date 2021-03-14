@@ -27,7 +27,7 @@ pre_grid_imgs = pre_process(grid_imgs, pre_proc)
 pre_route_images = pre_process(route_images, pre_proc)
 
 nav = pm.PerfectMemory(pre_route_images, matcher)
-recovered_heading, logs = nav.navigate(pre_grid_imgs)
+recovered_heading = nav.navigate(pre_grid_imgs)
 
 print(mean_degree_error(x_inlimit, y_inlimit, x_route, y_route, route_heading, recovered_heading))
 zoom = [np.mean(x_route), np.mean(y_route)]
