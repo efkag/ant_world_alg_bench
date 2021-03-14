@@ -20,7 +20,7 @@ class SequentialPerfectMemory:
         self.window_sims = []
         self.window_headings = []
         self.CMA = []
-        #
+        # Matching variables
         matchers = {'corr': cor_dist, 'rmse': rmse, 'mae': mae}
         self.matcher = matchers.get(matching)
         if not self.matcher:
@@ -36,12 +36,17 @@ class SequentialPerfectMemory:
         self.blimit = 0
         self.flimit = self.window
 
+        # Adaptive window variables
+        self.min_window = 10
+        self.window_margin = 5
+        self.deg_diff = 5
+
     def reset_window(self, pointer):
         self.mem_pointer = pointer
         self.blimit = pointer
         self.flimit = pointer + self.window
 
-    def get_heading(self, query_img, dynamic_window=False):
+    def get_heading(self, query_img):
         # TODO:Need to update this function to keep the memory pointer (best match)
         # TODO: in the middle of the window
         # get the rotational similarities between a query image and a window of route images
@@ -81,7 +86,7 @@ class SequentialPerfectMemory:
 
         # recovered_heading.append(sum(wind_headings)/len(wind_headings))
 
-        if dynamic_window:
+        if self.adaptive:
             best = wind_sims[index]
             self.dynamic_window_sim(best)
 
@@ -110,22 +115,27 @@ class SequentialPerfectMemory:
 
     def dynamic_window_sim(self, best):
         # Dynamic window adaptation based on match gradient.
-        if best > self.prev_match or self.window <= 10:
-            self.window += 5
-        # elif self.window > 20:
-        #     self.window -= 2
+        if best > self.prev_match or self.window <= self.min_window:
+            self.window += self.window_margin
         else:
-            self.window -= 5
+            self.window -= self.window_margin
         self.prev_match = best
         # upper = int(self.window/2)
         # lower = self.window - upper
         # return upper, lower
 
-    def dynamic_window_h(self, wind_headings):
-        if self.get_agreement(wind_headings) <= 0.9 or self.window <= 10:
-            self.window += 5
+    def dynamic_window_h2(self, h):
+        diff = abs(h - self.recovered_heading[-1])
+        if diff > self.deg_diff or self.window <= self.min_window:
+            self.window += self.window_margin
         else:
-            self.window -= 5
+            self.window -= self.window_margin
+
+    def dynamic_window_h(self, wind_headings):
+        if self.get_agreement(wind_headings) <= 0.9 or self.window <= self.min_window:
+            self.window += self.window_margin
+        else:
+            self.window -= self.window_margin
 
     def navigate(self, query_imgs):
         assert isinstance(query_imgs, list)
@@ -199,8 +209,8 @@ class SequentialPerfectMemory:
             # Change the pointer and bounds for an adaptive window.
             if self.adaptive:
                 self.dynamic_window_sim(wind_sims[index])
+                # self.dynamic_window_h2(h)
                 # self.dynamic_window_h(wind_headings)
-
 
             #
             # # Lower confidence of the memories depending on the match score
@@ -233,7 +243,6 @@ class SequentialPerfectMemory:
 
     def get_CMA(self):
         return self.CMA
-
 
 
 class Seq2SeqPerfectMemory:
@@ -298,15 +307,6 @@ class Seq2SeqPerfectMemory:
             self.logs.append(wrsims)
             index = self.argminmax(wind_sims)
             self.recovered_heading.append(wind_headings[index])
-            # recovered_heading.append(sum(wind_headings)/len(wind_headings))
-            # Dynamic window adaptation based on match gradient.
-            # if best > self.prev_match or window < 5:
-            #     window += 1
-            # elif window > 20:
-            #     window -= 2
-            # else:
-            #     window -= 1
-            # self.prev_match = best
 
             # # Lower confidence of the memories depending on the match score
             # window_mean = sum(wind_sims)/len(wind_sims)
