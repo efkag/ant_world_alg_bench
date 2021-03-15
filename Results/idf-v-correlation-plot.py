@@ -22,7 +22,7 @@ fig, ax = plt.subplots(figsize=(15, 9))
 plt.title('rmse v correlation')
 blur_data = data[data['pre-proc'].str.contains('blur')]
 corr_data = blur_data.loc[(blur_data['matcher'] == 'corr')]
-idf_data = blur_data.loc[(blur_data['matcher'] == 'rmse')]
+idf_data = blur_data.loc[(blur_data['matcher'] == 'idf')]
 percentile = 85
 corr_data = corr_data.groupby(['window'])['errors'].apply(sum).tolist()
 idf_data = idf_data.groupby(['window'])['errors'].apply(sum).tolist()
