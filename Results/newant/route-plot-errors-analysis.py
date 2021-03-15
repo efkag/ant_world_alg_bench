@@ -22,13 +22,13 @@ data['th'] = data['th'].apply(literal_eval)
 
 
 # Plot a specific route
-route_id = 3
+route_id = 5
 path = '../../new-antworld/exp1/route' + str(route_id) + '/'
 window = -20
 matcher = 'corr'
 edge = '(220, 240)'
 res = '(180, 50)'
-threshold = 30
+threshold = 0
 figsize = (4, 4)
 
 traj = data.loc[(data['matcher'] == matcher) & (data['res'] == res) & (data['edge'] == edge) &

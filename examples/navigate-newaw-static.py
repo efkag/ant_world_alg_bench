@@ -13,7 +13,7 @@ plot_route(route)
 
 window = -20
 matcher = 'corr'
-sets = {'shape': (180, 50), 'edge_range': (220, 240)}
+sets = {'blur': True, 'shape': (180, 50), 'edge_range': (220, 240)}
 route_imgs = pre_process(route['imgs'], sets)
 test_imgs = pre_process(route['qimgs'], sets)
 
