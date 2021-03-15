@@ -74,9 +74,12 @@ def plot_route(route, traj=None, scale=70, window=None, windex=None, save=False,
         # ax.plot(traj['x'], traj['y'])
         ax.quiver(traj['x'], traj['y'], u, v, scale=scale)
 
-    if save:
+    if save and windex:
         fig.savefig(path + str(windex) + '.png')
         plt.close(fig)
+    elif save:
+        fig.savefig(path)
+
     if not save: plt.show()
 
 

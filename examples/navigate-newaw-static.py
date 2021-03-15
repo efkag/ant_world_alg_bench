@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 
-route_id = 3
+route_id = 5
 path = '../new-antworld/exp1/route' + str(route_id) + '/'
 # path = '../test_data/route'+ str(route_id) + '/'
 route = load_route_naw(path, route_id=route_id, imgs=True, query=True, max_dist=0.2)
@@ -13,7 +13,7 @@ plot_route(route)
 
 window = -20
 matcher = 'corr'
-sets = {'shape': (180, 50), 'edge_range': (220, 240)}
+sets = {'blur': True, 'shape': (180, 50), 'edge_range': (220, 240)}
 route_imgs = pre_process(route['imgs'], sets)
 test_imgs = pre_process(route['qimgs'], sets)
 
