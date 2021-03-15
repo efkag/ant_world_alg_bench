@@ -10,7 +10,8 @@ sns.set_context("paper", font_scale=1)
 def to_array(x):
     return np.fromstring(x[1:-1], dtype=np.int, sep=' ').tolist()
 
-fig_save_path = 'violins.png'
+
+fig_save_path = '/home/efkag/Desktop/pre-proc'
 data = pd.read_csv('combined-results.csv')
 # Convert list of strings to actual list of lists
 data['errors'] = data['errors'].apply(literal_eval)
@@ -49,14 +50,14 @@ ax.set_xlabel('window')
 # ax.set_title("A", loc="left")
 plt.tight_layout(pad=0)
 ax.set_xticklabels(x_labels)
-# fig_save_path = 'Figures/correlation matching errors with blur log-scale.pdf'
-# fig.savefig(fig_save_path)
+fig.savefig(fig_save_path + '/lines.{}.{}.png'.format(matcher, edge))
 plt.show()
 
 
 '''
 Box plot for each resolution and window
 '''
+figsize = (7, 4)
 hue = []
 x = []
 y = []
@@ -71,6 +72,8 @@ fig, ax = plt.subplots(figsize=figsize)
 sns.boxplot(x=x, y=y, hue=hue, ax=ax)
 plt.tight_layout(pad=0)
 ax.set_xticklabels(window_labels)
+plt.legend(loc=1)
+fig.savefig(fig_save_path + '/box.{}.{}.png'.format(matcher, edge))
 plt.show()
 
 

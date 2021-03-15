@@ -10,7 +10,8 @@ sns.set_context("paper", font_scale=1)
 def to_array(x):
     return np.fromstring(x[1:-1], dtype=np.int, sep=' ').tolist()
 
-fig_save_path = 'violins.png'
+
+fig_save_path = '/home/efkag/Desktop/matchers'
 data = pd.read_csv('combined-results.csv')
 # Convert list of strings to actual list of lists
 data['errors'] = data['errors'].apply(literal_eval)
@@ -46,6 +47,7 @@ for m in matchers:
 sns.violinplot(x=x, y=y, hue=hue, ax=ax, cut=0, split=True, inner="quart")
 plt.tight_layout(pad=0)
 ax.set_xticklabels(window_labels)
+fig.savefig(fig_save_path + '/matchers.res{}.edge{}.png'.format(res, edge))
 plt.show()
 
 
@@ -68,4 +70,5 @@ for m, df in zip(matchers, [idf_df, cc_df]):
 sns.violinplot(x=x, y=y, hue=hue, ax=ax, cut=0, split=True, inner="quart")
 plt.tight_layout(pad=0)
 ax.set_xticklabels(window_labels)
+fig.savefig(fig_save_path + '/matchers.res{}.edge{}.blur.png'.format(res, edge))
 plt.show()
