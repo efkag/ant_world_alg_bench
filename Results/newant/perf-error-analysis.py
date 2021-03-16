@@ -13,15 +13,15 @@ def to_array(x):
 
 fig_save_path = '/home/efkag/Desktop/route3'
 data = pd.read_csv('combined-results.csv')
+# data = pd.read_csv('exp4.csv')
 # Convert list of strings to actual list of lists
 data['errors'] = data['errors'].apply(literal_eval)
 data['dist_diff'] = data['dist_diff'].apply(literal_eval)
 data['abs_index_diff'] = data['abs_index_diff'].apply(literal_eval)
 
-route_id = 3
+route_id = 4
 matcher = 'corr'
-# for the lack of edges I have to use .isna() function
-edge = '(220, 240)'
+edge = '(220, 240)' # 'False'
 figsize = (4, 3)
 res = '(180, 50)'
 route = data.loc[(data['matcher'] == matcher) & (data['route_id'] == route_id)

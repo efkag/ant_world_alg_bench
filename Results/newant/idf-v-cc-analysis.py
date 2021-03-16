@@ -12,14 +12,14 @@ def to_array(x):
 
 
 fig_save_path = '/home/efkag/Desktop/matchers'
-data = pd.read_csv('combined-results.csv')
+# data = pd.read_csv('combined-results.csv')
+data = pd.read_csv('exp4.csv')
 # Convert list of strings to actual list of lists
 data['errors'] = data['errors'].apply(literal_eval)
 data['dist_diff'] = data['dist_diff'].apply(literal_eval)
 
 
-# for the lack of edges I have to use .isna() function
-edge = '(220, 240)'
+edge = '(220, 240)' # 'False'
 res = '(180, 50)'
 figsize = (4, 3)
 matchers = ['mae', 'corr']
@@ -56,7 +56,7 @@ IDF with blur and CC with edges
 '''
 cc_df = data.loc[(data['res'] == res) & (data['matcher'] == 'corr') & (data['edge'] == edge)]
 cc_df = cc_df.groupby(['window'])['errors'].apply(sum).to_frame('errors').reset_index()
-idf_df = data.loc[(data['res'] == res) & (data['matcher'] == 'mae') & (data['edge'].isna())]
+idf_df = data.loc[(data['res'] == res) & (data['matcher'] == 'mae') & (data['edge'] == 'False')]
 idf_df = idf_df.groupby(['window'])['errors'].apply(sum).to_frame('errors').reset_index()
 fig, ax = plt.subplots(figsize=figsize)
 window_labels = ['Adaptive (20)', 'PM', 'w=15', 'w=20', 'w=25', 'w=30']
