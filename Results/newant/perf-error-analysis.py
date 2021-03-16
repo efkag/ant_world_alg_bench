@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import textwrap
+from source.utils import check_for_dir_and_create
 import seaborn as sns
 from ast import literal_eval
 sns.set_context("paper", font_scale=1)
@@ -11,7 +11,7 @@ def to_array(x):
     return np.fromstring(x[1:-1], dtype=np.int, sep=' ').tolist()
 
 
-fig_save_path = '/home/efkag/Desktop/route3'
+fig_save_path = '/home/efkag/Desktop/route'
 data = pd.read_csv('combined-results.csv')
 # data = pd.read_csv('exp4.csv')
 # Convert list of strings to actual list of lists
@@ -19,9 +19,11 @@ data['errors'] = data['errors'].apply(literal_eval)
 data['dist_diff'] = data['dist_diff'].apply(literal_eval)
 data['abs_index_diff'] = data['abs_index_diff'].apply(literal_eval)
 
-route_id = 4
+route_id = 5
+fig_save_path = fig_save_path + str(route_id)
+check_for_dir_and_create(fig_save_path)
 matcher = 'corr'
-edge = '(220, 240)' # 'False'
+edge = '(220, 240)'  # 'False'
 figsize = (4, 3)
 res = '(180, 50)'
 route = data.loc[(data['matcher'] == matcher) & (data['route_id'] == route_id)

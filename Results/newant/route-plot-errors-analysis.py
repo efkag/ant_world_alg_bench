@@ -7,10 +7,7 @@ from source.utils import load_route_naw, plot_route
 sns.set_context("paper", font_scale=1)
 
 
-
-def to_array(x):
-    return np.fromstring(x[1:-1], dtype=np.int, sep=' ').tolist()
-fig_save_path = '/home/efkag/Desktop/route3'
+fig_save_path = '/home/efkag/Desktop/route'
 data = pd.read_csv('combined-results.csv')
 # Convert list of strings to actual list of lists
 data['errors'] = data['errors'].apply(literal_eval)
@@ -23,6 +20,7 @@ data['th'] = data['th'].apply(literal_eval)
 
 # Plot a specific route
 route_id = 5
+fig_save_path = fig_save_path + str(route_id)
 path = '../../new-antworld/exp1/route' + str(route_id) + '/'
 window = -20
 matcher = 'corr'

@@ -50,7 +50,7 @@ ax.set_xlabel('window')
 # ax.set_title("A", loc="left")
 plt.tight_layout(pad=0)
 ax.set_xticklabels(x_labels)
-fig.savefig(fig_save_path + '/lines.{}.{}.png'.format(matcher, edge))
+fig.savefig(fig_save_path + '/lines.m.{}.edge{}.png'.format(matcher, edge))
 plt.show()
 
 
@@ -73,7 +73,7 @@ sns.boxplot(x=x, y=y, hue=hue, ax=ax)
 plt.tight_layout(pad=0)
 ax.set_xticklabels(window_labels)
 plt.legend(loc=1)
-fig.savefig(fig_save_path + '/box.{}.{}.png'.format(matcher, edge))
+fig.savefig(fig_save_path + '/box.m{}.edge{}.png'.format(matcher, edge))
 plt.show()
 
 

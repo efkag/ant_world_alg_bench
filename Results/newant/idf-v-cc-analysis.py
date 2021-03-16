@@ -12,8 +12,8 @@ def to_array(x):
 
 
 fig_save_path = '/home/efkag/Desktop/matchers'
-# data = pd.read_csv('combined-results.csv')
-data = pd.read_csv('exp4.csv')
+data = pd.read_csv('combined-results.csv')
+# data = pd.read_csv('exp4.csv')
 # Convert list of strings to actual list of lists
 data['errors'] = data['errors'].apply(literal_eval)
 data['dist_diff'] = data['dist_diff'].apply(literal_eval)
