@@ -7,10 +7,7 @@ from source.utils import load_route_naw, plot_route
 sns.set_context("paper", font_scale=1)
 
 
-
-def to_array(x):
-    return np.fromstring(x[1:-1], dtype=np.int, sep=' ').tolist()
-fig_save_path = '/home/efkag/Desktop/route3'
+fig_save_path = '/home/efkag/Desktop/route'
 data = pd.read_csv('combined-results.csv')
 # Convert list of strings to actual list of lists
 data['errors'] = data['errors'].apply(literal_eval)
@@ -22,13 +19,14 @@ data['th'] = data['th'].apply(literal_eval)
 
 
 # Plot a specific route
-route_id = 5
+route_id = 3
+fig_save_path = fig_save_path + str(route_id)
 path = '../../new-antworld/exp1/route' + str(route_id) + '/'
 window = -20
 matcher = 'corr'
 edge = '(220, 240)'
 res = '(180, 50)'
-threshold = 0
+threshold = 30
 figsize = (4, 4)
 
 traj = data.loc[(data['matcher'] == matcher) & (data['res'] == res) & (data['edge'] == edge) &
@@ -42,5 +40,6 @@ index = np.argwhere(errors > threshold)
 traj['x'] = traj['x'][index]
 traj['y'] = traj['y'][index]
 traj['heading'] = traj['heading'][index]
-fig_save_path = fig_save_path + '/route{}.w{}.m{}.res{}.edge{}.png'.format(route_id, window,matcher, res, edge)
+fig_save_path = fig_save_path + '/route{}.w{}.m{}.res{}.edge{}.thres{}.png'\
+    .format(route_id, window,matcher, res, edge, threshold)
 plot_route(route, traj, size=(6, 6), save=True, path=fig_save_path)
