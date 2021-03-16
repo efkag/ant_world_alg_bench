@@ -8,7 +8,7 @@ def main():
     # parameters = {'blur': [True], 'shape': [(180, 50), (90, 25)], 'edge_range': [(180, 200)],
     #               'window': list(range(10, 12)), 'matcher': ['corr', 'rmse']}
 
-    parameters = {'blur': [True], 'shape': [(180, 50)],
+    parameters = {'blur': [True, False], 'shape': [(180, 50)], 'edge_range': [(180, 200), False],
                   'window': [15, -20], 'matcher': ['mae']}
 
     routes = [1, 2]
