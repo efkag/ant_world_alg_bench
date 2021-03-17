@@ -74,3 +74,5 @@ class PerfectMemory:
         return self.recovered_heading
 
     def get_index_log(self): return self.matched_index_log
+
+    def get_window_log(self): return None

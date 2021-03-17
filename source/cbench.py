@@ -17,7 +17,19 @@ def get_grid_dict(params):
         for i, k in enumerate(params):
             combo_dict[k] = combo[i]
         grid_dict.append(combo_dict)
+
+    grid_dict[:] = [x for x in grid_dict if remove_blur_edge(x)]
+    grid_dict[:] = [x for x in grid_dict if not remove_non_blur_edge(x)]
+
     return grid_dict
+
+
+def remove_blur_edge(combo):
+    return not (combo['edge_range'] and combo['blur'])
+
+
+def remove_non_blur_edge(combo):
+    return not combo['edge_range'] and not combo['blur']
 
 
 def bench(params, routes_path, route_ids):
@@ -63,7 +75,7 @@ def bench(params, routes_path, route_ids):
             # Get the errors and the minimum distant index of the route memory
             errors, min_dist_index = angular_error(route, traj)
             # Difference between matched index and minimum distance index
-            matched_index = np.append([0], nav.get_index_log())
+            matched_index = nav.get_index_log()
             abs_index_diffs = np.absolute(np.subtract(matched_index, min_dist_index))
             dist_diff = calc_dists(route, min_dist_index, matched_index)
             mean_route_error = np.mean(errors)
@@ -198,7 +210,8 @@ def worker_bench(routes_path, route_ids, dist, shared, chunk):
             # Get the errors and the minimum distant index of the route memory
             errors, min_dist_index = angular_error(route, traj)
             # Difference between matched index and minimum distance index
-            matched_index = np.append([0], nav.get_index_log())
+            matched_index = nav.get_index_log()
+            window_log = nav.get_window_log()
             abs_index_diffs = np.absolute(np.subtract(matched_index, min_dist_index))
             dist_diff = calc_dists(route, min_dist_index, matched_index)
             mean_route_error = np.mean(errors)
@@ -213,7 +226,7 @@ def worker_bench(routes_path, route_ids, dist, shared, chunk):
             log['window_log'].append(window_log)
             log['tx'].append(traj['x'].tolist())
             log['ty'].append(traj['y'].tolist())
-            log['th'].append(traj['heading'])
+            log['th'].append(traj['heading'].tolist())
             log['abs_index_diff'].append(abs_index_diffs.tolist())
             log['dist_diff'].append(dist_diff.tolist())
             log['errors'].append(errors)

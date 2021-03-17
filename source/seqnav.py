@@ -47,6 +47,7 @@ class SequentialPerfectMemory:
         self.mem_pointer = pointer
         self.blimit = pointer
         self.flimit = pointer + self.window
+        self.matched_index_log.append(pointer)
 
     def get_heading(self, query_img):
         # TODO:Need to update this function to keep the memory pointer (best match)
