@@ -10,8 +10,8 @@ sns.set_context("paper", font_scale=1)
 def to_list(x):
     return literal_eval(x)
 
-fig_save_path = 'violins.png'
-data = pd.read_csv('exp1.csv')
+fig_save_path = 'window-plots/'
+data = pd.read_csv('test.csv')
 # Convert list of strings to actual list of lists
 data['errors'] = data['errors'].apply(literal_eval)
 data['dist_diff'] = data['dist_diff'].apply(literal_eval)
@@ -23,13 +23,18 @@ data['th'] = data['th'].apply(literal_eval)
 
 
 # Plot a specific route
-route_id = 3
+route_id = 1
+fig_save_path = fig_save_path + str(route_id)
 path = '../../new-antworld/exp1/route' + str(route_id) + '/'
-window = 25
-threshold = 30
+window = 11
+matcher = 'mae'
+edge = 'False'
+res = '(180, 50)'
+figsize = (4, 4)
 
-traj = data.loc[(data['matcher'] == 'mae') & (data['res'] == '(180, 50)')]
-traj = traj.loc[(data['window'] == window) & (data['route_id'] == route_id)]
+traj = data.loc[(data['matcher'] == matcher) & (data['res'] == res) & # (data['edge'] == edge) &
+                (data['window'] == window) & (data['route_id'] == route_id)]
+
 traj = traj.to_dict(orient='records')[0]
 errors = np.array(traj['errors'])
 window_log = literal_eval(traj['window_log'])
@@ -39,6 +44,5 @@ route = load_route_naw(path, route_id=route_id)
 route['qx'] = traj['x']
 route['qy'] = traj['y']
 
-path = 'window-plots/'
-animated_window(route, window_log, path=path)
+animated_window(route, window_log, path=fig_save_path)
 

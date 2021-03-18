@@ -8,7 +8,8 @@ sns.set_context("paper", font_scale=1)
 
 
 fig_save_path = '/home/efkag/Desktop/route'
-data = pd.read_csv('combined-results.csv')
+# data = pd.read_csv('combined-results.csv')
+data = pd.read_csv('test.csv')
 # Convert list of strings to actual list of lists
 data['errors'] = data['errors'].apply(literal_eval)
 data['dist_diff'] = data['dist_diff'].apply(literal_eval)
@@ -19,12 +20,12 @@ data['th'] = data['th'].apply(literal_eval)
 
 
 # Plot a specific route
-route_id = 3
+route_id = 1
 fig_save_path = fig_save_path + str(route_id)
 path = '../../new-antworld/exp1/route' + str(route_id) + '/'
-window = -20
-matcher = 'corr'
-edge = '(220, 240)'
+window = 11
+matcher = 'mae'
+edge = 'False'
 res = '(180, 50)'
 threshold = 30
 figsize = (4, 4)
@@ -42,4 +43,4 @@ traj['y'] = traj['y'][index]
 traj['heading'] = traj['heading'][index]
 fig_save_path = fig_save_path + '/route{}.w{}.m{}.res{}.edge{}.thres{}.png'\
     .format(route_id, window,matcher, res, edge, threshold)
-plot_route(route, traj, size=(6, 6), save=True, path=fig_save_path)
+plot_route(route, traj, size=(6, 6), save=False, path=fig_save_path)

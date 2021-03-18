@@ -76,6 +76,7 @@ def bench(params, routes_path, route_ids):
             errors, min_dist_index = angular_error(route, traj)
             # Difference between matched index and minimum distance index
             matched_index = nav.get_index_log()
+            window_log = nav.get_window_log()
             abs_index_diffs = np.absolute(np.subtract(matched_index, min_dist_index))
             dist_diff = calc_dists(route, min_dist_index, matched_index)
             mean_route_error = np.mean(errors)

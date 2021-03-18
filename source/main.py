@@ -18,7 +18,7 @@ def main():
     results_path = '../Results/newant/test.csv'
     routes_path = '../new-antworld/exp1'
     parameters = {'r': [0.05], 't': [10], 'segment_l': [3], 'blur': [True],
-                  'shape': [(180, 50), (90, 25)],  # 'edge_range': [(180, 200)],
+                  'shape': [(180, 50), (90, 25)], 'edge_range': [False],
                   'window': list(range(10, 12)), 'matcher': ['mae', 'corr']}
 
     routes = [1, 2]
