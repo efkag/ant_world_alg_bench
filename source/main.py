@@ -22,7 +22,7 @@ def main():
                   'window': list(range(10, 12)), 'matcher': ['mae', 'corr']}
 
     routes = [1, 2]
-    cbench.benchmark(results_path, routes_path, parameters, routes, parallel=True)
+    cbench.benchmark(results_path, routes_path, parameters, routes, parallel=False)
 
 
 if __name__ == "__main__":

@@ -47,14 +47,15 @@ class SequentialPerfectMemory:
         self.mem_pointer = pointer
         self.blimit = pointer
         self.flimit = pointer + self.window
-        self.matched_index_log.append(pointer)
+        # self.matched_index_log.append(pointer)
+
 
     def get_heading(self, query_img):
         # TODO:Need to update this function to keep the memory pointer (best match)
         # TODO: in the middle of the window
         # get the rotational similarities between a query image and a window of route images
         wrsims = rmf(query_img, self.route_images[self.blimit:self.flimit], self.matcher, self.deg_range, self.deg_step)
-
+        self.window_log.append([self.blimit, self.flimit])
         # Holds the best rot. match between the query image and route images
         wind_sims = []
         # Recovered headings for the current image
@@ -85,9 +86,7 @@ class SequentialPerfectMemory:
             self.flimit = self.mem_pointer + self.window
 
         self.matched_index_log.append(self.mem_pointer)
-        self.window_log.append([self.blimit, self.flimit])
-
-        # recovered_heading.append(sum(wind_headings)/len(wind_headings))
+        # self.window_log.append([self.blimit, self.flimit])
 
         if self.adaptive:
             best = wind_sims[index]
@@ -155,7 +154,7 @@ class SequentialPerfectMemory:
 
             # get the rotational similarities between a query image and a window of route images
             wrsims = rmf(query_img, self.route_images[blimit:flimit], self.matcher, self.deg_range, self.deg_step)
-
+            self.window_log.append([blimit, flimit])
             # Holds the best rot. match between the query image and route images
             wind_sims = []
             # Recovered headings for the current image
@@ -189,7 +188,7 @@ class SequentialPerfectMemory:
                 flimit = mem_pointer + self.window
 
             self.matched_index_log.append(mem_pointer)
-            self.window_log.append([blimit, flimit])
+            # self.window_log.append([blimit, flimit])
 
 
             # Update memory pointer
