@@ -11,7 +11,8 @@ def to_list(x):
     return literal_eval(x)
 
 fig_save_path = 'window-plots/'
-data = pd.read_csv('test.csv')
+data = pd.read_csv('combined-results.csv')
+# data = pd.read_csv('test.csv')
 # Convert list of strings to actual list of lists
 data['errors'] = data['errors'].apply(literal_eval)
 data['dist_diff'] = data['dist_diff'].apply(literal_eval)
@@ -23,12 +24,12 @@ data['th'] = data['th'].apply(literal_eval)
 
 
 # Plot a specific route
-route_id = 1
+route_id = 4
 fig_save_path = fig_save_path + str(route_id)
 path = '../../new-antworld/exp1/route' + str(route_id) + '/'
-window = 11
-matcher = 'mae'
-edge = 'False'
+window = -20
+matcher = 'corr'
+edge = '(220, 240)'
 res = '(180, 50)'
 figsize = (4, 4)
 

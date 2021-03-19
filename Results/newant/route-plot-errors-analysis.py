@@ -42,5 +42,5 @@ traj['x'] = traj['x'][index]
 traj['y'] = traj['y'][index]
 traj['heading'] = traj['heading'][index]
 fig_save_path = fig_save_path + '/route{}.w{}.m{}.res{}.edge{}.thres{}.png'\
-    .format(route_id, window,matcher, res, edge, threshold)
+    .format(route_id, window, matcher, res, edge, threshold)
 plot_route(route, traj, size=(6, 6), save=False, path=fig_save_path)
