@@ -101,21 +101,22 @@ class Agent:
 
         # initialise the log variables
         headings = []
-        headings.append(h)
         traj = np.empty((2, t))
-        traj[0, 0] = xy[0]
-        traj[1, 0] = xy[1]
+        # traj[0, 0] = xy[0]
+        # traj[1, 0] = xy[1]
         # Navigation loop
-        for i in range(1, t):
+        for i in range(0, t):
+            traj[0, i] = xy[0]
+            traj[1, i] = xy[1]
+            headings.append(h)
             h = nav.get_heading(img)
             h = headings[-1] + h
             h = squash_deg(h)
-            headings.append(h)
+
             # get new position and image
             xy, img = self.update_position(xy, h, r)
             img = pre_process(img, preproc)
-            traj[0, i] = xy[0]
-            traj[1, i] = xy[1]
+
 
         headings = np.array(headings)
         trajectory = {'x': traj[0], 'y': traj[1], 'heading': headings}

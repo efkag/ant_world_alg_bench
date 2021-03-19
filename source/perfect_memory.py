@@ -36,7 +36,7 @@ class PerfectMemory:
         # append the rsims of all window route images for that query image
         self.logs.append(rsims)
         # find best image match and heading
-        index = self.argminmax(mem_sims)
+        index = int(self.argminmax(mem_sims))
         heading = mem_headings[index]
         self.recovered_heading.append(heading)
         # Update memory pointer
@@ -74,3 +74,5 @@ class PerfectMemory:
         return self.recovered_heading
 
     def get_index_log(self): return self.matched_index_log
+
+    def get_window_log(self): return None
