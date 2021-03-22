@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import textwrap
 import seaborn as sns
 from ast import literal_eval
+from source.analysis import perc_outliers
 sns.set_context("paper", font_scale=1)
 
 
@@ -61,13 +62,16 @@ figsize = (7, 4)
 hue = []
 x = []
 y = []
+outliers = []
 for r in resolutions:
     res = grouped.loc[grouped['res'] == r]['errors'].to_list()
     for i, row in enumerate(res):
         x.extend([i] * len(row))
         hue.extend([r] * len(row))
         y.extend(row)
+        outliers.append(perc_outliers(np.array(row)))
 
+print(np.round(outliers, 2))
 fig, ax = plt.subplots(figsize=figsize)
 sns.boxplot(x=x, y=y, hue=hue, ax=ax)
 plt.tight_layout(pad=0)
