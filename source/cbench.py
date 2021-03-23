@@ -99,9 +99,8 @@ def bench(params, routes_path, route_ids):
             log['errors'].append(errors)
 
             # Increment the complete jobs shared variable
-            jobs += jobs
+            jobs += 1
             print('jobs completed: {}/{}'.format(jobs, total_jobs))
-        # Increment the complete jobs shared variable
     return log
 
 
