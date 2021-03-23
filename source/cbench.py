@@ -40,6 +40,8 @@ def bench(params, routes_path, route_ids):
     agent = aw.Agent()
 
     grid = get_grid_dict(params)
+    total_jobs = len(grid) * len(route_ids)
+    jobs = 0
     #  Go though all combinations in the chunk
     for combo in grid:
 
@@ -64,7 +66,7 @@ def bench(params, routes_path, route_ids):
 
             if segment_length:
                 tic = time.perf_counter()
-                traj, nav = agent.segment_test(route, nav, segment_length=3, t=t, r=r, sigma=None, preproc=combo)
+                traj, nav = agent.segment_test(route, nav, segment_length=segment_length, t=t, r=r, sigma=None, preproc=combo)
                 toc = time.perf_counter()
             else:
                 tic = time.perf_counter()
@@ -95,6 +97,10 @@ def bench(params, routes_path, route_ids):
             log['abs_index_diff'].append(abs_index_diffs.tolist())
             log['dist_diff'].append(dist_diff.tolist())
             log['errors'].append(errors)
+
+            # Increment the complete jobs shared variable
+            jobs += jobs
+            print('jobs completed: {}/{}'.format(jobs, total_jobs))
         # Increment the complete jobs shared variable
     return log
 
