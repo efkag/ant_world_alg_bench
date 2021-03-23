@@ -150,18 +150,21 @@ def unpack_results(results):
 
 def bench_paral(params, routes_path, route_ids=None, dist=0.2):
     print(multiprocessing.cpu_count(), ' CPU cores found')
-    total_jobs = _total_jobs(params)
-
-    shared = _init_shared()
-    shared['total_jobs'] = total_jobs * len(route_ids)
 
     grid = get_grid_dict(params)
+    shared = _init_shared()
+    total_jobs = len(grid)
+    shared['total_jobs'] = len(grid) * len(route_ids)
+
     if total_jobs < multiprocessing.cpu_count():
         no_of_chunks = total_jobs
     else:
         no_of_chunks = multiprocessing.cpu_count() - 1
     # Generate a list of chunks of grid combinations
     chunks = get_grid_chunks(grid, no_of_chunks)
+    print('{} combinations, testing on {} routes, running on {} cores'.format(total_jobs, len(route_ids),
+                                                                              no_of_chunks))
+
     # Partial callable
     worker = functools.partial(worker_bench, routes_path, route_ids, dist, shared)
 
