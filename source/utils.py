@@ -68,7 +68,7 @@ def plot_route(route, traj=None, scale=70, window=None, windex=None, save=False,
     if 'qx' in route and window is None:
         ax.scatter(route['qx'], route['qy'])
     # Plot the trajectory of the agent when repeating the route
-    if traj:
+    if traj and not window:
         u, v = pol2cart_headings(90 - traj['heading'])
         ax.scatter(traj['x'], traj['y'])
         # ax.plot(traj['x'], traj['y'])
@@ -81,6 +81,7 @@ def plot_route(route, traj=None, scale=70, window=None, windex=None, save=False,
         fig.savefig(path)
 
     if not save: plt.show()
+    plt.close(fig)
 
 
 def animated_window(route, window, traj=None, path=None, scale=70, save=False, size=(10, 10)):

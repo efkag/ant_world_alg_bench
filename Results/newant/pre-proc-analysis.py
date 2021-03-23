@@ -21,7 +21,7 @@ data['dist_diff'] = data['dist_diff'].apply(literal_eval)
 
 
 matcher = 'corr'
-edge = '(220, 240)' # 'False'
+edge = '(220, 240)'  # 'False'
 figsize = (4, 3)
 resolutions = ['(360, 100)', '(180, 50)', '(90, 25)']
 data = data.loc[(data['matcher'] == matcher)
