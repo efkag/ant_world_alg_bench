@@ -1,10 +1,12 @@
 from source.utils import pre_process, calc_dists, load_route_naw, angular_error, check_for_dir_and_create
-from source import seqnav as spm, perfect_memory as pm
+from source import seqnav as spm, perfect_memory as pm, benchparams
 import pandas as pd
 import time
 import itertools
 import multiprocessing
+import subprocess
 import functools
+import pickle
 import numpy as np
 from source import antworld2 as aw
 
@@ -110,13 +112,13 @@ def benchmark(results_path, routes_path, params, route_ids,  parallel=False):
     assert isinstance(route_ids, list)
 
     if parallel:
-        log = bench_paral(params, routes_path, route_ids)
-        log = unpack_results(log)
+        bench_paral2(params, routes_path, route_ids)
+        # log = unpack_results(log)
     else:
         log = bench(params, routes_path, route_ids)
 
-    bench_results = pd.DataFrame(log)
-    bench_results.to_csv(results_path, index=False)
+    # bench_results = pd.DataFrame(log)
+    # bench_results.to_csv(results_path, index=False)
 
 
 def _total_jobs(params):
@@ -148,36 +150,36 @@ def unpack_results(results):
     return log
 
 
-def bench_paral(params, routes_path, route_ids=None, dist=0.2):
-    print(multiprocessing.cpu_count(), ' CPU cores found')
+# def bench_paral(params, routes_path, route_ids=None):
+#     print(multiprocessing.cpu_count(), ' CPU cores found')
+#
+#     grid = get_grid_dict(params)
+#     shared = _init_shared()
+#     total_jobs = len(grid)
+#     shared['total_jobs'] = len(grid) * len(route_ids)
+#
+#     if total_jobs < multiprocessing.cpu_count():
+#         no_of_chunks = total_jobs
+#     else:
+#         no_of_chunks = multiprocessing.cpu_count() - 1
+#     # Generate a list of chunks of grid combinations
+#     chunks = get_grid_chunks(grid, no_of_chunks)
+#     print('{} combinations, testing on {} routes, running on {} cores'.format(total_jobs, len(route_ids),
+#                                                                               no_of_chunks))
+#
+#     # Partial callable
+#     worker = functools.partial(worker_bench, routes_path, route_ids, shared)
+#
+#     pool = multiprocessing.Pool()
+#
+#     logs = pool.map_async(worker, chunks)
+#     pool.close()
+#     pool.join()
+#
+#     return logs
 
-    grid = get_grid_dict(params)
-    shared = _init_shared()
-    total_jobs = len(grid)
-    shared['total_jobs'] = len(grid) * len(route_ids)
 
-    if total_jobs < multiprocessing.cpu_count():
-        no_of_chunks = total_jobs
-    else:
-        no_of_chunks = multiprocessing.cpu_count() - 1
-    # Generate a list of chunks of grid combinations
-    chunks = get_grid_chunks(grid, no_of_chunks)
-    print('{} combinations, testing on {} routes, running on {} cores'.format(total_jobs, len(route_ids),
-                                                                              no_of_chunks))
-
-    # Partial callable
-    worker = functools.partial(worker_bench, routes_path, route_ids, dist, shared)
-
-    pool = multiprocessing.Pool()
-
-    logs = pool.map_async(worker, chunks)
-    pool.close()
-    pool.join()
-
-    return logs
-
-
-def worker_bench(routes_path, route_ids, dist, shared, chunk):
+def worker_bench(routes_path, route_ids, shared, chunk):
     log = {'route_id': [], 'blur': [], 'edge': [], 'res': [], 'window': [],
            'matcher': [], 'mean_error': [], 'seconds': [], 'errors': [],
            'dist_diff': [], 'abs_index_diff': [], 'window_log': [],
@@ -195,7 +197,7 @@ def worker_bench(routes_path, route_ids, dist, shared, chunk):
         window_log = None
         for route_id in route_ids:  # for every route
             route_path = routes_path + '/route' + str(route_id) + '/'
-            route = load_route_naw(route_path, route_id=route_id, imgs=True, max_dist=dist)
+            route = load_route_naw(route_path, route_id=route_id, imgs=True)
 
             # Preprocess images
             route_imgs = route['imgs']
@@ -244,6 +246,36 @@ def worker_bench(routes_path, route_ids, dist, shared, chunk):
             shared['jobs'] = shared['jobs'] + 1
             print(multiprocessing.current_process(), ' jobs completed: {}/{}'.format(shared['jobs'], shared['total_jobs']))
     return log
+
+
+def bench_paral2(params, routes_path, route_ids=None):
+    print(multiprocessing.cpu_count(), ' CPU cores found')
+
+    grid = get_grid_dict(params)
+    shared = _init_shared()
+    total_jobs = len(grid)
+    shared['total_jobs'] = len(grid) * len(route_ids)
+
+    if total_jobs < multiprocessing.cpu_count():
+        no_of_chunks = total_jobs
+    else:
+        no_of_chunks = multiprocessing.cpu_count() - 1
+    # Generate a list of chunks of grid combinations
+    chunks = get_grid_chunks(grid, no_of_chunks)
+    print('{} combinations, testing on {} routes, running on {} cores'.format(total_jobs, len(route_ids), no_of_chunks))
+    chunks_path = 'chunks'
+    check_for_dir_and_create(chunks_path)
+    print('Saving chunks in', chunks_path)
+
+    # Pickle the parameter object to use in the worker script
+    for i, chunk in enumerate(chunks):
+        params = benchparams.Parameters(chunk, route_ids, routes_path, i)
+        dbfile = open('chunks/chunk{}.p'.format(i), 'wb')
+        pickle.dump(params, dbfile)
+        dbfile.close()
+    print('{} chunks pickled'.format(no_of_chunks))
+
+
 
 # results_path = '../Results/newant/test.csv'
 # routes_path = '../new-antworld/exp1'
