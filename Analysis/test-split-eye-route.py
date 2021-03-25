@@ -1,5 +1,4 @@
-from source.utils import pre_process, mean_degree_error, cor_coef,  image_split, rotate,  load_route, plot_map
-from source import seqnav as spm
+from source2 import cor_coef,  image_split, rotate,  load_route, plot_map
 import random
 
 def split_eyes_sim(route_eyes, test_eyes):

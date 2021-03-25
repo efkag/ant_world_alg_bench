@@ -1,14 +1,12 @@
 from source.utils import pre_process, calc_dists, load_route_naw, angular_error, check_for_dir_and_create
 from source import seqnav as spm, perfect_memory as pm, benchparams
-import pandas as pd
 import time
 import itertools
 import multiprocessing
-import subprocess
-import functools
-import pickle
+import pandas as pd
 import numpy as np
 from source import antworld2 as aw
+import pickle
 
 
 def get_grid_dict(params):
@@ -269,10 +267,9 @@ def bench_paral2(params, routes_path, route_ids=None):
 
     # Pickle the parameter object to use in the worker script
     for i, chunk in enumerate(chunks):
-        params = benchparams.Parameters(chunk, route_ids, routes_path, i)
-        dbfile = open('chunks/chunk{}.p'.format(i), 'wb')
-        pickle.dump(params, dbfile)
-        dbfile.close()
+        params = {'chunk': chunk, 'route_ids': route_ids, 'routes_path': routes_path, 'i': i}
+        file = open('chunks/chunk{}.p'.format(i), 'wb')
+        pickle.dump(params, file)
     print('{} chunks pickled'.format(no_of_chunks))
 
 

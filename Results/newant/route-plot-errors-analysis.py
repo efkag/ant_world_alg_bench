@@ -1,6 +1,5 @@
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
 import seaborn as sns
 from ast import literal_eval
 from source.utils import load_route_naw, plot_route, animated_window

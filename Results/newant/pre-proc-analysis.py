@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import textwrap
 import seaborn as sns
 from ast import literal_eval
 from source.analysis import perc_outliers

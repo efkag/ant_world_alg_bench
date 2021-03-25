@@ -1,4 +1,4 @@
-from source import navbench, cbench
+from source import cbench
 
 
 def main():

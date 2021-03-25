@@ -2,7 +2,6 @@ import math
 from source.utils import line_incl, pol2cart_headings, check_for_dir_and_create, pol2cart, squash_deg, travel_dist
 from matplotlib import pyplot as plt
 import numpy as np
-import pandas as pd
 pi = math.pi
 
 

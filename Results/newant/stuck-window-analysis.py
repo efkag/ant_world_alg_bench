@@ -1,10 +1,9 @@
 import pandas as pd
-import numpy as np
-from source import analysis
 import matplotlib.pyplot as plt
 import seaborn as sns
 from ast import literal_eval
-from source.utils import load_route_naw, plot_route, animated_window
+from source2 import load_route_naw, plot_route
+
 sns.set_context("paper", font_scale=1)
 
 
