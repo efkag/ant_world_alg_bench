@@ -75,3 +75,6 @@ class PerfectMemory:
     def get_index_log(self): return self.matched_index_log
 
     def get_window_log(self): return None
+
+    def reset_window(self, pointer):
+        pass
