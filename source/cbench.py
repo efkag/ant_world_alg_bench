@@ -10,6 +10,7 @@ import pickle
 from subprocess import Popen, PIPE
 from queue import Queue, Empty
 from threading import Thread
+import sys
 
 
 def get_grid_dict(params):
@@ -162,6 +163,7 @@ def bench_paral(params, routes_path, route_ids=None):
         no_of_chunks = total_jobs
     else:
         no_of_chunks = multiprocessing.cpu_count() - 1
+    no_of_chunks = 2
     # Generate a list of chunks of grid combinations
     chunks = get_grid_chunks(grid, no_of_chunks)
     print('{} combinations, testing on {} routes, running on {} cores'.format(total_jobs, len(route_ids), no_of_chunks))
@@ -181,23 +183,22 @@ def bench_paral(params, routes_path, route_ids=None):
         cmd_list = ['python3', 'workerscript.py', 'chunks/chunk{}.p'.format(i)]
         p = Popen(cmd_list, stdout=PIPE, stderr=PIPE, universal_newlines=True)
         processes.append(p)
+
+    print_stdout_from_procs(processes)
     # Wait for the processes to finish.
     for p in processes:
         p.wait()
-
-    # TODO: The async printing of the processes ot put does not work at all
-    # print_stdout_from_procs(processes)
-    for p in processes:
-        stderr = p.stderr.read()
-        stdout = p.stdout.read()
-        if stdout:
-            print(stdout, end='')
-        if stderr:
-            print(stderr, end='')
+    # for p in processes:
+    #     stderr = p.stderr.read()
+    #     stdout = p.stdout.read()
+    #     if stdout:
+    #         print(stdout, end='')
+    #     if stderr:
+    #         print(stderr, end='')
 
 
 def enqueue_output(out, queue):
-    for line in iter(out.readline, b''):
+    for line in iter(out.readline, ''):
         queue.put(line)
     out.close()
 
@@ -218,11 +219,17 @@ def print_stdout_from_procs(processes):
         except Empty:
             pass
         else:
-            print(line)
+            sys.stdout.write(line)
 
         # break when all processes are done.
         if all(p.poll() is not None for p in processes):
             break
+
+    for t in threads:
+        t.join()
+
+    for p in processes:
+        p.stdout.close()
 
     print('All processes done')
 
