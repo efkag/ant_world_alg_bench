@@ -172,8 +172,8 @@ def bench_paral(params, routes_path, route_ids=None):
     # Pickle the parameter object to use in the worker script
     for i, chunk in enumerate(chunks):
         params = {'chunk': chunk, 'route_ids': route_ids, 'routes_path': routes_path, 'i': i}
-        file = open('chunks/chunk{}.p'.format(i), 'wb')
-        pickle.dump(params, file)
+        with open('chunks/chunk{}.p'.format(i), 'wb') as file:
+            pickle.dump(params, file)
     print('{} chunks pickled'.format(no_of_chunks))
 
     processes = []
@@ -186,14 +186,14 @@ def bench_paral(params, routes_path, route_ids=None):
         p.wait()
 
     # TODO: The async printing of the processes ot put does not work at all
-    print_stdout_from_procs(processes)
-
-    # stderr = p.stderr.read()
-    # stdout = p.stdout.read()
-    # if stdout:
-    #     print(stdout)
-    # if stderr:
-    #     print(stderr)
+    # print_stdout_from_procs(processes)
+    for p in processes:
+        stderr = p.stderr.read()
+        stdout = p.stdout.read()
+        if stdout:
+            print(stdout, end='')
+        if stderr:
+            print(stderr, end='')
 
 
 def enqueue_output(out, queue):
