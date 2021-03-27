@@ -2,7 +2,7 @@ from source.utils import pre_process, calc_dists, load_route_naw, angular_error,
 from source import seqnav as spm, perfect_memory as pm, benchparams
 import time
 import itertools
-import multiprocessing
+import os
 import pandas as pd
 import numpy as np
 from source import antworld2 as aw
@@ -130,12 +130,6 @@ def _total_jobs(params):
     return total_jobs
 
 
-def _init_shared():
-    manager = multiprocessing.Manager()
-    shared = manager.dict({'jobs': 0, 'total_jobs': 0})
-    return shared
-
-
 def get_grid_chunks(grid_gen, chunks=1):
     lst = list(grid_gen)
     return [lst[i::chunks] for i in range(chunks)]
@@ -152,18 +146,15 @@ def unpack_results(results):
 
 
 def bench_paral(params, routes_path, route_ids=None):
-    print(multiprocessing.cpu_count(), ' CPU cores found')
+    print(os.cpu_count(), ' CPU cores found')
 
     grid = get_grid_dict(params)
-    shared = _init_shared()
     total_jobs = len(grid)
-    shared['total_jobs'] = len(grid) * len(route_ids)
 
-    if total_jobs < multiprocessing.cpu_count():
+    if total_jobs < os.cpu_count():
         no_of_chunks = total_jobs
     else:
-        no_of_chunks = multiprocessing.cpu_count() - 1
-    no_of_chunks = 2
+        no_of_chunks = os.cpu_count() - 1
     # Generate a list of chunks of grid combinations
     chunks = get_grid_chunks(grid, no_of_chunks)
     print('{} combinations, testing on {} routes, running on {} cores'.format(total_jobs, len(route_ids), no_of_chunks))
