@@ -1,6 +1,6 @@
-from source.utils import load_route, load_route_naw, pre_process, display_image, rmf, cor_dist, mae, rmse
+from source2 import load_route_naw, pre_process, display_image, rmf, cor_dist
 from matplotlib import pyplot as plt
-import matplotlib
+
 # matplotlib.use( 'tkagg' )
 
 # _, x_inlimit, y_inlimit, world_grid_imgs, x_route, y_route, \

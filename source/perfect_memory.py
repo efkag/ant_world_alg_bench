@@ -2,7 +2,6 @@ from source.utils import mae, rmse, cor_dist, rmf
 import numpy as np
 
 
-
 class PerfectMemory:
 
     def __init__(self, route_images, matching, deg_range=(0, 360), deg_step=1):

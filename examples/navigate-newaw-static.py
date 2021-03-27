@@ -1,8 +1,6 @@
-from source.utils import cos_sim, load_route_naw, plot_route, angular_error, animated_window, pre_process
-from source import seqnav, perfect_memory
+from source2 import load_route_naw, plot_route, angular_error, animated_window, pre_process
+from source2 import seqnav
 import numpy as np
-import matplotlib.pyplot as plt
-import time
 
 route_id = 3
 path = '../new-antworld/exp1/route' + str(route_id) + '/'

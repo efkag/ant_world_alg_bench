@@ -1,7 +1,6 @@
-from source.utils import load_route_naw, plot_route, pre_process, angular_error
-from source import seqnav
-from source import perfect_memory
-from source import antworld2 as aw
+from source2 import load_route_naw, plot_route, pre_process, angular_error
+from source2 import seqnav
+from source2 import antworld2 as aw
 
 agent = aw.Agent()
 route_id = 1

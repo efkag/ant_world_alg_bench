@@ -1,5 +1,5 @@
-from source.utils import pre_process, load_route, degree_error, load_route_naw, angular_error, check_for_dir_and_create, calc_dists
-from source import seqnav as spm, perfect_memory as pm
+from source2 import pre_process, load_route_naw, angular_error, check_for_dir_and_create, calc_dists
+from source2 import seqnav as spm, perfect_memory as pm
 import pandas as pd
 import time
 import itertools

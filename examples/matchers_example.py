@@ -1,4 +1,4 @@
-from source.utils import load_route, rotate, rmse, cor_coef, pre_process# , r_cor_coef, ridf
+from source2 import load_route, rotate, cor_coef, pre_process# , r_cor_coef, ridf
 import matplotlib.pyplot as plt
 
 _, x_inlimit, y_inlimit, world_grid_imgs, x_route, y_route, \

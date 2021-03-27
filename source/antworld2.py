@@ -1,7 +1,7 @@
 import antworld
 import cv2
 import numpy as np
-from source.utils import check_for_dir_and_create, write_route, squash_deg, pre_process, travel_dist, display_image, pol2cart
+from source.utils import check_for_dir_and_create, write_route, squash_deg, pre_process, travel_dist, pol2cart
 from source.gencoords import generate_from_points, generate_grid
 
 # Old Seville data (lower res, but loads faster)

@@ -1,12 +1,15 @@
 from source.utils import pre_process, calc_dists, load_route_naw, angular_error, check_for_dir_and_create
-from source import seqnav as spm, perfect_memory as pm
-import pandas as pd
+from source import seqnav as spm, perfect_memory as pm, benchparams
 import time
 import itertools
 import multiprocessing
-import functools
+import pandas as pd
 import numpy as np
 from source import antworld2 as aw
+import pickle
+from subprocess import Popen, PIPE
+from queue import Queue, Empty
+from threading import Thread
 
 
 def get_grid_dict(params):
@@ -110,13 +113,12 @@ def benchmark(results_path, routes_path, params, route_ids,  parallel=False):
     assert isinstance(route_ids, list)
 
     if parallel:
-        log = bench_paral(params, routes_path, route_ids)
-        log = unpack_results(log)
+        bench_paral(params, routes_path, route_ids)
+        # log = unpack_results(log)
     else:
         log = bench(params, routes_path, route_ids)
-
-    bench_results = pd.DataFrame(log)
-    bench_results.to_csv(results_path, index=False)
+        bench_results = pd.DataFrame(log)
+        bench_results.to_csv(results_path, index=False)
 
 
 def _total_jobs(params):
@@ -148,7 +150,7 @@ def unpack_results(results):
     return log
 
 
-def bench_paral(params, routes_path, route_ids=None, dist=0.2):
+def bench_paral(params, routes_path, route_ids=None):
     print(multiprocessing.cpu_count(), ' CPU cores found')
 
     grid = get_grid_dict(params)
@@ -162,94 +164,65 @@ def bench_paral(params, routes_path, route_ids=None, dist=0.2):
         no_of_chunks = multiprocessing.cpu_count() - 1
     # Generate a list of chunks of grid combinations
     chunks = get_grid_chunks(grid, no_of_chunks)
-    print('{} combinations, testing on {} routes, running on {} cores'.format(total_jobs, len(route_ids),
-                                                                              no_of_chunks))
+    print('{} combinations, testing on {} routes, running on {} cores'.format(total_jobs, len(route_ids), no_of_chunks))
+    chunks_path = 'chunks'
+    check_for_dir_and_create(chunks_path)
+    print('Saving chunks in', chunks_path)
 
-    # Partial callable
-    worker = functools.partial(worker_bench, routes_path, route_ids, dist, shared)
+    # Pickle the parameter object to use in the worker script
+    for i, chunk in enumerate(chunks):
+        params = {'chunk': chunk, 'route_ids': route_ids, 'routes_path': routes_path, 'i': i}
+        file = open('chunks/chunk{}.p'.format(i), 'wb')
+        pickle.dump(params, file)
+    print('{} chunks pickled'.format(no_of_chunks))
 
-    pool = multiprocessing.Pool()
+    processes = []
+    for i, chunk in enumerate(chunks):
+        cmd_list = ['python3', 'workerscript.py', 'chunks/chunk{}.p'.format(i)]
+        p = Popen(cmd_list, stdout=PIPE, stderr=PIPE, universal_newlines=True)
+        processes.append(p)
+    # Wait for the processes to finish.
+    for p in processes:
+        p.wait()
 
-    logs = pool.map_async(worker, chunks)
-    pool.close()
-    pool.join()
+    # TODO: The async printing of the processes ot put does not work at all
+    print_stdout_from_procs(processes)
 
-    return logs
+    # stderr = p.stderr.read()
+    # stdout = p.stdout.read()
+    # if stdout:
+    #     print(stdout)
+    # if stderr:
+    #     print(stderr)
 
 
-def worker_bench(routes_path, route_ids, dist, shared, chunk):
-    log = {'route_id': [], 'blur': [], 'edge': [], 'res': [], 'window': [],
-           'matcher': [], 'mean_error': [], 'seconds': [], 'errors': [],
-           'dist_diff': [], 'abs_index_diff': [], 'window_log': [],
-           'tx': [], 'ty': [], 'th': []}
-    agent = aw.Agent()
+def enqueue_output(out, queue):
+    for line in iter(out.readline, b''):
+        queue.put(line)
+    out.close()
 
-    #  Go though all combinations in the chunk
-    for combo in chunk:
 
-        matcher = combo['matcher']
-        window = combo['window']
-        t = combo['t']
-        r = combo['r']
-        segment_length = combo['segment_l']
-        window_log = None
-        for route_id in route_ids:  # for every route
-            route_path = routes_path + '/route' + str(route_id) + '/'
-            route = load_route_naw(route_path, route_id=route_id, imgs=True, max_dist=dist)
+def print_stdout_from_procs(processes):
+    q = Queue()
+    threads = []
+    for p in processes:
+        threads.append(Thread(target=enqueue_output, args=(p.stdout, q)))
 
-            # Preprocess images
-            route_imgs = route['imgs']
-            route_imgs = pre_process(route_imgs, combo)
-            # Run navigation algorithm
-            if window:
-                nav = spm.SequentialPerfectMemory(route_imgs, matcher, deg_range=(-180, 180), window=window)
-            else:
-                nav = pm.PerfectMemory(route_imgs, matcher, deg_range=(-180, 180))
+    for t in threads:
+        t.daemon = True
+        t.start()
 
-            if segment_length:
-                tic = time.perf_counter()
-                traj, nav = agent.segment_test(route, nav, segment_length=segment_length, t=t, r=r, sigma=None, preproc=combo)
-                toc = time.perf_counter()
-            else:
-                tic = time.perf_counter()
-                traj, nav = agent.test_nav(route, nav, t=t, r=r, sigma=None, preproc=combo)
-                toc = time.perf_counter()
+    while True:
+        try:
+            line = q.get_nowait()
+        except Empty:
+            pass
+        else:
+            print(line)
 
-            time_compl = toc - tic
-            # Get the errors and the minimum distant index of the route memory
-            errors, min_dist_index = angular_error(route, traj)
-            # Difference between matched index and minimum distance index
-            matched_index = nav.get_index_log()
-            window_log = nav.get_window_log()
-            abs_index_diffs = np.absolute(np.subtract(matched_index, min_dist_index))
-            dist_diff = calc_dists(route, min_dist_index, matched_index)
-            mean_route_error = np.mean(errors)
-            log['route_id'].extend([route_id])
-            log['blur'].extend([combo.get('blur')])
-            log['edge'].extend([combo.get('edge_range')])
-            log['res'].append(combo.get('shape'))
-            log['window'].extend([window])
-            log['matcher'].extend([matcher])
-            log['mean_error'].append(mean_route_error)
-            log['seconds'].append(time_compl)
-            log['window_log'].append(window_log)
-            log['tx'].append(traj['x'].tolist())
-            log['ty'].append(traj['y'].tolist())
-            log['th'].append(traj['heading'].tolist())
-            log['abs_index_diff'].append(abs_index_diffs.tolist())
-            log['dist_diff'].append(dist_diff.tolist())
-            log['errors'].append(errors)
+        # break when all processes are done.
+        if all(p.poll() is not None for p in processes):
+            break
 
-            # Increment the complete jobs shared variable
-            shared['jobs'] = shared['jobs'] + 1
-            print(multiprocessing.current_process(), ' jobs completed: {}/{}'.format(shared['jobs'], shared['total_jobs']))
-    return log
-
-# results_path = '../Results/newant/test.csv'
-# routes_path = '../new-antworld/exp1'
-# parameters = {'r': [0.05], 't': [10], 'segment_l':[3], 'blur': [True],
-#               'shape': [(180, 50), (90, 25)],# 'edge_range': [(180, 200)],
-#               'window': list(range(10, 12)), 'matcher': ['rmse', 'mae']}
-#
-# benchmark(results_path, routes_path, parameters, [1, 2], False)
+    print('All processes done')
 

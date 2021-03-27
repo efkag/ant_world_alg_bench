@@ -2,14 +2,12 @@ import numpy as np
 from numpy.linalg import norm
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
-import seaborn as sns
 import pandas as pd
 import cv2 as cv
 import math
 import os
 from scipy.spatial.distance import cosine, correlation, cdist, pdist
 from scipy.stats import circmean
-# sns.set(font_scale=0.8)
 
 
 def display_image(image, size=(10, 10), title='Title', save_id=None):

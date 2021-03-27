@@ -1,7 +1,6 @@
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
-from source.utils import check_for_dir_and_create
+from source2 import check_for_dir_and_create
 import seaborn as sns
 from ast import literal_eval
 sns.set_context("paper", font_scale=1)
