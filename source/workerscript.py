@@ -25,7 +25,7 @@ route_ids = params['route_ids']
 routes_path = params['routes_path']
 chunk_id = params['i']
 
-total_jobs = len(chunk)
+total_jobs = len(chunk) * len(route_ids)
 jobs = 0
 
 log = {'route_id': [], 'blur': [], 'edge': [], 'res': [], 'window': [],
@@ -89,8 +89,9 @@ for combo in chunk:
         log['abs_index_diff'].append(abs_index_diffs.tolist())
         log['dist_diff'].append(dist_diff.tolist())
         log['errors'].append(errors)
+        jobs += 1
         print('{} worker, jobs completed {}/{}'.format(chunk_id, jobs, total_jobs))
 
 df = pd.DataFrame(log)
 check_for_dir_and_create('results')
-df.to_csv('results/{}.csv')
+df.to_csv('results/{}.csv'.format(chunk_id))
