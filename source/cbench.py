@@ -108,13 +108,13 @@ def bench(params, routes_path, route_ids):
     return log
 
 
-def benchmark(results_path, routes_path, params, route_ids,  parallel=False):
+def benchmark(results_path, routes_path, params, route_ids,  parallel=False, cores=None):
 
     assert isinstance(params, dict)
     assert isinstance(route_ids, list)
 
     if parallel:
-        bench_paral(params, routes_path, route_ids)
+        bench_paral(params, routes_path, route_ids, cores)
         # log = unpack_results(log)
     else:
         log = bench(params, routes_path, route_ids)
@@ -145,16 +145,20 @@ def unpack_results(results):
     return log
 
 
-def bench_paral(params, routes_path, route_ids=None):
-    print(os.cpu_count(), ' CPU cores found')
+def bench_paral(params, routes_path, route_ids=None, cores=None):
+    existing_cores = os.cpu_count()
+    print(existing_cores, ' CPU cores found')
+    if cores and cores <= existing_cores:
+        existing_cores = cores
+
 
     grid = get_grid_dict(params)
     total_jobs = len(grid)
 
-    if total_jobs < os.cpu_count():
+    if total_jobs < existing_cores:
         no_of_chunks = total_jobs
     else:
-        no_of_chunks = os.cpu_count() - 1
+        no_of_chunks = existing_cores - 1
     # Generate a list of chunks of grid combinations
     chunks = get_grid_chunks(grid, no_of_chunks)
     print('{} combinations, testing on {} routes, running on {} cores'.format(total_jobs, len(route_ids), no_of_chunks))
@@ -175,17 +179,17 @@ def bench_paral(params, routes_path, route_ids=None):
         p = Popen(cmd_list, stdout=PIPE, stderr=PIPE, universal_newlines=True)
         processes.append(p)
 
-    print_stdout_from_procs(processes)
+    # print_stdout_from_procs(processes)
     # Wait for the processes to finish.
     for p in processes:
+        stderr = p.stderr.read()
+        stdout = p.stdout.read()
+        if stdout:
+            print(stdout, end='')
+        if stderr:
+            print(stderr, end='')
+    for p in processes:
         p.wait()
-    # for p in processes:
-    #     stderr = p.stderr.read()
-    #     stdout = p.stdout.read()
-    #     if stdout:
-    #         print(stdout, end='')
-    #     if stderr:
-    #         print(stderr, end='')
 
 
 def enqueue_output(out, queue):
