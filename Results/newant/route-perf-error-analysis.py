@@ -1,6 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-from source2 import check_for_dir_and_create
+from source.utils import check_for_dir_and_create
 import seaborn as sns
 from ast import literal_eval
 sns.set_context("paper", font_scale=1)
@@ -15,7 +15,7 @@ data['errors'] = data['errors'].apply(literal_eval)
 data['dist_diff'] = data['dist_diff'].apply(literal_eval)
 data['abs_index_diff'] = data['abs_index_diff'].apply(literal_eval)
 
-route_id = 4
+route_id = 2
 fig_save_path = fig_save_path + str(route_id)
 check_for_dir_and_create(fig_save_path)
 matcher = 'corr'
@@ -51,9 +51,10 @@ Plot for one specific matcher with one specific pre-proc
 '''
 missmatch_metric = 'dist_diff'
 # missmatch_metric = 'abs_index_diff'
+title = 'B'
 
 fig, ax = plt.subplots(figsize=figsize)
-plt.title(matcher + ', route:' + str(route_id))
+plt.title(title, loc="left")
 # Group then back to dataframe
 df = route.groupby(['window'])[missmatch_metric].apply(sum).to_frame(missmatch_metric).reset_index()
 v_data = df[missmatch_metric].tolist()
