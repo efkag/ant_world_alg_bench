@@ -22,7 +22,7 @@ class Benchmark:
         self.dist = 0.2  # Distance between grid images and route images
         self.log = {'route_id': [], 'blur': [], 'edge': [], 'res': [], 'window': [],
                     'matcher': [], 'mean_error': [], 'errors': [], 'seconds': [],
-                    'abs_index_diff': [], 'window_log': [], 'dist_diff': [],
+                    'abs_index_diff': [], 'window_log': [], 'best_sims': [], 'dist_diff': [],
                     'tx': [], 'ty': [], 'th': []}
 
     def load_routes(self, route_ids):
@@ -154,6 +154,7 @@ class Benchmark:
                 self.log['mean_error'].append(mean_route_error)
                 self.log['seconds'].append(time_compl)
                 self.log['window_log'].append(window_log)
+                self.log['best_sims'].append(nav.get_best_sims())
                 self.log['tx'].append(traj['x'].tolist())
                 self.log['ty'].append(traj['y'].tolist())
                 self.log['th'].append(traj['heading'])
@@ -199,7 +200,7 @@ class Benchmark:
 
         log = {'route_id': [], 'blur': [], 'edge': [], 'res': [], 'window': [],
                'matcher': [], 'mean_error': [], 'seconds': [], 'errors': [],
-               'abs_index_diff': [], 'window_log': [], 'dist_diff': [],
+               'abs_index_diff': [], 'window_log': [], 'best_sims': [], 'dist_diff': [],
                'tx': [], 'ty': [], 'th': []}
         #  Go though all combinations in the chunk
         for combo in chunk:
@@ -246,6 +247,7 @@ class Benchmark:
                 log['mean_error'].append(mean_route_error)
                 log['seconds'].append(time_compl)
                 log['window_log'].append(window_log)
+                log['best_sims'].append(nav.get_best_sims())
                 log['tx'].append(traj['x'].tolist())
                 log['ty'].append(traj['y'].tolist())
                 log['th'].append(traj['heading'])

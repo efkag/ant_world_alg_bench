@@ -18,6 +18,7 @@ class SequentialPerfectMemory:
         self.matched_index_log = []
         self.confidence = [1] * self.route_end
         self.window_sims = []
+        self.best_sims = []
         self.window_headings = []
         self.CMA = []
         # Matching variables
@@ -49,7 +50,6 @@ class SequentialPerfectMemory:
         self.flimit = pointer + self.window
         # self.matched_index_log.append(pointer)
 
-
     def get_heading(self, query_img):
         # TODO:Need to update this function to keep the memory pointer (best match)
         # TODO: in the middle of the window
@@ -73,6 +73,7 @@ class SequentialPerfectMemory:
         self.logs.append(wrsims)
         # find best image match and heading
         index = int(self.argminmax(wind_sims))
+        self.best_sims.append(wind_sims[index])
         heading = wind_headings[index]
         self.recovered_heading.append(heading)
         # Update memory pointer
@@ -171,8 +172,8 @@ class SequentialPerfectMemory:
             # append the rsims of all window route images for that current image
             self.logs.append(wrsims)
             index = self.argminmax(wind_sims)
+            self.best_sims.append(wind_sims[index])
             h = wind_headings[index]
-
             self.recovered_heading.append(h)
             # self.average_heading2(h)
             # self.average_headings(wind_headings)
@@ -239,6 +240,9 @@ class SequentialPerfectMemory:
 
     def get_window_sims(self):
         return self.window_sims
+
+    def get_best_sims(self):
+        return self.best_sims
 
     def get_window_headings(self):
         return self.window_headings

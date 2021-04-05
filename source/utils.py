@@ -48,8 +48,9 @@ def save_image(path, img):
     cv.imwrite(path, img)# , cmap='gray')
 
 
-def plot_route(route, traj=None, scale=70, window=None, windex=None, save=False, size=(10, 10), path=None):
+def plot_route(route, traj=None, scale=70, window=None, windex=None, save=False, size=(10, 10), path=None, title=None):
     fig, ax = plt.subplots(figsize=size)
+    ax.set_title(title,  loc="left")
     plt.tight_layout(pad=0)
     u, v = pol2cart_headings(90 - route['yaw'])
     ax.scatter(route['x'], route['y'])
@@ -62,6 +63,8 @@ def plot_route(route, traj=None, scale=70, window=None, windex=None, save=False,
             ax.scatter(route['qx'][:windex], route['qy'][:windex])
         else:
             ax.scatter(traj['x'][:windex], traj['y'][:windex])
+            u, v = pol2cart_headings(90 - traj['heading'])
+            ax.quiver(traj['x'][:windex], traj['y'][:windex], u[:windex], v[:windex], scale=scale)
     # Plot grid test points
     if 'qx' in route and window is None:
         ax.scatter(route['qx'], route['qy'])
@@ -71,7 +74,6 @@ def plot_route(route, traj=None, scale=70, window=None, windex=None, save=False,
         ax.scatter(traj['x'], traj['y'])
         # ax.plot(traj['x'], traj['y'])
         ax.quiver(traj['x'], traj['y'], u, v, scale=scale)
-
     if save and windex:
         fig.savefig(path + '/' + str(windex) + '.png')
         plt.close(fig)
@@ -82,12 +84,12 @@ def plot_route(route, traj=None, scale=70, window=None, windex=None, save=False,
     plt.close(fig)
 
 
-def animated_window(route, window, traj=None, path=None, scale=70, save=False, size=(10, 10)):
+def animated_window(route, window, traj=None, path=None, scale=70, save=False, size=(10, 10), title=None):
     check_for_dir_and_create(path)
     if path:
         save = True
     for i, w in enumerate(window):
-        plot_route(route, traj=traj, window=w, windex=i, save=save, scale=scale, size=size, path=path)
+        plot_route(route, traj=traj, window=w, windex=i, save=save, scale=scale, size=size, path=path, title=title)
 
 
 def plot_map(world, route_cords=None, grid_cords=None, size=(10, 10), save=False, zoom=(), zoom_factor=1500,

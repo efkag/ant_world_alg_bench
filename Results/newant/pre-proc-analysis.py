@@ -12,15 +12,15 @@ def to_array(x):
 
 
 fig_save_path = '/home/efkag/Desktop/pre-proc'
-# data = pd.read_csv('combined-results.csv')
-data = pd.read_csv('exp4.csv')
+data = pd.read_csv('combined-results2.csv')
+# data = pd.read_csv('exp4.csv')
 # Convert list of strings to actual list of lists
 data['errors'] = data['errors'].apply(literal_eval)
 data['dist_diff'] = data['dist_diff'].apply(literal_eval)
 
 
-matcher = 'corr'
-edge = '(220, 240)'  # 'False'
+matcher = 'mae'
+edge = 'False'  # 'False'
 figsize = (4, 3)
 resolutions = ['(360, 100)', '(180, 50)', '(90, 25)']
 data = data.loc[(data['matcher'] == matcher)

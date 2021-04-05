@@ -1,6 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-from source2 import check_for_dir_and_create
+from source.utils import check_for_dir_and_create
 import seaborn as sns
 from ast import literal_eval
 sns.set_context("paper", font_scale=1)
@@ -8,8 +8,8 @@ sns.set_context("paper", font_scale=1)
 
 
 fig_save_path = '/home/efkag/Desktop/perf'
-# data = pd.read_csv('combined-results.csv')
-data = pd.read_csv('exp4.csv')
+data = pd.read_csv('combined-results2.csv')
+# data = pd.read_csv('exp4.csv')
 # Convert list of strings to actual list of lists
 data['errors'] = data['errors'].apply(literal_eval)
 data['dist_diff'] = data['dist_diff'].apply(literal_eval)
@@ -21,7 +21,7 @@ matcher = 'corr'
 edge = '(220, 240)'  # 'False'
 blur = False
 figsize = (4, 3)
-res = '(180, 50)'
+res = '(90, 25)'
 route = data.loc[(data['matcher'] == matcher) & (data['edge'] == edge) &
                  (data['res'] == res) & (data['blur'] == blur)]
 window_labels = ['Adaptive (20)', 'PM', 'w=15', 'w=20', 'w=25', 'w=30']
