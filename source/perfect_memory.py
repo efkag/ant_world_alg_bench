@@ -78,3 +78,6 @@ class PerfectMemory:
 
     def reset_window(self, pointer):
         pass
+
+    def get_best_sims(self):
+        return None
