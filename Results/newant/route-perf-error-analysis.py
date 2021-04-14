@@ -15,7 +15,8 @@ data['errors'] = data['errors'].apply(literal_eval)
 data['dist_diff'] = data['dist_diff'].apply(literal_eval)
 data['abs_index_diff'] = data['abs_index_diff'].apply(literal_eval)
 
-route_id = 2
+title = 'B'
+route_id = 5
 fig_save_path = fig_save_path + str(route_id)
 check_for_dir_and_create(fig_save_path)
 matcher = 'corr'
@@ -30,7 +31,7 @@ window_labels = ['Adaptive (20)', 'PM', 'w=15', 'w=20', 'w=25', 'w=30']
 Plot for one specific matcher with one specific pre-proc
 '''
 fig, ax = plt.subplots(figsize=figsize)
-plt.title(matcher + ', route:' + str(route_id))
+plt.title(title, loc="left")
 # Group then back to dataframe
 df = route.groupby(['window'])['errors'].apply(sum).to_frame('errors').reset_index()
 v_data = df['errors'].tolist()
@@ -51,7 +52,6 @@ Plot for one specific matcher with one specific pre-proc
 '''
 missmatch_metric = 'dist_diff'
 # missmatch_metric = 'abs_index_diff'
-title = 'B'
 
 fig, ax = plt.subplots(figsize=figsize)
 plt.title(title, loc="left")
