@@ -117,7 +117,6 @@ class Agent:
             xy, img = self.update_position(xy, h, r)
             img = pre_process(img, preproc)
 
-
         headings = np.array(headings)
         trajectory = {'x': traj[0], 'y': traj[1], 'heading': headings}
         return trajectory, nav

@@ -97,7 +97,7 @@ def bench(params, routes_path, route_ids):
             log['window_log'].append(window_log)
             log['tx'].append(traj['x'].tolist())
             log['ty'].append(traj['y'].tolist())
-            log['th'].append(traj['heading'])
+            log['th'].append(traj['heading'].tolist())
             log['abs_index_diff'].append(abs_index_diffs.tolist())
             log['dist_diff'].append(dist_diff.tolist())
             log['errors'].append(errors)

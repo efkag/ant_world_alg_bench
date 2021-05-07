@@ -18,11 +18,11 @@ def main():
     results_path = '../Results/newant/test.csv'
     routes_path = '../new-antworld/exp1'
     parameters = {'r': [0.05], 't': [10], 'segment_l': [3], 'blur': [True],
-                  'shape': [(180, 50), (90, 25)], 'edge_range': [False],
-                  'window': list(range(10, 12)), 'matcher': ['mae', 'corr']}
+                  'shape': [(90, 25)], 'edge_range': [False],
+                  'window': [30, -20], 'matcher': ['mae']}
 
-    routes = [1, 2]
-    cbench.benchmark(results_path, routes_path, parameters, routes, parallel=True)
+    routes = [4, 5, 6]
+    cbench.benchmark(results_path, routes_path, parameters, routes, parallel=False)
 
 
 if __name__ == "__main__":
