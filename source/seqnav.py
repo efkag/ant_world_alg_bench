@@ -45,10 +45,7 @@ class SequentialPerfectMemory:
         self.deg_diff = 5
 
     def reset_window(self, pointer):
-        self.mem_pointer = pointer
-        self.blimit = pointer
-        self.flimit = pointer + self.window
-        # self.matched_index_log.append(pointer)
+        self.update_pointer(pointer)
 
     def get_heading(self, query_img):
         # TODO:Need to update this function to keep the memory pointer (best match)
@@ -77,14 +74,7 @@ class SequentialPerfectMemory:
         heading = wind_headings[index]
         self.recovered_heading.append(heading)
         # Update memory pointer
-        self.mem_pointer += index
-        if self.mem_pointer + self.window > self.route_end:
-            self.mem_pointer = self.blimit + index
-            self.flimit = self.route_end
-            self.blimit = self.route_end - self.window
-        else:
-            self.blimit = self.mem_pointer
-            self.flimit = self.mem_pointer + self.window
+        self.update_pointer(index)
 
         self.matched_index_log.append(self.mem_pointer)
         # self.window_log.append([self.blimit, self.flimit])
@@ -94,6 +84,16 @@ class SequentialPerfectMemory:
             self.dynamic_window_sim(best)
 
         return heading
+
+    def update_pointer(self, index):
+        self.mem_pointer += index
+        if self.mem_pointer + self.window > self.route_end:
+            self.mem_pointer = self.blimit + index
+            self.flimit = self.route_end
+            self.blimit = self.route_end - self.window
+        else:
+            self.blimit = self.mem_pointer
+            self.flimit = self.mem_pointer + self.window
 
     def get_agreement(self, window_headings):
         a = np.full(len(window_headings), 1)

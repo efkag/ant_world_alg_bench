@@ -16,12 +16,12 @@ data['dist_diff'] = data['dist_diff'].apply(literal_eval)
 data['abs_index_diff'] = data['abs_index_diff'].apply(literal_eval)
 
 title = 'B'
-route_id = 5
+route_id = 2
 fig_save_path = fig_save_path + str(route_id)
 check_for_dir_and_create(fig_save_path)
 matcher = 'corr'
 edge = '(220, 240)'  # 'False'
-figsize = (4, 3)
+figsize = (4, 2)
 res = '(180, 50)'
 route = data.loc[(data['matcher'] == matcher) & (data['route_id'] == route_id)
                  & (data['edge'] == edge) & (data['res'] == res)]
@@ -62,7 +62,7 @@ v_data = df[missmatch_metric].tolist()
 sns.violinplot(data=v_data, cut=0, ax=ax)
 # labels = df['window'].tolist()
 ax.set_xticklabels(window_labels)
-ax.set_ylabel(missmatch_metric)
+ax.set_ylabel('Euclidean distance (m)')
 ax.set_xlabel('Window size')
 plt.tight_layout(pad=0)
 fig.savefig(fig_save_path + '/{}.{}.route{}.png'.format(missmatch_metric, matcher, route_id))
