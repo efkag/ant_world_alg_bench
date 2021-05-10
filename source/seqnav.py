@@ -82,7 +82,7 @@ class SequentialPerfectMemory:
         if self.adaptive:
             best = wind_sims[index]
             self.dynamic_window_sim(best)
-
+            self.check_w_size()
         return heading
 
     def update_pointer(self, index):
@@ -94,6 +94,9 @@ class SequentialPerfectMemory:
         else:
             self.blimit = self.mem_pointer
             self.flimit = self.mem_pointer + self.window
+
+    def check_w_size(self):
+        self.window = self.route_end if self.window > self.route_end else self.window
 
     def get_agreement(self, window_headings):
         a = np.full(len(window_headings), 1)
