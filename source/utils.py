@@ -48,7 +48,7 @@ def save_image(path, img):
     cv.imwrite(path, img)# , cmap='gray')
 
 
-def plot_route(route, traj=None, scale=70, window=None, windex=None, save=False, size=(10, 10), path=None, title=None):
+def plot_route(route, traj=None, scale=None, window=None, windex=None, save=False, size=(10, 10), path=None, title=None):
     fig, ax = plt.subplots(figsize=size)
     ax.set_title(title,  loc="left")
     plt.tight_layout(pad=0)

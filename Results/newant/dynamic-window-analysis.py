@@ -24,16 +24,16 @@ data['th'] = data['th'].apply(literal_eval)
 
 
 # Plot a specific route
-title = 'A'
+title = 'B'
 route_id = 4
 fig_save_path = fig_save_path + '/route{}'.format(route_id)
 check_for_dir_and_create(fig_save_path)
 path = '../../new-antworld/exp1/route' + str(route_id) + '/'
-window = 15
+window = -20
 matcher = 'corr'
 edge = '(220, 240)'
 res = '(180, 50)'
-figsize = (5, 3)
+figsize = (5, 2)
 
 traj = data.loc[(data['matcher'] == matcher) & (data['res'] == res) & (data['edge'] == edge) &
                 (data['window'] == window) & (data['route_id'] == route_id)]
@@ -49,14 +49,16 @@ w_size = np.diff(traj['window_log'], axis=1)
 fig, ax1 = plt.subplots(figsize=figsize)
 plt.title(title, loc="left")
 ax1.plot(range(len(traj['abs_index_diff'])), traj['abs_index_diff'], label='index missmatch')
+ax1.set_ylim([0, 260])
 ax1.plot(range(len(w_size)), w_size, label='window size')
 ax1.set_ylabel('route index scale')
 
 ax2 = ax1.twinx()
 ax2.plot(range(len(traj['best_sims'])), traj['best_sims'], label='best sim', color='g')
-ax2.set_ylabel('image diff')
+ax2.set_ylim([0.3, 1.0])
+ax2.set_ylabel('cc image distance')
 ax1.legend(loc=2)
-ax2.legend(loc=1)
+ax2.legend(loc=0)
 
 fig_save_path = fig_save_path + '/route{}.w{}.m{}.res{}.edge{}.png'\
     .format(route_id, window, matcher, res, edge)
