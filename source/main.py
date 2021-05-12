@@ -21,8 +21,8 @@ def main():
                   'shape': [(90, 25)], 'edge_range': [False],
                   'window': [25, 20], 'matcher': ['mae']}
 
-    routes = [4, 5, 6]
-    cbench.benchmark(results_path, routes_path, parameters, routes, parallel=False)
+    routes = [4, 5]
+    cbench.benchmark(results_path, routes_path, parameters, routes, parallel=True)
 
 
 if __name__ == "__main__":

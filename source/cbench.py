@@ -176,18 +176,9 @@ def bench_paral(params, routes_path, route_ids=None, cores=None):
     processes = []
     for i, chunk in enumerate(chunks):
         cmd_list = ['python3', 'workerscript.py', 'chunks/chunk{}.p'.format(i)]
-        p = Popen(cmd_list, stdout=PIPE, stderr=PIPE, universal_newlines=True)
+        p = Popen(cmd_list)
         processes.append(p)
 
-    # print_stdout_from_procs(processes)
-    # Wait for the processes to finish.
-    for p in processes:
-        stderr = p.stderr.read()
-        stdout = p.stdout.read()
-        if stdout:
-            print(stdout, end='')
-        if stderr:
-            print(stderr, end='')
     for p in processes:
         p.wait()
 

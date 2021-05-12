@@ -1,5 +1,5 @@
-from source2 import load_route_naw, plot_route, angular_error, animated_window, pre_process
-from source2 import seqnav
+from source.utils import load_route_naw, plot_route, angular_error, animated_window, pre_process
+from source import seqnav
 import numpy as np
 
 route_id = 3
