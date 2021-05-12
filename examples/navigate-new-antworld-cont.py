@@ -1,4 +1,4 @@
-from source.utils import load_route_naw, plot_route, pre_process, angular_error
+from source.utils import load_route_naw, plot_route, pre_process, seq_angular_error
 from source import seqnav
 from source import antworld2 as aw
 
@@ -23,6 +23,6 @@ traj, nav = agent.test_nav(route, nav, t=20, r=0.05, sigma=None, preproc=pre_pro
 
 plot_route(route, traj)
 
-errors, _ = angular_error(route, traj)
+errors, _ = seq_angular_error(route, traj)
 mean_error = sum(errors)/len(errors)
 print('mean error:', mean_error)

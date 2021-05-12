@@ -39,7 +39,7 @@ class SequentialPerfectMemory:
         self.blimit = 0
         self.flimit = self.window
 
-        # Adaptive window variables
+        # Adaptive window parameters
         self.min_window = 10
         self.window_margin = 5
         self.deg_diff = 5
@@ -190,7 +190,7 @@ class SequentialPerfectMemory:
     def dynamic_window_h2(self, h):
         '''
         Change the window size depending on the best heading gradient.
-        If the difference between the last heading and the current heading is > self.deg.diff
+        If the difference between the last heading and the current heading is > self.deg_diff
         then the window grows and vice versa
         :param h:
         :return:

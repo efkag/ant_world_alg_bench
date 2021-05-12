@@ -1,5 +1,5 @@
-from source2 import pre_process, load_route_naw, angular_error, check_for_dir_and_create, calc_dists
-from source2 import seqnav as spm, perfect_memory as pm
+from source.utils import pre_process, load_route_naw, seq_angular_error, check_for_dir_and_create, calc_dists
+from source import seqnav as spm, perfect_memory as pm
 import pandas as pd
 import time
 import itertools
@@ -139,7 +139,7 @@ class Benchmark:
                 # Get the errors and the minimum distant index of the route memory
                 # errors, min_dist_index = degree_error(test_x, test_y, route_x, route_y, route_heading, recovered_heading)
                 traj = {'x': route['qx'], 'y': route['qy'], 'heading': recovered_heading}
-                errors, min_dist_index = angular_error(route, traj)
+                errors, min_dist_index = seq_angular_error(route, traj)
                 # Difference between matched index and minimum distance index and distance between points
                 matched_index = nav.get_index_log()
                 abs_index_diffs = np.absolute(np.subtract(nav.get_index_log(), min_dist_index))
@@ -232,7 +232,7 @@ class Benchmark:
                 time_compl = toc - tic
                 # Get the errors and the minimum distant index of the route memory
                 traj = {'x': route['qx'], 'y': route['qy'], 'heading': recovered_heading}
-                errors, min_dist_index = angular_error(route, traj)
+                errors, min_dist_index = seq_angular_error(route, traj)
                 # Difference between matched index and minimum distance index
                 matched_index = nav.get_index_log()
                 abs_index_diffs = np.absolute(np.subtract(matched_index, min_dist_index))

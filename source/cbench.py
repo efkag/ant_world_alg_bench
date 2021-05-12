@@ -1,5 +1,5 @@
-from source.utils import pre_process, calc_dists, load_route_naw, angular_error, check_for_dir_and_create
-from source import seqnav as spm, perfect_memory as pm, benchparams
+from source.utils import pre_process, calc_dists, load_route_naw, seq_angular_error, check_for_dir_and_create
+from source import seqnav as spm, perfect_memory as pm
 import time
 import itertools
 import os
@@ -7,7 +7,7 @@ import pandas as pd
 import numpy as np
 from source import antworld2 as aw
 import pickle
-from subprocess import Popen, PIPE
+from subprocess import Popen
 from queue import Queue, Empty
 from threading import Thread
 import sys
@@ -79,7 +79,7 @@ def bench(params, routes_path, route_ids):
 
             time_compl = toc - tic
             # Get the errors and the minimum distant index of the route memory
-            errors, min_dist_index = angular_error(route, traj)
+            errors, min_dist_index = seq_angular_error(route, traj)
             # Difference between matched index and minimum distance index
             matched_index = nav.get_index_log()
             window_log = nav.get_window_log()
