@@ -7,8 +7,9 @@ sns.set_context("paper", font_scale=1)
 
 
 
-fig_save_path = '/home/efkag/Desktop/perf'
-data = pd.read_csv('combined-results2.csv')
+# fig_save_path = '/home/efkag/Desktop/perf'
+fig_save_path = '/home/efkag/Desktop/cont/perf'
+data = pd.read_csv('combined-results-cont.csv')
 # data = pd.read_csv('exp4.csv')
 # Convert list of strings to actual list of lists
 data['errors'] = data['errors'].apply(literal_eval)

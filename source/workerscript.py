@@ -94,4 +94,4 @@ for combo in chunk:
 
 df = pd.DataFrame(log)
 check_for_dir_and_create('results')
-df.to_csv('results/{}.csv'.format(chunk_id))
+df.to_csv('results/{}.csv'.format(chunk_id), index=False)
