@@ -1,5 +1,5 @@
-from source2 import load_route_naw, plot_route, angular_error, animated_window, pre_process
-from source2 import seqnav
+from source.utils import load_route_naw, plot_route, seq_angular_error, animated_window, pre_process
+from source import seqnav
 import numpy as np
 
 route_id = 3
@@ -24,7 +24,7 @@ traj = {'x': route['qx'], 'y': route['qy'], 'heading': recovered_heading}
 traj['heading'] = np.array(traj['heading'])
 plot_route(route, traj)
 
-errors, _ = angular_error(route, traj)
+errors, _ = seq_angular_error(route, traj)
 print(np.mean(errors))
 
 window_log = np.array(window_log)

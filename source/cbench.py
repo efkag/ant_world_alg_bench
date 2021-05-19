@@ -1,5 +1,5 @@
-from source.utils import pre_process, calc_dists, load_route_naw, angular_error, check_for_dir_and_create
-from source import seqnav as spm, perfect_memory as pm, benchparams
+from source.utils import pre_process, calc_dists, load_route_naw, seq_angular_error, check_for_dir_and_create
+from source import seqnav as spm, perfect_memory as pm
 import time
 import itertools
 import os
@@ -7,7 +7,7 @@ import pandas as pd
 import numpy as np
 from source import antworld2 as aw
 import pickle
-from subprocess import Popen, PIPE
+from subprocess import Popen
 from queue import Queue, Empty
 from threading import Thread
 import sys
@@ -79,7 +79,7 @@ def bench(params, routes_path, route_ids):
 
             time_compl = toc - tic
             # Get the errors and the minimum distant index of the route memory
-            errors, min_dist_index = angular_error(route, traj)
+            errors, min_dist_index = seq_angular_error(route, traj)
             # Difference between matched index and minimum distance index
             matched_index = nav.get_index_log()
             window_log = nav.get_window_log()
@@ -176,18 +176,9 @@ def bench_paral(params, routes_path, route_ids=None, cores=None):
     processes = []
     for i, chunk in enumerate(chunks):
         cmd_list = ['python3', 'workerscript.py', 'chunks/chunk{}.p'.format(i)]
-        p = Popen(cmd_list, stdout=PIPE, stderr=PIPE, universal_newlines=True)
+        p = Popen(cmd_list)
         processes.append(p)
 
-    # print_stdout_from_procs(processes)
-    # Wait for the processes to finish.
-    for p in processes:
-        stderr = p.stderr.read()
-        stdout = p.stdout.read()
-        if stdout:
-            print(stdout, end='')
-        if stderr:
-            print(stderr, end='')
     for p in processes:
         p.wait()
 

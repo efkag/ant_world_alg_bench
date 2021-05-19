@@ -39,17 +39,23 @@ class SequentialPerfectMemory:
         self.blimit = 0
         self.flimit = self.window
 
-        # Adaptive window variables
+        # Adaptive window parameters
         self.min_window = 10
         self.window_margin = 5
         self.deg_diff = 5
+        self.upper = int(round(window/2))
+        self.lower = window - self.upper
+        self.agreement_thresh = 0.9
 
     def reset_window(self, pointer):
         self.update_pointer(pointer)
 
     def get_heading(self, query_img):
-        # TODO:Need to update this function to keep the memory pointer (best match)
-        # TODO: in the middle of the window
+        '''
+        Recover the heading given a query image
+        :param query_img:
+        :return:
+        '''
         # get the rotational similarities between a query image and a window of route images
         wrsims = rmf(query_img, self.route_images[self.blimit:self.flimit], self.matcher, self.deg_range, self.deg_step)
         self.window_log.append([self.blimit, self.flimit])
@@ -77,7 +83,6 @@ class SequentialPerfectMemory:
         self.update_pointer(index)
 
         self.matched_index_log.append(self.mem_pointer)
-        # self.window_log.append([self.blimit, self.flimit])
 
         if self.adaptive:
             best = wind_sims[index]
@@ -86,12 +91,39 @@ class SequentialPerfectMemory:
         return heading
 
     def update_pointer(self, index):
+        '''
+        Update the mem pointer to the back of the window
+        mem_pointer = blimit
+        :param index:
+        :return:
+        '''
         self.mem_pointer += index
         if self.mem_pointer + self.window > self.route_end:
             self.mem_pointer = self.blimit + index
             self.flimit = self.route_end
             self.blimit = self.route_end - self.window
         else:
+            self.blimit = self.mem_pointer
+            self.flimit = self.mem_pointer + self.window
+
+    def update_mid_pointer(self, index):
+        '''
+        Update the mem pointer to the middle of the window
+        :param index:
+        :return:
+        '''
+        # Update memory pointer
+        change = index - self.upper
+        self.mem_pointer += change
+        self.matched_index_log.append(self.mem_pointer)
+
+        # Update the bounds of the window
+        self.flimit = self.mem_pointer + self.upper
+        self.blimit = self.mem_pointer - self.lower
+        if self.flimit > self.route_end:
+            self.flimit = self.route_end
+            self.blimit = self.route_end - self.window
+        if self.blimit <= 0:
             self.blimit = self.mem_pointer
             self.flimit = self.mem_pointer + self.window
 
@@ -103,7 +135,15 @@ class SequentialPerfectMemory:
         return cos_sim(a, window_headings)
 
     def consensus_heading(self, wind_headings, h):
-        if self.get_agreement(wind_headings) >= 0.85:
+        '''
+        Calculates the agreement of the window headings.
+        If the agreement is above the threshold the best heading is used
+        otherwise the last heading is used.
+        :param wind_headings:
+        :param h:
+        :return:
+        '''
+        if self.get_agreement(wind_headings) >= self.agreement_thresh:
             self.recovered_heading.append(h)
         elif len(self.recovered_heading) > 0:
             self.recovered_heading.append(self.recovered_heading[-1])
@@ -111,15 +151,32 @@ class SequentialPerfectMemory:
             self.recovered_heading.append(h)
 
     def average_heading2(self, h):
+        '''
+        Calculates the average of the last window heading and the current window heading
+        :param h:
+        :return:
+        '''
         if len(self.recovered_heading) > 0:
             self.recovered_heading.append(mean_angle([h, self.recovered_heading[-1]]))
         else:
             self.recovered_heading.append(h)
 
     def average_headings(self, wind_heading):
+        '''
+        Calculates the average of all window headings
+        :param wind_heading:
+        :return:
+        '''
         self.recovered_heading.append(mean_angle(wind_heading))
 
     def dynamic_window_sim(self, best):
+        '''
+        Change the window size depending on the best img match gradient.
+        If the last best img sim > the current best img sim the window grows
+        and vice versa
+        :param best:
+        :return:
+        '''
         # Dynamic window adaptation based on match gradient.
         if best > self.prev_match or self.window <= self.min_window:
             self.window += self.window_margin
@@ -131,6 +188,13 @@ class SequentialPerfectMemory:
         # return upper, lower
 
     def dynamic_window_h2(self, h):
+        '''
+        Change the window size depending on the best heading gradient.
+        If the difference between the last heading and the current heading is > self.deg_diff
+        then the window grows and vice versa
+        :param h:
+        :return:
+        '''
         diff = abs(h - self.recovered_heading[-1])
         if diff > self.deg_diff or self.window <= self.min_window:
             self.window += self.window_margin
@@ -138,7 +202,12 @@ class SequentialPerfectMemory:
             self.window -= self.window_margin
 
     def dynamic_window_h(self, wind_headings):
-        if self.get_agreement(wind_headings) <= 0.9 or self.window <= self.min_window:
+        '''
+        The window grows if the window headings disagree and vice versa
+        :param wind_headings:
+        :return:
+        '''
+        if self.get_agreement(wind_headings) <= self.agreement_thresh or self.window <= self.min_window:
             self.window += self.window_margin
         else:
             self.window -= self.window_margin
@@ -194,23 +263,6 @@ class SequentialPerfectMemory:
             self.matched_index_log.append(mem_pointer)
             # self.window_log.append([blimit, flimit])
 
-
-            # Update memory pointer
-            # change = index - upper
-            # mem_pointer += change
-            # self.matched_index_log.append(mem_pointer)
-            #
-            # # Update the bounds of the window
-            # flimit = mem_pointer + upper
-            # blimit = mem_pointer - lower
-            # if flimit > self.route_end:
-            #     flimit = self.route_end
-            #     mem_pointer = self.route_end - upper
-            # if blimit <= 0:
-            #     blimit = mem_pointer
-            #     flimit = mem_pointer + self.window
-            #     mem_pointer = mem_pointer + upper
-            # self.window_log.append([blimit, flimit])
 
             # Change the pointer and bounds for an adaptive window.
             if self.adaptive:

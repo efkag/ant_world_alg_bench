@@ -644,7 +644,7 @@ def degree_error(x_cords, y_cords, x_route_cords, y_route_cords, route_heading, 
     return errors, k
 
 
-def angular_error(route, trajectory):
+def seq_angular_error(route, trajectory):
     # TODO: Modify the function to calculate all the distances first (distance matrix)
     # TODO: and then calculate the minimum argument and extract the error.
     # Holds the angular error between the query position and the closest route position
@@ -673,6 +673,30 @@ def angular_error(route, trajectory):
         limit = memory_pointer + search_step
         if limit > route_end: limit = route_end
     return errors, mindist_index
+
+
+def angular_error(route, trajectory):
+    # Holds the angular error between the query position and the closest route position
+    errors = []
+    mindist_index = []
+    grid_xy = np.column_stack([trajectory['x'], trajectory['y']])
+    route_xy = np.column_stack([route['x'], route['y']])
+    recovered_headings = trajectory['heading']
+    route_heading = route['yaw']
+
+    # For every query position
+    for i in range(len(trajectory['heading'])):
+        # get distance between route point and all grid points
+        dist = np.squeeze(cdist(np.expand_dims(grid_xy[i], axis=0), route_xy, 'euclidean'))
+        idx = np.argmin(dist)
+        mindist_index.append(idx)
+        errors.append(180 - abs(abs(recovered_headings[i] - route_heading[mindist_index[-1]]) - 180))
+    return errors, mindist_index
+
+
+def mean_seq_angular_error(route, trajectory):
+    errors, _ = seq_angular_error(route, trajectory)
+    return np.mean(errors)
 
 
 def mean_angular_error(route, trajectory):

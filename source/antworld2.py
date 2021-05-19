@@ -10,12 +10,8 @@ worldpath = antworld.bob_robotics_path + "/resources/antworld/world5000_gray.bin
 
 # New Seville data
 worldpath = antworld.bob_robotics_path + "/resources/antworld/seville_vegetation_downsampled.obj"
-print(antworld.bob_robotics_path)
+# print(antworld.bob_robotics_path)
 z = 1.5 # m (for some reason the ground is at ~1.5m for this world)
-
-# agent = antworld.Agent(720, 150)
-# (xlim, ylim, zlim) = agent.load_world(worldpath)
-# print(xlim, ylim, zlim)
 
 
 class Agent:

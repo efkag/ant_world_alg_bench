@@ -7,7 +7,7 @@ sns.set_context("paper", font_scale=1)
 
 
 fig_save_path = '/home/efkag/Desktop/route'
-data = pd.read_csv('combined-results2.csv')
+data = pd.read_csv('combined-results-cont.csv')
 # data = pd.read_csv('exp4.csv')
 # Convert list of strings to actual list of lists
 data['errors'] = data['errors'].apply(literal_eval)
@@ -19,16 +19,16 @@ data['th'] = data['th'].apply(literal_eval)
 
 
 # Plot a specific route
-route_id = 5
+route_id = 3
 fig_save_path = fig_save_path + str(route_id)
 check_for_dir_and_create(fig_save_path)
 path = '../../new-antworld/exp1/route' + str(route_id) + '/'
-window = 20
+window = 25
 matcher = 'corr'
 edge = '(220, 240)'
 res = '(180, 50)'
 threshold = 20
-figsize = (3, 3)
+figsize = (10, 10)
 title = 'D'
 
 traj = data.loc[(data['matcher'] == matcher) & (data['res'] == res) & (data['edge'] == edge) &
@@ -47,8 +47,8 @@ thres['y'] = traj['y'][index]
 thres['heading'] = traj['heading'][index]
 fig_save_path = fig_save_path + '/route{}.w{}.m{}.res{}.edge{}.thres{}.png'\
     .format(route_id, window, matcher, res, edge, threshold)
-plot_route(route, thres, size=figsize, save=True, path=fig_save_path, title=title)
+plot_route(route, thres, size=figsize, save=False, path=fig_save_path, title=title)
 
-if window:
-    path = '/home/efkag/Desktop/route' + str(route_id) + '/window-plots/'
-    animated_window(route, w_log, traj=traj, path=path, size=figsize, title='D')
+# if window:
+#     path = '/home/efkag/Desktop/route' + str(route_id) + '/window-plots/'
+#     animated_window(route, w_log, traj=traj, path=path, size=figsize, title='D')
