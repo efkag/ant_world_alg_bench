@@ -118,7 +118,7 @@ class Agent:
         return trajectory, nav
 
     def segment_test(self, route, nav, segment_length=3, **kwargs):
-        dist = travel_dist(route)
+        dist = travel_dist(route['x'], route['y'])
         no_of_segments = int(round(dist/segment_length))
 
         xs = np.array_split(route['x'], no_of_segments)

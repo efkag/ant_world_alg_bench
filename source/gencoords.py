@@ -152,7 +152,7 @@ def generate(xy, save_path, curve_points=250, plot=True):
     route['roll'] = np.zeros(curve_points)
 
     print('mean curvature:', meancurv2d(x_route, y_route))
-    print('traveled distance', travel_dist(route))
+    print('traveled distance', travel_dist(route['x'], route['y']))
     if plot:
         u, v = pol2cart_headings(90 - heading)
         plt.scatter(x_route, y_route)

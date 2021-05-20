@@ -15,6 +15,8 @@ class Route:
         self.proc_qimgs= []
         self.route_id = str(route_id)
         self.route_dict = self.load_route()
+        self.points_on_route = len(self.route_dict['x'])
+        self.segment_indices = None
 
     def load_route(self):
         route_data = pd.read_csv(self.path + 'route' + self.route_id + '.csv', index_col=False)
@@ -72,3 +74,23 @@ class Route:
             self.proc_qimgs = pre_process(self.route_dict['qimgs'], params)
         self.proc_imgs = pre_process(self.route_dict['imgs'], params)
         return self.proc_imgs
+
+    def segment_route(self, segment_size_m):
+        dist = travel_dist(self.route_dict['x'], self.route_dict['y'])
+        no_of_segments = int(round(dist / segment_size_m))
+
+        # xs = np.array_split(self.route_dict['x'], no_of_segments)
+        # ys = np.array_split(self.route_dict['y'], no_of_segments)
+        # hs = np.array_split(self.route_dict['yaw'], no_of_segments)
+        # subroute = {}
+
+        # segment size in indices
+        index_segment_size = int(self.points_on_route / no_of_segments)
+
+        # get starting indices for each segment
+        indices = [0]
+        for i in range(1, no_of_segments-1):
+            indices.append(indices[-1] + index_segment_size)
+        self.segment_indices = indices
+        return indices
+
