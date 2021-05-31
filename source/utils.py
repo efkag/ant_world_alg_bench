@@ -171,7 +171,7 @@ def load_route_naw(path, route_id=1, imgs=False, query=False, max_dist=0.5, grid
         # TODO: Need to edit the function so that is receive the parent path of the route directory
         grid_path = os.path.dirname(path)
         grid_path = os.path.dirname(grid_path)
-        grid_path = os.path.dirname(grid_path) + '/grid70/'
+        grid_path = os.path.dirname(grid_path) + '/grid70'
     route_data = pd.read_csv(path + 'route' + str(route_id) + '.csv', index_col=False)
     route_data = route_data.to_dict('list')
     # convert the lists to numpy arrays
@@ -213,7 +213,7 @@ def load_route_naw(path, route_id=1, imgs=False, query=False, max_dist=0.5, grid
             for i in indexes:
                 qx.append(grid_xy[i, 0])
                 qy.append(grid_xy[i, 1])
-                imgfile = grid_path + grid['filename'][i]
+                imgfile = os.path.join(self.grid_path, grid['filename'][i])
                 qimg.append(cv.imread(imgfile, cv.IMREAD_GRAYSCALE))
 
         route_data['qx'] = np.array(qx)

@@ -2,8 +2,8 @@ import numpy as np
 import cv2 as cv
 import pandas as pd
 from scipy.spatial.distance import cdist
-from source.utils import calc_dists, travel_dist, pre_process
-
+from source.utils import calc_dists, travel_dist, pre_process, angular_error, seq_angular_error
+import os
 
 class Route:
     def __init__(self, path, route_id, read_imgs=True, grid_path=None, max_dist=0.2):
@@ -16,7 +16,9 @@ class Route:
         self.route_id = str(route_id)
         self.route_dict = self.load_route()
         self.points_on_route = len(self.route_dict['x'])
+        self.is_segmented = False
         self.segment_indices = None
+        self.no_of_segments = None
 
     def load_route(self):
         route_data = pd.read_csv(self.path + 'route' + self.route_id + '.csv', index_col=False)
@@ -60,7 +62,7 @@ class Route:
                 for i in indexes:
                     qx.append(grid_xy[i, 0])
                     qy.append(grid_xy[i, 1])
-                    imgfile = self.grid_path + grid['filename'][i]
+                    imgfile = os.path.join(self.grid_path, grid['filename'][i])
                     qimg.append(cv.imread(imgfile, cv.IMREAD_GRAYSCALE))
 
             route_data['qx'] = np.array(qx)
@@ -76,8 +78,9 @@ class Route:
         return self.proc_imgs
 
     def segment_route(self, segment_size_m):
+        self.is_segmented = True
         dist = travel_dist(self.route_dict['x'], self.route_dict['y'])
-        no_of_segments = int(round(dist / segment_size_m))
+        self.no_of_segments = int(round(dist / segment_size_m))
 
         # xs = np.array_split(self.route_dict['x'], no_of_segments)
         # ys = np.array_split(self.route_dict['y'], no_of_segments)
@@ -85,12 +88,34 @@ class Route:
         # subroute = {}
 
         # segment size in indices
-        index_segment_size = int(self.points_on_route / no_of_segments)
+        index_segment_size = int(self.points_on_route / self.no_of_segments)
 
         # get starting indices for each segment
         indices = [0]
-        for i in range(1, no_of_segments-1):
+        for i in range(1, self.no_of_segments-1):
             indices.append(indices[-1] + index_segment_size)
         self.segment_indices = indices
         return indices
+
+    def calc_errors(self, trajectory):
+        if self.is_segmented:
+            return angular_error(self.route_dict, trajectory)
+        else:
+            return seq_angular_error(self.route_dict, trajectory)
+
+    def get_route_dict(self):
+        return self.route_dict
+
+    def get_imgs(self):
+        return self.route_dict['imgs']
+
+    def get_qimgs(self):
+        return self.route_dict['qimgs']
+
+    def get_qxycoords(self):
+        return {'x': self.route_dict['qx'], 'y': self.route_dict['qy']}
+
+    def get_xycoords(self):
+        return {'x': self.route_dict['x'], 'y': self.route_dict['y']}
+
 
