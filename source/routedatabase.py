@@ -2,7 +2,7 @@ import numpy as np
 import cv2 as cv
 import pandas as pd
 from scipy.spatial.distance import cdist
-from source.utils import calc_dists, travel_dist, pre_process, angular_error, seq_angular_error
+from source.utils import calc_dists, travel_dist, pre_process, angular_error, seq_angular_error, travel_dist
 import os
 
 class Route:
@@ -90,18 +90,30 @@ class Route:
         # segment size in indices
         index_segment_size = int(self.points_on_route / self.no_of_segments)
 
-        # get starting indices for each segment
+        # get starting indices and coords for each segment
         indices = [0]
+        staring_coords = []
+        coord_dict = {'x': self.route_dict['x'][0],
+                      'y': self.route_dict['y'][0],
+                      'yaw': self.route_dict['yaw'][0]}
+        staring_coords.append(coord_dict)
         for i in range(1, self.no_of_segments-1):
             indices.append(indices[-1] + index_segment_size)
+            coord_dict = {'x':self.route_dict['x'][indices[-1]],
+                          'y':self.route_dict['y'][indices[-1]],
+                          'yaw':self.route_dict['yaw'][indices[-1]]}
+            staring_coords.append(coord_dict)
         self.segment_indices = indices
-        return indices
+        return indices, staring_coords
 
     def calc_errors(self, trajectory):
         if self.is_segmented:
             return angular_error(self.route_dict, trajectory)
         else:
             return seq_angular_error(self.route_dict, trajectory)
+
+    def get_tavel_distance(self):
+        return travel_dist(self.route_dict['x'], self.route_dict['y'])
 
     def get_route_dict(self):
         return self.route_dict

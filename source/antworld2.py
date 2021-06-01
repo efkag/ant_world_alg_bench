@@ -77,19 +77,19 @@ class Agent:
 
         return (xx, yy), img
 
-    def test_nav(self, route, nav, r=0.05, t=100, sigma=0.1, preproc={}):
+    def test_nav(self, coords, nav, r=0.05, t=100, sigma=0.1, preproc={}):
         # random initial position and heading
         # near the first location of the route
         if sigma:
             h = np.random.randint(0, 360)
-            x = route['x'][0]
+            x = coords['x']
             x = np.random.normal(x, sigma)
-            y = route['y'][0]
+            y = coords['y']
             y = np.random.normal(y, sigma)
             xy = (x, y)
         else:
-            xy = (route['x'][0], route['y'][0])
-            h = route['yaw'][0]
+            xy = (coords['x'], coords['y'][0])
+            h = coords['yaw']
 
         # Place agent to the initial position and render the image
         img = self.get_img(xy, h)
@@ -131,14 +131,11 @@ class Agent:
         indices = [0]
         for i in range(1, len(xs)):
             indices.append(indices[-1] + len(xs[i]))
-
-        for i in range(no_of_segments):
-            subroute['x'] = xs[i]
-            subroute['y'] = ys[i]
-            subroute['yaw'] = hs[i]
+        indices, starting_coords = route.segment_route()
+        for i, coord in enumerate(starting_coords):
             nav.reset_window(indices[i])
-            traj, nav = self.test_nav(subroute, nav, **kwargs)
-
+            traj, nav = self.test_nav(coord, nav, **kwargs)
+            # Append the segment trajectory to the log
             for k in trajectories:
                 trajectories[k] = np.append(trajectories[k], traj[k])
 
