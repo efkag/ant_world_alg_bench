@@ -88,7 +88,7 @@ class Agent:
             y = np.random.normal(y, sigma)
             xy = (x, y)
         else:
-            xy = (coords['x'], coords['y'][0])
+            xy = (coords['x'], coords['y'])
             h = coords['yaw']
 
         # Place agent to the initial position and render the image
@@ -118,20 +118,9 @@ class Agent:
         return trajectory, nav
 
     def segment_test(self, route, nav, segment_length=3, **kwargs):
-        dist = travel_dist(route['x'], route['y'])
-        no_of_segments = int(round(dist/segment_length))
-
-        xs = np.array_split(route['x'], no_of_segments)
-        ys = np.array_split(route['y'], no_of_segments)
-        hs = np.array_split(route['yaw'], no_of_segments)
-        subroute = {}
         trajectories = {'x': [], 'y': [], 'heading': []}
-
         # get starting indices for each segment
-        indices = [0]
-        for i in range(1, len(xs)):
-            indices.append(indices[-1] + len(xs[i]))
-        indices, starting_coords = route.segment_route()
+        indices, starting_coords = route.segment_route(segment_length)
         for i, coord in enumerate(starting_coords):
             nav.reset_window(indices[i])
             traj, nav = self.test_nav(coord, nav, **kwargs)
@@ -140,6 +129,13 @@ class Agent:
                 trajectories[k] = np.append(trajectories[k], traj[k])
 
         return trajectories, nav
+
+    def run_agent(self, route, nav, segment_length=None, **kwargs):
+        if segment_length:
+            return self.segment_test(route, nav, segment_length, **kwargs)
+        else:
+            coords = route.get_starting_coords()
+            return self.test_nav(coords, nav, **kwargs)
 
     def rec_grid(self, steps, path):
         path = path + 'grid' + str(steps) + '/'

@@ -130,4 +130,7 @@ class Route:
     def get_xycoords(self):
         return {'x': self.route_dict['x'], 'y': self.route_dict['y']}
 
+    def get_starting_coords(self):
+        return self.route_dict['x'][0], self.route_dict['y'][0], self.route_dict['yaw'][0]
+
 

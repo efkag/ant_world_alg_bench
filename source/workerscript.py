@@ -60,7 +60,7 @@ for combo in chunk:
         if segment_length:
             traj, nav = agent.segment_test(route, nav, segment_length=segment_length, t=t, r=r, sigma=None, preproc=combo)
         else:
-            traj, nav = agent.test_nav(route, nav, t=t, r=r, sigma=None, preproc=combo)
+            traj, nav = agent.test_nav(route, nav, t=t, r=r, preproc=combo)
 
         toc = time.perf_counter()
         time_compl = toc - tic

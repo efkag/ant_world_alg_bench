@@ -72,7 +72,9 @@ def bench(params, routes_path, route_ids):
             if segment_length:
                 traj, nav = agent.segment_test(route, nav, segment_length=segment_length, t=t, r=r, sigma=None, preproc=combo)
             else:
-                traj, nav = agent.test_nav(route, nav, t=t, r=r, sigma=None, preproc=combo)
+                traj, nav = agent.test_nav(route, nav, t=t, r=r, preproc=combo)
+
+            # agent.run_agent(route, nav, t=t, r=r, preproc=combo)
 
             toc = time.perf_counter()
             time_compl = toc - tic
