@@ -1,5 +1,6 @@
 from source.utils import pre_process, calc_dists, load_route_naw, seq_angular_error, check_for_dir_and_create
 from source import seqnav as spm, perfect_memory as pm
+from source.routedatabase import Route
 import time
 import itertools
 import os
@@ -57,11 +58,11 @@ def bench(params, routes_path, route_ids):
         window_log = None
         for route_id in route_ids:  # for every route
             route_path = routes_path + '/route' + str(route_id) + '/'
-            route = load_route_naw(route_path, route_id=route_id, imgs=True)
+            route = Route(route_path, route_id)
 
+            tic = time.perf_counter()
             # Preprocess images
-            route_imgs = route['imgs']
-            route_imgs = pre_process(route_imgs, combo)
+            route_imgs = pre_process(route.get_imgs(), combo)
             # Run navigation algorithm
             if window:
                 nav = spm.SequentialPerfectMemory(route_imgs, matcher, deg_range=(-180, 180), window=window)
@@ -69,22 +70,20 @@ def bench(params, routes_path, route_ids):
                 nav = pm.PerfectMemory(route_imgs, matcher, deg_range=(-180, 180))
 
             if segment_length:
-                tic = time.perf_counter()
                 traj, nav = agent.segment_test(route, nav, segment_length=segment_length, t=t, r=r, sigma=None, preproc=combo)
-                toc = time.perf_counter()
             else:
-                tic = time.perf_counter()
-                traj, nav = agent.test_nav(route, nav, t=t, r=r, sigma=None, preproc=combo)
-                toc = time.perf_counter()
+                traj, nav = agent.test_nav(route, nav, t=t, r=r, preproc=combo)
 
+            # agent.run_agent(route, nav, t=t, r=r, preproc=combo)
+
+            toc = time.perf_counter()
             time_compl = toc - tic
             # Get the errors and the minimum distant index of the route memory
-            errors, min_dist_index = seq_angular_error(route, traj)
-            # Difference between matched index and minimum distance index
+            errors, min_dist_index = route.calc_errors(traj)
+            # Difference between matched index and minimum distance index and distance between points
             matched_index = nav.get_index_log()
-            window_log = nav.get_window_log()
-            abs_index_diffs = np.absolute(np.subtract(matched_index, min_dist_index))
-            dist_diff = calc_dists(route, min_dist_index, matched_index)
+            abs_index_diffs = np.absolute(np.subtract(nav.get_index_log(), min_dist_index))
+            dist_diff = calc_dists(route.get_xycoords(), min_dist_index, matched_index)
             mean_route_error = np.mean(errors)
             log['route_id'].extend([route_id])
             log['blur'].extend([combo.get('blur')])

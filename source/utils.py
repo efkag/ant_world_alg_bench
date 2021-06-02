@@ -171,7 +171,7 @@ def load_route_naw(path, route_id=1, imgs=False, query=False, max_dist=0.5, grid
         # TODO: Need to edit the function so that is receive the parent path of the route directory
         grid_path = os.path.dirname(path)
         grid_path = os.path.dirname(grid_path)
-        grid_path = os.path.dirname(grid_path) + '/grid70/'
+        grid_path = os.path.dirname(grid_path) + '/grid70'
     route_data = pd.read_csv(path + 'route' + str(route_id) + '.csv', index_col=False)
     route_data = route_data.to_dict('list')
     # convert the lists to numpy arrays
@@ -213,7 +213,7 @@ def load_route_naw(path, route_id=1, imgs=False, query=False, max_dist=0.5, grid
             for i in indexes:
                 qx.append(grid_xy[i, 0])
                 qy.append(grid_xy[i, 1])
-                imgfile = grid_path + grid['filename'][i]
+                imgfile = os.path.join(self.grid_path, grid['filename'][i])
                 qimg.append(cv.imread(imgfile, cv.IMREAD_GRAYSCALE))
 
         route_data['qx'] = np.array(qx)
@@ -228,9 +228,7 @@ def write_route(path, route, route_id=1):
     route.to_csv(path + 'route' + str(route_id) + '.csv', index=False)
 
 
-def travel_dist(route):
-    x = route['x']
-    y = route['y']
+def travel_dist(x, y):
     dx = x[1:] - x[:-1]
     dy = y[1:] - y[:-1]
     steps = np.sqrt(dx**2+dy**2)
@@ -390,7 +388,7 @@ def pre_process(imgs, sets):
 
 def image_split(image, overlap=None, blind=0):
     '''
-    Splits an image to 2 left and right part evenly when no overlap is provided.
+    Splits an image to 2 parts, left and right part evenly when no overlap is provided.
     :param image: Image to split. 2 dimentional ndarray
     :param overlap: Degrees of overlap between the 2 images
     :param blind: Degrees of blind visual field at the back of the agent

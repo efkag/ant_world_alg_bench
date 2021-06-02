@@ -1,10 +1,10 @@
 from source import cbench
-
+from source import navbench
 
 def main():
     # results_path = '../Results/newant/'
     # routes_path = '../new-antworld/exp1/'
-    # grid_path = '../new-antworld/grid70/'
+    # grid_path = '/home/efkag/PycharmProjects/ant_world_alg_bench/new-antworld/grid70'
     # # parameters = {'blur': [True], 'shape': [(180, 50), (90, 25)], 'edge_range': [(180, 200)],
     # #               'window': list(range(10, 12)), 'matcher': ['corr', 'rmse']}
     #
@@ -13,7 +13,7 @@ def main():
     #
     # routes = [1, 2]
     # bench = navbench.Benchmark(results_path, routes_path, grid_path, filename='test.csv')
-    # bench.benchmark(parameters, routes, parallel=True)
+    # bench.benchmark(parameters, routes, parallel=False)
 
     results_path = '../Results/newant/test.csv'
     routes_path = '../new-antworld/exp1'
@@ -22,7 +22,7 @@ def main():
                   'window': [25, 20], 'matcher': ['mae']}
 
     routes = [4, 5]
-    cbench.benchmark(results_path, routes_path, parameters, routes, parallel=True)
+    cbench.benchmark(results_path, routes_path, parameters, routes, parallel=False)
 
 
 if __name__ == "__main__":
