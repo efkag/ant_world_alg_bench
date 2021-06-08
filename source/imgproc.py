@@ -1,7 +1,7 @@
 import cv2 as cv
 import numpy as np
 
-# I have foudn that this kernal shape works well in general
+# I have found that this kernel shape works well in general
 # In the future I might need to make this into a variable as well
 kernel_shape = (5, 5)
 
@@ -30,6 +30,11 @@ def canny(upper, lower):
 
 
 def pipeline(sets):
+    '''
+    Create a pre-processing pipeline from a dictionary of settings
+    :param sets:
+    :return:
+    '''
     pipe = []
     if sets.get('shape'):
         pipe.append(resize(sets['shape']))
