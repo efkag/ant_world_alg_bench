@@ -2,7 +2,7 @@ from source.utils import load_route_naw, plot_route, seq_angular_error, animated
 from source import seqnav
 import numpy as np
 
-route_id = 3
+route_id = 1
 path = '../new-antworld/exp1/route' + str(route_id) + '/'
 # path = '../test_data/route'+ str(route_id) + '/'
 route = load_route_naw(path, route_id=route_id, imgs=True, query=True, max_dist=0.2)

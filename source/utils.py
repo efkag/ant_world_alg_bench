@@ -213,7 +213,7 @@ def load_route_naw(path, route_id=1, imgs=False, query=False, max_dist=0.5, grid
             for i in indexes:
                 qx.append(grid_xy[i, 0])
                 qy.append(grid_xy[i, 1])
-                imgfile = os.path.join(self.grid_path, grid['filename'][i])
+                imgfile = os.path.join(grid_path, grid['filename'][i])
                 qimg.append(cv.imread(imgfile, cv.IMREAD_GRAYSCALE))
 
         route_data['qx'] = np.array(qx)
