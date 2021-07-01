@@ -54,7 +54,7 @@ def bench(params, routes_path, route_ids):
         window = combo['window']
         t = combo['t']
         r = combo['r']
-        segment_length = combo['segment_l']
+        segment_length = combo.get('segment_l')
         window_log = None
         for route_id in route_ids:  # for every route
             route_path = routes_path + '/route' + str(route_id) + '/'
@@ -72,7 +72,8 @@ def bench(params, routes_path, route_ids):
             if segment_length:
                 traj, nav = agent.segment_test(route, nav, segment_length=segment_length, t=t, r=r, sigma=None, preproc=combo)
             else:
-                traj, nav = agent.test_nav(route, nav, t=t, r=r, preproc=combo)
+                start = route.get_starting_coords()
+                traj, nav = agent.test_nav(start, nav, t=t, r=r, preproc=combo)
 
             # agent.run_agent(route, nav, t=t, r=r, preproc=combo)
 

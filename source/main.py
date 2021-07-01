@@ -15,13 +15,13 @@ def main():
     # bench = navbench.Benchmark(results_path, routes_path, grid_path, filename='test.csv')
     # bench.benchmark(parameters, routes, parallel=False)
 
-    results_path = '../Results/newant/test.csv'
+    results_path = '../Results/newant/test2.csv'
     routes_path = '../new-antworld/exp1'
-    parameters = {'r': [0.05], 't': [10], 'segment_l': [3], 'blur': [True],
+    parameters = {'r': [0.04], 't': [150], 'blur': [True],
                   'shape': [(90, 25)], 'edge_range': [False],
-                  'window': [25, 20], 'matcher': ['mae']}
+                  'window': [20], 'matcher': ['mae']}
 
-    routes = [4, 5]
+    routes = [1]
     cbench.benchmark(results_path, routes_path, parameters, routes, parallel=False)
 
 
