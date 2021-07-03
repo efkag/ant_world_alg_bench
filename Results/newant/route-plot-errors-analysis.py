@@ -7,7 +7,7 @@ sns.set_context("paper", font_scale=1)
 
 
 fig_save_path = '/home/efkag/Desktop/route'
-data = pd.read_csv('test.csv')
+data = pd.read_csv('cont-results/exp5.csv')
 # data = pd.read_csv('exp4.csv')
 # Convert list of strings to actual list of lists
 data['errors'] = data['errors'].apply(literal_eval)
@@ -19,11 +19,11 @@ data['th'] = data['th'].apply(literal_eval)
 
 
 # Plot a specific route
-route_id = 3
+route_id = 6
 fig_save_path = fig_save_path + str(route_id)
 check_for_dir_and_create(fig_save_path)
 path = '../../new-antworld/exp1/route' + str(route_id) + '/'
-window = 0
+window = 20
 matcher = 'corr'
 edge = '(220, 240)'
 res = '(180, 50)'
@@ -33,9 +33,9 @@ title = 'D'
 
 traj = data.loc[(data['matcher'] == matcher) & (data['res'] == res) & (data['edge'] == edge) &
                 (data['window'] == window) & (data['route_id'] == route_id)]
-traj = data.to_dict(orient='records')[0]
-if window:
-    w_log = literal_eval(traj['window_log'])
+traj = traj.to_dict(orient='records')[0]
+# if window:
+#     w_log = literal_eval(traj['window_log'])
 errors = np.array(traj['errors'])
 traj = {'x': np.array(traj['tx']), 'y': np.array(traj['ty']), 'heading': np.array(traj['th'])}
 

@@ -70,7 +70,7 @@ def plot_route(route, traj=None, scale=None, window=None, windex=None, save=Fals
         ax.scatter(route['qx'], route['qy'])
     # Plot the trajectory of the agent when repeating the route
     if traj and not window:
-        u, v = pol2cart_headings(90 - traj['heading'])
+        u, v = pol2cart_headings(traj['heading'])
         ax.scatter(traj['x'], traj['y'])
         # ax.plot(traj['x'], traj['y'])
         ax.quiver(traj['x'], traj['y'], u, v, scale=scale)
