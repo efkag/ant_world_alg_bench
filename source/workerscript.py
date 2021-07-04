@@ -83,6 +83,7 @@ for combo in chunk:
         log['tx'].append(traj['x'].tolist())
         log['ty'].append(traj['y'].tolist())
         log['th'].append(traj['heading'].tolist())
+        log['matched_index'].append(matched_index)
         log['abs_index_diff'].append(abs_index_diffs.tolist())
         log['dist_diff'].append(dist_diff.tolist())
         log['errors'].append(errors)
