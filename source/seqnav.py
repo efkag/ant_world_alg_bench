@@ -48,7 +48,13 @@ class SequentialPerfectMemory:
         self.agreement_thresh = 0.9
 
     def reset_window(self, pointer):
-        self.update_pointer(pointer)
+        self.mem_pointer = pointer
+        if self.mem_pointer + self.window > self.route_end:
+            self.flimit = self.route_end
+            self.blimit = self.route_end - self.window
+        else:
+            self.blimit = self.mem_pointer
+            self.flimit = self.mem_pointer + self.window
 
     def get_heading(self, query_img):
         '''
