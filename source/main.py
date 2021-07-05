@@ -15,7 +15,7 @@ def main():
     # bench = navbench.Benchmark(results_path, routes_path, grid_path, filename='test.csv')
     # bench.benchmark(parameters, routes, parallel=False)
 
-    results_path = '../Results/newant/test.csv'
+    results_path = '../Results/newant/test2.csv'
     routes_path = '../new-antworld/exp1'
     parameters = {'r': [0.05], 't': [100], 'segment_l': [3], 'blur': [True],
                   'shape': [(90, 25)], 'edge_range': [False],

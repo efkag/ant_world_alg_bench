@@ -49,6 +49,21 @@ def save_image(path, img):
 
 
 def plot_route(route, traj=None, scale=None, window=None, windex=None, save=False, size=(10, 10), path=None, title=None):
+    '''
+    Plots the route and any given test points if available.
+    Note the route headings are rotated 90 degrees as the 0 degree origin
+    for the antworld is north but for pyplot it is east.
+    :param route:
+    :param traj:
+    :param scale:
+    :param window:
+    :param windex:
+    :param save:
+    :param size:
+    :param path:
+    :param title:
+    :return:
+    '''
     fig, ax = plt.subplots(figsize=size)
     ax.set_title(title,  loc="left")
     plt.tight_layout(pad=0)
