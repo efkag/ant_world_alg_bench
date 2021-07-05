@@ -290,6 +290,9 @@ class SequentialPerfectMemory:
     def get_window_log(self):
         return self.window_log
 
+    def get_wrsims_log(self):
+        return self.logs
+
     def get_confidence(self):
         return self.confidence
 
