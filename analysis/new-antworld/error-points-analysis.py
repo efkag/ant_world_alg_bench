@@ -20,7 +20,7 @@ data['th'] = data['th'].apply(literal_eval)
 
 
 # Plot a specific route
-route_id = 3
+route_id = 1
 fig_save_path = fig_save_path + str(route_id)
 check_for_dir_and_create(fig_save_path)
 path = '../../new-antworld/exp1/route' + str(route_id) + '/'
@@ -36,7 +36,12 @@ traj = data.loc[(data['matcher'] == matcher) & (data['res'] == res) & (data['edg
                 (data['window'] == window) & (data['route_id'] == route_id)]
 traj = traj.to_dict(orient='records')[0]
 
+traj['x'] = traj['tx']
+traj['y'] = traj['ty']
+traj['heading'] = traj['th']
+
 route = load_route_naw(path, route_id=route_id)
+plot_route(route, traj, scale=70, size=figsize, save=False, path=fig_save_path, title=title)
 
 log_error_points(route, traj)
 
