@@ -10,7 +10,7 @@ import pandas as pd
 import time
 import numpy as np
 import antworld2 as aw
-from routedatabase import Route
+from routedatabase import Route, load_routes
 
 print('Argument List:', str(sys.argv))
 
@@ -25,13 +25,15 @@ chunk = params['chunk']
 route_ids = params['route_ids']
 routes_path = params['routes_path']
 chunk_id = params['i']
+# Load all routes
+routes = load_routes(routes_path, route_ids)
 
 total_jobs = len(chunk) * len(route_ids)
 jobs = 0
 
 log = {'route_id': [], 'blur': [], 'edge': [], 'res': [], 'window': [],
        'matcher': [], 'mean_error': [], 'seconds': [], 'errors': [],
-       'dist_diff': [], 'abs_index_diff': [], 'window_log': [],
+       'dist_diff': [], 'abs_index_diff': [], 'window_log': [], 'matched_index': [],
        'tx': [], 'ty': [], 'th': []}
 agent = aw.Agent()
 

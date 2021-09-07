@@ -136,3 +136,10 @@ class Route:
                 'yaw': self.route_dict['yaw'][0]}
 
 
+def load_routes(path, ids, **kwargs):
+    routes = []
+    for id in ids:
+        r = Route(path, id, **kwargs)
+        routes.append(r)
+    return routes
+
