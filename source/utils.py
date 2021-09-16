@@ -85,7 +85,9 @@ def plot_route(route, traj=None, scale=None, window=None, windex=None, save=Fals
         ax.scatter(route['qx'], route['qy'])
     # Plot the trajectory of the agent when repeating the route
     if traj and not window:
-        u, v = pol2cart_headings(traj['heading'])
+        # TODO: This re-correction (90 - headings) of the heading may not be necessary.
+        # TODO: I need to test if this will work as expected when the new results are in.
+        u, v = pol2cart_headings(90 - traj['heading'])
         ax.scatter(traj['x'], traj['y'])
         # ax.plot(traj['x'], traj['y'])
         ax.quiver(traj['x'], traj['y'], u, v, scale=scale)
@@ -473,6 +475,19 @@ def mae(a, b):
         return [cv.absdiff(a, img).mean() for img in b]
 
     return cv.absdiff(a, b).mean()
+
+
+def nanmae(a, b):
+    """
+    Image Differencing Function MAE for images with nan values
+    :param a: A single query image
+    :param b: One or more reference images
+    :return:
+    """
+    if isinstance(b, list):
+        return [np.nanmean(np.abs(a - img)) for img in b]
+
+    return np.nanmean(np.abs(a - b))
 
 
 def cov(a, b):
