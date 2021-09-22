@@ -49,7 +49,7 @@ greysnaps2 = nanrbg2greyweighted(snaps)
 # a = greysnaps2[0]
 # nans_imgshow(a)
 
-sims = rmf(testimgs[43], greysnaps[127], matcher=nan_cor_dist, d_range=(-90, 90))
+sims = rmf(testimgs[43], greysnaps[50], matcher=nan_cor_dist, d_range=(-90, 90))
 save_image('test.png', testimgs[43])
 save_image('train.png', greysnaps[127])
 

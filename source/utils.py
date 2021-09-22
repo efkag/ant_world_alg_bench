@@ -533,16 +533,40 @@ def cor_dist(a, b):
     return correlation(a, b.flatten())
 
 
-def nan_cor_dist(a, b):
+def nan_correlation_dist(a, b):
+    """
+    Calculates the correlation coefficient distance
+    between two vectors.
+    Where a and b can contain nan values.
+    :param a:
+    :param b:
+    :return:
+    """
     amu = np.nanmean(a)
     bmu = np.nanmean(b)
-    u = a - amu
-    v = b - bmu
-    uv = np.nanmean(u * v)
-    uu = np.nanmean(np.square(u))
-    vv = np.nanmean(np.square(v))
-    dist = 1.0 - uv / np.sqrt(uu * vv)
+    a = a - amu
+    b = b - bmu
+    ab = np.nanmean(a * b)
+    avar = np.nanmean(np.square(a))
+    bvar = np.nanmean(np.square(b))
+    dist = 1.0 - ab / np.sqrt(avar * bvar)
     return dist
+
+
+def nan_cor_dist(a, b):
+    """
+    Calculates the correlation coefficient distance
+    between a (list of) vector(s) b and reference vector a.
+    Where a and b can contain nan values.
+    :param a: A single query image
+    :param b: One or more reference images
+    :return:
+    """
+    a = a.flatten()
+    if isinstance(b, list):
+        return [nan_correlation_dist(a, img.flatten()) for img in b]
+
+    return nan_correlation_dist(a, b.flatten())
 
 
 def cos_dist(a, b):
