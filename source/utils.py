@@ -533,6 +533,18 @@ def cor_dist(a, b):
     return correlation(a, b.flatten())
 
 
+def nan_cor_dist(a, b):
+    amu = np.nanmean(a)
+    bmu = np.nanmean(b)
+    u = a - amu
+    v = b - bmu
+    uv = np.nanmean(u * v)
+    uu = np.nanmean(np.square(u))
+    vv = np.nanmean(np.square(v))
+    dist = 1.0 - uv / np.sqrt(uu * vv)
+    return dist
+
+
 def cos_dist(a, b):
     """
     Calculates cosine similarity

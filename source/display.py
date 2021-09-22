@@ -42,10 +42,16 @@ def plot_3d(data, show=True, rows_cols_idx=111, title=''):
     if show: plt.show()
 
 
-def plot_multiline(data, scatter=False):
+def plot_multiline(data, scatter=False, labels=[None], xlabel=None, ylabel=None):
     if data.ndim < 2:
         data = np.expand_dims(data, axis=0)
-    for line in data:
-        plt.plot(range(len(line)), line)
-        if scatter: plt.scatter(range(0, len(line)), line)
+
+    deg = round(data.shape[1] / 2)
+    # no_of_imgs = data.shape[0]
+    x = np.linspace(-deg, deg, deg * 2)
+    for i, line in enumerate(data):
+        plt.plot(x, line, label=labels[i])
+        if scatter: plt.scatter(x, line)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
     plt.show()
