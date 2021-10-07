@@ -447,7 +447,7 @@ def rotate(d, image):
 
     num_of_cols = image.shape[1]
     num_of_cols_perdegree = num_of_cols / 360
-    cols_to_shift = round(d * num_of_cols_perdegree)
+    cols_to_shift = int(round(d * num_of_cols_perdegree))
     return np.roll(image, -cols_to_shift, axis=1)
 
 
@@ -508,7 +508,7 @@ def cov(a, b):
 
 def cor_coef(a, b):
     """
-    Calculate correlation coefficient
+    Calculate the correlation coefficient
     :param a: A single image or vector
     :param b: A single image or vector
     :return:

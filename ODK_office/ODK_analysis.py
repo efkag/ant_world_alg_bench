@@ -49,21 +49,22 @@ greysnaps2 = nanrbg2greyweighted(snaps)
 # a = greysnaps2[0]
 # nans_imgshow(a)
 
-sims = rmf(testimgs[43], greysnaps[50], matcher=nan_cor_dist, d_range=(-90, 90))
-save_image('test.png', testimgs[43])
+sims = rmf(testimgs[35], greysnaps[127], matcher=nanmae, d_range=(-90, 90))
+save_image('test.png', testimgs[35])
 save_image('train.png', greysnaps[127])
 
+
 index = np.argmin(sims)
-deg_range = (-90, 90)
+deg_range = (-180, 180)
 degrees = np.arange(*deg_range)
 h = int(degrees[index])
-test_rotated = rotate(h, testimgs[43])
+test_rotated = rotate(h, testimgs[35])
 save_image('test rotated.png', test_rotated)
 
 plot_multiline(sims, xlabel='Degrees', ylabel='MAE')
 # plot_3d(sims, show=True)
 
-heat = np.abs(testimgs[43] - greysnaps[127])
+heat = np.abs(testimgs[35] - greysnaps[127])
 plt.imshow(heat, cmap='hot', interpolation='nearest')
 plt.show()
 

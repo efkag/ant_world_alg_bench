@@ -3,7 +3,7 @@ import pandas as pd
 import cv2 as cv
 import matplotlib.pyplot as plt
 from source.display import nans_imgshow, plot_multiline, plot_3d
-from source.utils import pol2cart_headings
+from source.utils import pol2cart_headings, save_image
 import pickle
 
 df = pd.read_csv('office/training.csv')
@@ -18,6 +18,8 @@ with open('odk_analysis_data_cc.pickle', "rb") as handler:
     data = pickle.load(handler)
 print(data.keys())
 
+
+print(data['best_index'][35])
 
 ldiff = np.array(test[' Lowest difference'])
 mindiff = np.array(data['mindiff'])
@@ -37,11 +39,6 @@ plt.scatter(range(len(h2)), h2, label='in python')
 plt.legend()
 plt.show()
 
-u, v = pol2cart_headings(h1)
-plt.quiver(range(len(h1)), 0, u, v, scale=30, label='on robot', color='r')
-u, v = pol2cart_headings(h2)
-plt.quiver(range(len(h2)), 0.5, u, v, scale=30, label='in python', color='g')
-plt.show()
 
 index = test[' Best snapshot index']
 index2 = data['best_index']

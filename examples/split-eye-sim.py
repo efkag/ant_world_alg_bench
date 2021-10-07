@@ -1,4 +1,4 @@
-from source2 import load_route, image_split, display_split, rotate, cor_coef
+from source import load_route, image_split, display_split, rotate, cor_coef
 import matplotlib.pyplot as plt
 import seaborn as sns
 sns.set_context("talk", font_scale=1)
