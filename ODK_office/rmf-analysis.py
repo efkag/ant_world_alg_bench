@@ -1,14 +1,22 @@
+import sys
+import os
+path = os.path.join(os.path.dirname(__file__), os.pardir)
+fwd = os.path.dirname(__file__)
+sys.path.append(path)
+
 import numpy as np
 import pandas as pd
 import cv2 as cv
 import matplotlib.pyplot as plt
-from source.display import nans_imgshow, plot_multiline, plot_3d
+# from source.display import nans_imgshow, plot_multiline, plot_3d
 from source.analysis import rgb02nan, nanrgb2grey, nanrbg2greyweighted
 from source.utils import nanmae, nan_cor_dist, rmf, cor_dist, save_image, rotate
 import pickle
 
-df = pd.read_csv('office/training.csv')
-testdf = pd.read_csv('office/testing.csv')
+os.mkdir(fwd + '/results2')
+
+df = pd.read_csv(fwd + '/office/training.csv')
+testdf = pd.read_csv(fwd + '/office/testing.csv')
 
 route = df.to_dict('list')
 
@@ -17,19 +25,20 @@ print(test.keys())
 snaps = []
 for imgfile in route[' Filename']:
     imgfile = imgfile.replace(" ", "")
-    img = cv.imread(imgfile)
+    print(imgfile)
+    img = cv.imread(fwd + '/' + imgfile)
     snaps.append(cv.cvtColor(img, cv.COLOR_BGR2RGB))
 
 testimgs = []
 for imgfile in test[' Filename']:
     imgfile = imgfile.replace(" ", "")
-    img = cv.imread('office/' + imgfile)
+    img = cv.imread(fwd + '/office/' + imgfile)
     testimgs.append(cv.cvtColor(img, cv.COLOR_BGR2RGB))
 
 
-with open('odk_analysis_data_cc.pickle', "rb") as handler:
+with open(fwd + '/odk_analysis_data_cc.pickle', "rb") as handler:
     datacc = pickle.load(handler)
-with open('odk_analysis_data.pickle', "rb") as handler:
+with open(fwd + '/odk_analysis_data.pickle', "rb") as handler:
     datamae = pickle.load(handler)
 print(datamae.keys())
 
@@ -72,6 +81,7 @@ save_image('image-analysis/test-rotated-cc.png', rotate(h2, testimg))
 
 index_mae = datamae['best_index'][35]
 index_cc = datacc['best_index'][35]
+index_mae = index_cc
 
 mae_sims = []
 cc_sims = []
@@ -149,6 +159,6 @@ for i, r in enumerate(degrees):
     plt.xlim(-half_angle, half_angle)
 
     plt.tight_layout(pad=0)
-    fig.savefig('{}.png'.format(r+half_angle))
+    fig.savefig(fwd + '/results2/' + '{}.png'.format(r+half_angle))
     plt.close(fig)
     # plt.show()
