@@ -1,3 +1,9 @@
+import sys
+import os
+path = os.path.join(os.path.dirname(__file__), os.pardir)
+fwd = os.path.dirname(__file__)
+sys.path.append(path)
+
 import numpy as np
 import pandas as pd
 import cv2 as cv
@@ -7,8 +13,8 @@ from source.analysis import rgb02nan, nanrgb2grey, nanrbg2greyweighted
 from source.utils import nanmae, nan_cor_dist, rmf, cor_dist, save_image, rotate
 import pickle
 
-df = pd.read_csv('office/training.csv')
-testdf = pd.read_csv('office/testing.csv')
+df = pd.read_csv(fwd + '/office/training.csv')
+testdf = pd.read_csv(fwd + '/office/testing.csv')
 
 route = df.to_dict('list')
 
@@ -17,13 +23,13 @@ print(test.keys())
 snaps = []
 for imgfile in route[' Filename']:
     imgfile = imgfile.replace(" ", "")
-    img = cv.imread(imgfile)
+    img = cv.imread(fwd + '/' + imgfile)
     snaps.append(cv.cvtColor(img, cv.COLOR_BGR2RGB))
 
 testimgs = []
 for imgfile in test[' Filename']:
     imgfile = imgfile.replace(" ", "")
-    img = cv.imread('office/' + imgfile)
+    img = cv.imread(fwd + '/office/' + imgfile)
     testimgs.append(cv.cvtColor(img, cv.COLOR_BGR2RGB))
 
 save_image('original.png', snaps[0])
@@ -49,7 +55,7 @@ greysnaps2 = nanrbg2greyweighted(snaps)
 # a = greysnaps2[0]
 # nans_imgshow(a)
 
-sims = rmf(testimgs[35], greysnaps[127], matcher=nanmae, d_range=(-90, 90))
+sims = rmf(testimgs[35], greysnaps[127], matcher=nanmae, d_range=(-180, 180))
 save_image('test.png', testimgs[35])
 save_image('train.png', greysnaps[127])
 
@@ -61,7 +67,7 @@ h = int(degrees[index])
 test_rotated = rotate(h, testimgs[35])
 save_image('test rotated.png', test_rotated)
 
-plot_multiline(sims, xlabel='Degrees', ylabel='MAE')
+plot_multiline(sims, xlabel='Degrees', ylabel='Image Difference')
 # plot_3d(sims, show=True)
 
 heat = np.abs(testimgs[35] - greysnaps[127])

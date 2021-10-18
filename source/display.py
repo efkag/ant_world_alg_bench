@@ -52,6 +52,6 @@ def plot_multiline(data, scatter=False, labels=[None], xlabel=None, ylabel=None)
     for i, line in enumerate(data):
         plt.plot(x, line, label=labels[i])
         if scatter: plt.scatter(x, line)
-    plt.xlabel(xlabel)
-    plt.ylabel(ylabel)
+    plt.xlabel(xlabel, fontsize=25)
+    plt.ylabel(ylabel, fontsize=25)
     plt.show()

@@ -13,7 +13,8 @@ from source.analysis import rgb02nan, nanrgb2grey, nanrbg2greyweighted
 from source.utils import nanmae, nan_cor_dist, rmf, cor_dist, save_image, rotate
 import pickle
 
-os.mkdir(fwd + '/results2')
+results_path = fwd + '/results3'
+# os.mkdir(results_path)
 
 df = pd.read_csv(fwd + '/office/training.csv')
 testdf = pd.read_csv(fwd + '/office/testing.csv')
@@ -81,7 +82,7 @@ save_image('image-analysis/test-rotated-cc.png', rotate(h2, testimg))
 
 index_mae = datamae['best_index'][35]
 index_cc = datacc['best_index'][35]
-index_mae = index_cc
+index_cc = index_mae
 
 mae_sims = []
 cc_sims = []
@@ -159,6 +160,6 @@ for i, r in enumerate(degrees):
     plt.xlim(-half_angle, half_angle)
 
     plt.tight_layout(pad=0)
-    fig.savefig(fwd + '/results2/' + '{}.png'.format(r+half_angle))
+    fig.savefig(fwd + '/results3/' + '{}.png'.format(r+half_angle))
     plt.close(fig)
     # plt.show()
