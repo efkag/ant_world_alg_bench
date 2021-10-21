@@ -59,3 +59,7 @@ plt.legend()
 plt.show()
 
 
+# masked = np.ma.masked_invalid(imgs[0])
+# path = os.path.join(fwd, 'odk-mask.pickle')
+# with open(path, 'wb') as handle:
+#     pickle.dump(masked.mask, handle, protocol=pickle.HIGHEST_PROTOCOL)

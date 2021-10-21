@@ -1,5 +1,6 @@
 import cv2 as cv
 import numpy as np
+from pyDTW import DTW
 
 # I have found that this kernel shape works well in general
 # In the future I might need to make this into a variable as well
@@ -27,6 +28,15 @@ def canny(upper, lower):
     within the given thresholds
     '''
     return lambda im: cv.Canny(im, upper, lower)
+
+
+def standardize():
+    return lambda im: (im - np.mean(im)) / np.std(im)
+
+
+def wavelet(image_shape):
+    dtw = DTW(image_shape)
+    return lambda im: dtw.dtw_haar(im)
 
 
 def pipeline(sets):

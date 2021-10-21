@@ -1,5 +1,6 @@
-from source2 import load_route, pre_process
-from source2 import seqnav as spm, perfect_memory as pm
+from utils import load_route, pre_process
+import seqnav as spm
+import perfect_memory as pm
 import timeit
 import pandas as pd
 

@@ -2,7 +2,7 @@ import numpy as np
 import cv2 as cv
 import pandas as pd
 from scipy.spatial.distance import cdist
-from source.utils import calc_dists, travel_dist, pre_process, angular_error, seq_angular_error, travel_dist
+from utils import calc_dists, travel_dist, pre_process, angular_error, seq_angular_error, travel_dist
 import os
 
 class Route:
