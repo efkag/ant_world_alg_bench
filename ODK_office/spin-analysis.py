@@ -55,9 +55,12 @@ plt.scatter(headings, rsims, label='in-silica')
 minsims = np.min(sims, axis=1)
 plt.scatter(headings, minsims, label='actual rotation')
 
+# linking lines
+# for i, sim in enumerate(minsims):
+#     plt.plot([headings[i], headings[i]], [minsims[i], rsims[i]])
+
 plt.legend()
 plt.show()
-
 
 # masked = np.ma.masked_invalid(imgs[0])
 # path = os.path.join(fwd, 'odk-mask.pickle')

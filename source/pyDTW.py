@@ -42,7 +42,10 @@ class DTW:
         return (LP_vert,LP_hor),(HP_vert,HP_hor)
         
     def dwt_haar(self, img):
-        
+        '''
+        For high res use Vertical -> HL
+        For low res use Horizontal -> HH
+        '''
         # Filter rows
         I_gr = matmul(self.LP_vert, img)
         I_hr = matmul(self.HP_vert, img)
@@ -51,7 +54,7 @@ class DTW:
         LL = matmul(self.LP_hor,transpose(I_gr))
         HH = matmul(self.HP_hor,transpose(I_hr))
         HL = matmul(self.LP_hor,transpose(I_hr))
-        LH = matmul(self.HP_hor,transpose(I_gr)) 
+        LH = matmul(self.HP_hor,transpose(I_gr))
         
         # transpose back
         LL = abs(transpose(LL))

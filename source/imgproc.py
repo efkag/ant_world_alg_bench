@@ -53,4 +53,7 @@ def pipeline(sets):
     if sets.get('edge_range'):
         lims = sets['edge_range']
         pipe.append(canny(lims[0], lims[1]))
+    if sets.get('wave'):
+        im_size = sets.get('wave')
+        pipe.append(wavelet(im_size))
     return pipe
