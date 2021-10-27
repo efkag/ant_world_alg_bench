@@ -472,9 +472,9 @@ def mae(a, b):
     :return:
     """
     if isinstance(b, list):
-        return [cv.absdiff(a, img).mean() for img in b]
+        return [np.mean(np.abs(a - img)) for img in b]
 
-    return cv.absdiff(a, b).mean()
+    return np.mean(np.abs(a - b))
 
 
 def nanmae(a, b):

@@ -42,7 +42,7 @@ def plot_3d(data, show=True, rows_cols_idx=111, title=''):
     if show: plt.show()
 
 
-def plot_multiline(data, scatter=False, labels=[None], xlabel=None, ylabel=None):
+def plot_multiline(data, scatter=False, labels=None, xlabel=None, ylabel=None):
     if data.ndim < 2:
         data = np.expand_dims(data, axis=0)
 
@@ -54,4 +54,5 @@ def plot_multiline(data, scatter=False, labels=[None], xlabel=None, ylabel=None)
         if scatter: plt.scatter(x, line)
     plt.xlabel(xlabel, fontsize=25)
     plt.ylabel(ylabel, fontsize=25)
+    plt.legend()
     plt.show()
