@@ -7,7 +7,7 @@ sns.set_context("paper", font_scale=1)
 
 
 fig_save_path = '/home/efkag/Desktop/route'
-data = pd.read_csv('test2.csv')
+data = pd.read_csv('exp6live.csv')
 # data = pd.read_csv('exp4.csv')
 # Convert list of strings to actual list of lists
 data['errors'] = data['errors'].apply(literal_eval)
@@ -19,36 +19,41 @@ data['th'] = data['th'].apply(literal_eval)
 
 
 # Plot a specific route
-route_id = 3
+route_id = 1
 fig_save_path = fig_save_path + str(route_id)
 check_for_dir_and_create(fig_save_path)
 path = '../../new-antworld/exp1/route' + str(route_id) + '/'
-window = 0
+window = -20
 matcher = 'corr'
-edge = '(220, 240)'
+edge = 'False'
 res = '(180, 50)'
 threshold = 0
 figsize = (10, 10)
 title = 'D'
 
-# traj = data.loc[(data['matcher'] == matcher) & (data['res'] == res) & (data['edge'] == edge) &
-#                 (data['window'] == window) & (data['route_id'] == route_id)]
-traj = data.to_dict(orient='records')[0]
-# if window:
-#     w_log = literal_eval(traj['window_log'])
-errors = np.array(traj['errors'])
-traj = {'x': np.array(traj['tx']), 'y': np.array(traj['ty']), 'heading': np.array(traj['th'])}
+traj = data.loc[(data['matcher'] == matcher) & (data['res'] == res) & (data['edge'] == edge) &
+                (data['window'] == window) & (data['route_id'] == route_id)]
+# traj = data.to_dict(orient='records')[0]
+if window:
+    w_log = literal_eval(traj['window_log'])
+
+errors = traj['errors'].tolist()
+errors = np.array(errors[0])
+traj = {'x': np.array(traj['tx'].tolist()[0]),
+        'y': np.array(traj['ty'].tolist()[0]),
+        'heading': np.array(traj['th'].tolist()[0])}
 
 route = load_route_naw(path, route_id=route_id)
-index = np.argwhere(errors > threshold)
-thres = {}
-thres['x'] = traj['x'][index]
-thres['y'] = traj['y'][index]
-thres['heading'] = traj['heading'][index]
+if threshold:
+    index = np.argwhere(errors > threshold)[0]
+    thres = {}
+    thres['x'] = traj['x'][index]
+    thres['y'] = traj['y'][index]
+    thres['heading'] = traj['heading'][index]
 fig_save_path = fig_save_path + '/route{}.w{}.m{}.res{}.edge{}.thres{}.png'\
     .format(route_id, window, matcher, res, edge, threshold)
 
-plot_route(route, thres, scale=70, size=figsize, save=False, path=fig_save_path, title=title)
+plot_route(route, traj, scale=70, size=figsize, save=False, path=fig_save_path, title=title)
 
 
 # if window:

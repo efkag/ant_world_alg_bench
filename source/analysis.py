@@ -65,3 +65,43 @@ def log_error_points(route, traj, thresh=0.5, route_id=1, target_path=None):
             cv.imwrite(point_path + str(h) + '.png', rimg)
 
             # TODO: save heatmap for wrsims for the given test position image
+
+
+def rgb02nan(imgs, color=None):
+    if not color:
+        color = (0.0, 0.0, 0.0)
+    nans = [np.nan, np.nan, np.nan]
+    for i, img in enumerate(imgs):
+        img = img.astype(np.float64)
+        indices = np.where(np.all(img == color, axis=-1))
+
+        for r, c in zip(indices[0], indices[1]):
+            img[r, c, :] = nans
+        imgs[i] = img
+    return imgs
+
+
+def nanrgb2grey(imgs):
+    """
+    Turn RGB images with NaNs to greyscale
+    :param imgs:
+    :return:
+    """
+    if isinstance(imgs, list):
+        return [np.nanmean(img, axis=-1) for img in imgs]
+
+    return np.nanmean(imgs, axis=-1)
+
+
+def nanrbg2greyweighted(imgs):
+    """
+    Turn RGB images with NaNs to greyscale with weights for each channel
+    :param imgs:
+    :return:
+    """
+    rgb_weights = [0.2989, 0.5870, 0.1140]
+
+    if isinstance(imgs, list):
+        return [np.average(img, weights=rgb_weights, axis=-1) for img in imgs]
+
+    return np.average(imgs, weights=rgb_weights, axis=-1)

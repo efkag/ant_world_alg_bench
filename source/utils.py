@@ -85,7 +85,9 @@ def plot_route(route, traj=None, scale=None, window=None, windex=None, save=Fals
         ax.scatter(route['qx'], route['qy'])
     # Plot the trajectory of the agent when repeating the route
     if traj and not window:
-        u, v = pol2cart_headings(traj['heading'])
+        # TODO: This re-correction (90 - headings) of the heading may not be necessary.
+        # TODO: I need to test if this will work as expected when the new results are in.
+        u, v = pol2cart_headings(90 - traj['heading'])
         ax.scatter(traj['x'], traj['y'])
         # ax.plot(traj['x'], traj['y'])
         ax.quiver(traj['x'], traj['y'], u, v, scale=scale)
@@ -445,7 +447,7 @@ def rotate(d, image):
 
     num_of_cols = image.shape[1]
     num_of_cols_perdegree = num_of_cols / 360
-    cols_to_shift = round(d * num_of_cols_perdegree)
+    cols_to_shift = int(round(d * num_of_cols_perdegree))
     return np.roll(image, -cols_to_shift, axis=1)
 
 
@@ -470,9 +472,22 @@ def mae(a, b):
     :return:
     """
     if isinstance(b, list):
-        return [cv.absdiff(a, img).mean() for img in b]
+        return [np.mean(np.abs(a - img)) for img in b]
 
-    return cv.absdiff(a, b).mean()
+    return np.mean(np.abs(a - b))
+
+
+def nanmae(a, b):
+    """
+    Image Differencing Function MAE for images with nan values
+    :param a: A single query image
+    :param b: One or more reference images
+    :return:
+    """
+    if isinstance(b, list):
+        return [np.nanmean(np.abs(a - img)) for img in b]
+
+    return np.nanmean(np.abs(a - b))
 
 
 def cov(a, b):
@@ -493,7 +508,7 @@ def cov(a, b):
 
 def cor_coef(a, b):
     """
-    Calculate correlation coefficient
+    Calculate the correlation coefficient
     :param a: A single image or vector
     :param b: A single image or vector
     :return:
@@ -516,6 +531,42 @@ def cor_dist(a, b):
         return [correlation(a, img.flatten()) for img in b]
 
     return correlation(a, b.flatten())
+
+
+def nan_correlation_dist(a, b):
+    """
+    Calculates the correlation coefficient distance
+    between two vectors.
+    Where a and b can contain nan values.
+    :param a:
+    :param b:
+    :return:
+    """
+    amu = np.nanmean(a)
+    bmu = np.nanmean(b)
+    a = a - amu
+    b = b - bmu
+    ab = np.nanmean(a * b)
+    avar = np.nanmean(np.square(a))
+    bvar = np.nanmean(np.square(b))
+    dist = 1.0 - ab / np.sqrt(avar * bvar)
+    return dist
+
+
+def nan_cor_dist(a, b):
+    """
+    Calculates the correlation coefficient distance
+    between a (list of) vector(s) b and reference vector a.
+    Where a and b can contain nan values.
+    :param a: A single query image
+    :param b: One or more reference images
+    :return:
+    """
+    a = a.flatten()
+    if isinstance(b, list):
+        return [nan_correlation_dist(a, img.flatten()) for img in b]
+
+    return nan_correlation_dist(a, b.flatten())
 
 
 def cos_dist(a, b):
