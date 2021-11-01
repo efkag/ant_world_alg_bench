@@ -2,6 +2,7 @@ import numpy as np
 from scipy.spatial.distance import cdist
 import os
 import cv2 as cv
+import matplotlib.pyplot as plt
 from source.utils import rotate
 from source import antworld2
 
@@ -34,17 +35,21 @@ def perc_outliers(data):
     return perc
 
 
-def log_error_points(route, traj, thresh=0.5, route_id=1, target_path=None):
+def log_error_points(route, traj, nav, thresh=0.5, route_id=1, target_path=None):
     if target_path:
         logs_path = os.path.join(target_path, 'route' + str(route_id))
     else:
         logs_path = 'route' + str(route_id)
-    os.mkdir(logs_path)
+    os.makedirs(logs_path, exist_ok=True)
     # the antworld agent
     agent = antworld2.Agent()
     # get xy coords
-    traj_xy = np.column_stack(traj['x'], traj['y'])
-    route_xy = np.column_stack(route['x'], route['y'])
+    traj_xy = np.column_stack((traj['x'], traj['y']))
+    route_xy = np.column_stack((route['x'], route['y']))
+
+    rsims_matrices = nav.get_rsims_log()
+    index_log = nav.get_index_log()
+    degrees = nav.degrees
 
     for i in range(len(traj['heading'])):
         dist = np.squeeze(cdist(np.expand_dims(traj_xy[i], axis=0), route_xy, 'euclidean'))
@@ -53,19 +58,34 @@ def log_error_points(route, traj, thresh=0.5, route_id=1, target_path=None):
         if min_dist > thresh:
             point_path = os.path.join(logs_path, str(i))
             os.mkdir(point_path)
-            # Save window images
+            # Save best match window (or non) images
             if traj.get('window_log'):
                 w = traj.get('window_log')
                 for wi in range(w[0], w[1]):
-                    cv.imwrite(point_path + route['filename'][wi], route['imgs'][wi])
+                    imgfname = route['filename'][wi] + '.png'
+                    cv.imwrite(os.path.join(point_path, imgfname) , route['imgs'][wi])
+            else: # If perfect memory is used
+                img_index = index_log[i]
+                imgfname = route['filename'][img_index] + '.png'
+                cv.imwrite(os.path.join(point_path, imgfname) , route['imgs'][img_index])
             # Save the query image
             h = traj['heading'][i]
             img = agent.get_img(traj_xy[i], h)
             rimg = rotate(h, img)
-            cv.imwrite(point_path + str(h) + '.png', rimg)
+            imgfname = str(h) + '.png'
+            cv.imwrite(os.path.join(point_path, imgfname), rimg)
+            # Save ridf
+            rsim = rsims_matrices[i][img_index]
+            fig = plt.figure()
+            plt.plot(degrees, rsim)
+            fig.savefig(os.path.join(point_path, 'rsim.png'))
+            plt.close(fig)
 
             # TODO: save heatmap for wrsims for the given test position image
-
+            fig = plt.figure()
+            plt.imshow(rsims_matrices[i], cmap='hot')
+            fig.savefig(os.path.join(point_path, 'heat.png'))
+            plt.close(fig)
 
 def rgb02nan(imgs, color=None):
     if not color:

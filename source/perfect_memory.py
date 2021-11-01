@@ -1,4 +1,4 @@
-from source.utils import mae, rmse, cor_dist, rmf
+from source.utils import mae, rmse, cor_dist, rmf, nanmae
 import numpy as np
 
 
@@ -12,10 +12,10 @@ class PerfectMemory:
         self.recovered_heading = []
         self.logs = []
         self.matched_index_log = []
-        matchers = {'corr': cor_dist, 'rmse': rmse, 'mae':mae}
+        matchers = {'corr': cor_dist, 'rmse': rmse, 'mae':mae, 'nanmae':nanmae}
         self.matcher = matchers.get(matching)
         if not self.matcher:
-            raise Exception('Non valid matcher method name')
+            raise Exception('Non valid matcher method name:{}'.format(matching))
         self.argminmax = np.argmin
 
     def get_heading(self, query_img):
@@ -73,6 +73,8 @@ class PerfectMemory:
         return self.recovered_heading
 
     def get_index_log(self): return self.matched_index_log
+
+    def get_rsims_log(self): return self.logs
 
     def get_window_log(self): return None
 

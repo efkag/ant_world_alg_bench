@@ -6,6 +6,7 @@ import pandas as pd
 import cv2 as cv
 import math
 import os
+import shutil
 from scipy.spatial.distance import cosine, correlation, cdist, pdist
 from scipy.stats import circmean
 
@@ -773,7 +774,9 @@ def mean_degree_error(x_cords, y_cords, x_route_cords, y_route_cords, route_head
     return sum(error) / len(error)
 
 
-def check_for_dir_and_create(directory):
+def check_for_dir_and_create(directory, remove=False):
+    if remove and os.path.exists(directory):
+        shutil.rmtree(directory)
     if not os.path.exists(directory):
         os.makedirs(directory)
 
