@@ -394,7 +394,7 @@ def pre_process(imgs, sets):
         imgs = [imgs]
     if sets.get('shape'):
         shape = sets['shape']
-        imgs = [cv.resize(img, shape) for img in imgs]
+        imgs = [cv.resize(img, shape, interpolation=cv.INTER_NEAREST) for img in imgs]
     if sets.get('blur'):
         imgs = [cv.GaussianBlur(img, (5, 5), 0) for img in imgs]
     if sets.get('edge_range'):

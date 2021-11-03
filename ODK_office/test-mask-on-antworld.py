@@ -34,20 +34,20 @@ route = load_route_naw(path, route_id=1, imgs=True, query=True, max_dist=0.1)
 # route images
 imgs = route['imgs']
 imgs = [cv.resize(im, (256, 35)) for im in imgs]
-imgs = [im.astype(np.int16) for im in imgs]
+imgs = [im.astype(np.float64) for im in imgs]
 imgsm = [ma.masked_array(im, mask) for im in imgs]
+imgsm = [im.filled(np.nan) for im in imgsm]
 route['imgs'] = imgsm 
-# imgsm = [im.filled(np.nan) for im in imgsm]
 
 # test images
 qimgs = route['qimgs']
 qimgs = [cv.resize(im, (256, 35)) for im in qimgs]
-qimgs = [im.astype(np.int16) for im in qimgs]
+qimgs = [im.astype(np.float64) for im in qimgs]
 qimgsm = [ma.masked_array(im, mask) for im in qimgs]
+qimgsm = [im.filled(np.nan) for im in qimgsm]
 route['qimgs'] = qimgsm
-# qimgsm = [im.filled(np.nan) for im in qimgsm]
 
-matcher = 'mae'
+matcher = 'nanmae'
 nav = pm.PerfectMemory(imgsm, matcher, deg_range=(-90, 90))
 recovered_heading = nav.navigate(qimgs)
 

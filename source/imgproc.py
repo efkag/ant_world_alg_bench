@@ -11,7 +11,7 @@ def resize(shape):
     '''
     Return a function to resize image to given size
     '''
-    return lambda im: cv.resize(im, shape)
+    return lambda im: cv.resize(im, shape, interpolation=cv.INTER_NEAREST)
 
 
 def gauss_blur(kernel_shape, mean):

@@ -42,7 +42,8 @@ def log_error_points(route, traj, nav, thresh=0.5, route_id=1, target_path=None)
         logs_path = 'route' + str(route_id)
     os.makedirs(logs_path, exist_ok=True)
     # the antworld agent
-    agent = antworld2.Agent()
+    if not route.get('qimgs'):
+        agent = antworld2.Agent()
     # get xy coords
     traj_xy = np.column_stack((traj['x'], traj['y']))
     route_xy = np.column_stack((route['x'], route['y']))
@@ -68,12 +69,17 @@ def log_error_points(route, traj, nav, thresh=0.5, route_id=1, target_path=None)
                 img_index = index_log[i]
                 imgfname = route['filename'][img_index] + '.png'
                 cv.imwrite(os.path.join(point_path, imgfname) , route['imgs'][img_index])
-            # Save the query image
+            
+            # Save the query image rotated to the extractred direction
             h = traj['heading'][i]
-            img = agent.get_img(traj_xy[i], h)
-            rimg = rotate(h, img)
-            imgfname = str(h) + '.png'
-            cv.imwrite(os.path.join(point_path, imgfname), rimg)
+            if route.get('qimgs'):
+                imgfname = 'grid' + str(h) + '.png'
+                cv.imwrite(os.path.join(point_path, imgfname), route['qimgs'][i])
+            else:
+                img = agent.get_img(traj_xy[i], h)
+                rimg = rotate(h, img)
+                imgfname = str(h) + '.png'
+                cv.imwrite(os.path.join(point_path, imgfname), rimg)
             # Save ridf
             rsim = rsims_matrices[i][img_index]
             fig = plt.figure()
@@ -81,7 +87,6 @@ def log_error_points(route, traj, nav, thresh=0.5, route_id=1, target_path=None)
             fig.savefig(os.path.join(point_path, 'rsim.png'))
             plt.close(fig)
 
-            # TODO: save heatmap for wrsims for the given test position image
             fig = plt.figure()
             plt.imshow(rsims_matrices[i], cmap='hot')
             fig.savefig(os.path.join(point_path, 'heat.png'))
