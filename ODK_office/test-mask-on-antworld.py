@@ -19,9 +19,9 @@ path = 'ODK_office/odk-mask.pickle'
 with open(path, 'rb') as handle:
     mask = pickle.load(handle)
 
-route_id = 1
+route_id = 2
 path = 'new-antworld/exp1/route' + str(route_id) + '/'
-route = load_route_naw(path, route_id=1, imgs=True, query=True, max_dist=0.1)
+route = load_route_naw(path, route_id=route_id, imgs=True, query=True, max_dist=0.1)
 
 # matcher = 'mae'
 # nav = pm.PerfectMemory(route['imgs'], matcher, deg_range=(-90, 90))
@@ -57,4 +57,4 @@ plot_route(route, traj)
 
 path = os.path.join(fwd, 'odk-antworld')
 check_for_dir_and_create(path, remove=True)
-log_error_points(route, traj, nav, thresh=0.0, target_path=path)
+log_error_points(route, traj, nav, thresh=0.0, route_id=route_id, target_path=path)
