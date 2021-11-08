@@ -1,7 +1,6 @@
 import sys
 import os
 
-from numpy.lib.npyio import save
 path = os.path.join(os.path.dirname(__file__), os.pardir)
 fwd = os.path.dirname(__file__)
 sys.path.append(path)
