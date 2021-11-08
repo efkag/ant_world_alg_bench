@@ -73,9 +73,15 @@ def log_error_points(route, traj, nav, thresh=0.5, route_id=1, target_path=None)
             # Save the query image rotated to the extractred direction
             h = traj['heading'][i]
             if route.get('qimgs'):
-                imgfname = 'grid' + str(h) + '.png'
+                rimg = rotate(h, route['qimgs'][i])
+                imgfname = 'rotated-grid-h' + str(h) + '.png'
+                cv.imwrite(os.path.join(point_path, imgfname), rimg)
+                imgfname = 'grid-h' + str(h) + '.png'
                 cv.imwrite(os.path.join(point_path, imgfname), route['qimgs'][i])
             else:
+                #TODO: Rotating the image to the recovered heading is nto enough here as it is also
+                # dependent on the heading of the previous lo9cation or in other word the location where the 
+                # test image was sampled. 
                 img = agent.get_img(traj_xy[i], h)
                 rimg = rotate(h, img)
                 imgfname = str(h) + '.png'

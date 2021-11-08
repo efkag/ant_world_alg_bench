@@ -19,7 +19,7 @@ path = 'ODK_office/odk-mask.pickle'
 with open(path, 'rb') as handle:
     mask = pickle.load(handle)
 
-route_id = 2
+route_id = 1
 path = 'new-antworld/exp1/route' + str(route_id) + '/'
 route = load_route_naw(path, route_id=route_id, imgs=True, query=True, max_dist=0.1)
 

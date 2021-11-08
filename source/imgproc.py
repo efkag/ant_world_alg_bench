@@ -36,7 +36,7 @@ def standardize():
 
 def wavelet(image_shape):
     dtw = DTW(image_shape)
-    return lambda im: dtw.dtw_haar(im)
+    return lambda im: dtw.dtw_haar(im)[-1]
 
 
 def pipeline(sets):
