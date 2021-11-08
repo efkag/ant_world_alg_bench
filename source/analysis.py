@@ -83,9 +83,9 @@ def log_error_points(route, traj, nav, thresh=0.5, route_id=1, target_path=None)
                 # dependent on the heading of the previous lo9cation or in other word the location where the 
                 # test image was sampled. 
                 img = agent.get_img(traj_xy[i], h)
-                rimg = rotate(h, img)
+                # rimg = rotate(h, img)
                 imgfname = str(h) + '.png'
-                cv.imwrite(os.path.join(point_path, imgfname), rimg)
+                cv.imwrite(os.path.join(point_path, imgfname), img)
             # Save ridf
             rsim = rsims_matrices[i][img_index]
             fig = plt.figure()
