@@ -3,6 +3,7 @@ import copy
 import matplotlib
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import axes3d
+from source.utils import pol2cart_headings
 
 
 def nans_imgshow(img):
@@ -56,3 +57,24 @@ def plot_multiline(data, scatter=False, labels=None, xlabel=None, ylabel=None):
     plt.ylabel(ylabel, fontsize=25)
     plt.legend()
     plt.show()
+
+
+def plot_route_errors(route, traj, route_i, error_i, size=(10, 10), scale=None, path=None):
+    fig, ax = plt.subplots(figsize=size)
+    u, v = pol2cart_headings(90 - route['yaw'])
+    ax.scatter(route['x'], route['y'])
+    ax.quiver(route['x'], route['y'], u, v, scale=scale)
+
+    u, v = pol2cart_headings(90 - route['yaw'][route_i])
+    ax.quiver(route['x'][route_i], route['y'][route_i], u, v, scale=scale, label='match', color='y')
+
+    u, v = pol2cart_headings(90 - traj['heading'][error_i])
+    ax.quiver(traj['x'][error_i], traj['y'][error_i], u, v, scale=scale, label='test pos', color='r')
+
+    plt.legend()
+    plt.tight_layout()
+    if path:
+        fig.savefig(path)
+        plt.close(fig)
+    else:
+        plt.show()

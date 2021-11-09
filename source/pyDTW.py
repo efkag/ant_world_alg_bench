@@ -43,8 +43,8 @@ class DTW:
         
     def dwt_haar(self, img):
         '''
-        For high res use Vertical -> HL
-        For low res use Horizontal -> HH
+        For high res use Vertical -> HL (1/2 deg per pixel)
+        For low res use Horizontal -> HH (1 deg per pixel or below)
         '''
         # Filter rows
         I_gr = matmul(self.LP_vert, img)
