@@ -52,7 +52,7 @@ recovered_heading = nav.navigate(qimgs)
 
 traj = {'x': route['qx'], 'y': route['qy'], 'heading': recovered_heading}
 traj['heading'] = np.array(traj['heading'])
-plot_route(route, traj)
+# plot_route(route, traj)
 
 path = os.path.join(fwd, 'odk-antworld')
 check_for_dir_and_create(path, remove=True)
