@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import cv2
+import sys
 
 EXPERIMENT_AREA_X = (-3000.0, 3000.0)
 EXPERIMENT_AREA_Y = (-3000.0, 3000.0)
@@ -10,7 +11,11 @@ EXPERIMENT_AREA_HEIGHT = EXPERIMENT_AREA_Y[1] - EXPERIMENT_AREA_Y[0]
 RED = (1, 0, 0, 1)
 GREEN = (0, 1, 0, 1)
 
-data = np.loadtxt("ground-pos 1_Trajectories_100.csv", delimiter=",", skiprows=5, dtype=np.float32)
+# Read trajectory and image filenames
+trajectory_filename = "ground-pos 1_Trajectories_100.csv" if len(sys.argv) < 2 else sys.argv[1]
+image_filename = "115_0002.JPG" if len(sys.argv) < 3 else sys.argv[2]
+
+data = np.loadtxt(trajectory_filename, delimiter=",", skiprows=5, dtype=np.float32)
 coords = data[:,2:]
 avg_coords = np.average(coords, axis=0)
 std_coords = np.std(coords, axis=0)
@@ -29,7 +34,7 @@ avg_coords[:,0] -= EXPERIMENT_AREA_X[0]
 avg_coords[:,1] -= EXPERIMENT_AREA_Y[0]
 
 # Read image and convert to RGB
-image = cv2.imread("115_0002.JPG")
+image = cv2.imread(image_filename)
 image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
 fig, axis = plt.subplots()
