@@ -51,8 +51,11 @@ save = True
 path = os.path.join(fwd, 'window')
 check_for_dir_and_create(path)
 for i, (ws, we) in enumerate(zip(log[' Window start'], log[' Window end'])):
+
     plt.plot(route['x'], route['y'], label='training')
     plt.plot(route['x'][ws:we], route['y'][ws:we], label='window')
+    plt.scatter(route['x'][0], route['y'][0])
+    plt.annotate('Start', (route['x'][0], route['y'][0]))
 
     plt.plot(log['x'][:i], log['y'][:i], '--', label='smw')
 
@@ -60,6 +63,8 @@ for i, (ws, we) in enumerate(zip(log[' Window start'], log[' Window end'])):
     plt.ylim([-1200, 100])
     plt.xlabel('X(mm)')
     plt.ylabel('Y(mm)')
+    plt.legend(loc='lower right')
+
     plt.tight_layout()
     os.path.join(path, str(i) + '.png')
     if save:

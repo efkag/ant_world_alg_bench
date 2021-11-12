@@ -51,12 +51,16 @@ for i, log in enumerate(pm_logs):
     log = 'testing_' + log
     r = load_logs(route_id, log)
     plt.plot(r['x'], r['y'], '--', label='pm{}'.format(i))
+    plt.scatter(r['x'][-1], r['y'][-1])
+    plt.annotate('pm{} ends'.format(i), (r['x'][-1], r['y'][-1]))
 
 
 for i, log in enumerate(smw_logs):
     log = 'testing_' + log
     r = load_logs(route_id, log)
     plt.plot(r['x'], r['y'], linestyle='dashdot' , label='smw{}'.format(i))
+    plt.scatter(r['x'][-1], r['y'][-1])
+    #plt.annotate('smw{} ends'.format(i), (r['x'][-1], r['y'][-1]))
 
 plt.legend()
 plt.tight_layout()

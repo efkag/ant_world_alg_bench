@@ -47,6 +47,8 @@ plt.annotate('Start', (route['x'][0], route['y'][0]))
 log = 'testing_' + pm_logs[0]
 r = load_logs(route_id, log)
 plt.plot(r['x'], r['y'], linestyle='dashdot' , label='smw')
+plt.scatter(r['x'][-1], r['y'][-1])
+plt.annotate('end', (r['x'][-1], r['y'][-1]))
 
 best_i = r[' Best snapshot index']
 
