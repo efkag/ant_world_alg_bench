@@ -57,6 +57,9 @@ plt.annotate('Start', (route['x'][0], route['y'][0]))
 # **NOTE** the extents should correspond to EXPERIMENT_AREA_X and EXPERIMENT_AREA_Y in aligner.py
 plt.imshow(background, extent=(-3000.0, 3000.0, -3000.0, 3000.0))
 
+plt.xlabel("X [mm]")
+plt.ylabel("Y [mm]")
+
 for i, log in enumerate(pm_logs):
     log = 'testing_' + log
     r = load_logs(route_id, log)
