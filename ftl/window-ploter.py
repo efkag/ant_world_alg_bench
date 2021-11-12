@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 sns.set_context('talk')
 # from ast import literal_eval
-from source.utils import load_route_naw, plot_route
+from source.utils import check_for_dir_and_create
 
 def load_logs(route_id, fname):
     path = os.path.join(fwd, 'ftl-{}'.format(route_id), fname)
@@ -41,17 +41,31 @@ route['yaw'] = np.array(route.pop(' Rx'))
 
 
 fig = plt.figure(figsize=(10, 10))
-plt.plot(route['x'], route['y'], label='training')
+# plt.plot(route['x'], route['y'], label='training')
 
 log = load_logs(route_id, 'testing_smw1.csv')
 
 
+
+save = True
+path = os.path.join(fwd, 'window')
+check_for_dir_and_create(path)
 for i, (ws, we) in enumerate(zip(log[' Window start'], log[' Window end'])):
     plt.plot(route['x'], route['y'], label='training')
     plt.plot(route['x'][ws:we], route['y'][ws:we], label='window')
 
     plt.plot(log['x'][:i], log['y'][:i], '--', label='smw')
 
-    plt.draw()
-    plt.pause(0.5)
-    plt.clf()
+    plt.xlim([-3000, 2000])
+    plt.ylim([-1200, 100])
+    plt.xlabel('X(mm)')
+    plt.ylabel('Y(mm)')
+    plt.tight_layout()
+    os.path.join(path, str(i) + '.png')
+    if save:
+        plt.savefig(os.path.join(path, str(i) + '.png'))
+        plt.clf()
+    else:
+        plt.draw()
+        plt.pause(0.5)
+        plt.clf()
