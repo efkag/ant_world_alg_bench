@@ -55,7 +55,7 @@ plt.annotate('Start', (route['x'][0], route['y'][0]))
 
 # Show background
 # **NOTE** the extents should correspond to EXPERIMENT_AREA_X and EXPERIMENT_AREA_Y in aligner.py
-plt.imshow(background, extent=(-3000.0, 3000.0, -3000.0, 3000.0))
+plt.imshow(background, extent=(-3000.0, 3000.0, 3000.0, -3000.0))
 
 plt.xlabel("X [mm]")
 plt.ylabel("Y [mm]")
