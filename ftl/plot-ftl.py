@@ -5,6 +5,7 @@ path = os.path.join(os.path.dirname(__file__), os.pardir)
 fwd = os.path.dirname(__file__)
 sys.path.append(path)
 
+import cv2
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -28,7 +29,7 @@ def load_logs(route_id, fname):
     route['yaw'] = np.array(route.pop(' Rx'))
     return route
 
-route_id = 5
+route_id = 1 if len(sys.argv) < 2 else int(sys.argv[1])
 path = os.path.join(fwd, 'ftl-{}'.format(route_id), 'training.csv')
 dt = pd.read_csv(path, index_col=False)
 
@@ -41,12 +42,24 @@ route['yaw'] = np.array(route.pop(' Rx'))
 
 # plot_route(route)
 
+# Load background image
+# **NOTE** OpenCV uses BGR and Matplotlib uses RGB so convert
+background = cv2.imread("warped.jpg")
+background = cv2.cvtColor(background, cv2.COLOR_BGR2RGB)
 
 fig = plt.figure(figsize=(10, 10))
 plt.plot(route['x'], route['y'], label='training')
 
 plt.scatter(route['x'][0], route['y'][0])
 plt.annotate('Start', (route['x'][0], route['y'][0]))
+
+# Show background
+# **NOTE** the extents should correspond to EXPERIMENT_AREA_X and EXPERIMENT_AREA_Y in aligner.py
+plt.imshow(background, extent=(-3000.0, 3000.0, 3000.0, -3000.0))
+
+plt.xlabel("X [mm]")
+plt.ylabel("Y [mm]")
+
 for i, log in enumerate(pm_logs):
     log = 'testing_' + log
     r = load_logs(route_id, log)
