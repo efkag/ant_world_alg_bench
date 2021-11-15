@@ -2,7 +2,7 @@ import numpy as np
 import cv2 as cv
 import pandas as pd
 from scipy.spatial.distance import cdist
-from utils import calc_dists, travel_dist, pre_process, angular_error, seq_angular_error, travel_dist
+from source.utils import calc_dists, travel_dist, pre_process, angular_error, seq_angular_error, travel_dist
 import os
 
 class Route:
@@ -21,7 +21,7 @@ class Route:
         self.no_of_segments = None
 
     def load_route(self):
-        route_data = pd.read_csv(self.path + 'route' + self.route_id + '.csv', index_col=False)
+        route_data = pd.read_csv(self.path + '/route' + self.route_id + '.csv', index_col=False)
         route_data = route_data.to_dict('list')
         # convert the lists to numpy arrays
         for k in route_data:
@@ -29,7 +29,7 @@ class Route:
         if self.read_imgs:
             imgs = []
             for i in route_data['filename']:
-                img = cv.imread(self.path + i, cv.IMREAD_GRAYSCALE)
+                img = cv.imread(os.path.join(self.path, i), cv.IMREAD_GRAYSCALE)
                 imgs.append(img)
             route_data['imgs'] = imgs
 

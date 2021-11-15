@@ -27,7 +27,7 @@ def load_logs(route_id, fname):
     route['yaw'] = np.array(route.pop(' Rx'))
     return route
 
-route_id = 2
+route_id = 1
 path = os.path.join(fwd, 'ftl-{}'.format(route_id), 'training.csv')
 dt = pd.read_csv(path, index_col=False)
 
@@ -44,7 +44,7 @@ plt.plot(route['x'], route['y'], label='training')
 plt.scatter(route['x'][0], route['y'][0])
 plt.annotate('Start', (route['x'][0], route['y'][0]))
 
-log = 'testing_' + pm_logs[0]
+log = 'testing_' + smw_logs[0]
 r = load_logs(route_id, log)
 plt.plot(r['x'], r['y'], linestyle='dashdot' , label='smw')
 plt.scatter(r['x'][-1], r['y'][-1])

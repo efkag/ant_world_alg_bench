@@ -29,7 +29,17 @@ def load_logs(route_id, fname):
     route['yaw'] = np.array(route.pop(' Rx'))
     return route
 
-route_id = 3 if len(sys.argv) < 2 else int(sys.argv[1])
+def mean_velocity(logs):
+    t = logs['Time [s]']
+    dx = np.diff(logs['x'])
+    dy = np.diff(logs['y'])
+    dxy = np.sqrt(dx**2 + dy**2)
+    print(np.sum(dxy))
+    dt = np.diff(t)
+    v = dxy/dt
+    return np.mean(v)
+
+route_id = 1 if len(sys.argv) < 2 else int(sys.argv[1])
 path = os.path.join(fwd, 'ftl-{}'.format(route_id), 'training.csv')
 dt = pd.read_csv(path, index_col=False)
 
@@ -40,11 +50,13 @@ route['x'] = route.pop(' X')
 route['y'] = route.pop(' Y')
 route['yaw'] = np.array(route.pop(' Rx'))
 
+mean_velocity(route)
+
 # plot_route(route)
 
 # Load background image
 # **NOTE** OpenCV uses BGR and Matplotlib uses RGB so convert
-background = cv2.imread("warped.jpg")
+background = cv2.imread(os.path.join(fwd, "warped.jpg"))
 background = cv2.cvtColor(background, cv2.COLOR_BGR2RGB)
 
 fig = plt.figure(figsize=(10, 10))

@@ -30,9 +30,9 @@ def load_logs(route_id, fname):
     return route
 
 def mean_velocity(logs):
-    t = log['Time [s]']
-    dx = np.diff(log['x'])
-    dy = np.diff(log['y'])
+    t = logs['Time [s]']
+    dx = np.diff(logs['x'])
+    dy = np.diff(logs['y'])
     dxy = np.sqrt(dx**2 + dy**2)
     dt = np.diff(t)
     v = dxy/dt
@@ -44,7 +44,7 @@ prefix = 'ftl-'
 
 pm_mvs = []
 smw_mvs = []
-for i in range(1, 3):
+for i in range(1, 4):
     for l in pm_logs:
         path = os.path.join(fwd, 'ftl-{}'.format(i), 'training.csv')
         log = load_logs(i, 'testing_' + l)
@@ -60,12 +60,10 @@ for i in range(1, 3):
         print(mv, 'mm/s')
 
 
-fig = plt.figure()
-x = np.arange(len(pm_mvs))
-width = 0.5
-plt.bar(x, pm_mvs, width=width, label='pm')
-plt.bar(x+width, smw_mvs, width=width, label='smw')
 
-#plt.xticks(['route-1', 'route-2, route-3'])
-plt.legend()
+x = np.arange(len(pm_mvs))
+x = np.tile(x, 2)
+y = np.concatenate((pm_mvs, smw_mvs))
+hues = np.concatenate((np.full((len(pm_mvs)), 'pm'), np.full((len(smw_mvs)), 'smw'))) 
+sns.barplot(x=x, y=y, hue=hues)
 plt.show()
