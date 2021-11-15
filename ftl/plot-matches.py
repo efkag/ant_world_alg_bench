@@ -64,6 +64,9 @@ ys = np.column_stack((ry, ty))
 for x, y in zip(xs, ys):
     plt.plot(x, y, c='k', linewidth=0.8)
 
+
+plt.xlabel("X [mm]")
+plt.ylabel("Y [mm]")
 plt.legend()
 plt.tight_layout()
 plt.show()

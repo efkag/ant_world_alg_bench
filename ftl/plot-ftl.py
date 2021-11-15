@@ -29,7 +29,7 @@ def load_logs(route_id, fname):
     route['yaw'] = np.array(route.pop(' Rx'))
     return route
 
-route_id = 1 if len(sys.argv) < 2 else int(sys.argv[1])
+route_id = 3 if len(sys.argv) < 2 else int(sys.argv[1])
 path = os.path.join(fwd, 'ftl-{}'.format(route_id), 'training.csv')
 dt = pd.read_csv(path, index_col=False)
 

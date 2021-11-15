@@ -20,8 +20,8 @@ def load_logs(route_id, fname):
     print(dt.columns)
 
     route = dt.to_dict('list')
-    route['x'] = route.pop(' X')
-    route['y'] = route.pop(' Y')
+    route['x'] = np.arrray(route.pop(' X'))
+    route['y'] = np.array(route.pop(' Y'))
     route['yaw'] = np.array(route.pop(' Rx'))
     return route
 
@@ -61,8 +61,8 @@ for i, (ws, we) in enumerate(zip(log[' Window start'], log[' Window end'])):
 
     plt.xlim([-3000, 2000])
     plt.ylim([-1200, 100])
-    plt.xlabel('X(mm)')
-    plt.ylabel('Y(mm)')
+    plt.xlabel('X[mm]')
+    plt.ylabel('Y[mm]')
     plt.legend(loc='lower right')
 
     plt.tight_layout()
