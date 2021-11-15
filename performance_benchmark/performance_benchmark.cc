@@ -48,7 +48,7 @@ int bobMain(int argc, char **argv)
         const size_t numScanColumns = (size_t)std::round(turn_t(90_deg).value() * 180.0);
 
         // Open Testing CSV
-        io::CSVReader<4> testingCSV((dataPath / "testing_pm0.csv").str());
+        io::CSVReader<4> testingCSV((dataPath / "testing_pm3.csv").str());
         testingCSV.read_header(io::ignore_extra_column, "Best heading [degrees]", "Lowest difference", "Best snapshot index", "Filename");
 
         // Read test points from file
@@ -104,12 +104,12 @@ int bobMain(int argc, char **argv)
         const size_t numScanColumns = (size_t)std::round(turn_t(90_deg).value() * 180.0);
 
         // Open Testing CSV
-        io::CSVReader<6> testingCSV((dataPath / "testing_smw0.csv").str());
+        io::CSVReader<6> testingCSV((dataPath / "testing_smw3.csv").str());
         testingCSV.read_header(io::ignore_extra_column, "Best heading [degrees]", "Lowest difference", "Best snapshot index", "Filename", "Window start", "Window end");
 
-        // **TODO** correct window settings
-        Navigation::PerfectMemoryWindow::DynamicBestMatchGradient::WindowConfig windowConfig;
-        Navigation::PerfectMemoryWindow::DynamicBestMatchGradient window(10, windowConfig);
+        // Configure perfect memory
+        Navigation::PerfectMemoryWindow::DynamicBestMatchGradient::WindowConfig windowConfig{4, 4, 10, 50};
+        Navigation::PerfectMemoryWindow::DynamicBestMatchGradient window(15, windowConfig);
 
         // Read test points from file
         double bestHeading;
