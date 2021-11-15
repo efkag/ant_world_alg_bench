@@ -1,8 +1,8 @@
+#include <chrono>
 #include <cstdlib>
 
 // BoB robotics includes
 #include "common/main.h"
-#include "common/timer.h"
 #include "imgproc/roll.h"
 #include "navigation/perfect_memory.h"
 #include "navigation/perfect_memory_window.h"
@@ -44,7 +44,7 @@ int bobMain(int argc, char **argv)
     }
 
     {
-        double pm0TestTime = 0.0;
+        std::vector<double> pm0TestTimes;
         const size_t numScanColumns = (size_t)std::round(turn_t(90_deg).value() * 180.0);
 
         // Open Testing CSV
@@ -64,23 +64,25 @@ int bobMain(int argc, char **argv)
             // Convert to grayscale
             cv::cvtColor(snapshot, snapshot, cv::COLOR_BGR2GRAY);
 
+            // Get best heading from left side of scan
+            const auto start = std::chrono::high_resolution_clock::now();
             degree_t leftBestHeading;
             float leftLowestDifference;
             size_t leftBestSnapshot;
+            std::tie(leftBestHeading, leftBestSnapshot, leftLowestDifference, std::ignore) = pm.getHeading(
+                snapshot, 1, 0, numScanColumns);
+
+            // Get best heading from right side of scan
             degree_t rightBestHeading;
             float rightLowestDifference;
             size_t rightBestSnapshot;
-            {
-                TimerAccumulate<> t(pm0TestTime);
+            std::tie(rightBestHeading, rightBestSnapshot, rightLowestDifference, std::ignore) = pm.getHeading(
+                snapshot, 1, 180 - numScanColumns, 180);
 
-                // Get best heading from left side of scan
-                std::tie(leftBestHeading, leftBestSnapshot, leftLowestDifference, std::ignore) = pm.getHeading(
-                    snapshot, 1, 0, numScanColumns);
+            const auto stop = std::chrono::high_resolution_clock::now();
+            const std::chrono::duration<double, std::milli> duration = stop - start;
+            pm0TestTimes.push_back(duration.count());
 
-                // Get best heading from right side of scan
-                std::tie(rightBestHeading, rightBestSnapshot, rightLowestDifference, std::ignore) = pm.getHeading(
-                    snapshot, 1, 180 - numScanColumns, 180);
-            }
             // If best result came from left scan
             if(leftLowestDifference < rightLowestDifference) {
                 LOGI << "Lowest difference: " << (leftLowestDifference / 255.0f) << "(" << lowestDifference << "), Best heading:" << leftBestHeading.value() << "(" << bestHeading << "), Best snapshot: " << leftBestSnapshot << "(" << bestSnapshotIndex << ")";
@@ -90,11 +92,15 @@ int bobMain(int argc, char **argv)
             }
         }
 
-        std::cout << "PM0 - Test time:" << pm0TestTime << "ms" << std::endl;
+        // Write times to file
+        std::ofstream pm0TestTimesFile("pm0TestTimes.txt");
+        for(double t : pm0TestTimes) {
+            pm0TestTimesFile << t << std::endl;
+        }
     }
 
     {
-        double smw0TestTime = 0.0;
+        std::vector<double> smw0TestTimes;
         const size_t numScanColumns = (size_t)std::round(turn_t(90_deg).value() * 180.0);
 
         // Open Testing CSV
@@ -123,23 +129,24 @@ int bobMain(int argc, char **argv)
             // Constrain current window
             const auto constrainedWindow = window.getWindow(pm.getNumSnapshots());
 
+            // Get best heading from left side of scan
+            const auto start = std::chrono::high_resolution_clock::now();
             degree_t leftBestHeading;
             float leftLowestDifference;
             size_t leftBestSnapshot;
+            std::tie(leftBestHeading, leftBestSnapshot, leftLowestDifference, std::ignore) = pm.getHeading(
+                snapshot, ImgProc::Mask{}, constrainedWindow, 1, 0, numScanColumns);
+
+            // Get best heading from right side of scan
             degree_t rightBestHeading;
             float rightLowestDifference;
             size_t rightBestSnapshot;
-            {
-                TimerAccumulate<> t(smw0TestTime);
-
-                // Get best heading from left side of scan
-                std::tie(leftBestHeading, leftBestSnapshot, leftLowestDifference, std::ignore) = pm.getHeading(
-                    snapshot, ImgProc::Mask{}, constrainedWindow, 1, 0, numScanColumns);
-
-                // Get best heading from right side of scan
-                std::tie(rightBestHeading, rightBestSnapshot, rightLowestDifference, std::ignore) = pm.getHeading(
-                    snapshot, ImgProc::Mask{}, constrainedWindow, 1, 180 - numScanColumns, 180);
-            }
+            std::tie(rightBestHeading, rightBestSnapshot, rightLowestDifference, std::ignore) = pm.getHeading(
+                snapshot, ImgProc::Mask{}, constrainedWindow, 1, 180 - numScanColumns, 180);
+       
+            const auto stop = std::chrono::high_resolution_clock::now();
+            const std::chrono::duration<double, std::milli> duration = stop - start;
+            smw0TestTimes.push_back(duration.count());
 
             // If best result came from left scan
             if(leftLowestDifference < rightLowestDifference) {
@@ -154,7 +161,11 @@ int bobMain(int argc, char **argv)
             }
         }
 
-        std::cout << "SMW0 - Test time:" << smw0TestTime << "ms" << std::endl;
+        // Write times to file
+        std::ofstream smw0TestTimesFile("smw0TestTimes.txt");
+        for(double t : smw0TestTimes) {
+            smw0TestTimesFile << t << std::endl;
+        }
     }
 
     return EXIT_SUCCESS;
