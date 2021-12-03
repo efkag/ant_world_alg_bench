@@ -1,3 +1,4 @@
+import os
 import antworld
 import cv2
 import numpy as np
@@ -36,7 +37,8 @@ class Agent:
             self.agent.set_position(xi, yi, z)
             self.agent.set_attitude(h1, 0, 0)
             img = self.agent.read_frame()
-            filename = path + "img%i.png" % i
+            filename = os.path.join(path, "img%i.png" % i )
+            # filename = path + "img%i.png" % i
             cv2.imwrite(filename, img)
             route['filename'].append("img%i.png" % i)
 

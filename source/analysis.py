@@ -82,7 +82,7 @@ def log_error_points(route, traj, nav, thresh=0.5, route_id=1, target_path=None)
                 rimg = rotate(h, route['qimgs'][i])
                 imgfname = 'rotated-grid-h' + str(h) + '.png'
                 cv.imwrite(os.path.join(point_path, imgfname), rimg)
-                imgfname = 'test-grid'.png'
+                imgfname = 'test-grid.png'
                 cv.imwrite(os.path.join(point_path, imgfname), route['qimgs'][i])
             else:
                 #TODO: Rotating the image to the recovered heading is nto enough here as it is also
