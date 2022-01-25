@@ -1,17 +1,19 @@
-from source.utils import pre_process, calc_dists, load_route_naw, seq_angular_error, check_for_dir_and_create
-from source import seqnav as spm, perfect_memory as pm
-from source.routedatabase import Route
+from pandas.core.reshape.concat import concat
+from utils import pre_process, calc_dists, load_route_naw, seq_angular_error, check_for_dir_and_create
+import seqnav as spm, perfect_memory as pm
+from routedatabase import Route
 import time
 import itertools
 import os
 import pandas as pd
 import numpy as np
-from source import antworld2 as aw
+import antworld2 as aw
 import pickle
 from subprocess import Popen
 from queue import Queue, Empty
 from threading import Thread
 import sys
+import json
 
 
 def get_grid_dict(params):
@@ -114,7 +116,7 @@ def benchmark(results_path, routes_path, params, route_ids,  parallel=False, cor
     assert isinstance(route_ids, list)
 
     if parallel:
-        bench_paral(params, routes_path, route_ids, cores)
+        bench_paral(results_path, params, routes_path, route_ids, cores)
         # log = unpack_results(log)
     else:
         log = bench(params, routes_path, route_ids)
@@ -145,12 +147,17 @@ def unpack_results(results):
     return log
 
 
-def bench_paral(params, routes_path, route_ids=None, cores=None):
+def bench_paral(resutls_path, params, routes_path, route_ids=None, cores=None):
+    # save the parmeters of the test in a json file
+    check_for_dir_and_create(resutls_path)
+    param_path = os.path.join(resutls_path, 'params.json')
+    with open(param_path, 'w') as fp:
+        json.dump(params, fp, indent=1)
+
     existing_cores = os.cpu_count()
     print(existing_cores, ' CPU cores found')
     if cores and cores <= existing_cores:
         existing_cores = cores
-
 
     grid = get_grid_dict(params)
     total_jobs = len(grid)
@@ -168,20 +175,35 @@ def bench_paral(params, routes_path, route_ids=None, cores=None):
 
     # Pickle the parameter object to use in the worker script
     for i, chunk in enumerate(chunks):
-        params = {'chunk': chunk, 'route_ids': route_ids, 'routes_path': routes_path, 'i': i}
+        params = {'chunk': chunk, 'route_ids': route_ids, 
+        'routes_path': routes_path, 'results_path':resutls_path, 'i': i}
         with open('chunks/chunk{}.p'.format(i), 'wb') as file:
             pickle.dump(params, file)
     print('{} chunks pickled'.format(no_of_chunks))
 
+
+    work_path = os.path.join(os.path.dirname(__file__), 'workerscript.py')
     processes = []
     for i, chunk in enumerate(chunks):
-        cmd_list = ['python3', 'workerscript.py', 'chunks/chunk{}.p'.format(i)]
+        cmd_list = ['python3', work_path, 'chunks/chunk{}.p'.format(i)]
         p = Popen(cmd_list)
         processes.append(p)
 
     for p in processes:
         p.wait()
 
+    # combine the results that each worker produces into one .csv file
+    combine_results(resutls_path)
+
+def combine_results(path):
+    files = [os.path.join(path, f) for f in os.listdir(path)]
+    r = []
+    for f in files:
+        if 'params' not in f:
+            r.append(pd.read_csv(f)) 
+    results = pd.concat(r, ignore_index=True)
+    path = os.path.join(path, 'results.csv')
+    results.to_csv(path, index=False)
 
 def enqueue_output(out, queue):
     for line in iter(out.readline, ''):

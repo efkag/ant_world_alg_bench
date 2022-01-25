@@ -21,7 +21,8 @@ class Route:
         self.no_of_segments = None
 
     def load_route(self):
-        route_data = pd.read_csv(self.path + 'route' + self.route_id + '.csv', index_col=False)
+        data_path = os.path.join(self.path, 'route' + self.route_id + '.csv')
+        route_data = pd.read_csv(data_path, index_col=False)
         route_data = route_data.to_dict('list')
         # convert the lists to numpy arrays
         for k in route_data:
@@ -139,7 +140,8 @@ class Route:
 def load_routes(path, ids, **kwargs):
     routes = []
     for id in ids:
-        r = Route(path, id, **kwargs)
+        route_path =  os.path.join(path, 'route{}'.format(id))
+        r = Route(route_path, id, **kwargs)
         routes.append(r)
     return routes
 

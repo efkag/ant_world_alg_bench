@@ -1,8 +1,8 @@
 import antworld
 import cv2
 import numpy as np
-from source.utils import check_for_dir_and_create, write_route, squash_deg, pre_process, travel_dist, pol2cart
-from source.gencoords import generate_from_points, generate_grid
+from utils import check_for_dir_and_create, write_route, squash_deg, pre_process, travel_dist, pol2cart
+from gencoords import generate_from_points, generate_grid
 
 # Old Seville data (lower res, but loads faster)
 worldpath = antworld.bob_robotics_path + "/resources/antworld/world5000_gray.bin"

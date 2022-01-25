@@ -1,4 +1,4 @@
-from source.utils import mae, rmse, cor_dist, rmf, nanmae
+from utils import mae, rmse, cor_dist, rmf, nanmae
 import numpy as np
 
 
