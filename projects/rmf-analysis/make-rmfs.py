@@ -1,5 +1,6 @@
 import sys
 import os
+
 path = os.path.join(os.path.dirname(__file__), os.pardir)
 fwd = os.path.dirname(__file__)
 cwd = os.getcwd()
@@ -16,8 +17,8 @@ from source.utils import rmf, cor_dist, save_image, rotate
 from source.routedatabase import Route
 
 
-path =  os.path.join(cwd, 'new_antworld', 'exp1', 'route1')
-print(path)
+path =  os.path.join(cwd, 'new-antworld', 'exp1', 'route1')
+route = Route(path, route_id=1)
 # df = pd.read_csv(fwd + '/office/training.csv')
 # testdf = pd.read_csv(fwd + '/office/testing.csv')
 
