@@ -24,8 +24,10 @@ def get_grid_dict(params):
         for i, k in enumerate(params):
             combo_dict[k] = combo[i]
         grid_dict.append(combo_dict)
-
+    
+    # remove the combination where we have both blur and adge detection
     grid_dict[:] = [x for x in grid_dict if remove_blur_edge(x)]
+    # Remove combinations where we have neither blur nor edge detection
     grid_dict[:] = [x for x in grid_dict if not remove_non_blur_edge(x)]
 
     return grid_dict

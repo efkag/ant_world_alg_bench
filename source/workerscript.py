@@ -27,7 +27,7 @@ routes_path = params['routes_path']
 results_path = params['results_path']
 chunk_id = params['i']
 # Load all routes
-# routes = load_routes(routes_path, route_ids)
+routes = load_routes(routes_path, route_ids)
 
 total_jobs = len(chunk) * len(route_ids)
 jobs = 0
@@ -47,9 +47,9 @@ for combo in chunk:
     r = combo['r']
     segment_length = combo['segment_l']
     window_log = None
-    for route_id in route_ids:  # for every route
-        route_path = routes_path + '/route' + str(route_id) + '/'
-        route = Route(route_path, route_id)
+    for route in routes:  # for every route
+        # route_path = os.path.join(routes_path, '/route' + str(route_id))
+        # route = Route(route_path, route_id)
 
         tic = time.perf_counter()
         # Preprocess images
@@ -74,7 +74,7 @@ for combo in chunk:
         abs_index_diffs = np.absolute(np.subtract(nav.get_index_log(), min_dist_index))
         dist_diff = calc_dists(route.get_xycoords(), min_dist_index, matched_index)
         mean_route_error = np.mean(errors)
-        log['route_id'].extend([route_id])
+        log['route_id'].extend([route.get_route_id()])
         log['blur'].extend([combo.get('blur')])
         log['edge'].extend([combo.get('edge_range')])
         log['res'].append(combo.get('shape'))

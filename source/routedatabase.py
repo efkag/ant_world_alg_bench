@@ -30,7 +30,8 @@ class Route:
         if self.read_imgs:
             imgs = []
             for i in route_data['filename']:
-                img = cv.imread(self.path + i, cv.IMREAD_GRAYSCALE)
+                imgfile = os.path.join(self.path, i)
+                img = cv.imread(imgfile, cv.IMREAD_GRAYSCALE)
                 imgs.append(img)
             route_data['imgs'] = imgs
 
@@ -135,7 +136,9 @@ class Route:
         return {'x': self.route_dict['x'][0],
                 'y': self.route_dict['y'][0],
                 'yaw': self.route_dict['yaw'][0]}
-
+    
+    def get_route_id(self):
+        return self.route_id
 
 def load_routes(path, ids, **kwargs):
     routes = []
