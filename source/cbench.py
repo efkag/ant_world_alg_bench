@@ -157,17 +157,17 @@ def bench_paral(resutls_path, params, routes_path, route_ids=None, cores=None):
         json.dump(params, fp, indent=1)
 
     existing_cores = os.cpu_count()
-    print(existing_cores, ' CPU cores found')
-    if cores and cores <= existing_cores:
-        existing_cores = cores
+    if cores and cores > existing_cores:
+        cores = existing_cores - 1
+    print(existing_cores, ' CPU cores found. Using ', cores, ' cores')
 
     grid = get_grid_dict(params)
     total_jobs = len(grid)
 
-    if total_jobs < existing_cores:
+    if total_jobs < cores:
         no_of_chunks = total_jobs
     else:
-        no_of_chunks = existing_cores - 1
+        no_of_chunks = cores
     # Generate a list of chunks of grid combinations
     chunks = get_grid_chunks(grid, no_of_chunks)
     print('{} combinations, testing on {} routes, running on {} cores'.format(total_jobs, len(route_ids), no_of_chunks))

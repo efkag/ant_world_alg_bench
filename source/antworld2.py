@@ -107,14 +107,16 @@ class Agent:
         # traj[1, 0] = xy[1]
         # Navigation loop
         for i in range(0, t):
+            # log the coordinates and attitude
             traj[0, i] = xy[0]
             traj[1, i] = xy[1]
             headings.append(h)
+            # get the new heading from teh navigator and format it properly
             h = nav.get_heading(img)
             h = headings[-1] + h
             h = squash_deg(h)
 
-            # get new position and image
+            # reposition the agent and get the new image
             xy, img = self.update_position(xy, h, r)
             img = pre_process(img, preproc)
 

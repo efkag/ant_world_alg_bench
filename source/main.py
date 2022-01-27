@@ -1,3 +1,4 @@
+from numpy import core
 import cbench
 # import navbench
 
@@ -15,13 +16,13 @@ def main():
     # bench = navbench.Benchmark(results_path, routes_path, grid_path, filename='test.csv')
     # bench.benchmark(parameters, routes, parallel=False)
 
-    results_path = '/its/home/sk526/ant_world_alg_bench/Results/newant/pm_bench'
+    results_path = '/its/home/sk526/ant_world_alg_bench/Results/newant/test'
     routes_path = '/its/home/sk526/ant_world_alg_bench/new-antworld/exp1'
     parameters = {'r': [0.05], 't': [50], 'segment_l': [3], 'blur': [True, False],
                   'shape': [(180, 50), (90, 25)], 'edge_range': [(180, 200), False],
-                  'window': [0], 'matcher': ['mae', 'corr']}
+                  'window': [10], 'matcher': ['mae', 'corr']}
 
-    routes = [1, 2, 3, 4, 5]
-    cbench.benchmark(results_path, routes_path, parameters, routes, parallel=True)
+    routes = [1]
+    cbench.benchmark(results_path, routes_path, parameters, routes, parallel=True, cores=1)
 if __name__ == "__main__":
     main()
