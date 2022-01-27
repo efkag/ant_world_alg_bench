@@ -24,8 +24,8 @@ data['abs_index_diff'] = data['abs_index_diff'].apply(literal_eval)
 
 check_for_dir_and_create(fig_save_path)
 matcher = 'mae'
-edge = 'False'  # 'False'
-blur = True
+edge = '(180, 200)'  # 'False'
+blur = False
 figsize = (4, 3)
 res = '(180, 50)'
 route = data.loc[(data['matcher'] == matcher) & (data['edge'] == edge) &

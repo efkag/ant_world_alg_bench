@@ -29,7 +29,7 @@ fig_save_path = os.path.join(fig_save_path, str(route_id))
 check_for_dir_and_create(fig_save_path)
 path = 'new-antworld/exp1/route' + str(route_id) + '/'
 window = -15
-matcher = 'mae'
+matcher = 'corr'
 edge = 'False'
 res = '(180, 50)'
 threshold = 0
