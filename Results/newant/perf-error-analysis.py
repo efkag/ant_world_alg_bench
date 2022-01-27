@@ -1,3 +1,9 @@
+import sys
+import os
+# path = os.path.join(os.path.dirname(__file__), os.pardir)
+fwd = os.path.dirname(__file__)
+sys.path.append(os.getcwd())
+
 import pandas as pd
 import matplotlib.pyplot as plt
 from source.utils import check_for_dir_and_create
@@ -8,9 +14,8 @@ sns.set_context("paper", font_scale=1)
 
 
 # fig_save_path = '/home/efkag/Desktop/perf'
-fig_save_path = '/home/efkag/Desktop/cont/perf'
-data = pd.read_csv('exp6live.csv')
-# data = pd.read_csv('exp4.csv')
+fig_save_path = 'Results/newant/2022-01-27'
+data = pd.read_csv('Results/newant/2022-01-27/results.csv')
 # Convert list of strings to actual list of lists
 data['errors'] = data['errors'].apply(literal_eval)
 data['dist_diff'] = data['dist_diff'].apply(literal_eval)
