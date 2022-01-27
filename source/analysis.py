@@ -5,6 +5,7 @@ import cv2 as cv
 import matplotlib.pyplot as plt
 from source.utils import rotate
 from source import antworld2
+from source.display import plot_route_errors
 
 
 def iqr_outliers(data):
@@ -52,10 +53,12 @@ def log_error_points(route, traj, nav, thresh=0.5, route_id=1, target_path=None)
     index_log = nav.get_index_log()
     degrees = nav.degrees
 
+    # Loop through every test point
     for i in range(len(traj['heading'])):
         dist = np.squeeze(cdist(np.expand_dims(traj_xy[i], axis=0), route_xy, 'euclidean'))
-        index = np.argmin(dist)
-        min_dist = dist[index]
+        min_dist_i = np.argmin(dist)
+        min_dist = dist[min_dist_i]
+        route_match_i = index_log[i]
         if min_dist > thresh:
             point_path = os.path.join(logs_path, str(i))
             os.mkdir(point_path)
@@ -63,12 +66,15 @@ def log_error_points(route, traj, nav, thresh=0.5, route_id=1, target_path=None)
             if traj.get('window_log'):
                 w = traj.get('window_log')
                 for wi in range(w[0], w[1]):
-                    imgfname = route['filename'][wi] + '.png'
+                    imgfname = route['filename'][wi]
                     cv.imwrite(os.path.join(point_path, imgfname) , route['imgs'][wi])
             else: # If perfect memory is used
-                img_index = index_log[i]
-                imgfname = route['filename'][img_index] + '.png'
-                cv.imwrite(os.path.join(point_path, imgfname) , route['imgs'][img_index])
+                imgfname = route['filename'][route_match_i]
+                cv.imwrite(os.path.join(point_path, imgfname) , route['imgs'][route_match_i])
+
+            # save the minimum distance image
+            imgfname = 'img{}-mindist.png'.format(min_dist_i)
+            cv.imwrite(os.path.join(point_path, imgfname) , route['imgs'][min_dist_i])
             
             # Save the query image rotated to the extractred direction
             h = traj['heading'][i]
@@ -76,27 +82,33 @@ def log_error_points(route, traj, nav, thresh=0.5, route_id=1, target_path=None)
                 rimg = rotate(h, route['qimgs'][i])
                 imgfname = 'rotated-grid-h' + str(h) + '.png'
                 cv.imwrite(os.path.join(point_path, imgfname), rimg)
-                imgfname = 'grid-h' + str(h) + '.png'
+                imgfname = 'test-grid.png'
                 cv.imwrite(os.path.join(point_path, imgfname), route['qimgs'][i])
             else:
                 #TODO: Rotating the image to the recovered heading is nto enough here as it is also
                 # dependent on the heading of the previous lo9cation or in other word the location where the 
                 # test image was sampled. 
                 img = agent.get_img(traj_xy[i], h)
-                rimg = rotate(h, img)
+                # rimg = rotate(h, img)
                 imgfname = str(h) + '.png'
-                cv.imwrite(os.path.join(point_path, imgfname), rimg)
+                cv.imwrite(os.path.join(point_path, imgfname), img)
             # Save ridf
-            rsim = rsims_matrices[i][img_index]
+            rsim = rsims_matrices[i][route_match_i]
             fig = plt.figure()
             plt.plot(degrees, rsim)
             fig.savefig(os.path.join(point_path, 'rsim.png'))
             plt.close(fig)
 
+            # Save window or full memory rsims heatmap
             fig = plt.figure()
             plt.imshow(rsims_matrices[i], cmap='hot')
             fig.savefig(os.path.join(point_path, 'heat.png'))
             plt.close(fig)
+            
+            path = os.path.join(point_path, 'map.png')
+            plot_route_errors(route, traj, route_i=route_match_i, error_i=i, path=path)
+
+            
 
 def rgb02nan(imgs, color=None):
     if not color:

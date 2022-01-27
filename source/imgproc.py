@@ -39,6 +39,9 @@ def wavelet(image_shape):
     return lambda im: dtw.dtw_haar(im)[-1]
 
 
+def mod_dtype(dtype):
+    return lambda im: im.astype(dtype)
+
 def pipeline(sets):
     '''
     Create a pre-processing pipeline from a dictionary of settings

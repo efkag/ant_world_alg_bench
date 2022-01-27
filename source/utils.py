@@ -243,7 +243,7 @@ def load_route_naw(path, route_id=1, imgs=False, query=False, max_dist=0.5, grid
 
 def write_route(path, route, route_id=1):
     route = pd.DataFrame(route)
-    route.to_csv(path + 'route' + str(route_id) + '.csv', index=False)
+    route.to_csv(os.path.join(path, 'route' + str(route_id) + '.csv'), index=False)
 
 
 def travel_dist(x, y):
@@ -778,7 +778,7 @@ def check_for_dir_and_create(directory, remove=False):
     if remove and os.path.exists(directory):
         shutil.rmtree(directory)
     if not os.path.exists(directory):
-        os.makedirs(directory)
+        os.makedirs(directory, exist_ok=True)
 
 
 def load_loop_route(route_dir, route_id=1, grid_pos_limit=100):
