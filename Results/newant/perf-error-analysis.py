@@ -23,7 +23,7 @@ data['abs_index_diff'] = data['abs_index_diff'].apply(literal_eval)
 
 
 check_for_dir_and_create(fig_save_path)
-matcher = 'corr'
+matcher = 'mae'
 edge = 'False'  # 'False'
 blur = True
 figsize = (4, 3)
@@ -34,7 +34,7 @@ route = data.loc[(data['matcher'] == matcher) & (data['edge'] == edge) &
 
 
 '''
-Plot for one specific matcher with one specific pre-proc
+Plot errors vs window sizes for a combo of parameters
 '''
 fig, ax = plt.subplots(figsize=figsize)
 plt.title('m{}.res{}.b{}.e{}.png'.format(matcher, res, blur, edge))
@@ -49,5 +49,6 @@ ax.set_ylabel('Angular error')
 ax.set_xlabel('Window size')
 plt.tight_layout(pad=0)
 
-fig.savefig(fig_save_path + '/m{}.res{}.b{}.e{}.png'.format(matcher, res, blur, edge))
+fig_save_path = os.path.join(fig_save_path, 'm{}.res{}.b{}.e{}.png'.format(matcher, res, blur, edge))
+fig.savefig(fig_save_path)
 plt.show()

@@ -1,3 +1,9 @@
+import sys
+import os
+# path = os.path.join(os.path.dirname(__file__), os.pardir)
+fwd = os.path.dirname(__file__)
+sys.path.append(os.getcwd())
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
