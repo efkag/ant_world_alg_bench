@@ -21,7 +21,8 @@ class Route:
         self.no_of_segments = None
 
     def load_route(self):
-        route_data = pd.read_csv(self.path + 'route' + self.route_id + '.csv', index_col=False)
+        data_path = os.path.join(self.path, 'route' + self.route_id + '.csv')
+        route_data = pd.read_csv(data_path, index_col=False)
         route_data = route_data.to_dict('list')
         # convert the lists to numpy arrays
         for k in route_data:
@@ -29,7 +30,8 @@ class Route:
         if self.read_imgs:
             imgs = []
             for i in route_data['filename']:
-                img = cv.imread(self.path + i, cv.IMREAD_GRAYSCALE)
+                imgfile = os.path.join(self.path, i)
+                img = cv.imread(imgfile, cv.IMREAD_GRAYSCALE)
                 imgs.append(img)
             route_data['imgs'] = imgs
 
@@ -134,12 +136,15 @@ class Route:
         return {'x': self.route_dict['x'][0],
                 'y': self.route_dict['y'][0],
                 'yaw': self.route_dict['yaw'][0]}
-
+    
+    def get_route_id(self):
+        return self.route_id
 
 def load_routes(path, ids, **kwargs):
     routes = []
     for id in ids:
-        r = Route(path, id, **kwargs)
+        route_path =  os.path.join(path, 'route{}'.format(id))
+        r = Route(route_path, id, **kwargs)
         routes.append(r)
     return routes
 
