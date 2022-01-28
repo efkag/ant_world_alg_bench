@@ -16,9 +16,9 @@ route_path = os.path.join(os.getcwd(), 'new-antworld', 'exp1', 'route1')
 print(route_path)
 route = Route(route_path, 1) 
 d = {'shape': (360, 100)}
-pre_process(route.get_imgs(), sets=d)
+imgs = pre_process(route.get_imgs(), sets=d)
 
-img = route.get_imgs()[0]
+img = imgs[0]
 
 
 deg_range = (-180, 180)

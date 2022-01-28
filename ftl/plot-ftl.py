@@ -39,7 +39,7 @@ def mean_velocity(logs):
     v = dxy/dt
     return np.mean(v)
 
-route_id = 1 if len(sys.argv) < 2 else int(sys.argv[1])
+route_id = 4 if len(sys.argv) < 2 else int(sys.argv[1])
 path = os.path.join(fwd, 'ftl-{}'.format(route_id), 'training.csv')
 dt = pd.read_csv(path, index_col=False)
 
