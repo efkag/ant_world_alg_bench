@@ -94,13 +94,13 @@ def plot_matches(route, traj, matches, scale=None, size=(10, 10), path=None, tit
     ax.quiver(traj['x'], traj['y'], u, v, scale=scale)
 
     # plot match lines
-    rx = route['x']
-    ry = route['y']
+    rx = route['x'][matches]
+    ry = route['y'][matches]
     tx = traj['x']
     ty = traj['y']
     xs = np.column_stack((rx, tx))
     ys = np.column_stack((ry, ty))
-    for x, y in (xs, ys):
+    for x, y in zip(xs, ys):
         plt.plot(x, y, c='k')
 
     if path:

@@ -2,7 +2,9 @@ import numpy as np
 import cv2 as cv
 import pandas as pd
 from scipy.spatial.distance import cdist
-from utils import calc_dists, travel_dist, pre_process, angular_error, seq_angular_error, travel_dist
+# TODO: Figre out why thsi import when used outsite of the package has to use the 'source.' 
+# and when used withing the package is is not needed. 
+from source.utils import calc_dists, travel_dist, pre_process, angular_error, seq_angular_error, travel_dist
 import os
 
 class Route:
