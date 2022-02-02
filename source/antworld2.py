@@ -2,8 +2,8 @@ import os
 import antworld
 import cv2
 import numpy as np
-from utils import check_for_dir_and_create, write_route, squash_deg, pre_process, travel_dist, pol2cart
-from gencoords import generate_from_points, generate_grid
+from source.utils import check_for_dir_and_create, write_route, squash_deg, pre_process, travel_dist, pol2cart
+from source.gencoords import generate_from_points, generate_grid
 
 # Old Seville data (lower res, but loads faster)
 worldpath = antworld.bob_robotics_path + "/resources/antworld/world5000_gray.bin"
@@ -16,10 +16,17 @@ z = 1.5 # m (for some reason the ground is at ~1.5m for this world)
 
 
 class Agent:
-    def __init__(self):
+    def __init__(self, pitch_roll_sig=None):
         self.agent = antworld.Agent(720, 150)
         (xlim, ylim, zlim) = self.agent.load_world(worldpath)
         print(xlim, ylim, zlim)
+        self.pitch_roll_noise = pitch_roll_sig
+        self.z = z
+        # if the sigma of the gaussian noise is provided use a noise function for pitch and roll noise
+        if pitch_roll_sig:
+            self.noise = lambda : np.random.normal(scale=pitch_roll_sig)
+        else:
+            self.noise = lambda : 0
 
     def record_route(self, route, path, route_id=1):
         check_for_dir_and_create(path)
@@ -30,7 +37,6 @@ class Agent:
         # Fixed high for now
         # TODO: in the future it may be a good idea to adap the coed to use the elevation
         #   and the pitch, roll noise
-        z = 1.5
         route['filename'] = []
 
         for i, (xi, yi, h1) in enumerate(zip(x, y, headings)):
@@ -60,8 +66,8 @@ class Agent:
         :param deg:
         :return:
         '''
-        self.agent.set_position(xy[0], xy[1], z)
-        self.agent.set_attitude(deg, 0, 0)
+        self.agent.set_position(xy[0], xy[1], self.z)
+        self.agent.set_attitude(deg, self.noise(), self.noise())
         return cv2.cvtColor(self.agent.read_frame(), cv2.COLOR_BGR2GRAY)
 
     def update_position(self, xy, deg, r):
@@ -74,11 +80,7 @@ class Agent:
         xx = xy[0] + x
         yy = xy[1] + y
 
-        self.agent.set_position(xx, yy, z)
-        self.agent.set_attitude(deg, 0, 0)
-
-        img = self.agent.read_frame()
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        img = self.get_img((x, yy), deg)
 
         return (xx, yy), img
 
@@ -107,14 +109,16 @@ class Agent:
         # traj[1, 0] = xy[1]
         # Navigation loop
         for i in range(0, t):
+            # log the coordinates and attitude
             traj[0, i] = xy[0]
             traj[1, i] = xy[1]
             headings.append(h)
+            # get the new heading from teh navigator and format it properly
             h = nav.get_heading(img)
             h = headings[-1] + h
             h = squash_deg(h)
 
-            # get new position and image
+            # reposition the agent and get the new image
             xy, img = self.update_position(xy, h, r)
             img = pre_process(img, preproc)
 

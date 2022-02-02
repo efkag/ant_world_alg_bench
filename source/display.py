@@ -78,3 +78,35 @@ def plot_route_errors(route, traj, route_i, error_i, size=(10, 10), scale=None, 
         plt.close(fig)
     else:
         plt.show()
+
+def plot_matches(route, traj, matches, scale=None, size=(10, 10), path=None, title=None):
+    fig, ax = plt.subplots(figsize=size)
+    ax.set_title(title,  loc="left")
+    plt.tight_layout(pad=0)
+    # Plot the route datapoints
+    u, v = pol2cart_headings(90 - route['yaw'])
+    ax.scatter(route['x'], route['y'])
+    ax.quiver(route['x'], route['y'], u, v, scale=scale)
+    #Plot the trajectory
+    u, v = pol2cart_headings(90 - traj['heading'])
+    ax.scatter(traj['x'], traj['y'])
+    # ax.plot(traj['x'], traj['y'])
+    ax.quiver(traj['x'], traj['y'], u, v, scale=scale)
+
+    # plot match lines
+    rx = route['x'][matches]
+    ry = route['y'][matches]
+    tx = traj['x']
+    ty = traj['y']
+    xs = np.column_stack((rx, tx))
+    ys = np.column_stack((ry, ty))
+    for x, y in zip(xs, ys):
+        plt.plot(x, y, c='k')
+
+    if path:
+        fig.savefig(path)
+    plt.show()
+    plt.close(fig)
+    
+
+
