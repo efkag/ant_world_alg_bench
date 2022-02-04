@@ -112,6 +112,8 @@ class Route:
 
     def calc_errors(self, trajectory):
         if self.is_segmented:
+            # TODO: for sgement we need to calculate the seq. error but starting 
+            # the search at the start of each segment 
             return angular_error(self.route_dict, trajectory)
         else:
             return seq_angular_error(self.route_dict, trajectory)

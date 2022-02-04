@@ -1,9 +1,15 @@
-from source.utils import load_route_naw, plot_route, seq_angular_error, animated_window, pre_process
+import sys
+import os
+# path = os.path.join(os.path.dirname(__file__), os.pardir)
+fwd = os.path.dirname(__file__)
+sys.path.append(os.getcwd())
+
+from source.utils import load_route_naw, plot_route, seq_angular_error, animated_window, pre_process, divergence_error
 from source import seqnav
 import numpy as np
 
 route_id = 1
-path = '../new-antworld/exp1/route' + str(route_id) + '/'
+path = 'new-antworld/exp1/route' + str(route_id) + '/'
 # path = '../test_data/route'+ str(route_id) + '/'
 route = load_route_naw(path, route_id=route_id, imgs=True, query=True, max_dist=0.2)
 
