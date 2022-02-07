@@ -36,7 +36,7 @@ for i, route_id in enumerate(routes):
     traj['y'] = traj.pop('ty')
 
     dists = divergence_traj(route, traj)
-    divergence.append(dists)
+    divergence.append(dists.tolist())
 
 data['divergence'] = divergence
 
