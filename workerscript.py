@@ -3,14 +3,13 @@
 import sys
 import pickle
 import os
-
-from utils import pre_process, calc_dists, load_route_naw, angular_error, check_for_dir_and_create
-import seqnav as spm, perfect_memory as pm
+from source.utils import pre_process, calc_dists, load_route_naw, angular_error, check_for_dir_and_create
+from source import seqnav as spm, perfect_memory as pm
 import pandas as pd
 import time
 import numpy as np
-import antworld2 as aw
-from routedatabase import Route, load_routes
+from source import antworld2 as aw
+from source.routedatabase import Route, load_routes
 
 print('Argument List:', str(sys.argv))
 
@@ -45,7 +44,7 @@ for combo in chunk:
     window = combo['window']
     t = combo['t']
     r = combo['r']
-    segment_length = combo['segment_l']
+    segment_length = combo.get('segment_l')
     window_log = None
     for route in routes:  # for every route
         # route_path = os.path.join(routes_path, '/route' + str(route_id))
@@ -65,7 +64,8 @@ for combo in chunk:
         else:
             # TODO: The route object can not be passed intothe test_nav function here only the starting coordinates
             # are needed by the test_nav function
-            traj, nav = agent.test_nav(route, nav, t=t, r=r, preproc=combo)
+            coords = route.get_starting_coords()
+            traj, nav = agent.test_nav(coords, nav, t=t, r=r, preproc=combo, sigma=None)
 
         toc = time.perf_counter()
         time_compl = toc - tic
