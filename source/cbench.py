@@ -1,13 +1,14 @@
 from pandas.core.reshape.concat import concat
-from utils import pre_process, calc_dists, load_route_naw, seq_angular_error, check_for_dir_and_create
-import seqnav as spm, perfect_memory as pm
-from routedatabase import Route
+from source import utils
+from source.utils import pre_process, calc_dists, load_route_naw, seq_angular_error, check_for_dir_and_create
+from source import seqnav as spm, perfect_memory as pm
+from source.routedatabase import Route
 import time
 import itertools
 import os
 import pandas as pd
 import numpy as np
-import antworld2 as aw
+from source import antworld2 as aw
 import pickle
 from subprocess import Popen
 from queue import Queue, Empty
@@ -159,6 +160,10 @@ def bench_paral(resutls_path, params, routes_path, route_ids=None, cores=None):
     existing_cores = os.cpu_count()
     if cores and cores > existing_cores:
         cores = existing_cores - 1
+    elif cores and cores <= existing_cores:
+        cores = cores
+    else:
+        cores = existing_cores - 1
     print(existing_cores, ' CPU cores found. Using ', cores, ' cores')
 
     grid = get_grid_dict(params)
@@ -185,6 +190,7 @@ def bench_paral(resutls_path, params, routes_path, route_ids=None, cores=None):
 
 
     work_path = os.path.join(os.path.dirname(__file__), 'workerscript.py')
+    work_path = 'workerscript.py'
     processes = []
     for i, chunk in enumerate(chunks):
         cmd_list = ['python3', work_path, 'chunks/chunk{}.p'.format(i)]
