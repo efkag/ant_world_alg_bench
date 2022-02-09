@@ -4,7 +4,7 @@ import numpy as np
 
 class SequentialPerfectMemory:
 
-    def __init__(self, route_images, matching, deg_range=(0, 360), degree_shift=1, window=20):
+    def __init__(self, route_images, matching, deg_range=(0, 360), degree_shift=1, window=20, dynamic_range=0.1):
         self.route_end = len(route_images)
         self.route_images = route_images
         self.deg_range = deg_range
@@ -40,6 +40,7 @@ class SequentialPerfectMemory:
         self.flimit = self.window
 
         # Adaptive window parameters
+        self.dynamic_range = dynamic_range
         self.min_window = 10
         self.window_margin = 5
         self.deg_diff = 5
@@ -186,12 +187,24 @@ class SequentialPerfectMemory:
         # Dynamic window adaptation based on match gradient.
         if best > self.prev_match or self.window <= self.min_window:
             self.window += self.window_margin
+            self.window += self.window * self.dynamic_range
         else:
             self.window -= self.window_margin
         self.prev_match = best
-        # upper = int(self.window/2)
-        # lower = self.window - upper
-        # return upper, lower
+    
+    def dynamic_window_rate(self, best):
+        '''
+        Change the window size depending on the current best and previous img match gradient. 
+        Update the size by the dynamic_rate (percetage of the window size)
+        :param best:
+        :return:
+        '''
+        # Dynamic window adaptation based on match gradient.
+        if best > self.prev_match or self.window <= self.min_window:
+            self.window += self.window * self.dynamic_range
+        else:
+            self.window -= self.window * self.dynamic_range
+        self.prev_match = best
 
     def dynamic_window_h2(self, h):
         '''
