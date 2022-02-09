@@ -76,6 +76,8 @@ for combo in chunk:
         abs_index_diffs = np.absolute(np.subtract(nav.get_index_log(), min_dist_index))
         dist_diff = calc_dists(route.get_xycoords(), min_dist_index, matched_index)
         mean_route_error = np.mean(errors)
+        window_log = nav.get_window_log
+        
         log['route_id'].extend([route.get_route_id()])
         log['blur'].extend([combo.get('blur')])
         log['edge'].extend([combo.get('edge_range')])
