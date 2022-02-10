@@ -63,9 +63,6 @@ class SequentialPerfectMemory:
         :param query_img:
         :return:
         '''
-        if self.flimit >= self.route_end:
-            print('pause')
-        print(self.blimit, self.flimit)
         # get the rotational similarities between a query image and a window of route images
         wrsims = rmf(query_img, self.route_images[self.blimit:self.flimit], self.matcher, self.deg_range, self.deg_step)
         self.window_log.append([self.blimit, self.flimit])
@@ -96,7 +93,7 @@ class SequentialPerfectMemory:
 
         if self.adaptive:
             best = wind_sims[index]
-            self.dynamic_window_sim(best)
+            self.dynamic_window_rate(best)
             self.check_w_size()
         return heading
 

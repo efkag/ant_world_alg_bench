@@ -10,7 +10,7 @@ from source import seqnav
 from source import antworld2 as aw
 
 agent = aw.Agent(pitch_roll_sig=None)
-route_id = 1
+route_id = 2
 pre_processing = {'shape': (180, 50), 'edge_range': (180, 220)}
 matcher = 'corr'
 window = -20
