@@ -63,6 +63,9 @@ class SequentialPerfectMemory:
         :param query_img:
         :return:
         '''
+        if self.flimit >= self.route_end:
+            print('pause')
+        print(self.blimit, self.flimit)
         # get the rotational similarities between a query image and a window of route images
         wrsims = rmf(query_img, self.route_images[self.blimit:self.flimit], self.matcher, self.deg_range, self.deg_step)
         self.window_log.append([self.blimit, self.flimit])
@@ -187,7 +190,6 @@ class SequentialPerfectMemory:
         # Dynamic window adaptation based on match gradient.
         if best > self.prev_match or self.window <= self.min_window:
             self.window += self.window_margin
-            self.window += self.window * self.dynamic_range
         else:
             self.window -= self.window_margin
         self.prev_match = best
@@ -201,9 +203,9 @@ class SequentialPerfectMemory:
         '''
         # Dynamic window adaptation based on match gradient.
         if best > self.prev_match or self.window <= self.min_window:
-            self.window += self.window * self.dynamic_range
+            self.window += round(self.window * self.dynamic_range)
         else:
-            self.window -= self.window * self.dynamic_range
+            self.window -= round(self.window * self.dynamic_range)
         self.prev_match = best
 
     def dynamic_window_h2(self, h):
