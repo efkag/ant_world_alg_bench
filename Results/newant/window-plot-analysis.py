@@ -1,17 +1,19 @@
+import sys
+import os
+# path = os.path.join(os.path.dirname(__file__), os.pardir)
+fwd = os.path.dirname(__file__)
+sys.path.append(os.getcwd())
+
 import pandas as pd
 import numpy as np
 import seaborn as sns
 from ast import literal_eval
-from source2 import load_route_naw, animated_window
+from source.utils import load_route_naw, animated_window
 sns.set_context("paper", font_scale=1)
 
 
-def to_list(x):
-    return literal_eval(x)
-
-fig_save_path = 'window-plots/'
-data = pd.read_csv('combined-results.csv')
-# data = pd.read_csv('test.csv')
+fig_save_path = os.path.join(fwd, 'test2', 'window-plots')
+data = pd.read_csv('Results/newant/test2/results.csv')
 # Convert list of strings to actual list of lists
 data['errors'] = data['errors'].apply(literal_eval)
 data['dist_diff'] = data['dist_diff'].apply(literal_eval)
@@ -23,17 +25,18 @@ data['th'] = data['th'].apply(literal_eval)
 
 
 # Plot a specific route
-route_id = 4
+route_id = 1
 fig_save_path = fig_save_path + str(route_id)
 path = '../../new-antworld/exp1/route' + str(route_id) + '/'
 window = -20
 matcher = 'corr'
-edge = '(220, 240)'
+edge = '(180, 200)'
+blur = False
 res = '(180, 50)'
 figsize = (4, 4)
 
-traj = data.loc[(data['matcher'] == matcher) & (data['res'] == res) & # (data['edge'] == edge) &
-                (data['window'] == window) & (data['route_id'] == route_id)]
+traj = data.loc[(data['matcher'] == matcher) & (data['res'] == res) & (data['edge'] == edge) &
+                (data['window'] == window) & (data['route_id'] == route_id) & (data['blur'] == blur)]
 
 traj = traj.to_dict(orient='records')[0]
 errors = np.array(traj['errors'])
