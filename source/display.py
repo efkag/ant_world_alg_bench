@@ -42,6 +42,20 @@ def plot_3d(data, show=True, rows_cols_idx=111, title=''):
     ax.title.set_text(title)
     if show: plt.show()
 
+def img_3d(img, show=True, title=''):
+    x, y = img.shape
+
+    x = np.arange(0, x)
+    y = np.arange(0, y)
+    X, Y = np.meshgrid(y, x)
+
+
+    fig = plt.figure()
+    # ax = fig.add_subplot(111, projection='3d')
+    ax = plt.subplot(111, projection='3d')
+    ax.plot_surface(X, Y, img)
+    if show: plt.show()
+
 
 def plot_multiline(data, scatter=False, labels=None, xlabel=None, ylabel=None):
     if data.ndim < 2:
