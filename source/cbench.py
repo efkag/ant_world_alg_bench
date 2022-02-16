@@ -177,7 +177,7 @@ def bench_paral(resutls_path, params, routes_path, route_ids=None, cores=None):
     chunks = get_grid_chunks(grid, no_of_chunks)
     print('{} combinations, testing on {} routes, running on {} cores'.format(total_jobs, len(route_ids), no_of_chunks))
     chunks_path = 'chunks'
-    check_for_dir_and_create(chunks_path)
+    check_for_dir_and_create(chunks_path, remove=True)
     print('Saving chunks in', chunks_path)
 
     # Pickle the parameter object to use in the worker script

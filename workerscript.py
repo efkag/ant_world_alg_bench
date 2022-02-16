@@ -34,7 +34,7 @@ jobs = 0
 log = {'route_id': [], 'blur': [], 'edge': [], 'res': [], 'window': [],
        'matcher': [], 'mean_error': [], 'seconds': [], 'errors': [],
        'dist_diff': [], 'abs_index_diff': [], 'window_log': [], 'matched_index': [],
-       'tx': [], 'ty': [], 'th': []}
+       'tx': [], 'ty': [], 'th': [], 'deg_range':[], 'rmfs':[]}
 agent = aw.Agent()
 
 #  Go though all combinations in the chunk
@@ -77,6 +77,8 @@ for combo in chunk:
         dist_diff = calc_dists(route.get_xycoords(), min_dist_index, matched_index)
         mean_route_error = np.mean(errors)
         window_log = nav.get_window_log()
+        rmf_logs = nav.get_rsims_log()
+        deg_range = nav.deg_range
         
         log['route_id'].extend([route.get_route_id()])
         log['blur'].extend([combo.get('blur')])
@@ -84,9 +86,11 @@ for combo in chunk:
         log['res'].append(combo.get('shape'))
         log['window'].extend([window])
         log['matcher'].extend([matcher])
+        log['deg_range'].append(deg_range)
         log['mean_error'].append(mean_route_error)
         log['seconds'].append(time_compl)
         log['window_log'].append(window_log)
+        log['rmfs'].append(rmf_logs.tolist())
         log['tx'].append(traj['x'].tolist())
         log['ty'].append(traj['y'].tolist())
         log['th'].append(traj['heading'].tolist())

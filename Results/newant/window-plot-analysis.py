@@ -12,8 +12,8 @@ from source.utils import load_route_naw, animated_window
 sns.set_context("paper", font_scale=1)
 
 
-fig_save_path = os.path.join(fwd, 'test2', 'window-plots')
-data = pd.read_csv('Results/newant/test2/results.csv')
+fig_save_path = os.path.join(fwd, '2022-02-14', 'window-plots')
+data = pd.read_csv('Results/newant/2022-02-14/results.csv')
 # Convert list of strings to actual list of lists
 data['errors'] = data['errors'].apply(literal_eval)
 data['dist_diff'] = data['dist_diff'].apply(literal_eval)
@@ -27,7 +27,7 @@ data['th'] = data['th'].apply(literal_eval)
 # Plot a specific route
 route_id = 1
 fig_save_path = fig_save_path + str(route_id)
-path = '../../new-antworld/exp1/route' + str(route_id) + '/'
+path = 'new-antworld/exp1/route' + str(route_id) + '/'
 window = -20
 matcher = 'corr'
 edge = '(180, 200)'

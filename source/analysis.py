@@ -3,7 +3,7 @@ from scipy.spatial.distance import cdist
 import os
 import cv2 as cv
 import matplotlib.pyplot as plt
-from source.utils import rotate
+from source.utils import rotate, check_for_dir_and_create
 from source import antworld2
 from source.display import plot_route_errors
 
@@ -41,7 +41,7 @@ def log_error_points(route, traj, nav, thresh=0.5, route_id=1, target_path=None)
         logs_path = os.path.join(target_path, 'route' + str(route_id))
     else:
         logs_path = 'route' + str(route_id)
-    os.makedirs(logs_path, exist_ok=True)
+    check_for_dir_and_create(logs_path)
     # the antworld agent
     if not route.get('qimgs'):
         agent = antworld2.Agent()
@@ -90,7 +90,7 @@ def log_error_points(route, traj, nav, thresh=0.5, route_id=1, target_path=None)
                 # test image was sampled. 
                 img = agent.get_img(traj_xy[i], h)
                 # rimg = rotate(h, img)
-                imgfname = str(h) + '.png'
+                imgfname = 'matched-heading' + str(h) + '.png'
                 cv.imwrite(os.path.join(point_path, imgfname), img)
             # Save ridf
             rsim = rsims_matrices[i][route_match_i]
