@@ -148,3 +148,17 @@ def nanrbg2greyweighted(imgs):
         return [np.average(img, weights=rgb_weights, axis=-1) for img in imgs]
 
     return np.average(imgs, weights=rgb_weights, axis=-1)
+
+def flip_gauss_fit(rsim, drange=(-180, 180), eta=0.65):
+    # eta = np.radians(eta)
+    degrees = np.arange(drange[0], drange[1])
+    mu = degrees[np.argmin(rsim)]
+    minimum = np.min(rsim)
+    # depth of the RMF shape
+    depth = np.max(rsim) - minimum
+    # flipped gaussian fit
+    # delta angles from the mean 
+    d_angles = degrees-mu
+    # fit the flipped gaussian to the RMF
+    g_fit = depth*(1 - np.exp(-(d_angles**2)/(2*(eta**2)))) + minimum
+    return g_fit
