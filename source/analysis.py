@@ -165,11 +165,11 @@ def flip_gauss_fit(rsim, d_range=(-180, 180), eta=0.65):
 
 def eval_pair_rmf(imgs, d_range=(-180, 180)):
     rsims = pair_rmf(imgs, imgs, d_range=d_range)
-    fit_errors = []
-    for rsim in rsims:
+    fit_errors = np.empty(len(imgs))
+    for i, rsim in enumerate(rsims):
         g_curve = flip_gauss_fit(rsim, d_range=d_range)
-        error = mse(rsim, g_curve)
-        fit_errors.append(error)
+        err = mse(rsim, g_curve)
+        fit_errors[i] = err
     return fit_errors
 
 def eval_rmf_fit(ref_img, imgs, d_range=(-180, 180)):
@@ -177,6 +177,6 @@ def eval_rmf_fit(ref_img, imgs, d_range=(-180, 180)):
     fit_errors = []
     for rsim in rsims:
         g_curve = flip_gauss_fit(rsim, d_range=d_range)
-        error = mse(rsim, g_curve)
-        fit_errors.append(error)
+        err = mse(rsim, g_curve)
+        fit_errors.append(err)
     return fit_errors
