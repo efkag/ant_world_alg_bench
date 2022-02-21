@@ -77,7 +77,7 @@ for combo in chunk:
         dist_diff = calc_dists(route.get_xycoords(), min_dist_index, matched_index)
         mean_route_error = np.mean(errors)
         window_log = nav.get_window_log()
-        rmf_logs = nav.get_rsims_log()
+        rmf_logs = np.array(nav.get_rsims_log())
         deg_range = nav.deg_range
         
         log['route_id'].extend([route.get_route_id()])
