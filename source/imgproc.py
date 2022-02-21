@@ -49,7 +49,7 @@ def lin(img, kernel_shape=(3, 3)):
     mu = cv.blur(img, kernel_shape)
     img = img - mu
     var = cv.blur(img*img, kernel_shape)
-    sig = var**0.5
+    sig = var**0.5 + np.finfo(float).eps
     return img / sig
 
 
@@ -67,7 +67,7 @@ def glin(img, sig1=2, sig2=20):
     mu = cv.GaussianBlur(img, (0, 0), sig1)
     img = img - mu
     var = cv.GaussianBlur(img*img, (0, 0), sig2)
-    sig = var**0.5
+    sig = var**0.5 + np.finfo(float).eps
     return img / sig
 
 
@@ -87,7 +87,9 @@ def pipeline(sets):
     if sets.get('blur'):
         pipe.append(gauss_blur(0))
     if sets.get('loc_norm'):
-        pipe.append()
+        pipe.append(loc_norm(**sets.get('loc_norm')))
+    if sets.get('gauss_loc_norm'):
+        pipe.append(gauss_loc_norm(**sets.get('gauss_loc_norm')))
     if sets.get('edge_range'):
         lims = sets['edge_range']
         pipe.append(canny(lims[0], lims[1]))
