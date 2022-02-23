@@ -13,15 +13,15 @@ sns.set_context("paper", font_scale=1)
 
 
 
-fig_save_path = 'Results/newant/2022-01-27'
-data = pd.read_csv('Results/newant/2022-01-27/results.csv')
+fig_save_path = 'Results/newant/test2'
+data = pd.read_csv('Results/newant/test2/results.csv')
 # Convert list of strings to actual list of lists
 data['errors'] = data['errors'].apply(literal_eval)
 data['dist_diff'] = data['dist_diff'].apply(literal_eval)
 data['abs_index_diff'] = data['abs_index_diff'].apply(literal_eval)
 
 title = 'B'
-route_id = 2
+route_id = 3
 check_for_dir_and_create(fig_save_path)
 matcher = 'corr'
 edge = 'False'  # 'False'

@@ -177,7 +177,7 @@ def bench_paral(resutls_path, params, routes_path, route_ids=None, cores=None):
     chunks = get_grid_chunks(grid, no_of_chunks)
     print('{} combinations, testing on {} routes, running on {} cores'.format(total_jobs, len(route_ids), no_of_chunks))
     chunks_path = 'chunks'
-    check_for_dir_and_create(chunks_path)
+    check_for_dir_and_create(chunks_path, remove=True)
     print('Saving chunks in', chunks_path)
 
     # Pickle the parameter object to use in the worker script
@@ -204,48 +204,16 @@ def bench_paral(resutls_path, params, routes_path, route_ids=None, cores=None):
     combine_results(resutls_path)
 
 def combine_results(path):
-    files = [os.path.join(path, f) for f in os.listdir(path)]
+    files = find_csv_filenames(path)
     r = []
     for f in files:
-        if 'params' not in f:
-            r.append(pd.read_csv(f)) 
+        filepath = os.path.join(path, f)
+        r.append(pd.read_csv(filepath)) 
     results = pd.concat(r, ignore_index=True)
     path = os.path.join(path, 'results.csv')
     results.to_csv(path, index=False)
 
-def enqueue_output(out, queue):
-    for line in iter(out.readline, ''):
-        queue.put(line)
-    out.close()
-
-
-def print_stdout_from_procs(processes):
-    q = Queue()
-    threads = []
-    for p in processes:
-        threads.append(Thread(target=enqueue_output, args=(p.stdout, q)))
-
-    for t in threads:
-        t.daemon = True
-        t.start()
-
-    while True:
-        try:
-            line = q.get_nowait()
-        except Empty:
-            pass
-        else:
-            sys.stdout.write(line)
-
-        # break when all processes are done.
-        if all(p.poll() is not None for p in processes):
-            break
-
-    for t in threads:
-        t.join()
-
-    for p in processes:
-        p.stdout.close()
-
-    print('All processes done')
+def find_csv_filenames(path_to_dir, suffix=".csv" ):
+    filenames = os.listdir(path_to_dir)
+    return [ filename for filename in filenames if filename.endswith( suffix ) ]
 
