@@ -452,6 +452,19 @@ def rotate(d, image):
     return np.roll(image, -cols_to_shift, axis=1)
 
 
+def mse(a, b):
+    """
+    Image Differencing Function MSE
+    :param a: A single query image
+    :param b: One or more reference images
+    :return:
+    """
+    if isinstance(b, list):
+        return [np.subtract(ref_img, a).mean() for ref_img in b]
+
+    return np.subtract(b, a).mean()
+
+
 def rmse(a, b):
     """
     Image Differencing Function RMSE
@@ -641,7 +654,7 @@ def pair_rmf(query_imgs, ref_imgs, matcher=mae, d_range=(0, 360), d_step=1):
     total_search_angle = round((d_range[1] - d_range[0]) / d_step)
     sims = np.empty((len(ref_imgs), total_search_angle), dtype=np.float)
 
-    for i, q_img, r_img in enumerate(zip(query_imgs, ref_imgs)):
+    for i, (q_img, r_img) in enumerate(zip(query_imgs, ref_imgs)):
         sims[i] = [matcher(rotate(rot, q_img), r_img) for rot in degrees]
 
     return sims

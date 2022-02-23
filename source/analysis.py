@@ -3,7 +3,7 @@ from scipy.spatial.distance import cdist
 import os
 import cv2 as cv
 import matplotlib.pyplot as plt
-from source.utils import rotate, check_for_dir_and_create
+from source.utils import rotate, pair_rmf, mse, rmf, check_for_dir_and_create
 from source import antworld2
 from source.display import plot_route_errors
 
@@ -148,3 +148,35 @@ def nanrbg2greyweighted(imgs):
         return [np.average(img, weights=rgb_weights, axis=-1) for img in imgs]
 
     return np.average(imgs, weights=rgb_weights, axis=-1)
+
+
+def flip_gauss_fit(rsim, d_range=(-180, 180), eta=0.65):
+    degrees = np.arange(d_range[0], d_range[1])
+    # get the mean of the function
+    mu = degrees[np.argmin(rsim)]
+    minimum = np.min(rsim)
+    # depth of the RMF shape
+    depth = np.max(rsim) - minimum
+    # delta angles from the mean 
+    d_angles = degrees-mu
+    # fit the flipped gaussian to the RMF
+    g_fit = depth*(1 - np.exp(-(d_angles**2)/(2*(eta**2)))) + minimum
+    return g_fit
+
+def eval_pair_rmf(imgs, d_range=(-180, 180)):
+    rsims = pair_rmf(imgs, imgs, d_range=d_range)
+    fit_errors = np.empty(len(imgs))
+    for i, rsim in enumerate(rsims):
+        g_curve = flip_gauss_fit(rsim, d_range=d_range)
+        err = mse(rsim, g_curve)
+        fit_errors[i] = err
+    return fit_errors
+
+def eval_rmf_fit(ref_img, imgs, d_range=(-180, 180)):
+    rsims = rmf(ref_img, imgs, d_range=d_range)
+    fit_errors = []
+    for rsim in rsims:
+        g_curve = flip_gauss_fit(rsim, d_range=d_range)
+        err = mse(rsim, g_curve)
+        fit_errors.append(err)
+    return fit_errors
