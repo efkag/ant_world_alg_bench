@@ -1,10 +1,7 @@
 import cv2 as cv
 import numpy as np
-from pyDTW import DTW
+from source.pyDTW import DTW
 
-# I have found that this kernel shape works well in general
-# In the future I might need to make this into a variable as well
-kernel_shape = (5, 5)
 
 
 def resize(shape):
@@ -14,7 +11,7 @@ def resize(shape):
     return lambda im: cv.resize(im, shape, interpolation=cv.INTER_NEAREST)
 
 
-def gauss_blur(kernel_shape, mean):
+def gauss_blur(mean, kernel_shape=(5, 5)):
     '''
     Return a function to blur image
     given the kernel size and the mean
@@ -42,6 +39,42 @@ def wavelet(image_shape):
 def mod_dtype(dtype):
     return lambda im: im.astype(dtype)
 
+
+def lin(img, kernel_shape=(3, 3)):
+    '''
+    Local Image Normalisation
+    Normalises and standarises each pixel using 
+    the mean the std.dev of the neighboring pixels
+    '''
+    mu = cv.blur(img, kernel_shape)
+    img = img - mu
+    var = cv.blur(img*img, kernel_shape)
+    sig = var**0.5 + np.finfo(float).eps
+    return img / sig
+
+
+def loc_norm(kernel_shape=(3, 3)):
+    return lambda im: lin(im, kernel_shape)
+
+
+def glin(img, sig1=2, sig2=20):
+    '''
+    Gaussian Local Image Normalisation
+    Normalises and standarises each pixel using 
+    the weighted mean the std.dev of the neighboring pixels
+    The weighted mean is calculated using the gaussian kernel
+    '''
+    mu = cv.GaussianBlur(img, (0, 0), sig1)
+    img = img - mu
+    var = cv.GaussianBlur(img*img, (0, 0), sig2)
+    sig = var**0.5 + np.finfo(float).eps
+    return img / sig
+
+
+def gauss_loc_norm(sig1=2, sig2=20):
+    return lambda im: glin(im, sig1, sig2)
+
+
 def pipeline(sets):
     '''
     Create a pre-processing pipeline from a dictionary of settings
@@ -52,7 +85,11 @@ def pipeline(sets):
     if sets.get('shape'):
         pipe.append(resize(sets['shape']))
     if sets.get('blur'):
-        pipe.append(gauss_blur(kernel_shape, 0))
+        pipe.append(gauss_blur(0))
+    if sets.get('loc_norm'):
+        pipe.append(loc_norm(**sets.get('loc_norm')))
+    if sets.get('gauss_loc_norm'):
+        pipe.append(gauss_loc_norm(**sets.get('gauss_loc_norm')))
     if sets.get('edge_range'):
         lims = sets['edge_range']
         pipe.append(canny(lims[0], lims[1]))
