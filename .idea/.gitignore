@@ -7,3 +7,4 @@
 /chunks
 /ODK_office/office.zip
 /ODK_office/robot_spin.tar.gz
+source/__pycache__
