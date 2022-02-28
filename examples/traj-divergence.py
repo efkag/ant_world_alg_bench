@@ -14,8 +14,8 @@ from ast import literal_eval
 sns.set_context("paper", font_scale=1)
 
 
-data_save_path = 'Results/newant/test2'
-data = pd.read_csv('Results/newant/test/results.csv', )
+data_save_path = 'Results/newant/2022-02-25'
+data = pd.read_csv('Results/newant/2022-02-25/results.csv', )
 # Convert list of strings to actual list of lists
 data['errors'] = data['errors'].apply(literal_eval)
 data['dist_diff'] = data['dist_diff'].apply(literal_eval)
