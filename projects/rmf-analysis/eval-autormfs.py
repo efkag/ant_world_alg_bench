@@ -23,9 +23,9 @@ route = Route(path, route_id=1)
 imgs = route.get_imgs()
 # evaluate imge rmfs against themselves
 fit_errors = eval_pair_rmf(imgs)
-plt.scatter(fit_errors, fit_errors)
+plt.scatter(range(len(fit_errors)), fit_errors)
 # for i, txt in enumerate(fit_errors):
 #     plt.annotate(i, (fit_errors[i], fit_errors[i]))
-# plt.show()
+plt.show()
 
 print(np.argwhere(fit_errors > 6).flatten())
