@@ -45,7 +45,6 @@ for combo in chunk:
     t = combo['t']
     r = combo['r']
     segment_length = combo.get('segment_l')
-    window_log = None
     for route in routes:  # for every route
         # route_path = os.path.join(routes_path, '/route' + str(route_id))
         # route = Route(route_path, route_id)
@@ -85,6 +84,7 @@ for combo in chunk:
         np.save(rmfs_path, rmf_logs)
         
         log['route_id'].extend([route.get_route_id()])
+        log['segment_len'].append(segment_length)
         log['blur'].extend([combo.get('blur')])
         log['edge'].extend([combo.get('edge_range')])
         log['res'].append(combo.get('shape'))
