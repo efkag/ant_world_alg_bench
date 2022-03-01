@@ -31,7 +31,7 @@ routes = load_routes(routes_path, route_ids)
 total_jobs = len(chunk) * len(route_ids)
 jobs = 0
 
-log = {'route_id': [], 'blur': [], 'edge': [], 'res': [], 'window': [],
+log = {'route_id': [],'segment_len':[], 't':[], 'blur': [], 'edge': [], 'res': [], 'window': [],
        'matcher': [], 'mean_error': [], 'seconds': [], 'errors': [],
        'dist_diff': [], 'abs_index_diff': [], 'window_log': [], 'matched_index': [],
        'tx': [], 'ty': [], 'th': [], 'deg_range':[], 'rmfs_file':[]}
@@ -85,6 +85,7 @@ for combo in chunk:
         
         log['route_id'].extend([route.get_route_id()])
         log['segment_len'].append(segment_length)
+        log['t'].append(t)
         log['blur'].extend([combo.get('blur')])
         log['edge'].extend([combo.get('edge_range')])
         log['res'].append(combo.get('shape'))
