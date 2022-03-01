@@ -14,8 +14,8 @@ sns.set_context("paper", font_scale=1)
 
 
 # fig_save_path = '/home/efkag/Desktop/perf'
-fig_save_path = 'Results/newant/2022-02-23'
-data = pd.read_csv('Results/newant/2022-02-23/updated.csv')
+fig_save_path = 'Results/newant/2022-02-25'
+data = pd.read_csv('Results/newant/2022-02-25/updated.csv')
 # Convert list of strings to actual list of lists
 data['errors'] = data['errors'].apply(literal_eval)
 data['dist_diff'] = data['dist_diff'].apply(literal_eval)
@@ -24,8 +24,8 @@ data['divergence'] = data['divergence'].apply(literal_eval)
 
 check_for_dir_and_create(fig_save_path)
 matcher = 'corr'
-edge = '(180, 200)'  # 'False'
-blur = False
+edge = 'False'  # 'False'
+blur = True
 figsize = (4, 3)
 res = '(180, 50)'
 route = data.loc[(data['matcher'] == matcher) & (data['edge'] == edge) &
