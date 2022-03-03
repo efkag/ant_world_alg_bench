@@ -460,7 +460,7 @@ def mse(a, b):
     :return:
     """
     if isinstance(b, list):
-        return [np.subtract(ref_img, a).mean() for ref_img in b]
+        return [np.mean(np.subtract(ref_img, a)**2) for ref_img in b]
 
     return np.subtract(b, a).mean()
 
@@ -473,7 +473,7 @@ def rmse(a, b):
     :return:
     """
     if isinstance(b, list):
-        return [np.sqrt(np.subtract(ref_img, a).mean()) for ref_img in b]
+        return [np.sqrt(np.mean(np.subtract(ref_img, a)**2)) for ref_img in b]
 
     return np.sqrt(np.subtract(b, a).mean())
 
