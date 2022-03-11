@@ -163,6 +163,20 @@ def flip_gauss_fit(rsim, d_range=(-180, 180), eta=0.65):
     g_fit = depth*(1 - np.exp(-(d_angles**2)/(2*(eta**2)))) + minimum
     return g_fit
 
+def gauss_curve(rsim, d_range=(-180, 180), eta=0.65):
+    degrees = np.arange(d_range[0], d_range[1])
+    # get the mean of the function
+    mu = degrees[np.argmin(rsim)]
+    minimum = np.min(rsim)
+    # depth of the RMF shape
+    depth = np.max(rsim) - minimum
+    # delta angles from the mean 
+    d_angles = degrees-mu
+    # standard gaussian mirroring the RMF
+    # add 1 to the gaussina in order to avoid having zero values for the weights
+    g_fit = depth*(np.exp(-(d_angles**2)/(2*(eta**2)))) + minimum + 1
+    return g_fit
+
 def eval_pair_rmf(imgs, d_range=(-180, 180)):
     rsims = pair_rmf(imgs, imgs, d_range=d_range)
     fit_errors = np.empty(len(imgs))
