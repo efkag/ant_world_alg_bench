@@ -44,4 +44,4 @@ plt.ylabel('RMF depth to integral ratio')
 plt.tight_layout()
 plt.show()
 
-print(np.argwhere(sigint > thresh))
+print(np.argwhere(sigint > thresh).flatten())
