@@ -5,7 +5,7 @@ fwd = os.path.dirname(__file__)
 sys.path.append(os.getcwd())
 
 
-from source.imgproc import lin, glin, pipeline
+from source.imgproc import lin, glin, make_pipeline
 from source.routedatabase import Route
 import matplotlib.pyplot as plt
 
@@ -28,7 +28,7 @@ plt.show()
 
 # Using it with a pipeline
 params = {'gauss_loc_norm':{'sig1':2, 'sig2':15}}
-pipe = pipeline(params)
+pipe = make_pipeline(params)
 img = route.get_imgs()[0]
 for p in pipe:
     img = p(img)
