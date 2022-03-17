@@ -53,6 +53,7 @@ for i in idx:
     er = np.abs((diff_a + 180) % 360 - 180)
     ang_err.extend(er)
 
+# main plot
 plt.scatter(ang_err, mse)
 plt.xlabel('angular error')
 plt.ylabel('MSE')
