@@ -17,11 +17,11 @@ def main():
     # bench.benchmark(parameters, routes, parallel=False)
     
     #'segment_length':[3],
-    results_path = '/its/home/sk526/ant_world_alg_bench/Results/newant/2022-03-15'
+    results_path = '/its/home/sk526/ant_world_alg_bench/Results/newant/2022-03-17'
     routes_path = '/its/home/sk526/ant_world_alg_bench/new-antworld/exp1'
     parameters = {'repos_thresh':[.4], 'r': [0.05], 't': [100], 'blur': [True, False],
                   'shape': [(180, 50)], 'edge_range': [(180, 200), False],
-                  'window': [15], 'matcher': ['mae', 'corr']}
+                  'window': [15, -20, 0], 'matcher': ['mae', 'corr']}
 
     routes = [1, 2, 3, 4]
     cbench.benchmark(results_path, routes_path, parameters, routes, parallel=True)
