@@ -96,7 +96,6 @@ class Agent:
         return (xx, yy), img
 
     def test_nav(self, coords, r=0.05, t=100, sigma=0.1, **kwargs):
-        self.trial_fail_count = 0
         self.repos_thresh = kwargs.get('repos_thresh')
         # random initial position and heading
         # near the first location of the route
