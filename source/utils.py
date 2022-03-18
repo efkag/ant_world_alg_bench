@@ -460,9 +460,16 @@ def mse(a, b):
     :return:
     """
     if isinstance(b, list):
-        return [np.subtract(ref_img, a).mean() for ref_img in b]
+        return [np.mean(np.subtract(ref_img, a)**2) for ref_img in b]
 
-    return np.subtract(b, a).mean()
+    return np.mean(np.subtract(a, b)**2)
+
+
+def weighted_mse(a, b, weights=None):
+    if isinstance(b, list):
+        return [np.mean(weights * np.subtract(ref_img, a)**2) for ref_img in b]
+
+    return np.mean(weights * np.subtract(a, b)**2)
 
 
 def rmse(a, b):
@@ -473,9 +480,9 @@ def rmse(a, b):
     :return:
     """
     if isinstance(b, list):
-        return [np.sqrt(np.subtract(ref_img, a).mean()) for ref_img in b]
+        return [np.sqrt(np.mean(np.subtract(ref_img, a)**2)) for ref_img in b]
 
-    return np.sqrt(np.subtract(b, a).mean())
+    return np.sqrt(np.mean(np.subtract(a, b)**2))
 
 
 def mae(a, b):

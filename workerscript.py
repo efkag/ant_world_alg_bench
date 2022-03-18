@@ -84,6 +84,7 @@ for combo in chunk:
         np.save(rmfs_path, rmf_logs)
         
         log['route_id'].extend([route.get_route_id()])
+        log['t'].append(t)
         log['blur'].extend([combo.get('blur')])
         log['edge'].extend([combo.get('edge_range')])
         log['res'].append(combo.get('shape'))
