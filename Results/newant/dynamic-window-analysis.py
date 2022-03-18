@@ -16,9 +16,9 @@ import numpy as np
 sns.set_context("paper", font_scale=1)
 
 
-fig_save_path = '/home/efkag/Desktop/dynamic-window'
-data = pd.read_csv('combined-results2.csv')
-# data = pd.read_csv('exp4.csv')
+directory = '2022-03-17'
+fig_save_path = os.path.join('Results', 'newant', directory)
+data = pd.read_csv(os.path.join(fig_save_path, 'results.csv'), index_col=False)
 # Convert list of strings to actual list of lists
 data['errors'] = data['errors'].apply(literal_eval)
 data['dist_diff'] = data['dist_diff'].apply(literal_eval)
@@ -32,12 +32,12 @@ data['th'] = data['th'].apply(literal_eval)
 # Plot a specific route
 title = 'B'
 route_id = 4
-fig_save_path = fig_save_path + '/route{}'.format(route_id)
+fig_save_path = os.path.join(fig_save_path, 'route{}'.format(route_id))
 check_for_dir_and_create(fig_save_path)
 path = '../../new-antworld/exp1/route' + str(route_id) + '/'
 window = -20
-matcher = 'corr'
-edge = '(220, 240)'
+matcher = 'mae'
+edge = 'False'
 res = '(180, 50)'
 figsize = (5, 2)
 
@@ -66,7 +66,7 @@ ax2.set_ylabel('cc image distance')
 ax1.legend(loc=2)
 ax2.legend(loc=0)
 
-fig_save_path = fig_save_path + '/route{}.w{}.m{}.res{}.edge{}.png'\
-    .format(route_id, window, matcher, res, edge)
+fig_save_path = os.path.join(fig_save_path, 'aliasing-route{}.w{}.m{}.res{}.edge{}.png'\
+    .format(route_id, window, matcher, res, edge))
 fig.savefig(fig_save_path)
 plt.show()

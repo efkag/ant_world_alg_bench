@@ -14,8 +14,8 @@ sns.set_context("paper", font_scale=1)
 
 
 # fig_save_path = '/home/efkag/Desktop/perf'
-fig_save_path = 'Results/newant/2022-02-25'
-data = pd.read_csv('Results/newant/2022-02-25/results.csv')
+fig_save_path = 'Results/newant/2022-03-17'
+data = pd.read_csv('Results/newant/2022-03-17/results.csv')
 # Convert list of strings to actual list of lists
 data['errors'] = data['errors'].apply(literal_eval)
 data['dist_diff'] = data['dist_diff'].apply(literal_eval)
