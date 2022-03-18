@@ -33,8 +33,11 @@ class Agent:
         else:
             self.noise = lambda : 0
         self.repos_thresh = repos_thresh
-        self.route = None
         self.trial_fail_count = None
+        # the route object
+        self.route = None
+        # the navigator object
+        self.nav = None
 
     def record_route(self, route, path, route_id=1):
         check_for_dir_and_create(path)
@@ -92,8 +95,7 @@ class Agent:
 
         return (xx, yy), img
 
-    def test_nav(self, coords, nav, r=0.05, t=100, sigma=0.1, **kwargs):
-        self.trial_fail_count = 0
+    def test_nav(self, coords, r=0.05, t=100, sigma=0.1, **kwargs):
         self.repos_thresh = kwargs.get('repos_thresh')
         # random initial position and heading
         # near the first location of the route
@@ -124,7 +126,7 @@ class Agent:
             traj[1, i] = self.xy[1]
             headings.append(self.h)
             # get the new heading from teh navigator and format it properly
-            self.h = nav.get_heading(img)
+            self.h = self.nav.get_heading(img)
             self.h = headings[-1] + self.h
             self.h = squash_deg(self.h)
 
@@ -136,21 +138,22 @@ class Agent:
 
         headings = np.array(headings)
         trajectory = {'x': traj[0], 'y': traj[1], 'heading': headings}
-        return trajectory, nav
+        return trajectory, self.nav
     
     def check4reposition(self):
-        dist, xy = self.route.min_dist_from_route(self.xy)
+        idx, dist, xy = self.route.min_dist_from_route(self.xy)
         if dist >= self.repos_thresh:
             self.xy = xy
             self.trial_fail_count += 1
+            self.nav.reset_window(idx)
 
     def segment_test(self, route, nav, segment_length=3, **kwargs):
         trajectories = {'x': [], 'y': [], 'heading': []}
         # get starting indices for each segment
         indices, starting_coords = route.segment_route(segment_length)
         for i, coord in enumerate(starting_coords):
-            nav.reset_window(indices[i])
-            traj, nav = self.test_nav(coord, nav, **kwargs)
+            self.nav.reset_window(indices[i])
+            traj, nav = self.test_nav(coord, **kwargs)
             # Append the segment trajectory to the log
             for k in trajectories:
                 trajectories[k] = np.append(trajectories[k], traj[k])
@@ -160,11 +163,12 @@ class Agent:
     def run_agent(self, route, nav, segment_length=None, **kwargs):
         self.trial_fail_count = 0
         self.route = route
+        self.nav = nav
         if segment_length:
-            return self.segment_test(route, nav, segment_length, **kwargs)
+            return self.segment_test(route, segment_length, **kwargs)
         else:
             coords = self.route.get_starting_coords()
-            return self.test_nav(coords, nav, **kwargs)
+            return self.test_nav(coords, **kwargs)
 
     def rec_grid(self, steps, path):
         path = path + 'grid' + str(steps) + '/'

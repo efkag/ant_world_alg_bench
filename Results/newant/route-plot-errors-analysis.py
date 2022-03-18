@@ -11,9 +11,9 @@ from ast import literal_eval
 from source.utils import load_route_naw, plot_route, animated_window, check_for_dir_and_create
 sns.set_context("paper", font_scale=1)
 
-
-fig_save_path = 'Results/newant/2022-03-15'
-data = pd.read_csv('Results/newant/2022-03-15/results.csv')
+directory = '2022-03-17'
+fig_save_path = os.path.join('Results', 'newant', directory)
+data = pd.read_csv(os.path.join(fig_save_path, 'results.csv'), index_col=False)
 # Convert list of strings to actual list of lists
 data['errors'] = data['errors'].apply(literal_eval)
 data['dist_diff'] = data['dist_diff'].apply(literal_eval)
@@ -24,11 +24,11 @@ data['th'] = data['th'].apply(literal_eval)
 
 
 # Plot a specific route
-route_id = 1
+route_id = 3
 fig_save_path = os.path.join(fig_save_path, str(route_id))
 check_for_dir_and_create(fig_save_path)
 path = 'new-antworld/exp1/route' + str(route_id) + '/'
-window = 15
+window = 0
 matcher = 'mae'
 edge = 'False'
 res = '(180, 50)'
@@ -39,8 +39,8 @@ title = 'D'
 traj = data.loc[(data['matcher'] == matcher) & (data['res'] == res) & (data['edge'] == edge) &
                 (data['window'] == window) & (data['route_id'] == route_id)]
 # traj = data.to_dict(orient='records')[0]
-# if window:
-#     w_log = literal_eval(traj['window_log'])
+if window:
+    w_log = literal_eval(traj['window_log'].to_list()[0])
 
 errors = traj['errors'].tolist()
 errors = np.array(errors[0])
@@ -56,12 +56,12 @@ if threshold:
     thres['y'] = traj['y'][index]
     thres['heading'] = traj['heading'][index]
 
-fig_save_path = os.path.join(fig_save_path, 'route{}.w{}.m{}.res{}.edge{}.thres{}.png'\
+temp_save_path = os.path.join(fig_save_path, 'route{}.w{}.m{}.res{}.edge{}.thres{}.png'\
     .format(route_id, window, matcher, res, edge, threshold))
 
-plot_route(route, traj, scale=70, size=figsize, save=True, path=fig_save_path, title=title)
+plot_route(route, traj, scale=70, size=figsize, save=True, path=temp_save_path, title=title)
 
 
-# if window:
-#     path = '/home/efkag/Desktop/route' + str(route_id) + '/window-plots/'
-#     animated_window(route, w_log, traj=traj, path=path, size=figsize, title='D')
+if window:
+    temp_path = os.path.join(fig_save_path,'window-plots')
+    animated_window(route, w_log, traj=traj, path=temp_path, size=figsize, title='D')
