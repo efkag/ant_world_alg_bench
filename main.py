@@ -15,10 +15,11 @@ def main():
     # routes = [1, 2]
     # bench = navbench.Benchmark(results_path, routes_path, grid_path, filename='test.csv')
     # bench.benchmark(parameters, routes, parallel=False)
-
-    results_path = '/its/home/sk526/ant_world_alg_bench/Results/newant/2022-02-25'
+    
+    #'segment_length':[3],
+    results_path = '/its/home/sk526/ant_world_alg_bench/Results/newant/2022-03-17'
     routes_path = '/its/home/sk526/ant_world_alg_bench/new-antworld/exp1'
-    parameters = {'r': [0.05], 'segment_l':[3], 't': [50], 'blur': [True, False],
+    parameters = {'repos_thresh':[.4], 'r': [0.05], 't': [100], 'blur': [True, False],
                   'shape': [(180, 50)], 'edge_range': [(180, 200), False],
                   'window': [15, -20, 0], 'matcher': ['mae', 'corr']}
 
