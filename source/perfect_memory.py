@@ -29,7 +29,7 @@ class PerfectMemory:
         mem_headings = []
         # get best similarity match adn index w.r.t degrees
         indices = self.argminmax(rsims, axis=1)
-        for i, idx in indices:
+        for i, idx in enumerate(indices):
             mem_sims.append(rsims[i, idx])
             mem_headings.append(self.degrees[idx])
 
