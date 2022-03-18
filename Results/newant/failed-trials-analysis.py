@@ -19,6 +19,11 @@ data = pd.read_csv(os.path.join(fig_save_path, 'results.csv'), index_col=False)
 
 figsize = (5, 3)
 fig, ax = plt.subplots(figsize=figsize)
-sns.barplot(x="window", y="trial_fail_count", data=data, ax=ax, capsize=.2)
+sns.barplot(x="window", y="trial_fail_count", data=data, ax=ax, estimator=sum, capsize=.2)
+window_labels = ['Adaptive SMW', 'PM', 'Fixed 15']
+ax.set_xticklabels(window_labels)
+plt.tight_layout()
+path = os.path.join(fig_save_path, 'failed trials.png')
+fig.savefig(path)
 plt.show()
 
