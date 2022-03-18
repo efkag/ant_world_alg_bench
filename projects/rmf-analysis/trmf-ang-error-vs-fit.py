@@ -29,8 +29,8 @@ rsims = rmf(imgs[10], imgs[10:30], d_range=(-180, 180))
 gauss_rmf = flip_gauss_fit(rsims[0])
 
 # for r in rsims:
-#     plt.plot(range(len(r)), r)
-#     plt.plot(range(len(gauss_curve)), gauss_curve)
+#     plt.plot(r)
+#     plt.plot(gauss_rmf)
 #     plt.show()
 
 gauss_weights = gauss_curve(rsims[0])

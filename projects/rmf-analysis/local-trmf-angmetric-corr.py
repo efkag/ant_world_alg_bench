@@ -37,6 +37,12 @@ for i in range(10, 60):
     # evaluate 
     gauss_weights = gauss_curve(ref_rsim, d_range=deg_range)
     rsims = list(rsims)
+    
+    # plt.plot(gauss_rmf)
+    # for rsim in rsims:
+    #     plt.plot(rsim)
+    # plt.show()
+
     fit_errors = weighted_mse(gauss_rmf, rsims, weights=gauss_weights)
     gauss_mse.extend(fit_errors)
     # Get the heading errors
