@@ -25,8 +25,9 @@ def main():
                   'blur': [True, False],
                   'shape': [(180, 50)], 
                   'edge_range': [(180, 200), False],
-                  'window': [15, 20, 25 -20, 0], 
-                  'matcher': ['mae', 'corr']}
+                  'window': [15, 20, 25, -15, 0], 
+                  'matcher': ['mae', 'corr']
+                  }
 
     routes = [1, 2, 3, 4]
     cbench.benchmark(results_path, routes_path, parameters, routes, parallel=True)
