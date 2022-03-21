@@ -13,9 +13,9 @@ import seaborn as sns
 from ast import literal_eval
 sns.set_context("paper", font_scale=1)
 
-
-data_save_path = 'Results/newant/2022-02-25'
-data = pd.read_csv('Results/newant/2022-02-25/results.csv', )
+directory = '2022-03-18'
+data_save_path = os.path.join('Results', 'newant', directory)
+data = pd.read_csv(os.path.join(data_save_path, 'results.csv'))
 # Convert list of strings to actual list of lists
 data['errors'] = data['errors'].apply(literal_eval)
 data['dist_diff'] = data['dist_diff'].apply(literal_eval)

@@ -17,6 +17,7 @@ class PerfectMemory:
         if not self.matcher:
             raise Exception('Non valid matcher method name:{}'.format(matching))
         self.argminmax = np.argmin
+        self.best_sims = []
 
     def get_heading(self, query_img):
         # get the rotational similarities between a query image and a window of route images
@@ -26,16 +27,17 @@ class PerfectMemory:
         mem_sims = []
         # Recovered headings for the current image
         mem_headings = []
-        for rsim in rsims:
-            # get best similarity match adn index w.r.t degrees
-            index = self.argminmax(rsim)
-            mem_sims.append(rsim[index])
-            mem_headings.append(self.degrees[index])
+        # get best similarity match adn index w.r.t degrees
+        indices = self.argminmax(rsims, axis=1)
+        for i, idx in enumerate(indices):
+            mem_sims.append(rsims[i, idx])
+            mem_headings.append(self.degrees[idx])
 
         # append the rsims of all window route images for that query image
         self.logs.append(rsims)
         # find best image match and heading
         index = int(self.argminmax(mem_sims))
+        self.best_sims.append(mem_sims[index])
         heading = mem_headings[index]
         self.recovered_heading.append(heading)
         # Update memory pointer
@@ -43,7 +45,7 @@ class PerfectMemory:
         return heading
 
     def navigate(self, query_imgs):
-
+    #TODO: need to be updated to use get heading in a loop
         assert isinstance(query_imgs, list)
 
         # For every query image image
@@ -82,4 +84,4 @@ class PerfectMemory:
         pass
 
     def get_best_sims(self):
-        return None
+        return self.best_sims

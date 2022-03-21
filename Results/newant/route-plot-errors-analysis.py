@@ -24,7 +24,7 @@ data['th'] = data['th'].apply(literal_eval)
 
 
 # Plot a specific route
-route_id = 3
+route_id = 4
 fig_save_path = os.path.join(fig_save_path, str(route_id))
 check_for_dir_and_create(fig_save_path)
 path = 'new-antworld/exp1/route' + str(route_id) + '/'
@@ -62,6 +62,6 @@ temp_save_path = os.path.join(fig_save_path, 'route{}.w{}.m{}.res{}.edge{}.thres
 plot_route(route, traj, scale=70, size=figsize, save=True, path=temp_save_path, title=title)
 
 
-if window:
-    temp_path = os.path.join(fig_save_path,'window-plots')
-    animated_window(route, w_log, traj=traj, path=temp_path, size=figsize, title='D')
+# if window:
+#     temp_path = os.path.join(fig_save_path,'window-plots')
+#     animated_window(route, w_log, traj=traj, path=temp_path, size=figsize, title='D')
