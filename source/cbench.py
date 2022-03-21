@@ -1,4 +1,3 @@
-from pandas.core.reshape.concat import concat
 from source import utils
 from source.utils import pre_process, calc_dists, load_route_naw, seq_angular_error, check_for_dir_and_create
 from source import seqnav as spm, perfect_memory as pm
@@ -14,7 +13,7 @@ from subprocess import Popen
 from queue import Queue, Empty
 from threading import Thread
 import sys
-import json
+import yaml
 
 
 def get_grid_dict(params):
@@ -153,9 +152,9 @@ def unpack_results(results):
 def bench_paral(resutls_path, params, routes_path, route_ids=None, cores=None):
     # save the parmeters of the test in a json file
     check_for_dir_and_create(resutls_path)
-    param_path = os.path.join(resutls_path, 'params.json')
+    param_path = os.path.join(resutls_path, 'params.yml')
     with open(param_path, 'w') as fp:
-        json.dump(params, fp, indent=1)
+        yaml.dump(params, fp)
 
     existing_cores = os.cpu_count()
     if cores and cores > existing_cores:
