@@ -3,7 +3,7 @@
 import sys
 import pickle
 import os
-from source.utils import pre_process, calc_dists, load_route_naw, angular_error, check_for_dir_and_create
+from source.utils import pre_process, calc_dists
 from source import seqnav as spm, perfect_memory as pm
 import pandas as pd
 import time
