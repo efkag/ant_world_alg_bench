@@ -100,7 +100,7 @@ def make_pipeline(sets):
 
 
 class Pipeline:
-    def __init__(self, sets=None) -> None:
+    def __init__(self, **sets) -> None:
         if sets:
             self.pipe = make_pipeline(sets)
         else:
