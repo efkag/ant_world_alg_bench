@@ -108,6 +108,8 @@ class Pipeline:
             self.pipe.append(lambda im:im)
 
     def apply(self, imgs):
+        if not isinstance(imgs, list):
+            imgs = [imgs]
         for p in self.pipe:
             imgs = [p(img) for img in imgs]
-        return imgs
+        return imgs if len(imgs) > 1 else imgs[0]

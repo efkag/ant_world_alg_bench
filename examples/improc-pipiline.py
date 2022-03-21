@@ -21,12 +21,15 @@ params = {'blur': True,
 
 imgs = route.get_imgs()
 imgs = pre_process(imgs, params)
-
 plt.imshow(imgs[10], cmap='gray')
 plt.show()
 
 pipe = Pipeline(**params)
 imgs = pipe.apply(route.get_imgs())
+plt.imshow(imgs[10], cmap='gray')
+plt.show()
 
+pipe = Pipeline()
+imgs = pipe.apply(route.get_imgs())
 plt.imshow(imgs[10], cmap='gray')
 plt.show()

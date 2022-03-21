@@ -10,6 +10,7 @@ import time
 import numpy as np
 from source import antworld2 as aw
 from source.routedatabase import Route, load_routes
+from source.imgproc import Pipeline
 
 print('Argument List:', str(sys.argv))
 
@@ -50,8 +51,9 @@ for combo in chunk:
         # route = Route(route_path, route_id)
 
         tic = time.perf_counter()
-        # Preprocess images
-        route_imgs = pre_process(route.get_imgs(), combo)
+        
+        pipe = Pipeline(**combo)
+        route_imgs = pipe.apply(route.get_imgs())
         # Run navigation algorithm
         if window:
             nav = spm.SequentialPerfectMemory(route_imgs, matcher, deg_range=(-180, 180), window=window)
