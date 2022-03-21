@@ -3,7 +3,7 @@
 import sys
 import pickle
 import os
-from source.utils import pre_process, calc_dists, load_route_naw, angular_error, check_for_dir_and_create
+from source.utils import pre_process, calc_dists
 from source import seqnav as spm, perfect_memory as pm
 import pandas as pd
 import time
@@ -32,10 +32,10 @@ routes = load_routes(routes_path, route_ids)
 total_jobs = len(chunk) * len(route_ids)
 jobs = 0
 
-log = {'route_id': [], 'blur': [], 'edge': [], 'res': [], 'window': [],
+log = {'route_id': [], 't':[], 'blur': [], 'edge': [], 'res': [], 'window': [],
        'matcher': [], 'deg_range':[], 'segment_len': [], 'trial_fail_count':[], 'mean_error': [], 
        'seconds': [], 'errors': [], 'dist_diff': [], 'abs_index_diff': [], 'window_log': [], 
-       'matched_index': [], 'tx': [], 'ty': [], 'th': [], 'rmfs_file':[]}
+       'matched_index': [], 'tx': [], 'ty': [], 'th': [], 'rmfs_file':[], 'best_sims':[]}
 agent = aw.Agent()
 
 #  Go though all combinations in the chunk
@@ -86,6 +86,7 @@ for combo in chunk:
         np.save(rmfs_path, rmf_logs)
         
         log['route_id'].extend([route.get_route_id()])
+        log['t'].append(t)
         log['blur'].extend([combo.get('blur')])
         log['edge'].extend([combo.get('edge_range')])
         log['res'].append(combo.get('shape'))
@@ -105,6 +106,7 @@ for combo in chunk:
         log['abs_index_diff'].append(abs_index_diffs.tolist())
         log['dist_diff'].append(dist_diff.tolist())
         log['errors'].append(errors)
+        log['best_sims'].append(nav.get_best_sims)
         jobs += 1
         print('{} worker, jobs completed {}/{}'.format(chunk_id, jobs, total_jobs))
 
