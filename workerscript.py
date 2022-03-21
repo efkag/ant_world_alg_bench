@@ -31,7 +31,7 @@ routes = load_routes(routes_path, route_ids)
 total_jobs = len(chunk) * len(route_ids)
 jobs = 0
 
-log = {'route_id': [], 'blur': [], 'edge': [], 'res': [], 'window': [],
+log = {'route_id': [], 't':[], 'blur': [], 'edge': [], 'res': [], 'window': [],
        'matcher': [], 'deg_range':[], 'segment_len': [], 'trial_fail_count':[], 'mean_error': [], 
        'seconds': [], 'errors': [], 'dist_diff': [], 'abs_index_diff': [], 'window_log': [], 
        'matched_index': [], 'tx': [], 'ty': [], 'th': [], 'rmfs_file':[], 'best_sims':[]}
