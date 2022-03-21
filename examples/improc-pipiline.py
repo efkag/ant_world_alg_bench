@@ -15,7 +15,7 @@ route = Route(route_path, 1)
 
 params = {'blur': True,
         'shape': (180, 50), 
-        #'edge_range': (180, 200),
+        'edge_range': (180, 200),
         'gauss_loc_norm': {'sig1':2, 'sig2':20}
         }
 

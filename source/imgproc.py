@@ -86,13 +86,13 @@ def make_pipeline(sets):
         pipe.append(resize(sets['shape']))
     if sets.get('blur'):
         pipe.append(gauss_blur(0))
+    if sets.get('edge_range'):
+        lims = sets['edge_range']
+        pipe.append(canny(lims[0], lims[1])) 
     if sets.get('loc_norm'):
         pipe.append(loc_norm(**sets.get('loc_norm')))
     if sets.get('gauss_loc_norm'):
         pipe.append(gauss_loc_norm(**sets.get('gauss_loc_norm')))
-    if sets.get('edge_range'):
-        lims = sets['edge_range']
-        pipe.append(canny(lims[0], lims[1]))
     if sets.get('wave'):
         im_size = sets.get('wave')
         pipe.append(wavelet(im_size))
