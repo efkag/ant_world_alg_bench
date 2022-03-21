@@ -3,7 +3,8 @@ import antworld
 import cv2
 import numpy as np
 from scipy.spatial.distance import cdist
-from source.utils import check_for_dir_and_create, write_route, squash_deg, pre_process, travel_dist, pol2cart
+from source.imgproc import Pipeline
+from source.utils import check_for_dir_and_create, write_route, squash_deg, travel_dist, pol2cart
 from source.gencoords import generate_from_points, generate_grid
 
 # Old Seville data (lower res, but loads faster)
@@ -34,6 +35,7 @@ class Agent:
             self.noise = lambda : 0
         self.repos_thresh = repos_thresh
         self.trial_fail_count = None
+        self.pipe = Pipeline()
         # the route object
         self.route = None
         # the navigator object
@@ -79,7 +81,8 @@ class Agent:
         '''
         self.agent.set_position(xy[0], xy[1], self.z)
         self.agent.set_attitude(deg, self.noise(), self.noise())
-        return cv2.cvtColor(self.agent.read_frame(), cv2.COLOR_BGR2GRAY)
+        img = cv2.cvtColor(self.agent.read_frame(), cv2.COLOR_BGR2GRAY)
+        return self.pipe.apply(img)
 
     def update_position(self, xy, deg, r):
         rad = deg * (np.pi / 180)
@@ -112,7 +115,6 @@ class Agent:
 
         # Place agent to the initial position and render the image
         img = self.get_img(self.xy, self.h)
-        img = pre_process(img, kwargs)
 
         # initialise the log variables
         headings = []
@@ -134,7 +136,6 @@ class Agent:
             self.xy, img = self.update_position(self.xy, self.h, r)
             self.check4reposition()
             img = self.get_img(self.xy, self.h)
-            img = pre_process(img, kwargs)
 
         headings = np.array(headings)
         trajectory = {'x': traj[0], 'y': traj[1], 'heading': headings}
@@ -163,6 +164,7 @@ class Agent:
     def run_agent(self, route, nav, segment_length=None, **kwargs):
         self.trial_fail_count = 0
         self.route = route
+        self.pipe = Pipeline(**kwargs)
         self.nav = nav
         if segment_length:
             return self.segment_test(route, segment_length, **kwargs)

@@ -75,7 +75,7 @@ def gauss_loc_norm(sig1=2, sig2=20):
     return lambda im: glin(im, sig1, sig2)
 
 
-def pipeline(sets):
+def make_pipeline(sets):
     '''
     Create a pre-processing pipeline from a dictionary of settings
     :param sets:
@@ -97,3 +97,19 @@ def pipeline(sets):
         im_size = sets.get('wave')
         pipe.append(wavelet(im_size))
     return pipe
+
+
+class Pipeline:
+    def __init__(self, **sets) -> None:
+        if sets:
+            self.pipe = make_pipeline(sets)
+        else:
+            self.pipe = []
+            self.pipe.append(lambda im:im)
+
+    def apply(self, imgs):
+        if not isinstance(imgs, list):
+            imgs = [imgs]
+        for p in self.pipe:
+            imgs = [p(img) for img in imgs]
+        return imgs if len(imgs) > 1 else imgs[0]
