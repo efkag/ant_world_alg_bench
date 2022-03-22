@@ -106,7 +106,7 @@ for combo in chunk:
         log['abs_index_diff'].append(abs_index_diffs.tolist())
         log['dist_diff'].append(dist_diff.tolist())
         log['errors'].append(errors)
-        log['best_sims'].append(nav.get_best_sims)
+        log['best_sims'].append(nav.get_best_sims())
         jobs += 1
         print('{} worker, jobs completed {}/{}'.format(chunk_id, jobs, total_jobs))
 
