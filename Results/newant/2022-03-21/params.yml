@@ -1,0 +1,11 @@
+blur: [true, false]
+edge_range:
+- !!python/tuple [180, 200]
+- false
+matcher: [mae, corr]
+r: [0.05]
+repos_thresh: [0.4]
+shape:
+- !!python/tuple [180, 50]
+t: [150]
+window: [15, 20, 25, -15, 0]
