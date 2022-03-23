@@ -17,7 +17,7 @@ def main():
     # bench.benchmark(parameters, routes, parallel=False)
     
     #'segment_length':[3],
-    results_path = '/its/home/sk526/ant_world_alg_bench/Results/newant/2022-03-21'
+    results_path = '/its/home/sk526/ant_world_alg_bench/Results/newant/2022-03-22'
     routes_path = '/its/home/sk526/ant_world_alg_bench/new-antworld/exp1'
     parameters = {'repos_thresh':[.4], 
                   'r': [0.05], 
