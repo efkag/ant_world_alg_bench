@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from source.utils import check_for_dir_and_create
 from ast import literal_eval
+from source.routedatabase import Route
 from source.utils import load_route_naw, plot_route, pre_process
 from source.seqnav import SequentialPerfectMemory
 import numpy as np
@@ -16,7 +17,7 @@ import numpy as np
 sns.set_context("paper", font_scale=1)
 
 
-directory = '2022-03-17'
+directory = '2022-03-22'
 fig_save_path = os.path.join('Results', 'newant', directory)
 data = pd.read_csv(os.path.join(fig_save_path, 'results.csv'), index_col=False)
 # Convert list of strings to actual list of lists
@@ -31,23 +32,25 @@ data['th'] = data['th'].apply(literal_eval)
 
 # Plot a specific route
 title = 'B'
-route_id = 4
+route_id = 3
 fig_save_path = os.path.join(fig_save_path, 'route{}'.format(route_id))
 check_for_dir_and_create(fig_save_path)
-path = '../../new-antworld/exp1/route' + str(route_id) + '/'
-window = -20
-matcher = 'mae'
+window = -15
+matcher = 'corr'
+blur = True
 edge = 'False'
 res = '(180, 50)'
 figsize = (5, 2)
 
 traj = data.loc[(data['matcher'] == matcher) & (data['res'] == res) & (data['edge'] == edge) &
-                (data['window'] == window) & (data['route_id'] == route_id)]
+                (data['window'] == window) & (data['route_id'] == route_id) & (data['blur'] == blur)]
 traj = traj.to_dict(orient='records')[0]
 traj['window_log'] = literal_eval(traj['window_log'])
 traj['best_sims'] = literal_eval(traj['best_sims'])
 
-route = load_route_naw(path, route_id=route_id, imgs=True, query=True, max_dist=0.2)
+# path = 'new-antworld/exp1/route' + str(route_id) + '/'
+# route = Route(path, route_id=route_id)
+# route = route.get_route_dict()
 # plot_route(route, traj, size=(6, 6), save=False, path=fig_save_path)
 
 w_size = np.diff(traj['window_log'], axis=1)
@@ -62,7 +65,7 @@ ax1.set_ylabel('route index scale')
 ax2 = ax1.twinx()
 ax2.plot(range(len(traj['best_sims'])), traj['best_sims'], label='best sim', color='g')
 ax2.set_ylim([0.3, 1.0])
-ax2.set_ylabel('cc image distance')
+ax2.set_ylabel(f'{matcher} image distance')
 ax1.legend(loc=2)
 ax2.legend(loc=0)
 
