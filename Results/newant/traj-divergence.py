@@ -13,7 +13,7 @@ import seaborn as sns
 from ast import literal_eval
 sns.set_context("paper", font_scale=1)
 
-directory = '2022-03-21'
+directory = '2022-03-22'
 data_save_path = os.path.join('Results', 'newant', directory)
 data = pd.read_csv(os.path.join(data_save_path, 'results.csv'))
 # Convert list of strings to actual list of lists
