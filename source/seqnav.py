@@ -93,7 +93,7 @@ class SequentialPerfectMemory:
 
         if self.adaptive:
             best = wind_sims[index]
-            self.dynamic_window_rate(best)
+            self.dynamic_window_log_rate(best)
             self.check_w_size()
         return heading
 
@@ -203,6 +203,20 @@ class SequentialPerfectMemory:
             self.window += round(self.window * self.dynamic_range)
         else:
             self.window -= round(self.window * self.dynamic_range)
+        self.prev_match = best
+
+    def dynamic_window_log_rate(self, best):
+        '''
+        Change the window size depending on the current best and previous img match gradient. 
+        Update the size by log of the current window size
+        :param best:
+        :return:
+        '''
+        # Dynamic window adaptation based on match gradient.
+        if best > self.prev_match or self.window <= self.min_window:
+            self.window += round(self.min_window/np.log(self.window))
+        else:
+            self.window -= round(np.log(self.window))
         self.prev_match = best
 
     def dynamic_window_h2(self, h):
