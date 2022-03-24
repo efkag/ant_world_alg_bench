@@ -12,7 +12,7 @@ from ast import literal_eval
 sns.set_context("paper", font_scale=1)
 
 
-directory = '2022-03-22'
+directory = '2022-03-23a'
 fig_save_path = os.path.join('Results', 'newant', directory)
 data = pd.read_csv(os.path.join(fig_save_path, 'results.csv'), index_col=False)
 # Convert list of strings to actual list of lists
