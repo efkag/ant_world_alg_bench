@@ -11,7 +11,7 @@ from ast import literal_eval
 from source.utils import load_route_naw, plot_route, animated_window, check_for_dir_and_create
 sns.set_context("paper", font_scale=1)
 
-directory = '2022-03-17'
+directory = '2022-03-23a'
 fig_save_path = os.path.join('Results', 'newant', directory)
 data = pd.read_csv(os.path.join(fig_save_path, 'results.csv'), index_col=False)
 # Convert list of strings to actual list of lists
@@ -28,7 +28,7 @@ route_id = 4
 fig_save_path = os.path.join(fig_save_path, str(route_id))
 check_for_dir_and_create(fig_save_path)
 path = 'new-antworld/exp1/route' + str(route_id) + '/'
-window = 0
+window = -155
 matcher = 'mae'
 edge = 'False'
 res = '(180, 50)'
