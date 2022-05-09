@@ -19,12 +19,12 @@ def gauss_blur(mean, kernel_shape=(5, 5)):
     return lambda im: cv.GaussianBlur(im, kernel_shape, mean)
 
 
-def canny(upper, lower):
+def canny(lower, upper):
     '''
     Return a function to perform Canny edge detection
     within the given thresholds
     '''
-    return lambda im: cv.Canny(im, upper, lower)
+    return lambda im: cv.Canny(im, lower, upper)
 
 
 def standardize():
