@@ -17,19 +17,21 @@ def main():
     # bench.benchmark(parameters, routes, parallel=False)
     
     #'segment_length':[3],
-    results_path = '/its/home/sk526/ant_world_alg_bench/Results/newant/2022-03-22'
+    results_path = '/its/home/sk526/ant_world_alg_bench/Results/newant/2022-04-29'
     routes_path = '/its/home/sk526/ant_world_alg_bench/new-antworld/exp1'
-    parameters = {'repos_thresh':[.4], 
+    parameters = {'repos_thresh':[.3], 
                   'r': [0.05], 
                   't': [150], 
                   'blur': [True, False],
-                  'shape': [(180, 50)], 
+                  'shape': [(180, 80)], 
                   'edge_range': [(180, 200), False],
-                  'window': [15, 20, 25, -15, 0], 
+                  'loc_norm': [{'kernel_shape':(5, 5)}, False],
+                  'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
+                  'window': [15, 25, 30, -15, 0], 
                   'matcher': ['mae', 'corr']
                   }
 
-    routes = [1, 2, 3, 4]
+    routes = [1, 2, 3, 4, 5, 6]
     cbench.benchmark(results_path, routes_path, parameters, routes, parallel=True)
 if __name__ == "__main__":
     main()

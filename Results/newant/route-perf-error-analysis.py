@@ -13,8 +13,9 @@ sns.set_context("paper", font_scale=1)
 
 
 
-fig_save_path = 'Results/newant/2022-02-25'
-data = pd.read_csv('Results/newant/2022-02-25/results.csv')
+directory = '2022-03-22'
+fig_save_path = os.path.join('Results', 'newant', directory)
+data = pd.read_csv(os.path.join(fig_save_path, 'results.csv'), index_col=False)
 # Convert list of strings to actual list of lists
 data['errors'] = data['errors'].apply(literal_eval)
 data['dist_diff'] = data['dist_diff'].apply(literal_eval)
@@ -22,6 +23,7 @@ data['abs_index_diff'] = data['abs_index_diff'].apply(literal_eval)
 
 title = ''
 route_id = 4
+fig_save_path = os.path.join(fig_save_path, f"route{route_id}")
 check_for_dir_and_create(fig_save_path)
 matcher = 'mae'
 edge = 'False'  # 'False'
