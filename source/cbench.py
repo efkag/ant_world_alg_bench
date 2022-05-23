@@ -34,11 +34,11 @@ def get_grid_dict(params):
 
 
 def remove_blur_edge(combo):
-    return not (combo['edge_range'] and combo['blur'])
+    return not (combo.get('edge_range') and combo.get('blur'))
 
 
 def remove_non_blur_edge(combo):
-    return not combo['edge_range'] and not combo['blur']
+    return not combo.get('edge_range') and not combo.get('blur')
 
 
 def bench(params, routes_path, route_ids):
