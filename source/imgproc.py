@@ -33,7 +33,7 @@ def standardize():
 
 def wavelet(image_shape):
     dtw = DTW(image_shape)
-    return lambda im: dtw.dtw_haar(im)[-1]
+    return lambda im: dtw.dwt_haar(im)[-1]
 
 
 def mod_dtype(dtype):
@@ -94,7 +94,7 @@ def make_pipeline(sets):
     if sets.get('gauss_loc_norm'):
         pipe.append(gauss_loc_norm(**sets.get('gauss_loc_norm')))
     if sets.get('wave'):
-        im_size = sets.get('wave')
+        im_size = sets.get('shape')
         pipe.append(wavelet(im_size))
     return pipe
 

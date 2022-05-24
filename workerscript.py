@@ -35,7 +35,8 @@ jobs = 0
 log = {'route_id': [], 't':[], 'blur': [], 'edge': [], 'res': [], 'window': [],
        'matcher': [], 'deg_range':[], 'segment_len': [], 'trial_fail_count':[], 'mean_error': [], 
        'seconds': [], 'errors': [], 'dist_diff': [], 'abs_index_diff': [], 'window_log': [], 
-       'matched_index': [], 'tx': [], 'ty': [], 'th': [], 'rmfs_file':[], 'best_sims':[]}
+       'matched_index': [], 'tx': [], 'ty': [], 'th': [], 'rmfs_file':[], 'best_sims':[],
+       'loc_norm':[], 'gauss_loc_norm':[], 'wave':[]}
 agent = aw.Agent()
 
 #  Go though all combinations in the chunk
@@ -84,7 +85,11 @@ for combo in chunk:
         rmf_logs_file = 'rmfs' + str(chunk_id) + str(jobs)
         rmfs_path = os.path.join(results_path, rmf_logs_file)
         np.save(rmfs_path, rmf_logs)
-        
+
+        log['loc_norm'].append(combo.get('loc_norm'))
+        log['gauss_loc_norm'].append(combo.get('gauss_loc_norm'))
+        log['wave'].append(combo.get('wave'))
+
         log['route_id'].extend([route.get_route_id()])
         log['t'].append(t)
         log['blur'].extend([combo.get('blur')])
