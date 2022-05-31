@@ -86,15 +86,16 @@ for combo in chunk:
         rmfs_path = os.path.join(results_path, rmf_logs_file)
         np.save(rmfs_path, rmf_logs)
 
-        log['loc_norm'].append(combo.get('loc_norm'))
-        log['gauss_loc_norm'].append(combo.get('gauss_loc_norm'))
-        log['wave'].append(combo.get('wave'))
+
 
         log['route_id'].extend([route.get_route_id()])
         log['t'].append(t)
         log['blur'].extend([combo.get('blur')])
         log['edge'].extend([combo.get('edge_range')])
         log['res'].append(combo.get('shape'))
+        log['loc_norm'].append(combo.get('loc_norm'))
+        log['gauss_loc_norm'].append(combo.get('gauss_loc_norm'))
+        log['wave'].append(combo.get('wave'))
         log['window'].extend([window])
         log['matcher'].extend([matcher])
         log['deg_range'].append(deg_range)

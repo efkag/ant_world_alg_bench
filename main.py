@@ -29,7 +29,6 @@ def main():
                   'loc_norm': [{'kernel_shape':(5, 5)}, False],
                   'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
                   'window': [15, 25, 30, -15, 0],
-                  'window': [15, 20, 25, -15, 0],
                   'matcher': ['mae', 'corr']
                   }
 

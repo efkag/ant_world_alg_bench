@@ -36,25 +36,24 @@ def perc_outliers(data):
     return perc
 
 
-def log_error_points(route, traj, nav, thresh=0.5, route_id=1, target_path=None):
-    if target_path:
-        logs_path = os.path.join(target_path, 'route' + str(route_id))
-    else:
-        logs_path = 'route' + str(route_id)
+def log_error_points(route, traj, thresh=0.5, target_path=None):
+    if not target_path:
+        logs_path = 'route'
     check_for_dir_and_create(logs_path)
-    # the antworld agent
+    # the antworld agent or query images for static bench
     if not route.get('qimgs'):
         agent = antworld2.Agent()
     # get xy coords
     traj_xy = np.column_stack((traj['x'], traj['y']))
     route_xy = np.column_stack((route['x'], route['y']))
 
-    rsims_matrices = nav.get_rsims_log()
-    index_log = nav.get_index_log()
-    degrees = nav.degrees
+    rsims_matrices = traj['rmfs']
+    index_log = traj['matched_index']
+    degrees = np.arange(*traj['deg_range'])
 
     # Loop through every test point
     for i in range(len(traj['heading'])):
+        #find the optimal/closest image match
         dist = np.squeeze(cdist(np.expand_dims(traj_xy[i], axis=0), route_xy, 'euclidean'))
         min_dist_i = np.argmin(dist)
         min_dist = dist[min_dist_i]
