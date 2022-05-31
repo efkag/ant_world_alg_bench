@@ -39,6 +39,7 @@ def perc_outliers(data):
 def log_error_points(route, traj, thresh=0.5, target_path=None):
     if not target_path:
         logs_path = 'route'
+    logs_path = target_path
     check_for_dir_and_create(logs_path)
     # the antworld agent or query images for static bench
     if not route.get('qimgs'):
@@ -49,7 +50,7 @@ def log_error_points(route, traj, thresh=0.5, target_path=None):
 
     rsims_matrices = traj['rmfs']
     index_log = traj['matched_index']
-    degrees = np.arange(*traj['deg_range'])
+    degrees = np.arange(*eval(traj['deg_range']))
 
     # Loop through every test point
     for i in range(len(traj['heading'])):
@@ -60,10 +61,10 @@ def log_error_points(route, traj, thresh=0.5, target_path=None):
         route_match_i = index_log[i]
         if min_dist > thresh:
             point_path = os.path.join(logs_path, str(i))
-            os.mkdir(point_path)
+            check_for_dir_and_create(point_path)
             # Save best match window (or non) images
             if traj.get('window_log'):
-                w = traj.get('window_log')
+                w = eval(traj.get('window_log'))[i]
                 for wi in range(w[0], w[1]):
                     imgfname = route['filename'][wi]
                     cv.imwrite(os.path.join(point_path, imgfname) , route['imgs'][wi])
@@ -91,6 +92,7 @@ def log_error_points(route, traj, thresh=0.5, target_path=None):
                 # rimg = rotate(h, img)
                 imgfname = 'matched-heading' + str(h) + '.png'
                 cv.imwrite(os.path.join(point_path, imgfname), img)
+            #TODO: The route_match_i indexing is incorent now that the rmf matrices have been updated
             # Save ridf
             rsim = rsims_matrices[i][route_match_i]
             fig = plt.figure()
@@ -100,7 +102,7 @@ def log_error_points(route, traj, thresh=0.5, target_path=None):
 
             # Save window or full memory rsims heatmap
             fig = plt.figure()
-            plt.imshow(rsims_matrices[i], cmap='hot')
+            plt.imshow(rsims_matrices[i].tolist(), cmap='hot')
             fig.savefig(os.path.join(point_path, 'heat.png'))
             plt.close(fig)
             
