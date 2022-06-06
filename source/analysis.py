@@ -58,16 +58,18 @@ def log_error_points(route, traj, thresh=0.5, target_path=None):
         dist = np.squeeze(cdist(np.expand_dims(traj_xy[i], axis=0), route_xy, 'euclidean'))
         min_dist_i = np.argmin(dist)
         min_dist = dist[min_dist_i]
+        # the index from the route that the agent matched best
         route_match_i = index_log[i]
+        # Analysis only for points that have a distance more than the threshold awayfrom the route
         if min_dist > thresh:
             point_path = os.path.join(logs_path, str(i))
             check_for_dir_and_create(point_path)
-            # Save best match window (or non) images
+            # Save window images or 
             if traj.get('window_log'):
                 w = eval(traj.get('window_log'))[i]
                 for wi in range(w[0], w[1]):
                     imgfname = route['filename'][wi]
-                    cv.imwrite(os.path.join(point_path, imgfname) , route['imgs'][wi])
+                    cv.imwrite(os.path.join(point_path, imgfname), route['imgs'][wi])
             else: # If perfect memory is used
                 imgfname = route['filename'][route_match_i]
                 cv.imwrite(os.path.join(point_path, imgfname) , route['imgs'][route_match_i])
@@ -92,8 +94,9 @@ def log_error_points(route, traj, thresh=0.5, target_path=None):
                 # rimg = rotate(h, img)
                 imgfname = 'matched-heading' + str(h) + '.png'
                 cv.imwrite(os.path.join(point_path, imgfname), img)
-            #TODO: The route_match_i indexing is incorent now that the rmf matrices have been updated
             # Save ridf
+            w = eval(traj.get('window_log'))[i]
+            windod_index_of_route_match = route_match_i - w[0]
             rsim = rsims_matrices[i][route_match_i]
             fig = plt.figure()
             plt.plot(degrees, rsim)
