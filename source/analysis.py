@@ -58,15 +58,16 @@ def log_error_points(route, traj, thresh=0.5, target_path=None):
         dist = np.squeeze(cdist(np.expand_dims(traj_xy[i], axis=0), route_xy, 'euclidean'))
         min_dist_i = np.argmin(dist)
         min_dist = dist[min_dist_i]
-        # the index from the route that the agent matched best
+        # the index from the route that the agent matched best (the best match for this query image)
         route_match_i = index_log[i]
+        point_ang_error = traj['errors'][i]
         # Analysis only for points that have a distance more than the threshold awayfrom the route
         if min_dist > thresh:
-            point_path = os.path.join(logs_path, str(i))
+            point_path = os.path.join(logs_path, f'{i}-error={round(point_ang_error, 2)}')
             check_for_dir_and_create(point_path)
             # Save window images or 
             if traj.get('window_log'):
-                w = eval(traj.get('window_log'))[i]
+                w = traj.get('window_log')[i]
                 for wi in range(w[0], w[1]):
                     imgfname = route['filename'][wi]
                     cv.imwrite(os.path.join(point_path, imgfname), route['imgs'][wi])
@@ -75,8 +76,12 @@ def log_error_points(route, traj, thresh=0.5, target_path=None):
                 cv.imwrite(os.path.join(point_path, imgfname) , route['imgs'][route_match_i])
 
             # save the minimum distance image
-            imgfname = 'img{}-mindist.png'.format(min_dist_i)
+            imgfname = 'mindist-img{}.png'.format(min_dist_i)
             cv.imwrite(os.path.join(point_path, imgfname) , route['imgs'][min_dist_i])
+
+            # save the best matched route image
+            imgfname = 'matched-img{}.png'.format(route_match_i)
+            cv.imwrite(os.path.join(point_path, imgfname) , route['imgs'][route_match_i])
             
             # Save the query image rotated to the extractred direction
             h = traj['heading'][i]
@@ -87,15 +92,11 @@ def log_error_points(route, traj, thresh=0.5, target_path=None):
                 imgfname = 'test-grid.png'
                 cv.imwrite(os.path.join(point_path, imgfname), route['qimgs'][i])
             else:
-                #TODO: Rotating the image to the recovered heading is nto enough here as it is also
-                # dependent on the heading of the previous lo9cation or in other word the location where the 
-                # test image was sampled. 
                 img = agent.get_img(traj_xy[i], h)
-                # rimg = rotate(h, img)
-                imgfname = 'matched-heading' + str(h) + '.png'
+                imgfname = 'queryimg-matched-heading' + str(h) + '.png'
                 cv.imwrite(os.path.join(point_path, imgfname), img)
             # Save ridf
-            w = eval(traj.get('window_log'))[i]
+            w = traj.get('window_log')[i]
             # for the window version the structure of the RMF logs is 
             # dim0-> test points
             # dim1-> window rmfs

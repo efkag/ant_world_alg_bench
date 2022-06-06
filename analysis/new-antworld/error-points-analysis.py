@@ -27,10 +27,9 @@ data['ty'] = data['ty'].apply(literal_eval)
 data['th'] = data['th'].apply(literal_eval)
 data['matched_index'] = data['matched_index'].apply(literal_eval)
 
-
 # Plot a specific route
 route_id = 1
-fig_save_path = os.path.join(fig_save_path, str(route_id))
+fig_save_path = os.path.join(fig_save_path, 'route'+str(route_id))
 check_for_dir_and_create(fig_save_path)
 path = 'new-antworld/exp1/route' + str(route_id) + '/'
 window = 15
@@ -56,6 +55,7 @@ traj['x'] = traj.pop('tx')
 traj['y'] = traj.pop('ty')
 traj['heading'] = np.array(traj.pop('th'))
 traj['rmfs'] = np.load(os.path.join(results_path, traj['rmfs_file']+'.npy'), allow_pickle=True)
+traj['window_log'] = eval(traj['window_log'])
 
 route = load_route_naw(path, imgs=True, route_id=route_id)
 #plot_route(route, traj, scale=70, size=figsize, save=False, path=fig_save_path, title=title)

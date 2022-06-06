@@ -1,3 +1,4 @@
+from tracemalloc import start
 import numpy as np
 import copy
 import matplotlib
@@ -84,6 +85,13 @@ def plot_route_errors(route, traj, route_i, error_i, size=(10, 10), scale=None, 
 
     u, v = pol2cart_headings(90 - traj['heading'][error_i])
     ax.quiver(traj['x'][error_i], traj['y'][error_i], u, v, scale=scale, label='test pos', color='r')
+    # Plot the window memories
+    if traj['window_log']:
+        window = traj['window_log'][error_i]
+        start = window[0]
+        end = window[1]
+        u, v = pol2cart_headings(90 - route['yaw'][start:end])
+        ax.quiver(route['x'][start:end], route['y'][start:end], u, v, color='r', scale=70)
 
     plt.legend()
     plt.tight_layout()
