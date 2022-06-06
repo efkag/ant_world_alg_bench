@@ -96,18 +96,22 @@ def log_error_points(route, traj, thresh=0.5, target_path=None):
                 cv.imwrite(os.path.join(point_path, imgfname), img)
             # Save ridf
             w = eval(traj.get('window_log'))[i]
+            # for the window version the structure of the RMF logs is 
+            # dim0-> test points
+            # dim1-> window rmfs
+            # dim2-> the actual RMF (usualy 360 degrees of search angle)
             windod_index_of_route_match = route_match_i - w[0]
-            rsim = rsims_matrices[i][route_match_i]
+            rsim = rsims_matrices[i][windod_index_of_route_match]
             fig = plt.figure()
             plt.plot(degrees, rsim)
             fig.savefig(os.path.join(point_path, 'rsim.png'))
             plt.close(fig)
 
             # Save window or full memory rsims heatmap
-            fig = plt.figure()
-            plt.imshow(rsims_matrices[i].tolist(), cmap='hot')
-            fig.savefig(os.path.join(point_path, 'heat.png'))
-            plt.close(fig)
+            # fig = plt.figure()
+            # plt.imshow(rsims_matrices[i].tolist(), cmap='hot')
+            # fig.savefig(os.path.join(point_path, 'heat.png'))
+            # plt.close(fig)
             
             path = os.path.join(point_path, 'map.png')
             plot_route_errors(route, traj, route_i=route_match_i, error_i=i, path=path)
