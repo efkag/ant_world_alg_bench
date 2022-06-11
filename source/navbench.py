@@ -1,12 +1,15 @@
 from source.utils import pre_process, load_route_naw, seq_angular_error, check_for_dir_and_create, calc_dists
 from source import seqnav as spm, perfect_memory as pm
+import os
 import pandas as pd
 import time
 import itertools
 import multiprocessing
 import functools
 import numpy as np
+import yaml
 from source.routedatabase import Route
+from source.imgproc import Pipeline
 
 
 class Benchmark:
@@ -65,7 +68,14 @@ class Benchmark:
         shared = manager.dict({'jobs': 0, 'total_jobs': 0})
         return shared
 
-    def bench_paral(self, params, route_ids=None):
+    def bench_paral(self, results_path,  params, route_ids=None):
+        # save the parmeters of the test in a json file
+        check_for_dir_and_create(results_path)
+        param_path = os.path.join(results_path, 'params.yml')
+        with open(param_path, 'w') as fp:
+            yaml.dump(params, fp)
+
+
         print(multiprocessing.cpu_count(), ' CPU cores found')
 
         grid = self.get_grid_dict(params)
@@ -216,11 +226,12 @@ class Benchmark:
 
                 tic = time.perf_counter()
                 # Preprocess images
-                test_imgs = pre_process(route.get_qimgs(), combo)
-                route_imgs = pre_process(route.get_imgs(), combo)
+                pipe = Pipeline(**combo)
+                route_imgs = pipe.apply(route.get_imgs())
+                test_imgs = pipe.apply(route.get_qimgs())
                 # Run navigation algorithm
                 if window:
-                    nav = spm.SequentialPerfectMemory(route_imgs, matcher, window=window)
+                    nav = spm.SequentialPerfectMemory(route_imgs, matcher, deg_range=(-180, 180), window=window)
                     recovered_heading, window_log = nav.navigate(test_imgs)
                 else:
                     nav = pm.PerfectMemory(route_imgs, matcher)
@@ -236,22 +247,28 @@ class Benchmark:
                 abs_index_diffs = np.absolute(np.subtract(nav.get_index_log(), min_dist_index))
                 dist_diff = calc_dists(route.get_xycoords(), min_dist_index, matched_index)
                 mean_route_error = np.mean(errors)
-                log['route_id'].extend([route_id])
-                log['blur'].extend([combo.get('blur')])
-                log['edge'].extend([combo.get('edge_range')])
+                deg_range = nav.deg_range()
+
+                log['loc_norm'].append(combo.get('loc_norm'))
+                log['gauss_loc_norm'].append(combo.get('gauss_loc_norm'))
+                log['wave'].append(combo.get('wave'))
+
+                log['route_id'].append(route_id)
+                log['blur'].append(combo.get('blur'))
+                log['edge'].append(combo.get('edge_range'))
                 log['res'].append(combo.get('shape'))
-                log['window'].extend([window])
-                log['matcher'].extend([matcher])
+                log['window'].append(window)
+                log['matcher'].append(matcher)
                 log['mean_error'].append(mean_route_error)
                 log['seconds'].append(time_compl)
                 log['window_log'].append(window_log)
-                log['best_sims'].append(nav.get_best_sims())
                 log['tx'].append(traj['x'].tolist())
                 log['ty'].append(traj['y'].tolist())
                 log['th'].append(traj['heading'])
                 log['abs_index_diff'].append(abs_index_diffs.tolist())
                 log['dist_diff'].append(dist_diff.tolist())
                 log['errors'].append(errors)
+                log['best_sims'].append(nav.get_best_sims())
                 # Increment the complete jobs shared variable
                 shared['jobs'] = shared['jobs'] + 1
                 print(multiprocessing.current_process(), ' jobs completed: {}/{}'.format(shared['jobs'], shared['total_jobs']))
