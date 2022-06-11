@@ -8,7 +8,7 @@ import multiprocessing
 import functools
 import numpy as np
 import yaml
-from source.routedatabase import Route
+from source.routedatabase import Route, load_routes
 from source.imgproc import Pipeline
 
 
@@ -208,21 +208,21 @@ class Benchmark:
     @staticmethod
     def worker_bench(route_ids, dist, routes_path, grid_path, shared, chunk):
 
-        log = {'route_id': [], 'blur': [], 'edge': [], 'res': [], 'window': [],
-               'matcher': [], 'mean_error': [], 'seconds': [], 'errors': [],
-               'abs_index_diff': [], 'window_log': [], 'best_sims': [], 'dist_diff': [],
-               'tx': [], 'ty': [], 'th': []}
+        log = {'route_id': [], 'blur': [], 'edge': [], 'res': [], 'window': [], 'matcher': [],
+             'deg_range':[], 'mean_error': [], 'seconds': [], 'errors': [], 
+             'abs_index_diff': [], 'window_log': [], 'dist_diff': [], 
+             'tx': [], 'ty': [], 'th': [], 'best_sims':[], 
+             'loc_norm':[], 'gauss_loc_norm':[], 'wave':[]}
+        
+        # Load all routes
+        routes = load_routes(routes_path, route_ids, max_dist=dist)
         #  Go though all combinations in the chunk
         for combo in chunk:
 
             matcher = combo['matcher']
             window = combo['window']
             window_log = None
-            for route_id in route_ids:  # for every route
-                route_path = routes_path + 'route' + str(route_id) + '/'
-                # _, test_x, test_y, test_imgs, route_x, route_y, \
-                # route_heading, route_imgs = load_route(route, dist)
-                route = Route(route_path, route_id, grid_path=grid_path, max_dist=dist)
+            for route in routes:  # for every route
 
                 tic = time.perf_counter()
                 # Preprocess images
@@ -253,12 +253,13 @@ class Benchmark:
                 log['gauss_loc_norm'].append(combo.get('gauss_loc_norm'))
                 log['wave'].append(combo.get('wave'))
 
-                log['route_id'].append(route_id)
+                log['route_id'].append(route.get_route_id())
                 log['blur'].append(combo.get('blur'))
                 log['edge'].append(combo.get('edge_range'))
                 log['res'].append(combo.get('shape'))
                 log['window'].append(window)
                 log['matcher'].append(matcher)
+                log['deg_range'].append(deg_range)
                 log['mean_error'].append(mean_route_error)
                 log['seconds'].append(time_compl)
                 log['window_log'].append(window_log)
