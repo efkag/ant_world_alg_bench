@@ -94,7 +94,7 @@ class Agent:
         xx = xy[0] + x
         yy = xy[1] + y
 
-        img = self.get_img((x, yy), deg)
+        img = self.get_img((xx, yy), deg)
 
         return (xx, yy), img
 
