@@ -22,18 +22,17 @@ def main():
     parameters = {'repos_thresh':[.3], 
                   'r': [0.05], 
                   't': [150], 
-                  #'blur': [True, False],
+                  'blur': [True, False],
                   'shape': [(180, 80)],
                 #   'wave' : [True, False], 
                   'edge_range': [(180, 200), False],
                 #   'loc_norm': [{'kernel_shape':(5, 5)}, False],
                 #   'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
-                #   'window': [15, 25, 30, -15, 0],
                   'window': [15, 20, 25, -15, 0],
                   'matcher': ['mae', 'corr']
                   }
 
-    routes = [1]
-    cbench.benchmark(results_path, routes_path, parameters, routes, parallel=True, cores=1)
+    routes = [1, 2, 3, 4]
+    cbench.benchmark(results_path, routes_path, parameters, routes, parallel=True)
 if __name__ == "__main__":
     main()
