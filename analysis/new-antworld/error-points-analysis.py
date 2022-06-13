@@ -7,6 +7,7 @@ sys.path.append(os.getcwd())
 import pandas as pd
 import numpy as np
 from source.analysis import log_error_points
+import matplotlib.pyplot as plt
 import seaborn as sns
 from ast import literal_eval
 from source.utils import load_route_naw, plot_route, animated_window, check_for_dir_and_create
@@ -28,7 +29,7 @@ data['th'] = data['th'].apply(literal_eval)
 data['matched_index'] = data['matched_index'].apply(literal_eval)
 
 # Plot a specific route
-route_id = 1
+route_id = 3
 fig_save_path = os.path.join(fig_save_path, 'route'+str(route_id))
 check_for_dir_and_create(fig_save_path)
 path = 'new-antworld/exp1/route' + str(route_id) + '/'
@@ -58,7 +59,7 @@ traj['rmfs'] = np.load(os.path.join(results_path, traj['rmfs_file']+'.npy'), all
 traj['window_log'] = eval(traj['window_log'])
 
 route = load_route_naw(path, imgs=True, route_id=route_id)
-#plot_route(route, traj, scale=70, size=figsize, save=False, path=fig_save_path, title=title)
+plot_route(route, traj, scale=70, size=figsize, save=True, path=fig_save_path, title=title)
 
 log_error_points(route, traj, thresh=threshold, target_path=fig_save_path)
 
