@@ -203,3 +203,9 @@ def eval_rmf_fit(ref_img, imgs, d_range=(-180, 180)):
         err = mse(rsim, g_curve)
         fit_errors.append(err)
     return fit_errors
+
+def d2i_eval(imgs, d_range=(-180, 180)):
+    rsims = pair_rmf(imgs, imgs, d_range=d_range)
+    depths = np.max(rsims, axis=1)-np.min(rsims, axis=1)
+    integs = np.trapz(rsims, axis=1)
+    return depths/integs
