@@ -96,6 +96,8 @@ def make_pipeline(sets):
     if sets.get('wave'):
         im_size = sets.get('shape')
         pipe.append(wavelet(im_size))
+    # Always change the datatype to int16 to avoid wrap-around!!
+    pipe.append(mod_dtype(np.int16))
     return pipe
 
 

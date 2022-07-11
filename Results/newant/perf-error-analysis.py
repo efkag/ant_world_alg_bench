@@ -12,7 +12,7 @@ from ast import literal_eval
 sns.set_context("paper", font_scale=1)
 
 
-directory = '2022-03-22'
+directory = '2022-06-13'
 fig_save_path = os.path.join('Results', 'newant', directory)
 data = pd.read_csv(os.path.join(fig_save_path, 'results.csv'), index_col=False)
 # Convert list of strings to actual list of lists
@@ -22,11 +22,11 @@ data['abs_index_diff'] = data['abs_index_diff'].apply(literal_eval)
 
 
 check_for_dir_and_create(fig_save_path)
-matcher = 'mae'
-edge = 'False'  # 'False'
-blur = True
+matcher = 'corr'
+edge = '(180, 200)'  # 'False'
+blur = False
 figsize = (4, 3)
-res = '(180, 50)'
+res = '(180, 80)'
 route = data.loc[(data['matcher'] == matcher) & (data['edge'] == edge) &
                  (data['res'] == res) & (data['blur'] == blur)]
 # window_labels = ['Adaptive (20)', 'PM', 'w=15', 'w=20', 'w=25', 'w=30']
