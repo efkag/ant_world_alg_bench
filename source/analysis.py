@@ -49,6 +49,10 @@ def log_error_points(route, traj, thresh=0.5, target_path=None):
     route_xy = np.column_stack((route['x'], route['y']))
 
     rsims_matrices = traj['rmfs']
+    # for the window version the structure of the RMF logs is 
+    # dim0-> test points
+    # dim1-> window rmfs
+    # dim2-> the actual RMF (usualy 360 degrees of search angle)
     index_log = traj['matched_index']
     degrees = np.arange(*eval(traj['deg_range']))
 
@@ -96,13 +100,12 @@ def log_error_points(route, traj, thresh=0.5, target_path=None):
                 imgfname = 'queryimg-matched-heading' + str(h) + '.png'
                 cv.imwrite(os.path.join(point_path, imgfname), img)
             # Save ridf
-            w = traj.get('window_log')[i]
-            # for the window version the structure of the RMF logs is 
-            # dim0-> test points
-            # dim1-> window rmfs
-            # dim2-> the actual RMF (usualy 360 degrees of search angle)
-            windod_index_of_route_match = route_match_i - w[0]
-            rsim = rsims_matrices[i][windod_index_of_route_match]
+            if traj.get('window_log'):
+                w = traj.get('window_log')[i]
+                windod_index_of_route_match = route_match_i - w[0]
+                rsim = rsims_matrices[i][windod_index_of_route_match]
+            else:
+                rsim = rsims_matrices[i][route_match_i]
             fig = plt.figure()
             plt.plot(degrees, rsim)
             fig.savefig(os.path.join(point_path, 'rsim.png'))

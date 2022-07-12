@@ -13,7 +13,7 @@ sns.set_context("paper", font_scale=1)
 
 
 
-directory = '2022-03-22'
+directory = '2022-06-13'
 fig_save_path = os.path.join('Results', 'newant', directory)
 data = pd.read_csv(os.path.join(fig_save_path, 'results.csv'), index_col=False)
 # Convert list of strings to actual list of lists
@@ -22,14 +22,14 @@ data['dist_diff'] = data['dist_diff'].apply(literal_eval)
 data['abs_index_diff'] = data['abs_index_diff'].apply(literal_eval)
 
 title = ''
-route_id = 4
+route_id = 3
 fig_save_path = os.path.join(fig_save_path, f"route{route_id}")
 check_for_dir_and_create(fig_save_path)
 matcher = 'mae'
 edge = 'False'  # 'False'
 blur = True
 figsize = (4, 2)
-res = '(180, 50)'
+res = '(180, 80)'
 route = data.loc[(data['matcher'] == matcher) & (data['route_id'] == route_id)
                  & (data['edge'] == edge) & (data['res'] == res)]
 # window_labels = ['Adaptive (20)', 'PM', 'w=15', 'w=20', 'w=25', 'w=30']
