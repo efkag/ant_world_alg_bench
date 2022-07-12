@@ -30,7 +30,7 @@ check_for_dir_and_create(fig_save_path)
 path = 'new-antworld/exp1/route' + str(route_id) + '/'
 window = -15
 matcher = 'corr'
-edge = 'False'
+edge = 'False' 
 res = '(180, 80)'
 threshold = 0
 figsize = (10, 10)
