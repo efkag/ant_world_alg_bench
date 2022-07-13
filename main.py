@@ -17,7 +17,7 @@ def main():
     # bench.benchmark(parameters, routes, parallel=False)
     
     #'segment_length':[3],
-    results_path = '/its/home/sk526/ant_world_alg_bench/Results/newant/2022-06-14'
+    results_path = '/its/home/sk526/ant_world_alg_bench/Results/newant/2022-07-12_mid_update'
     routes_path = '/its/home/sk526/ant_world_alg_bench/new-antworld/exp1'
     parameters = {'repos_thresh':[.3], 
                   'r': [0.05], 
@@ -26,8 +26,8 @@ def main():
                   'shape': [(180, 80)],
                 #   'wave' : [True, False], 
                   'edge_range': [(180, 200), False],
-                  'loc_norm': [{'kernel_shape':(5, 5)}, False],
-                  'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
+                  # 'loc_norm': [{'kernel_shape':(5, 5)}, False],
+                  # 'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
                   'window': [15, 20, 25, -15, 0],
                   'matcher': ['mae', 'corr']
                   }

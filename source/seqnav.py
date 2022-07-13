@@ -86,15 +86,21 @@ class SequentialPerfectMemory:
         self.best_sims.append(wind_sims[index])
         heading = wind_headings[index]
         self.recovered_heading.append(heading)
-        # Update memory pointer
-        self.update_pointer(index)
 
-        self.matched_index_log.append(self.mem_pointer)
+        # log the memory pointer before the update
+        # mem_pointer - upper can cause the calc_dists() to go out of bounds
+        # TODO: need to check for even and odd window sizes
+        matched_idx = (self.mem_pointer - self.upper) + index
+        self.matched_index_log.append(matched_idx)
 
         if self.adaptive:
             best = wind_sims[index]
             self.dynamic_window_log_rate(best)
             self.check_w_size()
+
+        # Update memory pointer
+        self.update_mid_pointer(index)
+        
         return heading
 
     def update_pointer(self, index):
@@ -119,10 +125,14 @@ class SequentialPerfectMemory:
         :param index:
         :return:
         '''
+        # TODO: Updating these befoer the mem. pointer update
+        # might need to change this
+        self.upper = int(round(self.window/2))
+        self.lower = self.window - self.upper
+        
         # Update memory pointer
-        change = index - self.upper
+        change = index - self.lower
         self.mem_pointer += change
-        self.matched_index_log.append(self.mem_pointer)
 
         # Update the bounds of the window
         self.flimit = self.mem_pointer + self.upper
@@ -131,6 +141,7 @@ class SequentialPerfectMemory:
             self.flimit = self.route_end
             self.blimit = self.route_end - self.window
         if self.blimit <= 0:
+            self.mem_pointer = 0
             self.blimit = self.mem_pointer
             self.flimit = self.mem_pointer + self.window
 
