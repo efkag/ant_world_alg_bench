@@ -1,5 +1,6 @@
 from source.utils import mae, rmse, cor_dist, rmf, pair_rmf, cos_sim, mean_angle
 import numpy as np
+import copy
 
 
 class SequentialPerfectMemory:
@@ -31,11 +32,17 @@ class SequentialPerfectMemory:
 
         # Window parameters
         if window < 0:
+            self.window = abs(window)
             self.adaptive = True
+            self.upper = int(round(self.window/2))
+            self.lower = self.window - self.upper
+            self.mem_pointer = self.window - self.upper
         else:
+            self.window = window
             self.adaptive = False
-        self.mem_pointer = 0
-        self.window = abs(window)
+            self.mem_pointer = 0
+            self.upper = window
+            self.lower = 0
         self.blimit = 0
         self.flimit = self.window
 
@@ -44,18 +51,16 @@ class SequentialPerfectMemory:
         self.min_window = 10
         self.window_margin = 5
         self.deg_diff = 5
-        self.upper = int(round(window/2))
-        self.lower = window - self.upper
         self.agreement_thresh = 0.9
 
     def reset_window(self, pointer):
         self.mem_pointer = pointer
-        if self.mem_pointer + self.window > self.route_end:
+        self.flimit = self.mem_pointer + self.upper
+        self.blimit = self.mem_pointer - self.lower
+
+        if self.flimit > self.route_end:
             self.flimit = self.route_end
             self.blimit = self.route_end - self.window
-        else:
-            self.blimit = self.mem_pointer
-            self.flimit = self.mem_pointer + self.window
 
     def get_heading(self, query_img):
         '''
@@ -89,8 +94,7 @@ class SequentialPerfectMemory:
 
         # log the memory pointer before the update
         # mem_pointer - upper can cause the calc_dists() to go out of bounds
-        # TODO: need to check for even and odd window sizes
-        matched_idx = (self.mem_pointer - self.upper) + index
+        matched_idx = self.mem_pointer + (index - self.lower)
         self.matched_index_log.append(matched_idx)
 
         if self.adaptive:
@@ -111,13 +115,15 @@ class SequentialPerfectMemory:
         :return:
         '''
         self.mem_pointer += index
-        if self.mem_pointer + self.window > self.route_end:
+        # in this case the upperpart is equal to the upper margin
+        self.upper = self.window
+        self.flimit = self.mem_pointer + self.upper
+        self.blimit = self.mem_pointer
+
+        if self.flimit > self.route_end:
             self.mem_pointer = self.blimit + index
             self.flimit = self.route_end
             self.blimit = self.route_end - self.window
-        else:
-            self.blimit = self.mem_pointer
-            self.flimit = self.mem_pointer + self.window
 
     def update_mid_pointer(self, index):
         '''
@@ -125,14 +131,13 @@ class SequentialPerfectMemory:
         :param index:
         :return:
         '''
-        # TODO: Updating these befoer the mem. pointer update
-        # might need to change this
-        self.upper = int(round(self.window/2))
-        self.lower = self.window - self.upper
-        
         # Update memory pointer
         change = index - self.lower
         self.mem_pointer += change
+
+        # update upper an lower margins
+        self.upper = int(round(self.window/2))
+        self.lower = self.window - self.upper
 
         # Update the bounds of the window
         self.flimit = self.mem_pointer + self.upper

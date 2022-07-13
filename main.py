@@ -33,6 +33,6 @@ def main():
                   }
 
     routes = [1, 2, 3, 4, 5]
-    cbench.benchmark(results_path, routes_path, parameters, routes, parallel=True)
+    cbench.benchmark(results_path, routes_path, parameters, routes, parallel=True, cores=1)
 if __name__ == "__main__":
     main()
