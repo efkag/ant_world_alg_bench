@@ -59,8 +59,13 @@ class SequentialPerfectMemory:
         self.blimit = self.mem_pointer - self.lower
 
         if self.flimit > self.route_end:
+            self.mem_pointer = (self.route_end - self.window) + self.lower
             self.flimit = self.route_end
             self.blimit = self.route_end - self.window
+        if self.blimit <= 0:
+            self.mem_pointer = self.lower
+            self.blimit = 0
+            self.flimit = self.mem_pointer + self.window
 
     def get_heading(self, query_img):
         '''
@@ -143,11 +148,13 @@ class SequentialPerfectMemory:
         self.flimit = self.mem_pointer + self.upper
         self.blimit = self.mem_pointer - self.lower
         if self.flimit > self.route_end:
+            self.mem_pointer = (self.route_end - self.window) + self.lower
             self.flimit = self.route_end
             self.blimit = self.route_end - self.window
         if self.blimit <= 0:
-            self.mem_pointer = 0
-            self.blimit = self.mem_pointer
+            # the mem pointer should be in the midle of the window
+            self.mem_pointer = self.lower
+            self.blimit = 0
             self.flimit = self.mem_pointer + self.window
 
     def check_w_size(self):
