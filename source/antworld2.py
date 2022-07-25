@@ -23,6 +23,7 @@ class Agent:
         (xlim, ylim, zlim) = self.agent.load_world(worldpath)
         print(xlim, ylim, zlim)
         self.pitch_roll_noise = pitch_roll_sig
+        #Using self.z means that the height is constant
         self.z = z
         # holds current xy possition
         self.xy = None
@@ -53,7 +54,7 @@ class Agent:
         route['filename'] = []
 
         for i, (xi, yi, h1) in enumerate(zip(x, y, headings)):
-            self.agent.set_position(xi, yi, z)
+            self.agent.set_position(xi, yi, self.z)
             self.agent.set_attitude(h1, 0, 0)
             img = self.agent.read_frame()
             filename = os.path.join(path, "img%i.png" % i )
@@ -66,7 +67,7 @@ class Agent:
     def rec_route_from_points(self, path, route_id=1, generator='circle', **kwargs):
         # Augment the directory containing all route
         # to create a new directory w.r.t the new route
-        path = path + 'route' + str(route_id) + '/'
+        path = os.path.join(path, 'route' + str(route_id))
         check_for_dir_and_create(path)
         # Generate coordinates and write them to file
         route = generate_from_points(path, generator=generator, **kwargs)
