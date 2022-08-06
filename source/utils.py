@@ -344,6 +344,27 @@ def line_incl(x, y):
     return incl
 
 
+def meancurv2d(x, y):
+    '''
+    Calculates the mean curvature of a set of points (x, y) that belong to a curve.
+    :param x:
+    :param y:
+    :return:
+    '''
+    # first derivatives
+    dx = np.gradient(x)
+    dy = np.gradient(y)
+
+    # second derivatives
+    d2x = np.gradient(dx)
+    d2y = np.gradient(dy)
+
+    # calculate the mean curvature from first and second derivatives
+    curvature = np.abs(dx * d2y - d2x * dy) / (dx * dx + dy * dy) ** 1.5
+
+    return np.mean(curvature)
+
+
 def squash_deg(degrees):
     '''
     Squashes degrees into the range of 0-360

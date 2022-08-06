@@ -107,7 +107,7 @@ class Pipeline:
             self.pipe = make_pipeline(sets)
         else:
             self.pipe = []
-            self.pipe.append(lambda im:im)
+            self.pipe.append(mod_dtype(np.int16))
 
     def apply(self, imgs):
         if not isinstance(imgs, list):
