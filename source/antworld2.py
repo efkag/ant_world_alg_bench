@@ -124,19 +124,19 @@ class Agent:
         # traj[1, 0] = xy[1]
         # Navigation loop
         for i in range(0, t):
-            # log the coordinates and attitude
-            traj[0, i] = self.xy[0]
-            traj[1, i] = self.xy[1]
-            headings.append(self.h)
             # get the new heading from teh navigator and format it properly
-            self.h = self.nav.get_heading(img)
-            self.h = headings[-1] + self.h
+            new_h = self.nav.get_heading(img)
+            self.h = self.h + new_h
             self.h = squash_deg(self.h)
 
             # reposition the agent and get the new image
             self.xy, img = self.update_position(self.xy, self.h, r)
             self.check4reposition()
             img = self.get_img(self.xy, self.h)
+            # log the coordinates and attitude
+            traj[0, i] = self.xy[0]
+            traj[1, i] = self.xy[1]
+            headings.append(self.h)
 
         headings = np.array(headings)
         trajectory = {'x': traj[0], 'y': traj[1], 'heading': headings}
