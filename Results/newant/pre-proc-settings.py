@@ -23,13 +23,14 @@ grouping_factors = ['blur', 'edge', 'gauss_loc_norm', 'loc_norm', 'matcher']
 grouped = data.groupby(grouping_factors)["trial_fail_count"].apply(grouping_func).to_frame("trial_fail_count").reset_index()
 print(grouped)
 
-#combine colums for plotting
-grouped['combined'] = grouped[grouping_factors].apply(lambda row: '\n'.join(row.values.astype(str)), axis=1)
-print(grouped)
+#combine colusmk mfor plotting
+grouped['combined'] = grouped[grouping_factors].apply(lambda row: '\n'.join(row.values.astype(str)), axis=1) 
 
-figsize = None
+figsize = (20, 10)
 fig, ax = plt.subplots(figsize=figsize)
 sns.barplot(x="combined", y="trial_fail_count", data=grouped, ax=ax, estimator=sum, capsize=.2)
 #ax.bar(x=grouped['combined'], y=)
 #ax.tick_params(axis='x', labelrotation=90)
-plt.show()
+path = os.path.join(fig_save_path, f'w={window}.png')
+fig.savefig(path)
+plt.show() 
