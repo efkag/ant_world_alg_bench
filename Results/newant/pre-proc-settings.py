@@ -23,7 +23,7 @@ grouping_factors = ['blur', 'edge', 'gauss_loc_norm', 'loc_norm', 'matcher']
 grouped = data.groupby(grouping_factors)["trial_fail_count"].apply(grouping_func).to_frame("trial_fail_count").reset_index()
 print(grouped)
 
-#combine colusmk mfor plotting
+#combine colums for plotting
 grouped['combined'] = grouped[grouping_factors].apply(lambda row: '\n'.join(row.values.astype(str)), axis=1)
 print(grouped)
 
