@@ -13,7 +13,7 @@ import seaborn as sns
 from ast import literal_eval
 sns.set_context("paper", font_scale=1)
 
-directory = '2022-07-14_mid_update'
+directory = '2022-07-26_mid_update'
 data_save_path = os.path.join('Results', 'newant', directory)
 data = pd.read_csv(os.path.join(data_save_path, 'results.csv'))
 # Convert list of strings to actual list of lists
@@ -26,7 +26,7 @@ data['ty'] = data['ty'].apply(literal_eval)
 routes = data['route_id']
 divergence = []
 for i, route_id in enumerate(routes):
-    path = 'new-antworld/exp1/route' + str(route_id) + '/'
+    path = 'new-antworld/inc-curve/route' + str(route_id) + '/'
     route = Route(path, route_id=route_id)
     route = route.get_route_dict()
 
