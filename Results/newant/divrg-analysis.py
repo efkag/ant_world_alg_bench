@@ -27,9 +27,12 @@ edge = 'False'  # 'False'
 blur = True
 figsize = (4, 3)
 res = '(180, 80)'
+g_loc_norm = "{'sig1': 2, 'sig2': 20}"
+loc_norm = 'False'
 route = data.loc[(data['matcher'] == matcher) & (data['edge'] == edge) &
-                 (data['res'] == res) & (data['blur'] == blur)]
-
+                 (data['res'] == res) & (data['blur'] == blur) &
+                 (data['gauss_loc_norm'] == g_loc_norm) & 
+                 (data['loc_norm'] == loc_norm)]
 
 '''
 Plot errors vs window sizes for a combo of parameters
