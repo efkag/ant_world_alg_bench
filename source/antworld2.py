@@ -124,7 +124,7 @@ class Agent:
         # traj[1, 0] = xy[1]
         # Navigation loop
         for i in range(0, t):
-            # get the new heading from teh navigator and format it properly
+            # get the new heading from the navigator and format it properly
             new_h = self.nav.get_heading(img)
             self.h = self.h + new_h
             self.h = squash_deg(self.h)

@@ -14,7 +14,7 @@ from source.utils import load_route_naw, plot_route, animated_window, check_for_
 sns.set_context("paper", font_scale=1)
 
 
-directory = '2022-06-13'
+directory = '2022-09-20_mid_update'
 results_path = os.path.join('Results', 'newant', directory)
 fig_save_path = os.path.join('Results', 'newant', directory, 'analysis')
 data = pd.read_csv(os.path.join(results_path, 'results.csv'), index_col=False)
@@ -29,27 +29,29 @@ data['th'] = data['th'].apply(literal_eval)
 data['matched_index'] = data['matched_index'].apply(literal_eval)
 
 # Plot a specific route
-route_id = 2
+route_id = 1
 fig_save_path = os.path.join(fig_save_path, 'route'+str(route_id))
 check_for_dir_and_create(fig_save_path)
 path = 'new-antworld/exp1/route' + str(route_id) + '/'
-window = 0
+window = -15
 blur =  True
-matcher = 'mae'
+matcher = 'corr'
 edge = 'False'# '(180, 200)'
 loc_norm = 'False' # {'kernel_shape':(5, 5)}
-gauss_loc_norm = 'False' # {'sig1':2, 'sig2':20}
+gauss_loc_norm = "{'sig1': 2, 'sig2': 20}"
 res = '(180, 80)'
 threshold = 0
 figsize = (10, 10)
 title = 'D'
-
+print(data)
 traj = data.loc[(data['matcher'] == matcher) & (data['res'] == res) 
                 & (data['edge'] == edge) & (data['window'] == window) 
-                & (data['route_id'] == route_id) & (data['blur'] == blur)
-                #& (data['loc_norm'] == loc_norm) 
-                #& (data['gauss_loc_norm'] == gauss_loc_norm)
+                & (data['blur'] == blur)
+                & (data['loc_norm'] == loc_norm) 
+                & (data['gauss_loc_norm'] == gauss_loc_norm)
+                & (data['route_id'] == route_id)
                 ]
+print(traj)
 traj = traj.to_dict(orient='records')[0]
 
 traj['x'] = traj.pop('tx')

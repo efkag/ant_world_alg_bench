@@ -9,11 +9,16 @@ import numpy as np
 import seaborn as sns
 from ast import literal_eval
 from source.utils import load_route_naw, plot_route, animated_window, check_for_dir_and_create
+from source.routedatabase import Route
+import yaml
 sns.set_context("paper", font_scale=1)
 
-directory = '2022-07-26_mid_update'
+directory = '2022-09-20_mid_update'
 fig_save_path = os.path.join('Results', 'newant', directory)
 data = pd.read_csv(os.path.join(fig_save_path, 'results.csv'), index_col=False)
+with open(os.path.join(fig_save_path, 'params.yml')) as fp:
+    params = yaml.load(fp)
+routes_path = params['routes_path']
 # Convert list of strings to actual list of lists
 data['errors'] = data['errors'].apply(literal_eval)
 data['dist_diff'] = data['dist_diff'].apply(literal_eval)
@@ -24,21 +29,23 @@ data['th'] = data['th'].apply(literal_eval)
 
 
 # Plot a specific route
-route_id = 6
-fig_save_path = os.path.join(fig_save_path, str(route_id))
+route_id = 1
+fig_save_path = os.path.join(fig_save_path, f"route{route_id}")
 check_for_dir_and_create(fig_save_path)
-path = 'new-antworld/inc-curve/route' + str(route_id) + '/'
-window = 20
+path = os.path.join(routes_path, f"route{route_id}")
+window = -15
 matcher = 'corr'
 edge = 'False' 
 res = '(180, 80)'
+blur = True
 g_loc_norm = "{'sig1': 2, 'sig2': 20}"
 loc_norm = 'False'
 threshold = 0
 figsize = (10, 10)
 title = 'D'
 
-traj = data.loc[(data['matcher'] == matcher) & (data['res'] == res) & (data['edge'] == edge) &
+traj = data.loc[(data['matcher'] == matcher) & (data['res'] == res) & 
+                (data['edge'] == edge) & (data['blur'] == blur) &
                 (data['window'] == window) & (data['gauss_loc_norm'] == g_loc_norm) & 
                 (data['loc_norm'] == loc_norm) & (data['route_id'] == route_id)]
 
@@ -52,7 +59,8 @@ traj = {'x': np.array(traj['tx'].tolist()[0]),
         'y': np.array(traj['ty'].tolist()[0]),
         'heading': np.array(traj['th'].tolist()[0])}
 
-route = load_route_naw(path, route_id=route_id)
+route = Route(path, route_id=route_id)
+route = route.get_route_dict()
 if threshold:
     index = np.argwhere(errors > threshold)[0]
     thres = {}
