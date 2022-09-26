@@ -5,6 +5,7 @@ from source.routedatabase import Route
 import time
 import itertools
 import os
+import copy
 import pandas as pd
 import numpy as np
 from source import antworld2 as aw
@@ -153,8 +154,10 @@ def bench_paral(resutls_path, params, routes_path, route_ids=None, cores=None):
     # save the parmeters of the test in a json file
     check_for_dir_and_create(resutls_path)
     param_path = os.path.join(resutls_path, 'params.yml')
+    temp_params = copy.deepcopy(params)
+    temp_params['routes_path'] = routes_path
     with open(param_path, 'w') as fp:
-        yaml.dump(params, fp)
+        yaml.dump(temp_params, fp)
 
     existing_cores = os.cpu_count()
     if cores and cores > existing_cores:
