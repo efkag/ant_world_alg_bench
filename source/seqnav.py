@@ -1,6 +1,7 @@
-from source.utils import mae, rmse, cor_dist, rmf, pair_rmf, cos_sim, mean_angle
+from source.utils import mae, rmse, cor_dist, rmf, seq2seqrmf, pair_rmf, cos_sim, mean_angle
 import numpy as np
 import copy
+from collections import deque
 
 
 class SequentialPerfectMemory:
@@ -365,93 +366,295 @@ class SequentialPerfectMemory:
 
 
 class Seq2SeqPerfectMemory:
-
-    def __init__(self, route_images, matching, deg_range=(0, 360), degree_shift=1):
+    
+    def __init__(self, route_images, matching, deg_range=(0, 360), degree_shift=1, window=20, dynamic_range=0.1, queue_size=3):
         self.route_end = len(route_images)
         self.route_images = route_images
         self.deg_range = deg_range
-        self.degree_shift = degree_shift
+        self.deg_step = degree_shift
         self.degrees = np.arange(*deg_range)
+        self.queue_size = queue_size
+        self.queue = deque(maxlen=queue_size)
+
+        # Log Variables
         self.recovered_heading = []
         self.logs = []
         self.window_log = []
         self.matched_index_log = []
         self.confidence = [1] * self.route_end
         self.window_sims = []
+        self.best_sims = []
+        self.window_headings = []
         self.CMA = []
-        matchers = {'corr': cor_dist, 'rmse': rmse, 'mae':mae}
+        # Matching variables
+        matchers = {'corr': cor_dist, 'rmse': rmse, 'mae': mae}
         self.matcher = matchers.get(matching)
         if not self.matcher:
             raise Exception('Non valid matcher method name')
         self.argminmax = np.argmin
         self.prev_match = 0.0
 
-    def navigate(self, w_g_imgs, window=10, mem_pointer=0):
-        no_of_test_imgs = len(w_g_imgs)
-        end_route = False
-        current_img_pointer = -1
-        # For every query sequence
-        while not end_route:
+        # Window parameters
+        if window < 0:
+            self.window = abs(window)
+            self.adaptive = True
+            self.upper = int(round(self.window/2))
+            self.lower = self.window - self.upper
+            self.mem_pointer = self.window - self.upper
+        else:
+            self.window = window
+            self.adaptive = False
+            self.mem_pointer = 0
+            self.upper = window
+            self.lower = 0
+        self.blimit = 0
+        self.flimit = self.window
 
-            # Update current images pointer
-            current_img_pointer += 1
-            current_limit = current_img_pointer + window
-            if current_limit >= no_of_test_imgs:
-                current_limit = no_of_test_imgs
-                end_route = True
-            # Get the current image sequence
-            current_imgs = w_g_imgs[current_img_pointer:current_limit]
+        # Adaptive window parameters
+        self.dynamic_range = dynamic_range
+        self.min_window = 10
+        self.window_margin = 5
+        self.deg_diff = 5
+        self.agreement_thresh = 0.9
 
-            # Window similarities between the current image and the window route images
-            wind_sims = []
-            # Recovered headings for the current image wrt the window
-            wind_headings = []
-            # Update memory window pointers
-            limit = mem_pointer + window
-            if limit > self.route_end: limit = self.route_end
-            self.window_log.append([mem_pointer, limit])
+    def reset_window(self, pointer):
+        self.mem_pointer = pointer
+        self.flimit = self.mem_pointer + self.upper
+        self.blimit = self.mem_pointer - self.lower
 
-            # get the rotational similarities between a query imag seq and a window of route images
-            wrsims = pair_rmf(current_imgs, self.route_images[mem_pointer:limit], self.matcher, self.deg_range, self.deg_step)
+        if self.flimit > self.route_end:
+            self.mem_pointer = (self.route_end - self.window) + self.lower
+            self.flimit = self.route_end
+            self.blimit = self.route_end - self.window
+        if self.blimit <= 0:
+            self.mem_pointer = self.lower
+            self.blimit = 0
+            self.flimit = self.mem_pointer + self.window
 
-            for rsim in wrsims:
-                # get best similarity match for degrees and its index(heading)
-                index = self.argminmax(rsim)
-                wind_sims.append(rsim[index])
-                wind_headings.append(self.degrees[index])
+    def get_heading(self, query_img):
+        '''
+        Recover the heading given a query image
+        :param query_img:
+        :return:
+        '''
+        #If the query images queue is full then remove the oldest element 
+        # and add the new image (removal happes automaticaly when using the maxlen argument for the deque)
+        self.queue.append(query_img)
+        # get the rotational similarities between the query images and a window of route images
+        wrsims = seq2seqrmf(self.queue, self.route_images[self.blimit:self.flimit], self.matcher, self.deg_range, self.deg_step)
+        
+        self.window_log.append([self.blimit, self.flimit])
+        # Holds the best rot. match between the query image and route images
+        wind_sims = []
+        # Recovered headings for the current image
+        wind_headings = []
+        # get best similarity match adn index w.r.t degrees
+        indices = self.argminmax(wrsims, axis=1)
+        for i, idx in enumerate(indices):
+            wind_sims.append(wrsims[i, idx])
+            wind_headings.append(self.degrees[idx])
 
-            # Save the best degree match for window similarities
-            self.window_sims.append(wind_sims)
-            # append the rsims of all window route images for that current image sequence
-            self.logs.append(wrsims)
-            index = self.argminmax(wind_sims)
-            self.recovered_heading.append(wind_headings[index])
+        # Save the best degree and sim for window similarities
+        self.window_sims.append(wind_sims)
+        self.window_headings.append(wind_headings)
+        # append the rsims of all window route images for that query image
+        self.logs.append(wrsims)
+        # find best image match and heading
+        index = int(self.argminmax(wind_sims))
+        self.best_sims.append(wind_sims[index])
+        heading = wind_headings[index]
+        self.recovered_heading.append(heading)
 
-            # # Lower confidence of the memories depending on the match score
-            # window_mean = sum(wind_sims)/len(wind_sims)
-            # if i == 0: # If this is the first window
-            #     self.CMA.extend([window_mean] * 2)
-            # else:
-            #     cma = self.CMA[-1]
-            #     self.CMA.append(cma + ((window_mean-cma)/(len(self.CMA)+1)))
-            # for j in range(mem_pointer, limit):
-            #     if wind_sims[j-mem_pointer] > self.CMA[-1]:
-            #         self.confidence[j] -= 0.1
+        # log the memory pointer before the update
+        # mem_pointer - upper can cause the calc_dists() to go out of bounds
+        matched_idx = self.mem_pointer + (index - self.lower)
+        self.matched_index_log.append(matched_idx)
 
-            # Update memory pointer
-            mem_pointer = index + mem_pointer
-            self.matched_index_log.append(mem_pointer)
+        if self.adaptive:
+            best = wind_sims[index]
+            self.dynamic_window_log_rate(best)
+            self.check_w_size()
 
-        return self.recovered_heading, self.logs, self.window_log
+        # Update memory pointer
+        self.update_mid_pointer(index)
+        
+        return heading
+
+    def update_pointer(self, index):
+        '''
+        Update the mem pointer to the back of the window
+        mem_pointer = blimit
+        :param index:
+        :return:
+        '''
+        self.mem_pointer += index
+        # in this case the upperpart is equal to the upper margin
+        self.upper = self.window
+        self.flimit = self.mem_pointer + self.upper
+        self.blimit = self.mem_pointer
+
+        if self.flimit > self.route_end:
+            self.mem_pointer = self.blimit + index
+            self.flimit = self.route_end
+            self.blimit = self.route_end - self.window
+
+    def update_mid_pointer(self, index):
+        '''
+        Update the mem pointer to the middle of the window
+        :param index:
+        :return:
+        '''
+        # Update memory pointer
+        change = index - self.lower
+        self.mem_pointer += change
+
+        # update upper an lower margins
+        self.upper = int(round(self.window/2))
+        self.lower = self.window - self.upper
+
+        # Update the bounds of the window
+        self.flimit = self.mem_pointer + self.upper
+        self.blimit = self.mem_pointer - self.lower
+        if self.flimit > self.route_end:
+            self.mem_pointer = (self.route_end - self.window) + self.lower
+            self.flimit = self.route_end
+            self.blimit = self.route_end - self.window
+        if self.blimit <= 0:
+            # the mem pointer should be in the midle of the window
+            self.mem_pointer = self.lower
+            self.blimit = 0
+            self.flimit = self.mem_pointer + self.window
+
+    def check_w_size(self):
+        self.window = self.route_end if self.window > self.route_end else self.window
+
+    def get_agreement(self, window_headings):
+        a = np.full(len(window_headings), 1)
+        return cos_sim(a, window_headings)
+
+    def consensus_heading(self, wind_headings, h):
+        '''
+        Calculates the agreement of the window headings.
+        If the agreement is above the threshold the best heading is used
+        otherwise the last heading is used.
+        :param wind_headings:
+        :param h:
+        :return:
+        '''
+        if self.get_agreement(wind_headings) >= self.agreement_thresh:
+            self.recovered_heading.append(h)
+        elif len(self.recovered_heading) > 0:
+            self.recovered_heading.append(self.recovered_heading[-1])
+        else:
+            self.recovered_heading.append(h)
+
+    def average_heading2(self, h):
+        '''
+        Calculates the average of the last window heading and the current window heading
+        :param h:
+        :return:
+        '''
+        if len(self.recovered_heading) > 0:
+            self.recovered_heading.append(mean_angle([h, self.recovered_heading[-1]]))
+        else:
+            self.recovered_heading.append(h)
+
+    def average_headings(self, wind_heading):
+        '''
+        Calculates the average of all window headings
+        :param wind_heading:
+        :return:
+        '''
+        self.recovered_heading.append(mean_angle(wind_heading))
+
+    def dynamic_window_sim(self, best):
+        '''
+        Change the window size depending on the best img match gradient.
+        If the last best img sim > the current best img sim the window grows
+        and vice versa
+        :param best:
+        :return:
+        '''
+        # Dynamic window adaptation based on match gradient.
+        if best > self.prev_match or self.window <= self.min_window:
+            self.window += self.window_margin
+        else:
+            self.window -= self.window_margin
+        self.prev_match = best
+    
+    def dynamic_window_rate(self, best):
+        '''
+        Change the window size depending on the current best and previous img match gradient. 
+        Update the size by the dynamic_rate (percetage of the window size)
+        :param best:
+        :return:
+        '''
+        # Dynamic window adaptation based on match gradient.
+        if best > self.prev_match or self.window <= self.min_window:
+            self.window += round(self.window * self.dynamic_range)
+        else:
+            self.window -= round(self.window * self.dynamic_range)
+        self.prev_match = best
+
+    def dynamic_window_log_rate(self, best):
+        '''
+        Change the window size depending on the current best and previous img match gradient. 
+        Update the size by log of the current window size
+        :param best:
+        :return:
+        '''
+        # Dynamic window adaptation based on match gradient.
+        if best > self.prev_match or self.window <= self.min_window:
+            self.window += round(self.min_window/np.log(self.window))
+        else:
+            self.window -= round(np.log(self.window))
+        self.prev_match = best
+
+    def dynamic_window_h2(self, h):
+        '''
+        Change the window size depending on the best heading gradient.
+        If the difference between the last heading and the current heading is > self.deg_diff
+        then the window grows and vice versa
+        :param h:
+        :return:
+        '''
+        diff = abs(h - self.recovered_heading[-1])
+        if diff > self.deg_diff or self.window <= self.min_window:
+            self.window += self.window_margin
+        else:
+            self.window -= self.window_margin
+
+    def dynamic_window_h(self, wind_headings):
+        '''
+        The window grows if the window headings disagree and vice versa
+        :param wind_headings:
+        :return:
+        '''
+        if self.get_agreement(wind_headings) <= self.agreement_thresh or self.window <= self.min_window:
+            self.window += self.window_margin
+        else:
+            self.window -= self.window_margin
 
     def get_index_log(self):
         return self.matched_index_log
+
+    def get_window_log(self):
+        return self.window_log
+
+    def get_rsims_log(self):
+        return self.logs
 
     def get_confidence(self):
         return self.confidence
 
     def get_window_sims(self):
         return self.window_sims
+
+    def get_best_sims(self):
+        return self.best_sims
+
+    def get_window_headings(self):
+        return self.window_headings
 
     def get_CMA(self):
         return self.CMA

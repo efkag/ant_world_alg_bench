@@ -9,6 +9,7 @@ import os
 import shutil
 from scipy.spatial.distance import cosine, correlation, cdist, pdist
 from scipy.stats import circmean
+from collections.abc import Iterable
 
 
 def display_image(image, size=(10, 10), title='Title', save_id=None):
@@ -684,6 +685,34 @@ def pair_rmf(query_imgs, ref_imgs, matcher=mae, d_range=(0, 360), d_step=1):
 
     for i, (q_img, r_img) in enumerate(zip(query_imgs, ref_imgs)):
         sims[i] = [matcher(rotate(rot, q_img), r_img) for rot in degrees]
+
+    return sims
+
+def seq2seqrmf(query_imgs, ref_imgs, matcher=mae, d_range=(0, 360), d_step=1):
+    """
+    Rotational Matching Function.
+    Rotates multiple query images and compares then with one or more reference images
+    :param query_img:
+    :param ref_imgs:
+    :param matcher:
+    :param d_range:
+    :param d_step:
+    :return:
+    """
+    assert query_imgs <= ref_imgs
+    assert d_step > 0
+    assert isinstance(query_imgs, Iterable)
+    if not isinstance(ref_imgs, list):
+        ref_imgs = [ref_imgs]
+
+    degrees = range(*d_range, d_step)
+    total_search_angle = round((d_range[1] - d_range[0]) / d_step)
+    sims = np.empty((len(query_imgs)*len(ref_imgs), total_search_angle), dtype=np.float)
+    for i, query_img in enumerate(query_imgs):
+        for j, rot in enumerate(degrees):
+            # rotated query image
+            rqimg = rotate(rot, query_img)
+            sims[:(i+1)*len(query_imgs), j] = matcher(rqimg, ref_imgs)
 
     return sims
 
