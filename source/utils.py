@@ -699,7 +699,6 @@ def seq2seqrmf(query_imgs, ref_imgs, matcher=mae, d_range=(0, 360), d_step=1):
     :param d_step:
     :return:
     """
-    assert query_imgs <= ref_imgs
     assert d_step > 0
     assert isinstance(query_imgs, Iterable)
     if not isinstance(ref_imgs, list):
