@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from ast import literal_eval
 from source.utils import load_route_naw, plot_route, animated_window, check_for_dir_and_create
+from source.routedatabase import Route
 sns.set_context("paper", font_scale=1)
 
 
@@ -43,7 +44,7 @@ res = '(180, 80)'
 threshold = 0
 figsize = (10, 10)
 title = 'D'
-print(data)
+
 traj = data.loc[(data['matcher'] == matcher) & (data['res'] == res) 
                 & (data['edge'] == edge) & (data['window'] == window) 
                 & (data['blur'] == blur)
@@ -51,7 +52,7 @@ traj = data.loc[(data['matcher'] == matcher) & (data['res'] == res)
                 & (data['gauss_loc_norm'] == gauss_loc_norm)
                 & (data['route_id'] == route_id)
                 ]
-print(traj)
+
 traj = traj.to_dict(orient='records')[0]
 
 traj['x'] = traj.pop('tx')
@@ -64,7 +65,8 @@ else:
     traj['window_log'] = eval(traj['window_log'])
 
 
-route = load_route_naw(path, imgs=True, route_id=route_id)
+#route = load_route_naw(path, imgs=True, route_id=route_id)
+route = Route(path, route_id=route_id).get_route_dict()
 plot_route(route, traj, scale=70, size=figsize, save=True, path=fig_save_path, title=title)
 
 log_error_points(route, traj, thresh=threshold, target_path=fig_save_path)

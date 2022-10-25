@@ -29,7 +29,7 @@ data['th'] = data['th'].apply(literal_eval)
 
 
 # Plot a specific route
-route_id = 1
+route_id = 3
 fig_save_path = os.path.join(fig_save_path, f"route{route_id}")
 check_for_dir_and_create(fig_save_path)
 path = os.path.join(routes_path, f"route{route_id}")
