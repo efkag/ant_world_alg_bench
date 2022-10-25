@@ -124,6 +124,11 @@ class Route:
         min_idx = np.argmin(dist)
         min_xy = (self.route_dict['x'][min_idx], self.route_dict['y'][min_idx])
         return min_idx, min_dist, min_xy
+    
+    def dist_from_start(self, xy):
+        dx = xy[0] - self.route_dict['x'][0]
+        dy = xy[1] - self.route_dict['y'][0]
+        return np.sqrt(dx**2+dy**2)
 
     def get_tavel_distance(self):
         return travel_dist(self.route_dict['x'], self.route_dict['y'])

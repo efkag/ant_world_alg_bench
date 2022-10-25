@@ -41,6 +41,8 @@ class Agent:
         self.route = None
         # the navigator object
         self.nav = None
+        # keep track of the distance from the start of the route
+        self.prev_dist = 0
 
     def record_route(self, route, path, route_id=1):
         check_for_dir_and_create(path)
@@ -114,6 +116,8 @@ class Agent:
             self.xy = (coords['x'], coords['y'])
             self.h = coords['yaw']
 
+        self.prev_dist = 0
+
         # Place agent to the initial position and render the image
         img = self.get_img(self.xy, self.h)
 
@@ -124,7 +128,8 @@ class Agent:
         # traj[1, 0] = xy[1]
         # Navigation loop
         for i in range(0, t):
-            # get the new heading from the navigator and format it properly
+            self.i = i
+            # get the new heading from teh navigator and format it properly
             new_h = self.nav.get_heading(img)
             self.h = self.h + new_h
             self.h = squash_deg(self.h)
@@ -143,11 +148,21 @@ class Agent:
         return trajectory, self.nav
     
     def check4reposition(self):
+        # check distance from the closest point on the route
         idx, dist, xy = self.route.min_dist_from_route(self.xy)
         if dist >= self.repos_thresh:
             self.xy = xy
             self.trial_fail_count += 1
             self.nav.reset_window(idx)
+            return
+        # check distance form the start of the route
+        dist = self.route.dist_from_start(self.xy)
+        if not self.i % 10 == 0:
+            if dist <= self.prev_dist:
+                self.xy = xy
+                self.trial_fail_count += 1
+                self.nav.reset_window(idx)
+            self.prev_dist = dist
 
     def segment_test(self, route, nav, segment_length=3, **kwargs):
         trajectories = {'x': [], 'y': [], 'heading': []}
