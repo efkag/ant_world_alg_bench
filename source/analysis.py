@@ -102,8 +102,8 @@ def log_error_points(route, traj, thresh=0.5, target_path=None):
             # Save ridf
             if traj.get('window_log'):
                 w = traj.get('window_log')[i]
-                windod_index_of_route_match = route_match_i - w[0]
-                rsim = rsims_matrices[i][windod_index_of_route_match]
+                window_index_of_route_match = route_match_i - w[0]
+                rsim = rsims_matrices[i][window_index_of_route_match]
             else:
                 rsim = rsims_matrices[i][route_match_i]
             fig = plt.figure()

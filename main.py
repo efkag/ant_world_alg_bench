@@ -16,8 +16,8 @@ def main():
     # bench.benchmark(parameters, routes, parallel=False)
     
     #'segment_length':[3],
-    results_path = '/its/home/sk526/ant_world_alg_bench/Results/newant/2022-08-30_mid_update'
-    routes_path = '/its/home/sk526/ant_world_alg_bench/new-antworld/inc-curve'
+    results_path = '/its/home/sk526/ant_world_alg_bench/Results/newant/2022-09-20_mid_update'
+    routes_path = '/its/home/sk526/ant_world_alg_bench/new-antworld/exp1'
     parameters = {'repos_thresh':[.3], 
                   'r': [0.05], 
                   't': [150], 
@@ -31,7 +31,7 @@ def main():
                   'matcher': ['mae', 'corr']
                   }
 
-    routes = [0, 1, 2, 3, 4, 5, 6]
+    routes = [1, 2, 3, 4, 5, 6]
     cbench.benchmark(results_path, routes_path, parameters, routes, parallel=True)
 if __name__ == "__main__":
     main()

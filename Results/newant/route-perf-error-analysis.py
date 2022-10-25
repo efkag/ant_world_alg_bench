@@ -13,7 +13,7 @@ sns.set_context("paper", font_scale=1)
 
 
 
-directory = '2022-07-14_mid_update'
+directory = '2022-09-20_mid_update'
 fig_save_path = os.path.join('Results', 'newant', directory)
 data = pd.read_csv(os.path.join(fig_save_path, 'results.csv'), index_col=False)
 # Convert list of strings to actual list of lists
@@ -25,18 +25,23 @@ title = ''
 route_id = 1
 fig_save_path = os.path.join(fig_save_path, f"route{route_id}")
 check_for_dir_and_create(fig_save_path)
-matcher = 'mae'
+matcher = 'corr'
 edge = 'False'  # 'False'
 blur = True
-figsize = (4, 2)
 res = '(180, 80)'
-route = data.loc[(data['matcher'] == matcher) & (data['route_id'] == route_id)
-                 & (data['edge'] == edge) & (data['res'] == res)]
+g_loc_norm = "{'sig1': 2, 'sig2': 20}"
+loc_norm = 'False'
+route = data.loc[(data['matcher'] == matcher) & (data['edge'] == edge) &
+                 (data['res'] == res) & (data['blur'] == blur) &
+                 (data['gauss_loc_norm'] == g_loc_norm) & 
+                 (data['loc_norm'] == loc_norm) & (data['route_id'] == route_id)]
+print(route)                 
 # window_labels = ['Adaptive (20)', 'PM', 'w=15', 'w=20', 'w=25', 'w=30']
 
 '''
 Plot for one specific matcher with one specific pre-proc
 '''
+figsize = (4, 2)
 fig, ax = plt.subplots(figsize=figsize)
 plt.title(title, loc="left")
 # Group then back to dataframe
