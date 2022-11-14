@@ -31,7 +31,7 @@ def main():
                   'matcher': ['mae', 'corr']
                   }
 
-    routes = [1, 2, 3, 4, 5, 6]
-    cbench.benchmark(results_path, routes_path, parameters, routes, parallel=True)
+    routes = [1, 2, 3, 4, 5]
+    cbench.benchmark(results_path, routes_path, parameters, routes, parallel=True, cores=1)
 if __name__ == "__main__":
     main()
