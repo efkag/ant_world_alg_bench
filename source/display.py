@@ -1,11 +1,12 @@
 from tracemalloc import start
 import numpy as np
+import pandas as pd
 import copy
 import matplotlib
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import axes3d
 from source.utils import pol2cart_headings
-
+import seaborn as sns
 
 def nans_imgshow(img):
     if np.nanmax(img) > 1.:
@@ -225,3 +226,46 @@ def plot_multiroute(routes: list, **kwargs):
         ax = _plot_route_axis(route_dict, ax, **kwargs)
     fig.tight_layout(pad=0)
     plt.show()
+
+
+def heat_with_marginals(data):
+    '''
+    Plot a 2D Heatmap with marginal distibutions.
+    '''
+    R, C = data.shape
+    r = np.linspace(0, R, num=R)
+    c = np.linspace(0, C, num=C)
+    X, Y = np.meshgrid(r, c)
+    x = X.flatten()
+    y = Y.flatten()
+    z = data.flatten()
+    df = {'rows': x, 'cols': y, 'rimg': z}
+    df = pd.DataFrame(df)
+    g = sns.jointplot(data=df, x='rows', y='cols', kind="hist")
+    
+    #g = sns.jointplot(data=df, x='rows', y='cols', kind='hist', bins=(c, H))
+    g.ax_marg_y.cla()
+    g.ax_marg_x.cla()
+    sns.heatmap(data=data, ax=g.ax_joint, cbar=False, cmap='Blues')
+
+    row_marg = np.sum(data, axis=0)
+    col_marg = np.sum(data, axis=1)
+    g.ax_marg_y.barh(np.arange(0.5, R), col_marg, color='navy')
+    g.ax_marg_x.bar(np.arange(0.5, C), row_marg, color='navy')
+
+    # g.ax_joint.set_xticks(np.arange(0.5, R))
+    # g.ax_joint.set_xticklabels(range(1, R + 1), rotation=0)
+    # g.ax_joint.set_yticks(np.arange(0.5, C))
+    # g.ax_joint.set_yticklabels(range(C), rotation=0)
+
+    # remove ticks between heatmao and histograms
+    g.ax_marg_x.tick_params(axis='x', bottom=False, labelbottom=False)
+    g.ax_marg_y.tick_params(axis='y', left=False, labelleft=False)
+    # remove ticks showing the heights of the histograms
+    g.ax_marg_x.tick_params(axis='y', left=False, labelleft=False)
+    g.ax_marg_y.tick_params(axis='x', bottom=False, labelbottom=False)
+
+    g.fig.set_size_inches(17, 8)  # jointplot creates its own figure, the size can only be changed afterwards
+    # g.fig.subplots_adjust(hspace=0.3) # optionally more space for the tick labels
+    g.fig.subplots_adjust(hspace=0.05, wspace=0.02)  # less spaced needed when there are no tick labels
+    return g
