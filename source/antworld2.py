@@ -156,25 +156,26 @@ class Agent:
         return trajectory, self.nav
     
     def check4reposition(self):
-        # check distance from the closest point on the route
-        idx, dist, xy = self.route.min_dist_from_route(self.xy)
-        if dist >= self.repos_thresh:
-            self.xy = xy
-            self.trial_fail_count += 1
-            self.nav.reset_window(idx)
-            return
-        # check distance form the start of the route
-        # dist = self.route.dist_from_start(self.xy)
-        # if (self.i + 1) % 10 == 0:
-        #     if dist <= self.prev_dist:
-        #         self.xy = xy
-        #         self.trial_fail_count += 1
-        #         self.nav.reset_window(idx)
-        #     self.prev_dist = dist
-        
-        # check progress of the index closest to the query point
         if (self.i + 1) % 10 == 0:
-            if idx >= self.prev_idx:
+            # check distance from the closest point on the route
+            idx, dist, xy = self.route.min_dist_from_route(self.xy)
+            if dist >= self.repos_thresh:
+                self.xy = xy
+                self.trial_fail_count += 1
+                self.nav.reset_window(idx)
+                return
+            # check distance form the start of the route
+            # dist = self.route.dist_from_start(self.xy)
+            # if (self.i + 1) % 10 == 0:
+            #     if dist <= self.prev_dist:
+            #         self.xy = xy
+            #         self.trial_fail_count += 1
+            #         self.nav.reset_window(idx)
+            #     self.prev_dist = dist
+            
+            # check progress of the index closest to the query point
+
+            if idx <= self.prev_idx:
                 self.xy = xy
                 self.trial_fail_count += 1
                 self.nav.reset_window(idx)
