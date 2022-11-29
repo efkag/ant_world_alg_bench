@@ -27,11 +27,11 @@ def main():
                   'edge_range': [(180, 200), False],
                   'loc_norm': [{'kernel_shape':(5, 5)}, False],
                   'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
-                  'window': [15, 20, -15],
+                  'window': [15, 20, 25, -15, 0],
                   'matcher': ['mae', 'corr']
                   }
 
-    routes = [1, 2, 3, 4, 5]
+    routes = [0, 1, 2, 3, 4, 5]
     cbench.benchmark(results_path, routes_path, parameters, routes, parallel=True)
 if __name__ == "__main__":
     main()
