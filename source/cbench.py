@@ -156,6 +156,7 @@ def bench_paral(resutls_path, params, routes_path, route_ids=None, cores=None):
     param_path = os.path.join(resutls_path, 'params.yml')
     temp_params = copy.deepcopy(params)
     temp_params['routes_path'] = routes_path
+    temp_params['route_ids'] = route_ids
     with open(param_path, 'w') as fp:
         yaml.dump(temp_params, fp)
 
