@@ -460,7 +460,9 @@ class Seq2SeqPerfectMemory:
         # append the rsims of all window route images for that query image
         self.logs.append(wrsims)
         # find best image match and heading
-        index = int(self.argminmax(wind_sims))
+        # the index needs to be modulo the size of the window 
+        # because now the window sims are the size of current queque * window 
+        index = int(self.argminmax(wind_sims) % self.window)
         self.best_sims.append(wind_sims[index])
         heading = wind_headings[index]
         self.recovered_heading.append(heading)

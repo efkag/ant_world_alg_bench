@@ -1,4 +1,4 @@
-from source2 import rotate, cor_coef, pre_process  # , r_cor_coef, ridf
+from source import rotate, cor_coef, pre_process  # , r_cor_coef, ridf
 import matplotlib.pyplot as plt
 import cv2 as cv
 import numpy as np
