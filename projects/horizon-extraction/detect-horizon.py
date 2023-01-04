@@ -1,4 +1,3 @@
-import imp
 import sys
 import os
 
@@ -57,6 +56,8 @@ plt.show()
 sorted_x_ind = np.argsort(points[0])
 x_sort = points[0][sorted_x_ind]
 y_sort = points[1][sorted_x_ind]
+
+# take the distance between subsequent points.
 
 # plt.scatter(points[0], points[1])
 # plt.plot(x_sort, y_sort)
