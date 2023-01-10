@@ -13,7 +13,7 @@ from source.utils import check_for_dir_and_create
 from source.routedatabase import Route
 import seaborn as sns
 from ast import literal_eval
-sns.set_context("paper", font_scale=1)
+sns.set_context("talk", font_scale=1.1)
 
 
 directory = '2022-09-20_mid_update'
@@ -35,6 +35,7 @@ tfc = data['trial_fail_count']
 mdiv = data['mdivergence']
 
 fig, ax = plt.subplots(figsize=(8, 6))
+fig.suptitle('all data')
 ax.scatter(aae, tfc, label='aae-tfc')
 ax.set_xlabel('mean aae')
 ax.set_ylabel('tfc')
@@ -46,7 +47,7 @@ ax1.legend(loc=1)
 plt.show()
 
 #### filter data
-# window = 0
+window = 0
 matcher = 'corr'
 edge = 'False'
 blur = True
@@ -56,21 +57,25 @@ loc_norm = 'False'
 data = data.loc[(data['matcher'] == matcher) & (data['edge'] == edge) &
                  (data['res'] == res) & (data['blur'] == blur) &
                  (data['gauss_loc_norm'] == g_loc_norm) & 
-                 (data['loc_norm'] == loc_norm)]
+                 (data['loc_norm'] == loc_norm) & (data['window']==window)]
 
 aae = data['mean_error']
 tfc = data['trial_fail_count']
 mdiv = data['mdivergence']
 
 fig, ax = plt.subplots(figsize=(8, 6))
-ax.scatter(aae, tfc, label='aae-tfc')
-ax.set_xlabel('mean aae')
-ax.set_ylabel('tfc')
-ax.legend(loc=2)
-ax1 = ax.twinx()
-ax1.scatter(aae, mdiv, label='aae-mdiv', color='g')
-ax1.set_ylabel('mean divergence')
-ax1.legend(loc=1)
+#fig.suptitle('one config')
+sc1 = ax.scatter(aae, tfc, label='aae-tfc')
+ax.set_xlabel('mean absolute angular error(aae)')
+ax.set_ylabel('trial fail count (tfc)')
+#ax.legend(loc=3)
+# ax1 = ax.twinx()
+# sc2 = ax1.scatter(aae, mdiv, label='aae-mdiv', color='g')
+# ax1.set_ylabel('mean divergence (mdiv)')
+# #ax1.legend(loc=3)
+# fig.legend(loc='upper center')
+#plt.tight_layout()
+plt.legend()
 plt.show()
 
 #### route with specific performance metric values
