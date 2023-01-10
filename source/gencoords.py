@@ -96,7 +96,8 @@ def random_gauss_points(mean=(0, 0), sigma=10, no_of_points=5):
 
 def random_line_points(start=-10, end=10, sigma=5, no_of_points=5):
     x = np.linspace(start, end, no_of_points)
-    y = x + np.random.normal(0, sigma, no_of_points)
+    y = np.full_like(x, x)
+    y[1:-1] = x[1:-1] + np.random.normal(0, sigma, no_of_points-2)
     xy = np.column_stack((x, y))
     return xy
 
