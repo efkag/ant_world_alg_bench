@@ -29,7 +29,7 @@ data['th'] = data['th'].apply(literal_eval)
 
 
 # Plot a specific route
-route_id = 3
+route_id = 5
 fig_save_path = os.path.join(fig_save_path, f"route{route_id}")
 check_for_dir_and_create(fig_save_path)
 path = os.path.join(routes_path, f"route{route_id}")
@@ -42,7 +42,7 @@ g_loc_norm = "{'sig1': 2, 'sig2': 20}"
 loc_norm = 'False'
 threshold = 0
 figsize = (10, 10)
-title = 'D'
+title = None #'D'
 
 traj = data.loc[(data['matcher'] == matcher) & (data['res'] == res) & 
                 (data['edge'] == edge) & (data['blur'] == blur) &
@@ -71,7 +71,7 @@ if threshold:
 temp_save_path = os.path.join(fig_save_path, 'route{}.w{}.m{}.res{}.edge{}.thres{}.png'\
     .format(route_id, window, matcher, res, edge, threshold))
 
-plot_route(route, traj, scale=70, size=figsize, save=True, path=temp_save_path, title=title)
+plot_route(route, traj, scale=100, size=figsize, save=True, path=temp_save_path, title=title)
 
 
 # if window:
