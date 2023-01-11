@@ -45,7 +45,6 @@ for combo in chunk:
     matcher = combo['matcher']
     window = combo['window']
     t = combo['t']
-    r = combo['r']
     segment_length = combo.get('segment_l')
     for route in routes:  # for every route
         # route_path = os.path.join(routes_path, '/route' + str(route_id))

@@ -150,12 +150,13 @@ def unpack_results(results):
     return log
 
 
-def bench_paral(resutls_path, params, routes_path, route_ids=None, cores=None):
+def bench_paral(results_path, params, routes_path, route_ids=None, cores=None):
     # save the parmeters of the test in a json file
-    check_for_dir_and_create(resutls_path)
-    param_path = os.path.join(resutls_path, 'params.yml')
+    check_for_dir_and_create(results_path)
+    param_path = os.path.join(results_path, 'params.yml')
     temp_params = copy.deepcopy(params)
     temp_params['routes_path'] = routes_path
+    temp_params['route_ids'] = route_ids
     with open(param_path, 'w') as fp:
         yaml.dump(temp_params, fp)
 
@@ -185,7 +186,7 @@ def bench_paral(resutls_path, params, routes_path, route_ids=None, cores=None):
     # Pickle the parameter object to use in the worker script
     for i, chunk in enumerate(chunks):
         params = {'chunk': chunk, 'route_ids': route_ids, 
-        'routes_path': routes_path, 'results_path':resutls_path, 'i': i}
+        'routes_path': routes_path, 'results_path':results_path, 'i': i}
         with open('chunks/chunk{}.p'.format(i), 'wb') as file:
             pickle.dump(params, file)
     print('{} chunks pickled'.format(no_of_chunks))
@@ -203,7 +204,7 @@ def bench_paral(resutls_path, params, routes_path, route_ids=None, cores=None):
         p.wait()
 
     # combine the results that each worker produces into one .csv file
-    combine_results(resutls_path)
+    combine_results(results_path)
 
 def combine_results(path):
     files = find_csv_filenames(path)

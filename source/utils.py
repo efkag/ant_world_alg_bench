@@ -98,6 +98,7 @@ def plot_route(route, traj=None, scale=None, window=None, windex=None, save=Fals
         fig.savefig(path + '/' + str(windex) + '.png')
         plt.close(fig)
     elif save:
+        print(f'fig saved at: {path}')
         fig.savefig(path)
 
     if not save: plt.show()

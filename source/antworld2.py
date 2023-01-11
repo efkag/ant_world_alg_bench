@@ -43,6 +43,8 @@ class Agent:
         self.nav = None
         # keep track of the distance from the start of the route
         self.prev_dist = 0
+        # keep track of the index 
+        self.prev_idx = 0
 
     def record_route(self, route, path, route_id=1):
         check_for_dir_and_create(path)
@@ -102,6 +104,12 @@ class Agent:
         return (xx, yy), img
 
     def test_nav(self, coords, r=0.05, t=100, sigma=0.1, **kwargs):
+        #TODO: Here we need to initialise the progrees tracking variables. 
+        # It is not clear how that would work with the route segmentation
+        # keep track of distance and the index progress
+        self.prev_dist = 0
+        self.prev_idx = 0
+
         self.repos_thresh = kwargs.get('repos_thresh')
         # random initial position and heading
         # near the first location of the route
@@ -148,23 +156,34 @@ class Agent:
         return trajectory, self.nav
     
     def check4reposition(self):
-        # check distance from the closest point on the route
-        idx, dist, xy = self.route.min_dist_from_route(self.xy)
-        if dist >= self.repos_thresh:
-            self.xy = xy
-            self.trial_fail_count += 1
-            self.nav.reset_window(idx)
-            return
-        # check distance form the start of the route
-        dist = self.route.dist_from_start(self.xy)
-        if not self.i % 10 == 0:
-            if dist <= self.prev_dist:
+        if (self.i + 1) % 10 == 0:
+            # check distance from the closest point on the route
+            idx, dist, xy = self.route.min_dist_from_route(self.xy)
+            if dist >= self.repos_thresh:
                 self.xy = xy
                 self.trial_fail_count += 1
                 self.nav.reset_window(idx)
-            self.prev_dist = dist
+                return
+            # check distance form the start of the route
+            # dist = self.route.dist_from_start(self.xy)
+            # if (self.i + 1) % 10 == 0:
+            #     if dist <= self.prev_dist:
+            #         self.xy = xy
+            #         self.trial_fail_count += 1
+            #         self.nav.reset_window(idx)
+            #     self.prev_dist = dist
+            
+            # check progress of the index closest to the query point
+
+            if idx <= self.prev_idx:
+                self.xy = xy
+                self.trial_fail_count += 1
+                self.nav.reset_window(idx)
+            self.prev_idx = idx
+
 
     def segment_test(self, route, nav, segment_length=3, **kwargs):
+        #TODO: The progress tracking variable should be handled appopriately here.
         trajectories = {'x': [], 'y': [], 'heading': []}
         # get starting indices for each segment
         indices, starting_coords = route.segment_route(segment_length)

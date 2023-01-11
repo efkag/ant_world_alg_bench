@@ -13,7 +13,7 @@ from source.routedatabase import Route
 import yaml
 sns.set_context("paper", font_scale=1)
 
-directory = '2022-09-20_mid_update'
+directory = '2022-11-23_mid_update'
 fig_save_path = os.path.join('Results', 'newant', directory)
 data = pd.read_csv(os.path.join(fig_save_path, 'results.csv'), index_col=False)
 with open(os.path.join(fig_save_path, 'params.yml')) as fp:
@@ -33,7 +33,7 @@ route_id = 5
 fig_save_path = os.path.join(fig_save_path, f"route{route_id}")
 check_for_dir_and_create(fig_save_path)
 path = os.path.join(routes_path, f"route{route_id}")
-window = -15
+window = 15
 matcher = 'corr'
 edge = 'False' 
 res = '(180, 80)'
