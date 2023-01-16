@@ -16,7 +16,7 @@ def main():
     # bench.benchmark(parameters, routes, parallel=False)
     
     #'segment_length':[3],
-    results_path = '/its/home/sk526/ant_world_alg_bench/Results/newant/2022-01-11_mid_update'
+    results_path = '/its/home/sk526/ant_world_alg_bench/Results/newant/2023-01-11_mid_update'
     routes_path = '/its/home/sk526/ant_world_alg_bench/new-antworld/inc-curve2'
     parameters = {'repos_thresh':[.3], 
                   'r': [0.05], 

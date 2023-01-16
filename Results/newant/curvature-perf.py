@@ -11,7 +11,7 @@ from source.utils import check_for_dir_and_create
 import seaborn as sns
 sns.set_context("paper", font_scale=1)
 
-directory = '2022-07-26_mid_update'
+directory = '2023-01-11_mid_update'
 fig_save_path = os.path.join('Results', 'newant', directory)
 data = pd.read_csv(os.path.join(fig_save_path, 'results.csv'), index_col=False)
 
@@ -28,12 +28,12 @@ edge = 'False'
 blur =  True 
 res = '(180, 80)'
 g_loc_norm = "{'sig1': 2, 'sig2': 20}"
-loc_norm = 'False'
+# loc_norm = 'False'
 title = 'D'
 
 traj = data.loc[(data['matcher'] == matcher) & (data['res'] == res) & (data['blur'] == blur) &
-                (data['edge'] == edge) & (data['gauss_loc_norm'] == g_loc_norm)
-                & (data['loc_norm'] == loc_norm)]
+                (data['edge'] == edge) & (data['gauss_loc_norm'] == g_loc_norm) ]
+                #& (data['loc_norm'] == loc_norm)]
 
 
 
@@ -42,8 +42,7 @@ grouped = traj.groupby(['window', 'route_id'])["trial_fail_count"].apply(sum).to
 # pm_data = grouped.loc[grouped['window'] == 0]
 # plt.plot(pm_data['route_id'], pm_data['mean_error'], label='PM')
 
-#w_size = pd.unique(data['window'])
-w_size = [0, -15, 20, 25]
+w_size = pd.unique(data['window'])
 for w in w_size:
     smw_data = grouped.loc[grouped['window'] == w]
     plt.plot(smw_data['route_id'], smw_data["trial_fail_count"], label=f'w={w}')
