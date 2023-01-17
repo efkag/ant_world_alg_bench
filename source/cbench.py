@@ -29,6 +29,7 @@ def get_grid_dict(params):
     # remove the combination where we have both blur and adge detection
     grid_dict[:] = [x for x in grid_dict if remove_blur_edge(x)]
     # Remove combinations where we have neither blur nor edge detection
+    #TODO: I need to change this because it removes combinations when there is anothe pre-proc setting like gauss_loc_norm
     grid_dict[:] = [x for x in grid_dict if not remove_non_blur_edge(x)]
 
     return grid_dict
