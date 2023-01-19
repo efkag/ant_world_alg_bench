@@ -28,8 +28,8 @@ def get_grid_dict(params):
     
     # remove the combination where we have both blur and adge detection
     grid_dict[:] = [x for x in grid_dict if remove_blur_edge(x)]
-    # Remove combinations where we have neither blur nor edge detection
-    #TODO: I need to change this because it removes combinations when there is anothe pre-proc setting like gauss_loc_norm
+    # Remove combinations where we have neither blur nor edge detection nor gauss_loc_norm
+    # generally if all the main pre-proc functions are not being used then we don't want to test those combinations
     grid_dict[:] = [x for x in grid_dict if not remove_non_blur_edge(x)]
 
     return grid_dict
@@ -40,7 +40,7 @@ def remove_blur_edge(combo):
 
 
 def remove_non_blur_edge(combo):
-    return not combo.get('edge_range') and not combo.get('blur')
+    return not combo.get('edge_range') and not combo.get('blur') and not combo.get('gauss_loc_norm') and not combo.get('loc_norm')
 
 
 def bench(params, routes_path, route_ids):
