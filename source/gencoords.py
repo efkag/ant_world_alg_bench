@@ -65,7 +65,7 @@ def meancurv2d(x, y):
     return np.mean(curvature)
 
 
-def random_circle_points(r, no_of_points=5):
+def random_circle_points(r, no_of_points=10):
     '''
     Generates random points within a circle given the desired radius.
     It assumes the center is (0,0)
@@ -123,7 +123,7 @@ def generate_from_points(path, generator='gauss', **kwargs):
     return generate(points, path, curve_points=curve_points)
 
 
-def generate(xy, save_path, curve_points=250, plot=True):
+def generate(xy, save_path, curve_points=250, plot=False):
     '''
     Given control points from one of the methods above.
     Uses the control points to generate points on a bezier curve.
