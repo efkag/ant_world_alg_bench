@@ -10,14 +10,18 @@ from source.analysis import log_error_points
 import matplotlib.pyplot as plt
 import seaborn as sns
 from ast import literal_eval
+import yaml
 from source.utils import load_route_naw, plot_route, animated_window, check_for_dir_and_create
 from source.routedatabase import Route
 sns.set_context("paper", font_scale=1)
 
 
-directory = '2022-09-20_mid_update'
+directory = '2023-01-20_mid_update'
 results_path = os.path.join('Results', 'newant', directory)
 fig_save_path = os.path.join('Results', 'newant', directory, 'analysis')
+with open(os.path.join(results_path, 'params.yml')) as fp:
+    params = yaml.load(fp)
+routes_path = params['routes_path']
 data = pd.read_csv(os.path.join(results_path, 'results.csv'), index_col=False)
 # data = pd.read_csv('exp4.csv')
 # Convert list of strings to actual list of lists
@@ -30,11 +34,11 @@ data['th'] = data['th'].apply(literal_eval)
 data['matched_index'] = data['matched_index'].apply(literal_eval)
 
 # Plot a specific route
-route_id = 1
-fig_save_path = os.path.join(fig_save_path, 'route'+str(route_id))
+route_id = 5
+fig_save_path = os.path.join(fig_save_path, f'15route{route_id}')
 check_for_dir_and_create(fig_save_path)
-path = 'new-antworld/exp1/route' + str(route_id) + '/'
-window = -15
+r_path = os.path.join(routes_path ,f'route{route_id}')
+window = 15
 blur =  True
 matcher = 'corr'
 edge = 'False'# '(180, 200)'
@@ -46,9 +50,10 @@ figsize = (10, 10)
 title = 'D'
 
 traj = data.loc[(data['matcher'] == matcher) & (data['res'] == res) 
-                & (data['edge'] == edge) & (data['window'] == window) 
+                #& (data['edge'] == edge) 
+                & (data['window'] == window) 
                 & (data['blur'] == blur)
-                & (data['loc_norm'] == loc_norm) 
+                #& (data['loc_norm'] == loc_norm) 
                 & (data['gauss_loc_norm'] == gauss_loc_norm)
                 & (data['route_id'] == route_id)
                 ]
@@ -66,7 +71,7 @@ else:
 
 
 #route = load_route_naw(path, imgs=True, route_id=route_id)
-route = Route(path, route_id=route_id).get_route_dict()
+route = Route(r_path, route_id=route_id).get_route_dict()
 plot_route(route, traj, scale=70, size=figsize, save=True, path=fig_save_path, title=title)
 
 log_error_points(route, traj, thresh=threshold, target_path=fig_save_path)

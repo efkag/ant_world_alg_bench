@@ -114,6 +114,7 @@ class Agent:
         # random initial position and heading
         # near the first location of the route
         if sigma:
+            np.random.seed(0)
             self.h = np.random.randint(0, 360)
             x = coords['x']
             x = np.random.normal(x, sigma)

@@ -13,7 +13,7 @@ from source.routedatabase import Route
 import yaml
 sns.set_context("paper", font_scale=1)
 
-directory = '2023-01-11_mid_update'
+directory = '2023-01-20_mid_update'
 fig_save_path = os.path.join('Results', 'newant', directory)
 data = pd.read_csv(os.path.join(fig_save_path, 'results.csv'), index_col=False)
 with open(os.path.join(fig_save_path, 'params.yml')) as fp:
@@ -29,12 +29,12 @@ data['th'] = data['th'].apply(literal_eval)
 
 
 # Plot a specific route
-route_id = 2
+route_id = 5
 fig_save_path = os.path.join(fig_save_path, f"route{route_id}")
 check_for_dir_and_create(fig_save_path)
 path = os.path.join(routes_path, f"route{route_id}")
-window = 0
-matcher = 'mae'
+window = -15
+matcher = 'corr'
 edge = 'False' 
 res = '(180, 80)'
 blur = True
@@ -44,9 +44,12 @@ threshold = 0
 figsize = (6, 6)
 title = 'A'
 
-traj = data.loc[(data['matcher'] == matcher) & (data['res'] == res) & 
-                (data['edge'] == edge) & (data['blur'] == blur) &
-                (data['window'] == window) & (data['gauss_loc_norm'] == g_loc_norm) 
+traj = data.loc[(data['matcher'] == matcher) 
+                & (data['res'] == res) 
+                #& (data['edge'] == edge) 
+                & (data['blur'] == blur) 
+                & (data['window'] == window) 
+                & (data['gauss_loc_norm'] == g_loc_norm) 
                 # & (data['loc_norm'] == loc_norm) 
                 & (data['route_id'] == route_id)]
 
@@ -75,6 +78,6 @@ temp_save_path = os.path.join(fig_save_path, 'route{}.w{}.m{}.res{}.edge{}.glocn
 plot_route(route, traj, scale=90, size=figsize, save=False, path=temp_save_path, title=title)
 
 
-# if window:
-#     temp_path = os.path.join(fig_save_path,'window-plots')
-#     animated_window(route, w_log, traj=traj, path=temp_path, size=figsize, title='D')
+if window:
+    temp_path = os.path.join(fig_save_path,'window-plots')
+    animated_window(route, w_log, traj=traj, path=temp_path, size=figsize, title=None)
