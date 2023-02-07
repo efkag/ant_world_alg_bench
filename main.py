@@ -16,22 +16,22 @@ def main():
     # bench.benchmark(parameters, routes, parallel=False)
     
     #'segment_length':[3],
-    results_path = '/its/home/sk526/ant_world_alg_bench/Results/newant/2022-11-30_mid_update'
-    routes_path = '/its/home/sk526/ant_world_alg_bench/new-antworld/inc-curve'
+    results_path = '/its/home/sk526/ant_world_alg_bench/Results/newant/2023-01-25_mid_update'
+    routes_path = '/its/home/sk526/ant_world_alg_bench/new-antworld/curve-bins'
     parameters = {'repos_thresh':[.3], 
                   'r': [0.05], 
                   't': [200], 
-                  'blur': [True, False],
+                  'blur': [True],
                   'shape': [(180, 80)],
-                #   'wave' : [True, False], 
-                  'edge_range': [(180, 200), False],
-                  'loc_norm': [{'kernel_shape':(5, 5)}, False],
+                #  'wave' : [True, False], 
+                #  'edge_range': [(180, 200), False],
+                #  'loc_norm': [{'kernel_shape':(5, 5)}, False],
                   'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
                   'window': [15, 20, 25, -15, 0],
-                  'matcher': ['mae', 'corr']
+                  'matcher': ['corr']
                   }
 
-    routes = [1, 2, 3, 4, 5, 6]
+    routes = [*range(20)]
     cbench.benchmark(results_path, routes_path, parameters, routes, parallel=True)
 if __name__ == "__main__":
     main()

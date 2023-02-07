@@ -13,7 +13,7 @@ from source.routedatabase import Route
 import yaml
 sns.set_context("paper", font_scale=1)
 
-directory = '2022-11-23_mid_update'
+directory = '2023-01-20_mid_update'
 fig_save_path = os.path.join('Results', 'newant', directory)
 data = pd.read_csv(os.path.join(fig_save_path, 'results.csv'), index_col=False)
 with open(os.path.join(fig_save_path, 'params.yml')) as fp:
@@ -33,7 +33,7 @@ route_id = 5
 fig_save_path = os.path.join(fig_save_path, f"route{route_id}")
 check_for_dir_and_create(fig_save_path)
 path = os.path.join(routes_path, f"route{route_id}")
-window = 15
+window = -15
 matcher = 'corr'
 edge = 'False' 
 res = '(180, 80)'
@@ -41,13 +41,19 @@ blur = True
 g_loc_norm = "{'sig1': 2, 'sig2': 20}"
 loc_norm = 'False'
 threshold = 0
-figsize = (10, 10)
-title = None #'D'
 
-traj = data.loc[(data['matcher'] == matcher) & (data['res'] == res) & 
-                (data['edge'] == edge) & (data['blur'] == blur) &
-                (data['window'] == window) & (data['gauss_loc_norm'] == g_loc_norm) & 
-                (data['loc_norm'] == loc_norm) & (data['route_id'] == route_id)]
+figsize = (6, 6)
+title = 'A'
+
+
+traj = data.loc[(data['matcher'] == matcher) 
+                & (data['res'] == res) 
+                #& (data['edge'] == edge) 
+                & (data['blur'] == blur) 
+                & (data['window'] == window) 
+                & (data['gauss_loc_norm'] == g_loc_norm) 
+                # & (data['loc_norm'] == loc_norm) 
+                & (data['route_id'] == route_id)]
 
 # traj = data.to_dict(orient='records')[0]
 if window:
@@ -68,12 +74,14 @@ if threshold:
     thres['y'] = traj['y'][index]
     thres['heading'] = traj['heading'][index]
 
-temp_save_path = os.path.join(fig_save_path, 'route{}.w{}.m{}.res{}.edge{}.thres{}.png'\
-    .format(route_id, window, matcher, res, edge, threshold))
-
-plot_route(route, traj, scale=100, size=figsize, save=True, path=temp_save_path, title=title)
+temp_save_path = os.path.join(fig_save_path, 'route{}.w{}.m{}.res{}.edge{}.glocnorm{}.thres{}.png'\
+    .format(route_id, window, matcher, res, edge, g_loc_norm, threshold))
 
 
-# if window:
-#     temp_path = os.path.join(fig_save_path,'window-plots')
-#     animated_window(route, w_log, traj=traj, path=temp_path, size=figsize, title='D')
+plot_route(route, traj, scale=90, size=figsize, save=False, path=temp_save_path, title=title)
+
+
+
+if window:
+    temp_path = os.path.join(fig_save_path,'window-plots')
+    animated_window(route, w_log, traj=traj, path=temp_path, size=figsize, title=None)

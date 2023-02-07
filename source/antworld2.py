@@ -72,7 +72,7 @@ class Agent:
         # Augment the directory containing all route
         # to create a new directory w.r.t the new route
         path = os.path.join(path, 'route' + str(route_id))
-        check_for_dir_and_create(path)
+        check_for_dir_and_create(path, remove=True)
         # Generate coordinates and write them to file
         route = generate_from_points(path, generator=generator, **kwargs)
         self.record_route(route, path, route_id=route_id)
@@ -114,6 +114,7 @@ class Agent:
         # random initial position and heading
         # near the first location of the route
         if sigma:
+            np.random.seed(0)
             self.h = np.random.randint(0, 360)
             x = coords['x']
             x = np.random.normal(x, sigma)

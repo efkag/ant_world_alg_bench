@@ -1,0 +1,13 @@
+blur: [true]
+gauss_loc_norm:
+- {sig1: 2, sig2: 20}
+- false
+matcher: [corr]
+r: [0.05]
+repos_thresh: [0.3]
+route_ids: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+routes_path: /its/home/sk526/ant_world_alg_bench/new-antworld/curve-bins
+shape:
+- !!python/tuple [180, 80]
+t: [200]
+window: [15, 20, 25, -15, 0]
