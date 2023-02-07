@@ -41,8 +41,10 @@ blur = True
 g_loc_norm = "{'sig1': 2, 'sig2': 20}"
 loc_norm = 'False'
 threshold = 0
+
 figsize = (6, 6)
 title = 'A'
+
 
 traj = data.loc[(data['matcher'] == matcher) 
                 & (data['res'] == res) 
@@ -75,7 +77,9 @@ if threshold:
 temp_save_path = os.path.join(fig_save_path, 'route{}.w{}.m{}.res{}.edge{}.glocnorm{}.thres{}.png'\
     .format(route_id, window, matcher, res, edge, g_loc_norm, threshold))
 
+
 plot_route(route, traj, scale=90, size=figsize, save=False, path=temp_save_path, title=title)
+
 
 
 if window:
