@@ -14,7 +14,7 @@ device = torch.device("cpu")
 
 class Params():
     def __init__(self):
-        self.lr = 0.04
+        self.lr = 0.01
         # this learning rate is tuned to an input size of 3000, at other input sizes navigation may be succesful but is not optimal
         # initial observation - larger image requires smaller learning rate before saturation
 
@@ -91,6 +91,8 @@ class InfomaxNetwork(nn.Module):
         return x
 
     def TrainNet(self, train_set):
+        # Standarise the inputs
+        train_set = [self.Standardize(img) for img in train_set]
         for epoch in range(self.params.noEpochs):
             for img in train_set:
                 x = torch.flatten(img.squeeze())
