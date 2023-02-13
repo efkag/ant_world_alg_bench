@@ -95,6 +95,7 @@ class InfomaxNetwork(nn.Module):
         train_set = [self.Standardize(img) for img in train_set]
         for epoch in range(self.params.noEpochs):
             for img in train_set:
+                # TODO: why is this flattening needed???
                 x = torch.flatten(img.squeeze())
                 u = self.Forward(img)
                 h = u.squeeze()

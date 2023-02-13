@@ -8,13 +8,18 @@ import numpy as np
 import torch
 from source.routedatabase import Route
 from source import infomax
-from source import imgproc
+from source.imgproc import Pipeline
 
 
 route_path = 'new-antworld/exp1/route1/'
 route = Route(route_path, 1)
 
 imgs = route.get_imgs()
+params = {'blur': True,
+        'shape': (180, 50), 
+        }
+pipe = Pipeline(**params)
+imgs = pipe.apply(route.get_imgs())
 imgs = [torch.from_numpy(item).float() for item in imgs]
 
 # flatten the img to get the shape of it
