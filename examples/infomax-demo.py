@@ -16,16 +16,13 @@ route = Route(route_path, 1)
 
 imgs = route.get_imgs()
 params = {'blur': True,
-        'shape': (180, 50), 
+        'shape': (180, 80), 
         }
 pipe = Pipeline(**params)
 imgs = pipe.apply(route.get_imgs())
-imgs = [torch.from_numpy(item).float() for item in imgs]
 
-# flatten the img to get the shape of it
-input_size = imgs[0].flatten().size(0)
 infomaxParams = infomax.Params()
 
-infomaxnet = infomax.InfomaxNetwork(input_size, infomaxParams=infomaxParams)
+infomaxnet = infomax.InfomaxNetwork(infomaxParams, imgs)
 
 infomaxnet.TrainNet(imgs)

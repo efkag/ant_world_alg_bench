@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import os
+import numpy as np
 from pathlib import Path
 
 fwd = Path(__file__).resolve()
@@ -28,11 +29,13 @@ class Params():
 
 
 class InfomaxNetwork(nn.Module):
-    def __init__(self, size, infomaxParams):
+    def __init__(self, infomaxParams, imgs):
         super(InfomaxNetwork, self).__init__()
 
+        # prep imgs
+        imgs = [torch.unsqueeze(torch.from_numpy(item).float(), 0) for item in imgs]
 
-        self.size = size
+        self.size = imgs[0].flatten().size(0)
         self.params = infomaxParams
 
 
@@ -63,7 +66,6 @@ class InfomaxNetwork(nn.Module):
         #print('3')
         self.fc1.weight.requires_grad = False
 
-
     def Standardize(self, t):
         #print('try')
         #print(t.device)
@@ -80,11 +82,12 @@ class InfomaxNetwork(nn.Module):
         return (x)
 
     def Forward(self, x):
+        # if using multiple flattened images then we nned to make the column vectors
         if (len(x.shape)) > 2:
             x = self.flatten(x)
-
-        x = x.unsqueeze(0)
-
+            x = x.unsqueeze(0)
+        
+        # Amani's normalization for the use of constant learning rate
         #x = x / 10
 
         x = (self.fc1(x))
@@ -95,8 +98,7 @@ class InfomaxNetwork(nn.Module):
         train_set = [self.Standardize(img) for img in train_set]
         for epoch in range(self.params.noEpochs):
             for img in train_set:
-                # TODO: why is this flattening needed???
-                x = torch.flatten(img.squeeze())
+                #x = torch.flatten(img.squeeze())
                 u = self.Forward(img)
                 h = u.squeeze()
                 y = torch.tanh(u)
@@ -108,7 +110,7 @@ class InfomaxNetwork(nn.Module):
                 change = (self.params.lr / (self.size)) * (dW)
                 newWeights = W + change
                 self.fc1.weight = nn.Parameter(newWeights)
-
+               
 
 def Train(modelName, trainDataset, infomaxParams):
     model_path=infomaxParams.model_path
