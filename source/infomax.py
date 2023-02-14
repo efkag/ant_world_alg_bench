@@ -110,7 +110,11 @@ class InfomaxNetwork(nn.Module):
                 change = (self.params.lr / (self.size)) * (dW)
                 newWeights = W + change
                 self.fc1.weight = nn.Parameter(newWeights)
-               
+
+    def get_heading(self, query_img):
+         pass
+        #TODO: here we need custom RMF or to use teh INfomax a matcher in the utils module
+        # probabaly best to make a rotator here...?          
 
 def Train(modelName, trainDataset, infomaxParams):
     model_path=infomaxParams.model_path
