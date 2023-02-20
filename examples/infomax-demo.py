@@ -9,6 +9,7 @@ import torch
 from source.routedatabase import Route
 from source import infomax
 from source.imgproc import Pipeline
+import matplotlib.pyplot as plt
 
 
 route_path = 'new-antworld/exp1/route1/'
@@ -21,8 +22,17 @@ params = {'blur': True,
 pipe = Pipeline(**params)
 imgs = pipe.apply(route.get_imgs())
 
+# keep one numpy image for testing
+img_array = imgs[0]
+
 infomaxParams = infomax.Params()
 
 infomaxnet = infomax.InfomaxNetwork(infomaxParams, imgs)
 
-infomaxnet.TrainNet(imgs)
+# only to be used if further training is required
+#infomaxnet.TrainNet(imgs)
+
+rsim = infomaxnet.get_heading(img_array)
+
+plt.plot(range(len(rsim)), rsim)
+plt.show()

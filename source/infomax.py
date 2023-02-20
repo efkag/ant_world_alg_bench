@@ -29,13 +29,21 @@ class Params():
 
 
 class InfomaxNetwork(nn.Module):
-    def __init__(self, infomaxParams, imgs):
+    def __init__(self, infomaxParams, imgs, deg_range=(0, 360), degree_shift=1):
         super(InfomaxNetwork, self).__init__()
+        
+        self.deg_range = deg_range
+        self.deg_step = degree_shift
+        self.num_of_rows = imgs[0].shape[0]
+        self.num_of_cols = imgs[0].shape[1]
+        self.num_of_cols_perdegree = self.num_of_cols / 360
+        self.degrees = np.arange(*deg_range)
+        self.total_search_angle = round((deg_range[1] - deg_range[0]) / self.deg_step)
 
         # prep imgs
-        imgs = [torch.unsqueeze(torch.from_numpy(item).float(), 0) for item in imgs]
+        self.imgs = [torch.unsqueeze(torch.from_numpy(item).float(), 0) for item in imgs]
 
-        self.size = imgs[0].flatten().size(0)
+        self.size = self.imgs[0].flatten().size(0)
         self.params = infomaxParams
 
 
@@ -65,6 +73,8 @@ class InfomaxNetwork(nn.Module):
         self.fc1.weight = torch.nn.Parameter(std_weights)
         #print('3')
         self.fc1.weight.requires_grad = False
+
+        self.TrainNet(self.imgs)
 
     def Standardize(self, t):
         #print('try')
@@ -111,10 +121,30 @@ class InfomaxNetwork(nn.Module):
                 newWeights = W + change
                 self.fc1.weight = nn.Parameter(newWeights)
 
+    def rotate(self, d, img):
+        """
+        Sister functointo the the one in utils.rotate
+        Converts the degrees into columns and rotates the image.
+        Positive degrees rotate the image clockwise
+        and negative degrees rotate the image counter clockwise
+        :param d: number of degrees the agent will rotate its view
+        :param image: An tensor that we want to shift.
+        :return: Returns the rotated image.
+        """
+        cols_to_shift = int(round(d * self.num_of_cols_perdegree))
+        return torch.roll(img, -cols_to_shift, dims=1)
+
     def get_heading(self, query_img):
-         pass
         #TODO: here we need custom RMF or to use teh INfomax a matcher in the utils module
-        # probabaly best to make a rotator here...?          
+        # probabaly best to make a rotator here...?
+        query_img = torch.from_numpy(query_img).float()
+        query_img = self.Standardize(query_img)
+        rot_qimgs = torch.empty((self.total_search_angle, self.num_of_rows, self.num_of_cols),  requires_grad=False)
+        for i, rot in enumerate(self.degrees):
+            rot_qimgs[i] = self.rotate(self.deg_step, query_img)
+        rsim = self.Familiarity(rot_qimgs)
+        return rsim.squeeze().detach().numpy()
+
 
 def Train(modelName, trainDataset, infomaxParams):
     model_path=infomaxParams.model_path
