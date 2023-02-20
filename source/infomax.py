@@ -74,7 +74,7 @@ class InfomaxNetwork(nn.Module):
         #print('3')
         self.fc1.weight.requires_grad = False
 
-        self.TrainNet(self.imgs)
+        #self.TrainNet(self.imgs)
 
     def Standardize(self, t):
         #print('try')
@@ -95,7 +95,7 @@ class InfomaxNetwork(nn.Module):
         # if using multiple flattened images then we nned to make the column vectors
         if (len(x.shape)) > 2:
             x = self.flatten(x)
-            x = x.unsqueeze(0)
+        x = x.unsqueeze(0)
         
         # Amani's normalization for the use of constant learning rate
         #x = x / 10
@@ -123,7 +123,7 @@ class InfomaxNetwork(nn.Module):
 
     def rotate(self, d, img):
         """
-        Sister functointo the the one in utils.rotate
+        Sister function to the the one in utils.rotate
         Converts the degrees into columns and rotates the image.
         Positive degrees rotate the image clockwise
         and negative degrees rotate the image counter clockwise
@@ -137,11 +137,13 @@ class InfomaxNetwork(nn.Module):
     def get_heading(self, query_img):
         #TODO: here we need custom RMF or to use teh INfomax a matcher in the utils module
         # probabaly best to make a rotator here...?
-        query_img = torch.from_numpy(query_img).float()
+        query_img = torch.unsqueeze(torch.from_numpy(query_img).float(), 0)
         query_img = self.Standardize(query_img)
         rot_qimgs = torch.empty((self.total_search_angle, self.num_of_rows, self.num_of_cols),  requires_grad=False)
+        rsims = []
         for i, rot in enumerate(self.degrees):
-            rot_qimgs[i] = self.rotate(self.deg_step, query_img)
+            rot_qimgs[i] = self.rotate(rot, query_img)
+            rsims.append(self.Familiarity((query_img)))
         rsim = self.Familiarity(rot_qimgs)
         return rsim.squeeze().detach().numpy()
 
