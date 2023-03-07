@@ -10,12 +10,15 @@ from source.routedatabase import Route
 from source import infomax
 from source.imgproc import Pipeline
 import matplotlib.pyplot as plt
+import seaborn as sns
+sns.set_context("paper", font_scale=1)
 
 
 route_path = 'new-antworld/exp1/route1/'
 route = Route(route_path, 1)
 
 imgs = route.get_imgs()
+deg_range = (-180, 180)
 params = {'blur': True,
         'shape': (180, 80), 
         }
@@ -27,12 +30,12 @@ img_array = imgs[0]
 
 infomaxParams = infomax.Params()
 
-infomaxnet = infomax.InfomaxNetwork(infomaxParams, imgs)
+infomaxnet = infomax.InfomaxNetwork(infomaxParams, imgs, deg_range=deg_range)
 
 # only to be used if further training is required
 #infomaxnet.TrainNet(imgs)
 
 rsim = infomaxnet.get_heading(img_array)
 
-plt.plot(range(len(rsim)), rsim)
+plt.plot(range(*deg_range), rsim)
 plt.show()

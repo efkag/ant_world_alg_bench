@@ -32,7 +32,7 @@ img_path = os.path.join(save_path, 'proc-img.png')
 cv.imwrite(img_path, img)
 
 deg_range = (-180, 180)
-rmf_curve = rmf(img, img, matcher=cor_dist, d_range=deg_range)
+rmf_curve = rmf(img, img, matcher=mae, d_range=deg_range)
 degrees = np.arange(*deg_range)
 
 figsize = (6, 4)
@@ -40,9 +40,9 @@ fig = plt.figure(figsize=figsize)
 plt.scatter(degrees, rmf_curve, s=8)
 plt.plot(degrees, rmf_curve)
 plt.xlabel('Degrees')
-plt.ylabel('Root Mean Squared Error (RMSE)')
+plt.ylabel('IDF AbsDiff')
 plt.tight_layout()
-fig_save_path = os.path.join(save_path, 'rmf-RMSE.png')
+fig_save_path = os.path.join(save_path, 'rmf-mae.png')
 fig.savefig(fig_save_path)
 
 

@@ -15,7 +15,7 @@ device = torch.device("cpu")
 
 class Params():
     def __init__(self):
-        self.lr = 0.01
+        self.lr = 1.
         # this learning rate is tuned to an input size of 3000, at other input sizes navigation may be succesful but is not optimal
         # initial observation - larger image requires smaller learning rate before saturation
 
@@ -29,7 +29,7 @@ class Params():
 
 
 class InfomaxNetwork(nn.Module):
-    def __init__(self, infomaxParams, imgs, deg_range=(0, 360), degree_shift=1):
+    def __init__(self, infomaxParams, imgs, deg_range=(-180, 180), degree_shift=1):
         super(InfomaxNetwork, self).__init__()
         
         self.deg_range = deg_range
@@ -58,6 +58,7 @@ class InfomaxNetwork(nn.Module):
             self.params.seed = infomaxParams.seed
             torch.manual_seed(self.params.seed)
 
+        # NN.flatten so we can use it for batches
         self.flatten = nn.Flatten()
         self.fc1 = nn.Linear(self.size,
                              self.params.outputSize,
@@ -74,7 +75,7 @@ class InfomaxNetwork(nn.Module):
         #print('3')
         self.fc1.weight.requires_grad = False
 
-        #self.TrainNet(self.imgs)
+        self.TrainNet(self.imgs)
 
     def Standardize(self, t):
         #print('try')
@@ -117,7 +118,8 @@ class InfomaxNetwork(nn.Module):
                 WH = torch.matmul(torch.transpose(W, 0, 1), h)
                 update = torch.outer(torch.add(y, h).squeeze(), WH)
                 dW = (W - update)
-                change = (self.params.lr / (self.size)) * (dW)
+                # New normalisation of the eta by the netwrok size (inputs units * out units)
+                change = (self.params.lr / (self.size*self.params.outputSize)) * (dW)
                 newWeights = W + change
                 self.fc1.weight = nn.Parameter(newWeights)
 
