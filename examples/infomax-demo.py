@@ -39,3 +39,15 @@ rsim = infomaxnet.get_heading(img_array)
 
 plt.plot(range(*deg_range), rsim)
 plt.show()
+
+
+#### see how the image looks
+query_img = torch.unsqueeze(torch.from_numpy(img_array).float(), 0)
+query_img = infomaxnet.Standardize(query_img)
+out = infomaxnet.Forward(query_img)
+out = torch.reshape(out, params['shape'])
+
+out = out.squeeze().detach().numpy()
+
+plt.imshow(out)
+plt.show()

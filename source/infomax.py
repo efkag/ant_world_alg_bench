@@ -16,7 +16,6 @@ device = torch.device("cpu")
 class Params():
     def __init__(self):
         self.lr = 1.
-        # this learning rate is tuned to an input size of 3000, at other input sizes navigation may be succesful but is not optimal
         # initial observation - larger image requires smaller learning rate before saturation
 
         self.noEpochs = 1
