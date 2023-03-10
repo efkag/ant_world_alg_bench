@@ -11,9 +11,11 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from ast import literal_eval
 import yaml
-from source.utils import load_route_naw, plot_route, animated_window, check_for_dir_and_create
+from source.utils import cor_dist, mae, check_for_dir_and_create
 from source.routedatabase import Route
 from source import antworld2 as aw
+from source.seqnav import SequentialPerfectMemory
+from source.imgproc import Pipeline
 sns.set_context("paper", font_scale=1)
 
 
@@ -44,8 +46,16 @@ gauss_loc_norm = "{'sig1': 2, 'sig2': 20}"
 res = '(180, 80)'
 threshold = 0
 figsize = (10, 10)
-title = 'D'
 
+combo = {'shape': (180, 80), 'gauss_loc_norm':{'sig1': 2, 'sig2': 20}}
+
+# read in route
+route_path = os.path.join(routes_path, f"route{route_id}")
+route = Route(route_path, route_id=route_id)
+#apply pre-proc
+pipe = Pipeline(**combo)
+
+# filter data
 traj = data.loc[(data['matcher'] == matcher) & (data['res'] == res) 
                 #& (data['edge'] == edge) 
                 & (data['window'] == window) 
@@ -55,17 +65,34 @@ traj = data.loc[(data['matcher'] == matcher) & (data['res'] == res)
                 & (data['route_id'] == route_id)
                 ]
 traj = traj.to_dict(orient='records')[0]
+traj['window_log'] = literal_eval(traj['window_log'])
 
 
 # static test query img sequence 
-# start index
-agent = aw.Agent()
+# set up
+# start end index
 start_i = 25
 end_i = 40
+matcher = cor_dist
+window_log = traj['window_log'][start_i]
+window = -(window_log[1] - window_log[0])
+mem_i = traj['matched_index'][start_i]
+### get all the nessesary data
 
-txy = (traj['tx'][start_i], traj['ty'][start_i])
-th = traj['th'][start_i]
-q_img = agent.get_img(txy, th)
+# pre-proc imgs
+route_imgs = pipe.apply(route.get_imgs())
+nav = SequentialPerfectMemory(route_imgs, matcher, deg_range=(-180, 180), window=window)
+nav.update_mid_pointer(mem_i)
+agent = aw.Agent()
+headings = []
+# loop
+for i in range(start_i, end_i):
+    txy = (traj['tx'][i], traj['ty'][i])
+    th = traj['th'][i]
+    q_img = pipe.apply(agent.get_img(txy, th))
+    h = nav.get_heading(q_img)
+
 
 plt.imshow(q_img)
 plt.show()
+

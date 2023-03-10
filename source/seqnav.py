@@ -158,6 +158,9 @@ class SequentialPerfectMemory:
             self.blimit = 0
             self.flimit = self.mem_pointer + self.window
 
+    def set_mem_pointer(self, i: int):
+        self.mem_pointer = i
+
     def check_w_size(self):
         self.window = self.route_end if self.window > self.route_end else self.window
 
