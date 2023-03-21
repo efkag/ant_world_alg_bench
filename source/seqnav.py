@@ -160,6 +160,22 @@ class SequentialPerfectMemory:
 
     def set_mem_pointer(self, i: int):
         self.mem_pointer = i
+        # update upper an lower margins
+        self.upper = int(round(self.window/2))
+        self.lower = self.window - self.upper
+
+        # Update the bounds of the window
+        self.flimit = self.mem_pointer + self.upper
+        self.blimit = self.mem_pointer - self.lower
+        if self.flimit > self.route_end:
+            self.mem_pointer = (self.route_end - self.window) + self.lower
+            self.flimit = self.route_end
+            self.blimit = self.route_end - self.window
+        if self.blimit <= 0:
+            # the mem pointer should be in the midle of the window
+            self.mem_pointer = self.lower
+            self.blimit = 0
+            self.flimit = self.mem_pointer + self.window
 
     def check_w_size(self):
         self.window = self.route_end if self.window > self.route_end else self.window
