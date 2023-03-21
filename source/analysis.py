@@ -162,13 +162,27 @@ def nanrbg2greyweighted(imgs):
     return np.average(imgs, weights=rgb_weights, axis=-1)
 
 
-def flip_gauss_fit(rsim, d_range=(-180, 180), eta=0.65):
+def flip_gauss_fit(rsim, d_range=(-180, 180), eta=None):
+    '''
+    eta in the stutzl paper was set to 0.65
+    '''
     degrees = np.arange(d_range[0], d_range[1])
     # get the mean of the function
     mu = degrees[np.argmin(rsim)]
     minimum = np.min(rsim)
     # depth of the RMF shape
     depth = np.max(rsim) - minimum
+    if not eta:
+        muidx = np.argmin(rsim)
+        half_depth=depth/2
+        maxindx=np.argmax(rsim[0:muidx])
+        p1 = np.argmin(np.abs((rsim[maxindx:muidx]-half_depth)),0)
+        p1=maxindx+p1
+        maxindx=np.argmax(rsim[muidx:])
+        p2 = np.argmin(np.abs(rsim[muidx:muidx+maxindx]-half_depth),0)
+        p2 = muidx + p2
+        eta = np.abs(p2-p1)
+
     # delta angles from the mean 
     d_angles = degrees-mu
     # fit the flipped gaussian to the RMF
@@ -207,8 +221,21 @@ def eval_rmf_fit(ref_img, imgs, d_range=(-180, 180)):
         fit_errors.append(err)
     return fit_errors
 
+def eval_gauss_rmf_fit(rsims, d_range=(-180, 180)):
+    fit_errors = []
+    for rsim in rsims:
+        g_curve = flip_gauss_fit(rsim, d_range=d_range)
+        err = mse(rsim, g_curve)
+        fit_errors.append(err)
+    return fit_errors
+
 def d2i_eval(imgs, d_range=(-180, 180)):
     rsims = pair_rmf(imgs, imgs, d_range=d_range)
+    depths = np.max(rsims, axis=1)-np.min(rsims, axis=1)
+    integs = np.trapz(rsims, axis=1)
+    return depths/integs
+
+def d2i_rmfs_eval(rsims):
     depths = np.max(rsims, axis=1)-np.min(rsims, axis=1)
     integs = np.trapz(rsims, axis=1)
     return depths/integs
