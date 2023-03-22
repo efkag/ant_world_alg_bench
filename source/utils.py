@@ -922,3 +922,7 @@ def load_loop_route(route_dir, route_id=1, grid_pos_limit=100):
                 world_grid_imgs.append(img)
 
     return world, X_inlimit, Y_inlimit, world_grid_imgs, X_route, Y_route, Heading_route, route_images
+
+
+def scale2_0_1(a):
+    return (a-np.min(a))/(np.max(a)-np.min(a))

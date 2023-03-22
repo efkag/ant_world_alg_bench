@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from ast import literal_eval
 import yaml
-from source.utils import cor_dist, mae, check_for_dir_and_create
+from source.utils import cor_dist, mae, check_for_dir_and_create, scale2_0_1
 from source.analysis import flip_gauss_fit, eval_gauss_rmf_fit, d2i_rmfs_eval
 sns.set_context("paper", font_scale=1)
 
@@ -41,7 +41,7 @@ loc_norm = 'False' # {'kernel_shape':(5, 5)}
 gauss_loc_norm = "{'sig1': 2, 'sig2': 20}"
 res = '(180, 80)'
 threshold = 0
-figsize = (10, 10)
+figsize = (10, 5)
 
 
 # filter data
@@ -113,7 +113,7 @@ for i in range(start_i, end_i):
     window = thresh_log_update(prev_sim, curr_sim, window)
     window_log.append(window)
 
-figsize = (5, 2)
+
 fig, ax1 = plt.subplots(figsize=figsize)
 ax1.plot(traj['best_sims'][start_i:end_i], color='g', label='best sim')
 
@@ -154,13 +154,14 @@ for i in range(len(traj['rmfs'])):
     rsim = traj['rmfs'][i][window_index_of_route_match]
     rsims.append(rsim)
 gauss_scores = eval_gauss_rmf_fit(rsims)
+#weighted_gauss_scores = eval_gauss_rmf_fit(rsims, weighted=True)
 #rsims = np.array(rsims)
 d2i_scores = d2i_rmfs_eval(rsims)
 
 
 fig, ax1 = plt.subplots(figsize=figsize)
 #plt.title(title, loc="left")
-ax1.plot(range(len(traj['abs_index_diff'])), traj['abs_index_diff'], label='index missmatch')
+#ax1.plot(range(len(traj['abs_index_diff'])), traj['abs_index_diff'], label='index missmatch')
 ax1.set_ylim([0, 260])
 ax1.plot(range(len(w_size)), w_size, label='window size')
 for i, th in enumerate(thresh):
@@ -178,8 +179,22 @@ ax2.legend(loc=2)
 plt.show()
 
 
+#######################
+## plot the just scores 
+fig, ax1 = plt.subplots(figsize=figsize)
 
-## plot just the scores
+plt.plot(scale2_0_1(gauss_scores), label='gauss')
+plt.plot(scale2_0_1(d2i_scores), label='d2i')
+#plt.plot(scale2_0_1(weighted_gauss_scores), label='w_gauss')
+plt.plot(range(len(traj['best_sims'])), traj['best_sims'], label='best sim')
+#ax2.set_ylim([0.0, 1.0])
+plt.ylabel('scores')
+plt.legend()
+plt.show()
+
+
+#######################
+## plot the scores and windows
 fig, ax1 = plt.subplots(figsize=figsize)
 #plt.title(title, loc="left")
 ax1.set_ylim([0, 260])
@@ -190,11 +205,11 @@ for i, th in enumerate(thresh):
 ax1.set_ylabel('route index scale')
 
 ax2 = ax1.twinx()
-#ax2.plot(range(len(traj['best_sims'])), traj['best_sims'], label='best sim', color='g')
-ax2.plot(gauss_scores, label='gauss', color='g')
-ax2.plot(d2i_scores, label='d2i', color='c')
+ax2.plot(scale2_0_1(gauss_scores), label='gauss', color='r')
+ax2.plot(scale2_0_1(d2i_scores), label='d2i', color='c')
+ax2.plot(range(len(traj['best_sims'])), traj['best_sims'], label='best sim', color='m')
 #ax2.set_ylim([0.0, 1.0])
 ax2.set_ylabel('scores')
-ax1.legend(loc=0)
-ax2.legend(loc=2)
+ax1.legend(loc=2)
+ax2.legend(loc=0)
 plt.show()
