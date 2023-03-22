@@ -41,7 +41,7 @@ loc_norm = 'False' # {'kernel_shape':(5, 5)}
 gauss_loc_norm = "{'sig1': 2, 'sig2': 20}"
 res = '(180, 80)'
 threshold = 0
-figsize = (10, 5)
+figsize = (6, 3)
 
 
 # filter data
@@ -115,7 +115,7 @@ for i in range(start_i, end_i):
 
 
 fig, ax1 = plt.subplots(figsize=figsize)
-ax1.plot(traj['best_sims'][start_i:end_i], color='g', label='best sim')
+ax1.plot(traj['best_sims'][start_i:end_i], color='g', label='image diff.')
 
 ax2 = ax1.twinx()
 ax2.plot(np.diff(traj['window_log'][start_i:end_i], axis=1), color="orange", label='window size')
@@ -170,8 +170,8 @@ for i, th in enumerate(thresh):
 ax1.set_ylabel('route index scale')
 
 ax2 = ax1.twinx()
-ax2.plot(range(len(traj['best_sims'])), traj['best_sims'], label='best sim', color='g')
-ax2.plot(gauss_scores, label='gauss')
+ax2.plot(range(len(traj['best_sims'])), traj['best_sims'], label='image diff.', color='g')
+ax2.plot(gauss_scores, label='gauss', color='m')
 ax2.set_ylim([0.0, 1.0])
 ax2.set_ylabel(f'{matcher} image distance')
 ax1.legend(loc=0)
@@ -183,12 +183,16 @@ plt.show()
 ## plot the just scores 
 fig, ax1 = plt.subplots(figsize=figsize)
 
-plt.plot(scale2_0_1(gauss_scores), label='gauss')
-plt.plot(scale2_0_1(d2i_scores), label='d2i')
+ax1.plot(scale2_0_1(gauss_scores), label='gauss')
+ax1.plot(scale2_0_1(d2i_scores), label='d2i')
+ax1.set_ylabel('quality scores')
+ax1.set_xlabel('test points')
 #plt.plot(scale2_0_1(weighted_gauss_scores), label='w_gauss')
-plt.plot(range(len(traj['best_sims'])), traj['best_sims'], label='best sim')
+ax2 = ax1.twinx()
+ax2.plot(range(len(traj['best_sims'])), traj['best_sims'], label='image diff.', color='g')
+ax2.set_ylabel('cc image distance')
 #ax2.set_ylim([0.0, 1.0])
-plt.ylabel('scores')
+
 plt.legend()
 plt.show()
 
