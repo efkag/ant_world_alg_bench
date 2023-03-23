@@ -43,7 +43,7 @@ edge = None
 loc_norm = 'False' # {'kernel_shape':(5, 5)}
 gauss_loc_norm = "{'sig1': 2, 'sig2': 20}"
 res = '(180, 80)'
-figsize = (5, 2)
+figsize = (7, 4)
 
 traj = data.loc[(data['matcher'] == matcher)
                 & (data['blur'] == blur) 
@@ -72,9 +72,10 @@ ax1.plot(range(len(traj['abs_index_diff'])), traj['abs_index_diff'], label='inde
 ax1.set_ylim([0, 260])
 ax1.plot(range(len(w_size)), w_size, label='window size')
 ax1.set_ylabel('route index scale')
+ax1.set_xlabel('test points')
 
 ax2 = ax1.twinx()
-ax2.plot(range(len(traj['best_sims'])), traj['best_sims'], label='best sim', color='g')
+ax2.plot(range(len(traj['best_sims'])), traj['best_sims'], label='image diff.', color='g')
 ax2.set_ylim([0.0, 1.0])
 ax2.set_ylabel(f'{matcher} image distance')
 ax1.legend(loc=2)
