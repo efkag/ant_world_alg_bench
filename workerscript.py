@@ -56,9 +56,9 @@ for combo in chunk:
         route_imgs = pipe.apply(route.get_imgs())
         # Run navigation algorithm
         if window:
-            nav = spm.SequentialPerfectMemory(route_imgs, matcher, deg_range=(-180, 180), window=window)
+            nav = spm.SequentialPerfectMemory(route_imgs, matcher, deg_range=(-180, 180), **combo)
         else:
-            nav = pm.PerfectMemory(route_imgs, matcher, deg_range=(-180, 180))
+            nav = pm.PerfectMemory(route_imgs, matcher, deg_range=(-180, 180), **combo)
 
         # if segment_length:
         #     traj, nav = agent.segment_test(route, nav, segment_length=segment_length, t=t, r=r, sigma=None, preproc=combo)
@@ -95,7 +95,7 @@ for combo in chunk:
         log['loc_norm'].append(combo.get('loc_norm'))
         log['gauss_loc_norm'].append(combo.get('gauss_loc_norm'))
         log['wave'].append(combo.get('wave'))
-        log['window'].extend([window])
+        log['window'].append(combo.get('window'))
         log['matcher'].extend([matcher])
         log['deg_range'].append(deg_range)
         log['segment_len'].append(segment_length)

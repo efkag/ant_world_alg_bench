@@ -95,52 +95,53 @@ class SequentialPerfectMemory:
         # append the rsims of all window route images for that query image
         self.logs.append(wrsims)
         # find best image match and heading
-        index = int(self.argminmax(wind_sims))
-        self.best_sims.append(wind_sims[index])
-        heading = wind_headings[index]
+        idx = int(self.argminmax(wind_sims))
+        self.best_sims.append(wind_sims[idx])
+        heading = wind_headings[idx]
         self.recovered_heading.append(heading)
 
         # log the memory pointer before the update
         # mem_pointer - upper can cause the calc_dists() to go out of bounds
-        matched_idx = self.mem_pointer + (index - self.lower)
+        matched_idx = self.mem_pointer + (idx - self.lower)
         self.matched_index_log.append(matched_idx)
 
         if self.adaptive:
-            best = wind_sims[index]
+            best = wind_sims[idx]
+            # TODO here I need to make the updating function modular
             self.dynamic_window_log_rate(best)
             self.check_w_size()
 
         # Update memory pointer
-        self.update_mid_pointer(index)
+        self.update_mid_pointer(idx)
         
         return heading
 
-    def update_pointer(self, index):
+    def update_pointer(self, idx):
         '''
         Update the mem pointer to the back of the window
         mem_pointer = blimit
-        :param index:
+        :param idx:
         :return:
         '''
-        self.mem_pointer += index
+        self.mem_pointer += idx
         # in this case the upperpart is equal to the upper margin
         self.upper = self.window
         self.flimit = self.mem_pointer + self.upper
         self.blimit = self.mem_pointer
 
         if self.flimit > self.route_end:
-            self.mem_pointer = self.blimit + index
+            self.mem_pointer = self.blimit + idx
             self.flimit = self.route_end
             self.blimit = self.route_end - self.window
 
-    def update_mid_pointer(self, index):
+    def update_mid_pointer(self, idx):
         '''
         Update the mem pointer to the middle of the window
-        :param index:
+        :param idx:
         :return:
         '''
         # Update memory pointer
-        change = index - self.lower
+        change = idx - self.lower
         self.mem_pointer += change
 
         # update upper an lower margins
@@ -263,6 +264,21 @@ class SequentialPerfectMemory:
         else:
             self.window -= round(np.log(self.window))
         self.prev_match = best
+    
+    def thresh_dynamic_window_log_rate(self, best):
+        '''
+        Change the window size depending on the current best and previous img match gradient. 
+        Update the size by log of the current window size
+        :param best:
+        :return:
+        '''
+        # Dynamic window adaptation based on match gradient thresh.
+        perc_cng = (best - self.prev_match)/self.prev_match
+        if perc_cng > self.w_thresh or self.window <= self.min_window:
+            self.window += round(self.min_window/np.log(self.window))
+        else:
+            self.window -= round(np.log(self.window))
+        self.prev_match = best
 
     def dynamic_window_h2(self, h):
         '''
@@ -320,17 +336,17 @@ class SequentialPerfectMemory:
             self.window_headings.append(wind_headings)
             # append the rsims of all window route images for that current image
             self.logs.append(wrsims)
-            index = self.argminmax(wind_sims)
-            self.best_sims.append(wind_sims[index])
-            h = wind_headings[index]
+            idx = self.argminmax(wind_sims)
+            self.best_sims.append(wind_sims[idx])
+            h = wind_headings[idx]
             self.recovered_heading.append(h)
             # self.average_heading2(h)
             # self.average_headings(wind_headings)
             # self.consensus_heading(wind_headings, h)
 
-            mem_pointer += index
+            mem_pointer += idx
             if mem_pointer + self.window > self.route_end:
-                mem_pointer = blimit + index
+                mem_pointer = blimit + idx
                 flimit = self.route_end
                 blimit = self.route_end - self.window
             else:
@@ -343,7 +359,7 @@ class SequentialPerfectMemory:
 
             # Change the pointer and bounds for an adaptive window.
             if self.adaptive:
-                self.dynamic_window_sim(wind_sims[index])
+                self.dynamic_window_sim(wind_sims[idx])
                 # self.dynamic_window_h2(h)
                 # self.dynamic_window_h(wind_headings)
 
@@ -483,52 +499,52 @@ class Seq2SeqPerfectMemory:
         # find best image match and heading
         # the index needs to be modulo the size of the window 
         # because now the window sims are the size of current queque * window 
-        index = int(self.argminmax(wind_sims) % self.window)
-        self.best_sims.append(wind_sims[index])
-        heading = wind_headings[index]
+        idx = int(self.argminmax(wind_sims) % self.window)
+        self.best_sims.append(wind_sims[idx])
+        heading = wind_headings[idx]
         self.recovered_heading.append(heading)
 
         # log the memory pointer before the update
         # mem_pointer - upper can cause the calc_dists() to go out of bounds
-        matched_idx = self.mem_pointer + (index - self.lower)
+        matched_idx = self.mem_pointer + (idx - self.lower)
         self.matched_index_log.append(matched_idx)
 
         if self.adaptive:
-            best = wind_sims[index]
+            best = wind_sims[idx]
             self.dynamic_window_log_rate(best)
             self.check_w_size()
 
         # Update memory pointer
-        self.update_mid_pointer(index)
+        self.update_mid_pointer(idx)
         
         return heading
 
-    def update_pointer(self, index):
+    def update_pointer(self, idx):
         '''
         Update the mem pointer to the back of the window
         mem_pointer = blimit
-        :param index:
+        :param idx:
         :return:
         '''
-        self.mem_pointer += index
+        self.mem_pointer += idx
         # in this case the upperpart is equal to the upper margin
         self.upper = self.window
         self.flimit = self.mem_pointer + self.upper
         self.blimit = self.mem_pointer
 
         if self.flimit > self.route_end:
-            self.mem_pointer = self.blimit + index
+            self.mem_pointer = self.blimit + idx
             self.flimit = self.route_end
             self.blimit = self.route_end - self.window
 
-    def update_mid_pointer(self, index):
+    def update_mid_pointer(self, idx):
         '''
         Update the mem pointer to the middle of the window
-        :param index:
+        :param idx:
         :return:
         '''
         # Update memory pointer
-        change = index - self.lower
+        change = idx - self.lower
         self.mem_pointer += change
 
         # update upper an lower margins
