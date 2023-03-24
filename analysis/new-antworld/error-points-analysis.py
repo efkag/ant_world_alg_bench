@@ -16,7 +16,7 @@ from source.routedatabase import Route
 sns.set_context("paper", font_scale=1)
 
 
-directory = '2023-01-20_mid_update'
+directory = '2023-01-25_mid_update'
 results_path = os.path.join('Results', 'newant', directory)
 fig_save_path = os.path.join('Results', 'newant', directory, 'analysis')
 with open(os.path.join(results_path, 'params.yml')) as fp:
@@ -34,8 +34,8 @@ data['th'] = data['th'].apply(literal_eval)
 data['matched_index'] = data['matched_index'].apply(literal_eval)
 
 # Plot a specific route
-route_id = 5
-fig_save_path = os.path.join(fig_save_path, f'15route{route_id}')
+route_id = 7
+fig_save_path = os.path.join(fig_save_path, f'w=15route{route_id}')
 check_for_dir_and_create(fig_save_path)
 r_path = os.path.join(routes_path ,f'route{route_id}')
 window = 15

@@ -46,6 +46,9 @@ class Agent:
         # keep track of the index 
         self.prev_idx = 0
 
+    def set_seed(self, seed):
+        np.random.seed(seed)
+
     def record_route(self, route, path, route_id=1):
         check_for_dir_and_create(path)
         x = route['x']
@@ -114,7 +117,6 @@ class Agent:
         # random initial position and heading
         # near the first location of the route
         if sigma:
-            np.random.seed(0)
             self.h = np.random.randint(0, 360)
             x = coords['x']
             x = np.random.normal(x, sigma)

@@ -17,7 +17,7 @@ import numpy as np
 sns.set_context("paper", font_scale=1)
 
 
-directory = '2023-01-20_mid_update'
+directory = '2023-01-25_mid_update'
 results_path = os.path.join('Results', 'newant', directory)
 fig_save_path = os.path.join('Results', 'newant', directory, 'analysis')
 data = pd.read_csv(os.path.join(results_path, 'results.csv'), index_col=False)
@@ -36,7 +36,7 @@ title = None
 route_id = 5
 fig_save_path = os.path.join(fig_save_path, f'route{route_id}')
 check_for_dir_and_create(fig_save_path)
-window = -15
+window = 15
 matcher = 'corr'
 blur = True
 edge = None
