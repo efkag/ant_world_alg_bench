@@ -7,7 +7,8 @@ from collections import deque
 class SequentialPerfectMemory:
 
     def __init__(self, route_images, matching, deg_range=(0, 360), degree_shift=1, 
-                window=20, dynamic_range=0.1, w_thresh=None, **kwargs):
+                window=20, dynamic_range=0.1, w_thresh=None, mid_update=True, 
+                **kwargs):
         self.route_end = len(route_images)
         self.route_images = route_images
         self.deg_range = deg_range
@@ -39,6 +40,7 @@ class SequentialPerfectMemory:
             self.upper = int(round(self.window/2))
             self.lower = self.window - self.upper
             self.mem_pointer = self.window - self.upper
+            self.w_thresh =  w_thresh
         else:
             self.window = window
             self.adaptive = False
@@ -54,7 +56,7 @@ class SequentialPerfectMemory:
         self.window_margin = 5
         self.deg_diff = 5
         self.agreement_thresh = 0.9
-        self.w_thresh =  w_thresh
+        
 
     def reset_window(self, pointer):
         self.mem_pointer = pointer

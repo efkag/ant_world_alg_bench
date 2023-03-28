@@ -159,10 +159,11 @@ def bench_paral(results_path, params, routes_path, route_ids=None, cores=None, n
     temp_params = copy.deepcopy(params)
     temp_params['routes_path'] = routes_path
     temp_params['route_ids'] = route_ids
-    if num_of_repeats:
-        temp_params['num_of_repeats'] = num_of_repeats
-    else:
+    # if there are no repeats then only one repeat per route
+    if not num_of_repeats:  
         num_of_repeats = 1
+    temp_params['num_of_repeats'] = num_of_repeats
+    #save params to yaml
     with open(param_path, 'w') as fp:
         yaml.dump(temp_params, fp)
 

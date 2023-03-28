@@ -109,8 +109,8 @@ class Agent:
     def test_nav(self, coords, r=0.05, t=100, sigma=0.1, **kwargs):
         #TODO: Here we need to initialise the progrees tracking variables. 
         # It is not clear how that would work with the route segmentation
-        # keep track of distance and the index progress
-        self.prev_dist = 0
+        # keep track of the index progress
+        #TODO: prev index should be initialised as the first index
         self.prev_idx = 0
 
         self.repos_thresh = kwargs.get('repos_thresh')
@@ -127,7 +127,6 @@ class Agent:
             self.xy = (coords['x'], coords['y'])
             self.h = coords['yaw']
 
-        self.prev_dist = 0
 
         # Place agent to the initial position and render the image
         img = self.get_img(self.xy, self.h)

@@ -17,7 +17,7 @@ import numpy as np
 sns.set_context("paper", font_scale=1)
 
 
-directory = '2023-01-25_mid_update'
+directory = '2023-03-24_thresh_mid_update'
 results_path = os.path.join('Results', 'newant', directory)
 fig_save_path = os.path.join('Results', 'newant', directory, 'analysis')
 data = pd.read_csv(os.path.join(results_path, 'results.csv'), index_col=False)
@@ -49,11 +49,13 @@ traj = data.loc[(data['matcher'] == matcher)
                 & (data['blur'] == blur) 
                 & (data['res'] == res) 
                 #& (data['edge'] == edge)
-                #& (data['loc_norm'] == loc_norm) 
+                & (data['loc_norm'] == loc_norm) 
                 & (data['gauss_loc_norm'] == gauss_loc_norm)
                 & (data['window'] == window) 
                 & (data['route_id'] == route_id) 
                 ]
+traj = data.loc[(data['gauss_loc_norm'] == gauss_loc_norm)
+                & (data['num_of_repeat'] == 0)]
 
 traj = traj.to_dict(orient='records')[0]
 traj['window_log'] = literal_eval(traj['window_log'])
