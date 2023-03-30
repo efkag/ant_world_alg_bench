@@ -15,7 +15,7 @@ from source.analysis import flip_gauss_fit, eval_gauss_rmf_fit, d2i_rmfs_eval
 sns.set_context("paper", font_scale=1)
 
 
-directory = '2023-01-20_mid_update'
+directory = '2023-03-29_test'
 results_path = os.path.join('Results', 'newant', directory)
 fig_save_path = os.path.join('Results', 'newant', directory, 'analysis')
 with open(os.path.join(results_path, 'params.yml')) as fp:
@@ -32,7 +32,7 @@ data['th'] = data['th'].apply(literal_eval)
 data['matched_index'] = data['matched_index'].apply(literal_eval)
 
 
-route_id = 5
+route_id = 1
 window = -15
 blur =  True
 matcher = 'corr'
@@ -59,7 +59,8 @@ traj['window_log'] = literal_eval(traj['window_log'])
 
 traj['best_sims'] = literal_eval(traj['best_sims'])
 traj['rmfs'] = np.load(os.path.join(results_path, traj['rmfs_file']+'.npy'), allow_pickle=True)
-
+if traj.get('tfc_idxs'):
+    traj['tfc_idxs'] = literal_eval(traj['tfc_idxs'])
 
 
 ####
@@ -183,8 +184,10 @@ plt.show()
 ## plot the just scores 
 fig, ax1 = plt.subplots(figsize=figsize)
 
-ax1.plot(scale2_0_1(gauss_scores), label='gauss')
+#ax1.plot(scale2_0_1(gauss_scores), label='gauss')
 ax1.plot(scale2_0_1(d2i_scores), label='d2i')
+ylims = ax1.get_ylim()
+ax1.vlines(traj.get('tfc_idxs'), ymin=ylims[0], ymax=ylims[1], linestyles='dashed', colors='r', label='fail points')
 ax1.set_ylabel('quality scores')
 ax1.set_xlabel('test points')
 #plt.plot(scale2_0_1(weighted_gauss_scores), label='w_gauss')
@@ -192,8 +195,8 @@ ax2 = ax1.twinx()
 ax2.plot(range(len(traj['best_sims'])), traj['best_sims'], label='image diff.', color='g')
 ax2.set_ylabel('cc image distance')
 #ax2.set_ylim([0.0, 1.0])
-
-plt.legend()
+ax1.legend(loc=2)
+ax2.legend(loc=0)
 plt.show()
 
 

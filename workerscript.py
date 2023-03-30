@@ -38,7 +38,7 @@ log = {'route_id': [], 't':[], 'blur': [], 'edge': [], 'res': [], 'window': [],
        'matcher': [], 'deg_range':[], 'segment_len': [], 'trial_fail_count':[], 'mean_error': [], 
        'seconds': [], 'errors': [], 'dist_diff': [], 'abs_index_diff': [], 'window_log': [], 
        'matched_index': [], 'tx': [], 'ty': [], 'th': [], 'rmfs_file':[], 'best_sims':[],
-       'loc_norm':[], 'gauss_loc_norm':[], 'wave':[], 'num_of_repeat':[]}
+       'loc_norm':[], 'gauss_loc_norm':[], 'wave':[], 'num_of_repeat':[], 'tfc_idxs':[]}
 agent = aw.Agent()
 
 #  Go though all combinations in the chunk
@@ -104,6 +104,7 @@ for combo in chunk:
             log['deg_range'].append(deg_range)
             log['segment_len'].append(segment_length)
             log['trial_fail_count'].append(agent.get_trial_fail_count())
+            log['tfc_idxs'].append(agent.get_tfc_indices())
             log['mean_error'].append(mean_route_error)
             log['seconds'].append(time_compl)
             log['window_log'].append(window_log)

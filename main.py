@@ -16,7 +16,7 @@ def main():
     # bench.benchmark(parameters, routes, parallel=False)
     
     #'segment_length':[3],
-    results_path = '/its/home/sk526/ant_world_alg_bench/Results/newant/2023-03-24_pm_allroutes_thresh_mid_update'
+    results_path = '/its/home/sk526/ant_world_alg_bench/Results/newant/2023-03-29_test'
     routes_path = '/its/home/sk526/ant_world_alg_bench/new-antworld/curve-bins'
     parameters = {'repos_thresh':[.3], 
                   'r': [0.05], 
@@ -27,12 +27,12 @@ def main():
                 #  'edge_range': [(180, 200), False],
                 #  'loc_norm': [{'kernel_shape':(5, 5)}, False],
                   'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
-                  'window': [0],
+                  'window': [15, 20, 25, -15],
                   'matcher': ['corr'],
-                  'w_thresh':[0.1]
+                  'w_thresh':[0.05]
                   }
 
-    routes = [*range(20)]
+    routes = [0, 1, 5, 7]
     num_of_repeats = 3
     cbench.benchmark(results_path, routes_path, parameters, routes, 
                     parallel=True, num_of_repeats=num_of_repeats)
