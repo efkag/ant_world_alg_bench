@@ -89,9 +89,16 @@ def thresh_log_update(prev_sim, curr_sim, window, thresh=0.1):
 def moving_average(x, w):
     return np.convolve(x, np.ones(w), 'valid') / w
 
-def sma_log_update(prev_sim, curr_sim, window, ):
+# def sma_log_update(prev_sim, curr_sim, window, ):
     
-    if curr_sim > thresh or window <= min_window:
+#     if curr_sim > thresh or window <= min_window:
+#         window += round(min_window/np.log(window))
+#     else:
+#         window -= round(np.log(window))
+#     return window
+
+def d2i_log_update(prev_qmet, curr_qmet, window):
+    if curr_qmet <= 0.00612947 or window <= min_window:
         window += round(min_window/np.log(window))
     else:
         window -= round(np.log(window))
@@ -123,12 +130,12 @@ ax2.plot(np.diff(traj['window_log'][start_i:end_i], axis=1), color="orange", lab
 ax2.plot(window_log, label='thresh=0.1%')
 ax1.legend(loc=2)
 ax2.legend(loc=0)
-plt.show()
+#plt.show()
 plt.close()
 
 
 ####################
-# replot for the entire trajectory
+# Thresh window update
 w_size = np.squeeze(np.diff(traj['window_log'], axis=1))
 thresh = [.1, 0.05]
 window_per_thresh = []
@@ -145,9 +152,8 @@ for th in thresh:
         window_log.append(window)
     window_per_thresh.append(window_log)
 
-###### 
-# # test another criterion
 # use eval metrics to get a score
+# get all the best match rmfs
 rsims = []
 for i in range(len(traj['rmfs'])):
     w = traj.get('window_log')[i]
@@ -160,19 +166,38 @@ gauss_scores = eval_gauss_rmf_fit(rsims)
 d2i_scores = d2i_rmfs_eval(rsims)
 
 
+####### d2i log metric update
+window = w_size[0]
+d2i_window_log = []
+d2i_window_log.append(window)
+for i in range(len(traj['best_sims'])-1):
+    curr_met = d2i_scores[i+1]
+    prev_met = d2i_scores[i]
+
+    # add here a new criterion for window update
+    window = d2i_log_update(prev_sim, curr_sim, window)
+    d2i_window_log.append(window)
+
+
+
+#Ploting
+###############################################################################
 fig, ax1 = plt.subplots(figsize=figsize)
 #plt.title(title, loc="left")
 #ax1.plot(range(len(traj['abs_index_diff'])), traj['abs_index_diff'], label='index missmatch')
 ax1.set_ylim([0, 260])
 ax1.plot(range(len(w_size)), w_size, label='window size')
-for i, th in enumerate(thresh):
-    ax1.plot(window_per_thresh[i], label=f'thresh={th}%')
+# for i, th in enumerate(thresh):
+#     ax1.plot(window_per_thresh[i], label=f'thresh={th}%')
+ax1.plot(d2i_window_log, label='d2i w. update' )
 
+ylims = ax1.get_ylim()
+ax1.vlines(traj.get('tfc_idxs'), ymin=ylims[0], ymax=ylims[1], linestyles='dashed', colors='r', label='fail points')
 ax1.set_ylabel('route index scale')
-
 ax2 = ax1.twinx()
 ax2.plot(range(len(traj['best_sims'])), traj['best_sims'], label='image diff.', color='g')
-ax2.plot(gauss_scores, label='gauss', color='m')
+#ax2.plot(gauss_scores, label='gauss', color='m')
+ax2.plot(scale2_0_1(d2i_scores), label='d2i', color='m')
 ax2.set_ylim([0.0, 1.0])
 ax2.set_ylabel(f'{matcher} image distance')
 ax1.legend(loc=0)
