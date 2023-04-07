@@ -638,6 +638,20 @@ def cos_sim(a, b):
     return np.dot(a, b) / (norm(a) * norm(b))
 
 
+def entrop_dist(a, b):
+    ## how many bins? 256 always?
+    amarg = np.histogramdd(np.ravel(a), bins = 256)[0]/a.size
+    amarg = amarg[np.ravel(amarg) > 0]
+    aentropy = -np.sum(np.multiply(amarg, np.log2(amarg)))
+    hist_2d, x_edges, y_edges = np.histogram2d(a.ravel(), b.ravel(), bins=256)
+    pxy = hist_2d / float(np.sum(hist_2d))
+    px = np.sum(pxy, axis=1) # marginal for x over y
+    py = np.sum(pxy, axis=0) # marginal for y over x
+    px_py = px[:, None] * py[None, :] # Broadcast to multiply marginals
+    # Now we can do the calculation using the pxy, px_py 2D arrays
+    nzs = pxy > 0 # Only non-zero pxy values contribute to the sum
+    return aentropy - np.sum(pxy[nzs] * np.log(pxy[nzs] / px_py[nzs]))
+
 def rmf(query_img, ref_imgs, matcher=mae, d_range=(0, 360), d_step=1):
     """
     Rotational Matching Function.
