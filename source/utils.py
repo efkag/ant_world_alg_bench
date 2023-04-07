@@ -639,6 +639,8 @@ def cos_sim(a, b):
 
 
 def entrop_dist(a, b):
+    # temporary!!
+    b = b[0]
     ## how many bins? 256 always?
     amarg = np.histogramdd(np.ravel(a), bins = 256)[0]/a.size
     amarg = amarg[np.ravel(amarg) > 0]
