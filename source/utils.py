@@ -679,11 +679,11 @@ def _entropy_dist(a, b, bins=256):
 
     hist_2d, x_edges, y_edges = np.histogram2d(a.ravel(), b.ravel(), bins=bins)
     pab = hist_2d / float(np.sum(hist_2d))
-    pa = np.sum(pab, axis=1) # marginal for x over y
-    pb = np.sum(pab, axis=0) # marginal for y over x
+    pa = np.sum(pab, axis=1) # marginal for a over b
+    pb = np.sum(pab, axis=0) # marginal for b over a
     pa_pb = pa[:, None] * pb[None, :] # Broadcast to multiply marginals
     # Now we can do the calculation using the pxy, px_py 2D arrays
-    nzs = pab > 0 # Only non-zero pxy values contribute to the sum
+    nzs = pab > 0 # Only non-zero pab values contribute to the sum
 
     pab_joint = pab[np.logical_and(pab, pab)]
     ent_pab = -np.sum(pab_joint * np.log(pab_joint))

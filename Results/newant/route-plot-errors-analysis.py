@@ -13,10 +13,11 @@ from source.routedatabase import Route
 import yaml
 sns.set_context("paper", font_scale=1)
 
-directory = '2023-03-24_allroutes_thresh_mid_update'
-fig_save_path = os.path.join('Results', 'newant', directory)
+directory = '2023-03-29_test'
+results_path = os.path.join('Results', 'newant', directory)
+fig_save_path = os.path.join('Results', 'newant', directory, 'analysis')
 data = pd.read_csv(os.path.join(fig_save_path, 'results.csv'), index_col=False)
-with open(os.path.join(fig_save_path, 'params.yml')) as fp:
+with open(os.path.join(results_path, 'params.yml')) as fp:
     params = yaml.load(fp)
 routes_path = params['routes_path']
 # Convert list of strings to actual list of lists
@@ -57,7 +58,6 @@ traj = data.loc[(data['matcher'] == matcher)
 
 ### for repeats
 traj = traj.loc[traj['num_of_repeat'] == 0]
-print(traj['trial_fail_count'])
 
 # traj = data.to_dict(orient='records')[0]
 if window:
