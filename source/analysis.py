@@ -250,6 +250,9 @@ def d2i_eval(imgs, d_range=(-180, 180)):
     return depths/integs
 
 def d2i_rmfs_eval(rsims):
+    rsims = np.array(rsims)
+    if len(rsims.shape) < 2:
+        rsims = np.expand_dims(rsims, axis=0)
     depths = np.max(rsims, axis=1)-np.min(rsims, axis=1)
     integs = np.trapz(rsims, axis=1)
-    return depths/integs
+    return np.squeeze(depths/integs)

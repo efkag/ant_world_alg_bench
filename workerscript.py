@@ -37,7 +37,7 @@ jobs = 0
 log = {'route_id': [], 't':[], 'blur': [], 'edge': [], 'res': [], 'window': [],
        'matcher': [], 'deg_range':[], 'segment_len': [], 'trial_fail_count':[], 'mean_error': [], 
        'seconds': [], 'errors': [], 'dist_diff': [], 'abs_index_diff': [], 'window_log': [], 
-       'matched_index': [], 'tx': [], 'ty': [], 'th': [], 'rmfs_file':[], 'best_sims':[],
+       'matched_index': [], 'tx': [], 'ty': [], 'th': [], 'ah': [], 'rmfs_file':[], 'best_sims':[],
        'loc_norm':[], 'gauss_loc_norm':[], 'wave':[], 'num_of_repeat':[], 'tfc_idxs':[]}
 agent = aw.Agent()
 
@@ -81,6 +81,7 @@ for combo in chunk:
             dist_diff = calc_dists(route.get_xycoords(), min_dist_index, matched_index)
             mean_route_error = np.mean(errors)
             window_log = nav.get_window_log()
+            rec_headings = nav.get_rec_headings()
             rmf_logs = np.array(nav.get_rsims_log(), dtype=object)
             deg_range = nav.deg_range
 
@@ -112,6 +113,7 @@ for combo in chunk:
             log['tx'].append(traj['x'].tolist())
             log['ty'].append(traj['y'].tolist())
             log['th'].append(traj['heading'].tolist())
+            log['ah'].append(rec_headings)
             log['matched_index'].append(matched_index)
             log['abs_index_diff'].append(abs_index_diffs.tolist())
             log['dist_diff'].append(dist_diff.tolist())

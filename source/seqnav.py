@@ -1,4 +1,5 @@
 from source.utils import mae, rmse, cor_dist, rmf, seq2seqrmf, pair_rmf, cos_sim, mean_angle
+from source.analysis import d2i_rmfs_eval
 import numpy as np
 import copy
 from collections import deque
@@ -25,6 +26,11 @@ class SequentialPerfectMemory:
         self.best_sims = []
         self.window_headings = []
         self.CMA = []
+        self.sma_qmet_log = []
+        # append a starting value for the d2i qiality metric log
+        # TODO: the metrics shouls proapblly be classes that each have their own
+        # initialisation values etc
+        self.sma_qmet_log.append(0)
         # Matching variables
         matchers = {'corr': cor_dist, 'rmse': rmse, 'mae': mae}
         self.matcher = matchers.get(matching)
@@ -56,9 +62,15 @@ class SequentialPerfectMemory:
         self.window_margin = 5
         self.deg_diff = 5
         self.agreement_thresh = 0.9
-        
 
+        # heading parameters
+        self.qmet_q = deque(maxlen=3)
+    
+    #TODO Need a better name for this function
     def reset_window(self, pointer):
+        '''
+        Resets the pointer assuming the window size is the same
+        '''
         self.mem_pointer = pointer
         self.flimit = self.mem_pointer + self.upper
         self.blimit = self.mem_pointer - self.lower
@@ -68,6 +80,29 @@ class SequentialPerfectMemory:
             self.flimit = self.route_end
             self.blimit = self.route_end - self.window
         if self.blimit <= 0:
+            self.mem_pointer = self.lower
+            self.blimit = 0
+            self.flimit = self.mem_pointer + self.window
+    
+    def set_mem_pointer(self, i: int):
+        '''
+        Resets the pointer assuming the window size may have changed
+        Recalculates the upper and lower margins
+        '''
+        self.mem_pointer = i
+        # update upper an lower margins
+        self.upper = int(round(self.window/2))
+        self.lower = self.window - self.upper
+
+        # Update the bounds of the window
+        self.flimit = self.mem_pointer + self.upper
+        self.blimit = self.mem_pointer - self.lower
+        if self.flimit > self.route_end:
+            self.mem_pointer = (self.route_end - self.window) + self.lower
+            self.flimit = self.route_end
+            self.blimit = self.route_end - self.window
+        if self.blimit <= 0:
+            # the mem pointer should be in the midle of the window
             self.mem_pointer = self.lower
             self.blimit = 0
             self.flimit = self.mem_pointer + self.window
@@ -97,7 +132,7 @@ class SequentialPerfectMemory:
         # append the rsims of all window route images for that query image
         self.logs.append(wrsims)
         # find best image match and heading
-        idx = int(self.argminmax(wind_sims))
+        idx = int(round(self.argminmax(wind_sims)))
         self.best_sims.append(wind_sims[idx])
         heading = wind_headings[idx]
         self.recovered_heading.append(heading)
@@ -107,16 +142,42 @@ class SequentialPerfectMemory:
         matched_idx = self.mem_pointer + (idx - self.lower)
         self.matched_index_log.append(matched_idx)
 
+        #evaluate ridf
+        h_eval = self.eval_ridf(wrsims[idx])
+
         if self.adaptive:
             best = wind_sims[idx]
             # TODO here I need to make the updating function modular
-            self.thresh_dynamic_window_log_rate(best)
+            self.dynamic_window_log_rate(best)
             self.check_w_size()
 
         # Update memory pointer
-        self.update_mid_pointer(idx)
+        if h_eval:
+            self.update_mid_pointer(idx)
+        else:
+            self.set_mem_pointer(self.mem_pointer + 1)
+
+        # the heading changes if the rmf quality is low
+
+        heading = self.evaluated_heading(h_eval)
         
         return heading
+
+    def eval_ridf(self, ridf):
+        '''
+        Evaluates the ridf quality
+        returs: True if quality is good False if quality is bad
+        '''
+        quality = d2i_rmfs_eval(ridf).item()
+        self.qmet_q.append(quality)
+        
+        sma = sum(self.qmet_q) / len(self.qmet_q)
+        
+        if sma < self.sma_qmet_log[-1]:
+            self.sma_qmet_log.append(sma)
+            return False
+        self.sma_qmet_log.append(sma)
+        return True
 
     def update_pointer(self, idx):
         '''
@@ -163,25 +224,6 @@ class SequentialPerfectMemory:
             self.blimit = 0
             self.flimit = self.mem_pointer + self.window
 
-    def set_mem_pointer(self, i: int):
-        self.mem_pointer = i
-        # update upper an lower margins
-        self.upper = int(round(self.window/2))
-        self.lower = self.window - self.upper
-
-        # Update the bounds of the window
-        self.flimit = self.mem_pointer + self.upper
-        self.blimit = self.mem_pointer - self.lower
-        if self.flimit > self.route_end:
-            self.mem_pointer = (self.route_end - self.window) + self.lower
-            self.flimit = self.route_end
-            self.blimit = self.route_end - self.window
-        if self.blimit <= 0:
-            # the mem pointer should be in the midle of the window
-            self.mem_pointer = self.lower
-            self.blimit = 0
-            self.flimit = self.mem_pointer + self.window
-
     def check_w_size(self):
         self.window = self.route_end if self.window > self.route_end else self.window
 
@@ -204,6 +246,14 @@ class SequentialPerfectMemory:
             self.recovered_heading.append(self.recovered_heading[-1])
         else:
             self.recovered_heading.append(h)
+
+    def evaluated_heading(self, ridf_eval):        
+        if ridf_eval: # if quality is good
+            return self.recovered_heading[-1]
+        else: #if qiality is bad
+            self.recovered_heading[-1] = 0
+            return self.recovered_heading[-1]
+            
 
     def average_heading2(self, h):
         '''
@@ -378,6 +428,9 @@ class SequentialPerfectMemory:
             #         self.confidence[j] -= 0.1
 
         return self.recovered_heading, self.window_log
+
+    def get_rec_headings(self):
+        return self.recovered_heading
 
     def get_index_log(self):
         return self.matched_index_log
@@ -675,6 +728,9 @@ class Seq2SeqPerfectMemory:
             self.window += self.window_margin
         else:
             self.window -= self.window_margin
+
+    def get_rec_headings(self):
+        return self.recovered_heading
 
     def get_index_log(self):
         return self.matched_index_log

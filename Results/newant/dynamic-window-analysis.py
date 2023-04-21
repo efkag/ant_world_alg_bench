@@ -17,7 +17,7 @@ import numpy as np
 sns.set_context("paper", font_scale=1)
 
 
-directory = '2023-03-29_test'
+directory = '2023-04-20_test'
 results_path = os.path.join('Results', 'newant', directory)
 fig_save_path = os.path.join('Results', 'newant', directory, 'analysis')
 data = pd.read_csv(os.path.join(results_path, 'results.csv'), index_col=False)
@@ -33,7 +33,7 @@ data['th'] = data['th'].apply(literal_eval)
 
 # Plot a specific route
 title = None
-route_id = 1
+route_id = 7
 fig_save_path = os.path.join(fig_save_path, f'route{route_id}')
 check_for_dir_and_create(fig_save_path)
 window = -15
@@ -43,6 +43,7 @@ edge = None
 loc_norm = 'False' # {'kernel_shape':(5, 5)}
 gauss_loc_norm = "{'sig1': 2, 'sig2': 20}"
 res = '(180, 80)'
+repeat_no = 0
 figsize = (7, 4)
 
 traj = data.loc[(data['matcher'] == matcher)
@@ -53,7 +54,7 @@ traj = data.loc[(data['matcher'] == matcher)
                 & (data['gauss_loc_norm'] == gauss_loc_norm)
                 & (data['window'] == window) 
                 & (data['route_id'] == route_id)
-                & (data['num_of_repeat'] == 2) 
+                & (data['num_of_repeat'] == repeat_no) 
                 ]
 # traj = data.loc[(data['gauss_loc_norm'] == gauss_loc_norm)
 #                 & (data['num_of_repeat'] == 0)]

@@ -1,4 +1,7 @@
 from source import cbench
+from datetime import date
+today = date.today()
+string_date = today.strftime("%Y-%m-%d")
 # import navbench
 
 def main():
@@ -16,7 +19,7 @@ def main():
     # bench.benchmark(parameters, routes, parallel=False)
     
     #'segment_length':[3],
-    results_path = '/its/home/sk526/ant_world_alg_bench/Results/newant/2023-03-29_test'
+    results_path = f'/its/home/sk526/ant_world_alg_bench/Results/newant/{string_date}_test'
     routes_path = '/its/home/sk526/ant_world_alg_bench/new-antworld/curve-bins'
     parameters = {'repos_thresh':[.3], 
                   'r': [0.05], 
@@ -29,10 +32,9 @@ def main():
                   'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
                   'window': [15, 20, 25, -15],
                   'matcher': ['corr'],
-                  'w_thresh':[0.05]
                   }
 
-    routes = [0, 1, 5, 7]
+    routes = [*range(20)]
     num_of_repeats = 3
     cbench.benchmark(results_path, routes_path, parameters, routes, 
                     parallel=True, num_of_repeats=num_of_repeats)

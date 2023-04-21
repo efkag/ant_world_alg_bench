@@ -21,7 +21,7 @@ save_path = os.path.join(fwd, 'rmf-curves')
 check_for_dir_and_create(save_path)
 
 img_idx = 91
-img = route.get_imgs()[91]
+img = route.get_imgs()[img_idx]
 
 params = {'blur': True,
         'shape': (180, 40), 

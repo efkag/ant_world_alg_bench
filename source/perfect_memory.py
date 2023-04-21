@@ -74,6 +74,8 @@ class PerfectMemory:
 
         return self.recovered_heading
 
+    def get_rec_headings(self): return self.recovered_heading
+
     def get_index_log(self): return self.matched_index_log
 
     def get_rsims_log(self): return self.logs

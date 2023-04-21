@@ -12,10 +12,11 @@ from ast import literal_eval
 import yaml
 from source.utils import cor_dist, mae, check_for_dir_and_create, scale2_0_1
 from source.analysis import flip_gauss_fit, eval_gauss_rmf_fit, d2i_rmfs_eval
+from collections import deque
 sns.set_context("paper", font_scale=1)
 
 
-directory = '2023-03-29_test'
+directory = '2023-04-14_test'
 results_path = os.path.join('Results', 'newant', directory)
 fig_save_path = os.path.join('Results', 'newant', directory, 'analysis')
 with open(os.path.join(results_path, 'params.yml')) as fp:
@@ -41,6 +42,7 @@ loc_norm = 'False' # {'kernel_shape':(5, 5)}
 gauss_loc_norm = "{'sig1': 2, 'sig2': 20}"
 res = '(180, 80)'
 threshold = 0
+repeat_no = 0
 figsize = (6, 3)
 
 
@@ -52,6 +54,7 @@ traj = data.loc[(data['matcher'] == matcher) & (data['res'] == res)
                 #& (data['loc_norm'] == loc_norm) 
                 & (data['gauss_loc_norm'] == gauss_loc_norm)
                 & (data['route_id'] == route_id)
+                & (data['num_of_repeat'] == repeat_no)
                 ]
 traj = traj.to_dict(orient='records')[0]
 traj['window_log'] = literal_eval(traj['window_log'])
@@ -89,20 +92,19 @@ def thresh_log_update(prev_sim, curr_sim, window, thresh=0.1):
 def moving_average(x, w):
     return np.convolve(x, np.ones(w), 'valid') / w
 
-# def sma_log_update(prev_sim, curr_sim, window, ):
-    
-#     if curr_sim > thresh or window <= min_window:
-#         window += round(min_window/np.log(window))
-#     else:
-#         window -= round(np.log(window))
-#     return window
-
-def d2i_log_update(prev_qmet, curr_qmet, window):
-    if curr_qmet <= 0.00612947 or window <= min_window:
+d2i_q = deque(maxlen=3)
+d2i_q.append(0)
+prev_sma = 0
+def d2i_log_update(prev_sim, curr_sim, curr_qmet, window, prev_sma):
+    d2i_q.append(curr_qmet)
+    sma = sum(d2i_q) / len(d2i_q)
+    # if sma < prev_sma or window <= min_window:
+    if (sma < prev_sma and curr_sim > prev_sim) or window <= min_window:
         window += round(min_window/np.log(window))
     else:
         window -= round(np.log(window))
-    return window
+    prev_sma = sma
+    return window, prev_sma
 
 
 ########
@@ -164,18 +166,22 @@ gauss_scores = eval_gauss_rmf_fit(rsims)
 #weighted_gauss_scores = eval_gauss_rmf_fit(rsims, weighted=True)
 #rsims = np.array(rsims)
 d2i_scores = d2i_rmfs_eval(rsims)
+sma_d2i = moving_average(d2i_scores, 3)
 
 
 ####### d2i log metric update
 window = w_size[0]
 d2i_window_log = []
 d2i_window_log.append(window)
+prev_sma = 0
 for i in range(len(traj['best_sims'])-1):
-    curr_met = d2i_scores[i+1]
-    prev_met = d2i_scores[i]
+    curr_met = d2i_scores[i]
+    #prev_met = d2i_scores[i]
+    curr_sim = traj['best_sims'][i+1]
+    prev_sim = traj['best_sims'][i]
 
     # add here a new criterion for window update
-    window = d2i_log_update(prev_sim, curr_sim, window)
+    window, prev_sma = d2i_log_update(prev_sim, curr_sim, curr_met, window, prev_sma)
     d2i_window_log.append(window)
 
 
@@ -211,6 +217,7 @@ fig, ax1 = plt.subplots(figsize=figsize)
 
 #ax1.plot(scale2_0_1(gauss_scores), label='gauss')
 ax1.plot(scale2_0_1(d2i_scores), label='d2i')
+ax1.plot(scale2_0_1(sma_d2i), label='sma_d2i')
 ylims = ax1.get_ylim()
 ax1.vlines(traj.get('tfc_idxs'), ymin=ylims[0], ymax=ylims[1], linestyles='dashed', colors='r', label='fail points')
 ax1.set_ylabel('quality scores')

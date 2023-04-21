@@ -12,14 +12,14 @@ from ast import literal_eval
 from source.utils import load_route_naw, plot_route, animated_window, check_for_dir_and_create
 sns.set_context("paper", font_scale=1)
 
-directory = '2023-03-29_test'
+directory = '2023-04-20_test'
 fig_save_path = os.path.join('Results', 'newant', directory)
 data = pd.read_csv(os.path.join(fig_save_path, 'results.csv'), index_col=False)
 # data['trial_fail_count'] = data['trial_fail_count'].apply(literal_eval)
 
 
 # Choose a specific pre. processing
-route_id = 0
+route_id = 1
 matcher = 'corr'
 blur = True
 # edge = 'False' 
@@ -47,8 +47,8 @@ sns.barplot(x="window", y="trial_fail_count", data=data, ax=ax, estimator=sum, c
 # window_labels = ['Adaptive SMW', 'PM', 'Fixed 15', 'Fixed 25']
 # ax.set_xticklabels(window_labels)
 plt.tight_layout(pad=0)
-# path = os.path.join(fig_save_path, f'route[{route_id}]-failed trials.png')
-path = os.path.join(fig_save_path, 'curve-failed trials.png')
-#fig.savefig(path)
+path = os.path.join(fig_save_path, f'route[{route_id}]-failed trials.png')
+#path = os.path.join(fig_save_path, 'curve-failed trials.png')
+fig.savefig(path)
 plt.show()
 
