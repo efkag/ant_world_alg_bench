@@ -16,9 +16,9 @@ from collections import deque
 sns.set_context("paper", font_scale=1)
 
 
-directory = '2023-04-14_test'
+directory = '2023-04-21_test'
 results_path = os.path.join('Results', 'newant', directory)
-fig_save_path = os.path.join('Results', 'newant', directory, 'analysis')
+# fig_save_path = os.path.join('Results', 'newant', directory, 'analysis')
 with open(os.path.join(results_path, 'params.yml')) as fp:
     params = yaml.load(fp)
 routes_path = params['routes_path']
@@ -33,7 +33,7 @@ data['th'] = data['th'].apply(literal_eval)
 data['matched_index'] = data['matched_index'].apply(literal_eval)
 
 
-route_id = 1
+route_id = 5
 window = -15
 blur =  True
 matcher = 'corr'
@@ -43,7 +43,7 @@ gauss_loc_norm = "{'sig1': 2, 'sig2': 20}"
 res = '(180, 80)'
 threshold = 0
 repeat_no = 0
-figsize = (6, 3)
+figsize = (8, 4)
 
 
 # filter data
@@ -54,7 +54,7 @@ traj = data.loc[(data['matcher'] == matcher) & (data['res'] == res)
                 #& (data['loc_norm'] == loc_norm) 
                 & (data['gauss_loc_norm'] == gauss_loc_norm)
                 & (data['route_id'] == route_id)
-                & (data['num_of_repeat'] == repeat_no)
+                # & (data['num_of_repeat'] == repeat_no)
                 ]
 traj = traj.to_dict(orient='records')[0]
 traj['window_log'] = literal_eval(traj['window_log'])
@@ -193,19 +193,20 @@ fig, ax1 = plt.subplots(figsize=figsize)
 #ax1.plot(range(len(traj['abs_index_diff'])), traj['abs_index_diff'], label='index missmatch')
 ax1.set_ylim([0, 260])
 ax1.plot(range(len(w_size)), w_size, label='window size')
-# for i, th in enumerate(thresh):
-#     ax1.plot(window_per_thresh[i], label=f'thresh={th}%')
-ax1.plot(d2i_window_log, label='d2i w. update' )
+for i, th in enumerate(thresh):
+    ax1.plot(window_per_thresh[i], label=f'thresh={th}%')
+#ax1.plot(d2i_window_log, label='d2i w. update' )
 
 ylims = ax1.get_ylim()
 ax1.vlines(traj.get('tfc_idxs'), ymin=ylims[0], ymax=ylims[1], linestyles='dashed', colors='r', label='fail points')
 ax1.set_ylabel('route index scale')
 ax2 = ax1.twinx()
 ax2.plot(range(len(traj['best_sims'])), traj['best_sims'], label='image diff.', color='g')
+ax2.plot(scale2_0_1(sma_d2i), label='sma_d2i', color='c')
 #ax2.plot(gauss_scores, label='gauss', color='m')
-ax2.plot(scale2_0_1(d2i_scores), label='d2i', color='m')
-ax2.set_ylim([0.0, 1.0])
-ax2.set_ylabel(f'{matcher} image distance')
+#ax2.plot(scale2_0_1(d2i_scores), label='d2i', color='m')
+#ax2.set_ylim([0.0, 1.0])
+ax2.set_ylabel(f'{matcher} image distance and quality metric score')
 ax1.legend(loc=0)
 ax2.legend(loc=2)
 plt.show()
@@ -229,7 +230,7 @@ ax2.set_ylabel('cc image distance')
 #ax2.set_ylim([0.0, 1.0])
 ax1.legend(loc=2)
 ax2.legend(loc=0)
-plt.show()
+#plt.show()
 
 
 #######################
@@ -251,4 +252,4 @@ ax2.plot(range(len(traj['best_sims'])), traj['best_sims'], label='best sim', col
 ax2.set_ylabel('scores')
 ax1.legend(loc=2)
 ax2.legend(loc=0)
-plt.show()
+#plt.show()

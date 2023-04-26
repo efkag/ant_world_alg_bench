@@ -1,10 +1,8 @@
 import os, sys
-
 # path = os.path.join(os.path.dirname(__file__), os.pardir)
 fwd = os.path.dirname(__file__)
 sys.path.append(os.getcwd())
 
-import cv2 as cv
 import numpy as np
 import pandas as pd
 import seaborn as sns
@@ -32,6 +30,8 @@ metric = 'errors'
 window = 20
 data = data.loc[data['window'] == window]
 data = data.groupby('route_id')[metric].apply(sum).to_frame(metric).reset_index()
+
+# Get the curvatures here
 
 # sns.scatterplot(data=data, x='route_id', y=metric)
 

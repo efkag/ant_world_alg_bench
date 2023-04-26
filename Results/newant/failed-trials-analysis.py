@@ -19,7 +19,7 @@ data = pd.read_csv(os.path.join(fig_save_path, 'results.csv'), index_col=False)
 
 
 # Choose a specific pre. processing
-route_id = 1
+route_id = 7
 matcher = 'corr'
 blur = True
 # edge = 'False' 
@@ -34,7 +34,8 @@ data = data.loc[(data['matcher'] == matcher) & (data['res'] == res)
                 & (data['gauss_loc_norm'] == g_loc_norm)
                 #& (data['loc_norm'] == loc_norm)
                 & (data['route_id'] == route_id )
-                #& (data['route_id'] < 5 ) #& (data['route_id'] <= 14 ) 
+                # & (data['route_id'] >= 14 ) #& (data['route_id'] < 14 )
+                & (data['num_of_repeat'] == 0) 
 ]
 #################
 # in case of repeats
@@ -48,7 +49,7 @@ sns.barplot(x="window", y="trial_fail_count", data=data, ax=ax, estimator=sum, c
 # ax.set_xticklabels(window_labels)
 plt.tight_layout(pad=0)
 path = os.path.join(fig_save_path, f'route[{route_id}]-failed trials.png')
-#path = os.path.join(fig_save_path, 'curve-failed trials.png')
+# path = os.path.join(fig_save_path, 'curve4-failed trials.png')
 fig.savefig(path)
 plt.show()
 

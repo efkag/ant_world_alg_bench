@@ -143,7 +143,7 @@ class SequentialPerfectMemory:
         self.matched_index_log.append(matched_idx)
 
         #evaluate ridf
-        h_eval = self.eval_ridf(wrsims[idx])
+        # h_eval = self.eval_ridf(wrsims[idx])
 
         if self.adaptive:
             best = wind_sims[idx]
@@ -152,14 +152,14 @@ class SequentialPerfectMemory:
             self.check_w_size()
 
         # Update memory pointer
-        if h_eval:
-            self.update_mid_pointer(idx)
-        else:
-            self.set_mem_pointer(self.mem_pointer + 1)
+        # if h_eval:
+        self.update_mid_pointer(idx)
+        # else:
+        #     self.set_mem_pointer(self.mem_pointer + 1)
 
         # the heading changes if the rmf quality is low
 
-        heading = self.evaluated_heading(h_eval)
+        #heading = self.evaluated_heading(h_eval)
         
         return heading
 
