@@ -36,6 +36,7 @@ def main():
 
     routes = [*range(20)]
     num_of_repeats = 3
+    parameters['repeat'] = [*range(num_of_repeats)]
     cbench.benchmark(results_path, routes_path, parameters, routes, 
                     parallel=True, num_of_repeats=num_of_repeats)
 if __name__ == "__main__":
