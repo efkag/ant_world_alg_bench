@@ -19,7 +19,7 @@ def main():
     # bench.benchmark(parameters, routes, parallel=False)
     
     #'segment_length':[3],
-    results_path = f'/its/home/sk526/ant_world_alg_bench/Results/newant/{string_date}_test'
+    results_path = f'/its/home/sk526/ant_world_alg_bench/Results/newant/{string_date}_test_pm part'
     routes_path = '/its/home/sk526/ant_world_alg_bench/new-antworld/curve-bins'
     parameters = {'repos_thresh':[.3], 
                   'r': [0.05], 
@@ -30,7 +30,7 @@ def main():
                 #  'edge_range': [(180, 200), False],
                 #  'loc_norm': [{'kernel_shape':(5, 5)}, False],
                   'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
-                  'window': [15, 20, 25, -15],
+                  'window': [0],
                   'matcher': ['corr'],
                   }
 

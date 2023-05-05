@@ -7,14 +7,19 @@ sys.path.append(os.getcwd())
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from source.utils import check_for_dir_and_create
+from source.utils import check_for_dir_and_create, meancurv2d
 import seaborn as sns
+from source.routedatabase import Route, load_routes
+import yaml
 sns.set_context("paper", font_scale=1)
 
-directory = '2023-01-25_mid_update'
+directory = '2023-04-26_test'
+results_path = os.path.join('Results', 'newant', directory)
 fig_save_path = os.path.join('Results', 'newant', directory)
 data = pd.read_csv(os.path.join(fig_save_path, 'results.csv'), index_col=False)
-
+with open(os.path.join(results_path, 'params.yml')) as fp:
+    params = yaml.load(fp)
+routes_path = params['routes_path']
 # Convert list of strings to actual list of lists
 data['errors'] = data['errors'].apply(eval)
 data['dist_diff'] = data['dist_diff'].apply(eval)
@@ -38,18 +43,36 @@ traj = data.loc[(data['matcher'] == matcher)
                 #& (data['loc_norm'] == loc_norm)]
 
 
-
-grouped = traj.groupby(['window', 'route_id'])["trial_fail_count"].apply(sum).to_frame("trial_fail_count").reset_index()
+method = np.median
+grouped = traj.groupby(['window', 'route_id'])["trial_fail_count"].apply(method).to_frame("trial_fail_count").reset_index()
 
 # pm_data = grouped.loc[grouped['window'] == 0]
 # plt.plot(pm_data['route_id'], pm_data['mean_error'], label='PM')
 
-w_size = pd.unique(data['window'])
-for w in w_size:
-    smw_data = grouped.loc[grouped['window'] == w]
-    plt.plot(smw_data['route_id'], smw_data["trial_fail_count"], label=f'w={w}')
+# Get the curvatures here
+route_ids = pd.unique(grouped['route_id'])
+curvatures = []
+routes = load_routes(routes_path, route_ids, read_imgs=False)
+for route in routes:
+    route_dict = route.get_route_dict()
+    k = meancurv2d(route_dict['x'], route_dict['y'])
+    curvatures.append(k)
+curvatures = np.array(curvatures)
 
-plt.xlabel('routes in increasing curvature')
-plt.ylabel('mean trial fails')
-plt.legend()
+ind = np.argsort(curvatures)
+curvatures = curvatures[ind]
+
+# Plot a line of the median tfc across the repeats for each window size
+w_size = pd.unique(data['window'])
+fig , ax = plt.subplots(figsize=(8, 5))
+for w in w_size:
+    w_data = grouped.loc[grouped['window'] == w]
+    tfc_sorted = w_data["trial_fail_count"].to_numpy()[ind]
+    ax.plot(route_ids, tfc_sorted, label=f'w={w}')
+ax.set_xlabel('routes in increasing curvature')
+ax.set_ylabel('median trial fails')
+ax.legend()
 plt.show()
+
+
+
