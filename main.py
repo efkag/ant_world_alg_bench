@@ -1,4 +1,7 @@
 from source import cbench
+from datetime import date
+today = date.today()
+string_date = today.strftime("%Y-%m-%d")
 # import navbench
 
 def main():
@@ -16,22 +19,25 @@ def main():
     # bench.benchmark(parameters, routes, parallel=False)
     
     #'segment_length':[3],
-    results_path = '/its/home/sk526/ant_world_alg_bench/Results/newant/2023-01-25_mid_update'
+    results_path = f'/its/home/sk526/ant_world_alg_bench/Results/newant/{string_date}_test_pm part'
     routes_path = '/its/home/sk526/ant_world_alg_bench/new-antworld/curve-bins'
     parameters = {'repos_thresh':[.3], 
                   'r': [0.05], 
-                  't': [200], 
+                  't': [300], 
                   'blur': [True],
                   'shape': [(180, 80)],
                 #  'wave' : [True, False], 
                 #  'edge_range': [(180, 200), False],
                 #  'loc_norm': [{'kernel_shape':(5, 5)}, False],
                   'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
-                  'window': [15, 20, 25, -15, 0],
-                  'matcher': ['corr']
+                  'window': [0],
+                  'matcher': ['corr'],
                   }
 
     routes = [*range(20)]
-    cbench.benchmark(results_path, routes_path, parameters, routes, parallel=True)
+    num_of_repeats = 3
+    parameters['repeat'] = [*range(num_of_repeats)]
+    cbench.benchmark(results_path, routes_path, parameters, routes, 
+                    parallel=True, num_of_repeats=num_of_repeats)
 if __name__ == "__main__":
     main()

@@ -66,7 +66,7 @@ def log_error_points(route, traj, thresh=0.5, target_path=None):
         route_match_i = index_log[i]
         point_ang_error = traj['errors'][i]
         # Analysis only for points that have a distance more than the threshold awayfrom the route
-        if min_dist > thresh:
+        if min_dist >= thresh:
             point_path = os.path.join(logs_path, f'{i}-error={round(point_ang_error, 2)}')
             check_for_dir_and_create(point_path)
             # Save window images or 
@@ -250,6 +250,9 @@ def d2i_eval(imgs, d_range=(-180, 180)):
     return depths/integs
 
 def d2i_rmfs_eval(rsims):
+    rsims = np.array(rsims)
+    if len(rsims.shape) < 2:
+        rsims = np.expand_dims(rsims, axis=0)
     depths = np.max(rsims, axis=1)-np.min(rsims, axis=1)
     integs = np.trapz(rsims, axis=1)
-    return depths/integs
+    return np.squeeze(depths/integs)

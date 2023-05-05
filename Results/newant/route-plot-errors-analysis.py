@@ -13,10 +13,11 @@ from source.routedatabase import Route
 import yaml
 sns.set_context("paper", font_scale=1)
 
-directory = '2023-01-20_mid_update'
-fig_save_path = os.path.join('Results', 'newant', directory)
-data = pd.read_csv(os.path.join(fig_save_path, 'results.csv'), index_col=False)
-with open(os.path.join(fig_save_path, 'params.yml')) as fp:
+directory = '2023-04-20_test'
+results_path = os.path.join('Results', 'newant', directory)
+fig_save_path = os.path.join('Results', 'newant', directory, 'analysis')
+data = pd.read_csv(os.path.join(results_path, 'results.csv'), index_col=False)
+with open(os.path.join(results_path, 'params.yml')) as fp:
     params = yaml.load(fp)
 routes_path = params['routes_path']
 # Convert list of strings to actual list of lists
@@ -29,7 +30,7 @@ data['th'] = data['th'].apply(literal_eval)
 
 
 # Plot a specific route
-route_id = 5
+route_id = 7
 fig_save_path = os.path.join(fig_save_path, f"route{route_id}")
 check_for_dir_and_create(fig_save_path)
 path = os.path.join(routes_path, f"route{route_id}")
@@ -41,9 +42,10 @@ blur = True
 g_loc_norm = "{'sig1': 2, 'sig2': 20}"
 loc_norm = 'False'
 threshold = 0
+repeat_no = 0
 
-figsize = (6, 6)
-title = 'A'
+figsize = (10, 10)
+title = None
 
 
 traj = data.loc[(data['matcher'] == matcher) 
@@ -54,6 +56,9 @@ traj = data.loc[(data['matcher'] == matcher)
                 & (data['gauss_loc_norm'] == g_loc_norm) 
                 # & (data['loc_norm'] == loc_norm) 
                 & (data['route_id'] == route_id)]
+
+### for repeats
+traj = traj.loc[traj['num_of_repeat'] == repeat_no]
 
 # traj = data.to_dict(orient='records')[0]
 if window:
