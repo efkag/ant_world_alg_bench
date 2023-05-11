@@ -12,12 +12,13 @@ from ast import literal_eval
 import yaml
 from source.utils import cor_dist, mae, check_for_dir_and_create, scale2_0_1
 from source.analysis import flip_gauss_fit, eval_gauss_rmf_fit, d2i_rmfs_eval
+from collections import deque
 sns.set_context("paper", font_scale=1)
 
 
-directory = '2023-01-20_mid_update'
+directory = '2023-04-21_test'
 results_path = os.path.join('Results', 'newant', directory)
-fig_save_path = os.path.join('Results', 'newant', directory, 'analysis')
+# fig_save_path = os.path.join('Results', 'newant', directory, 'analysis')
 with open(os.path.join(results_path, 'params.yml')) as fp:
     params = yaml.load(fp)
 routes_path = params['routes_path']
@@ -41,7 +42,8 @@ loc_norm = 'False' # {'kernel_shape':(5, 5)}
 gauss_loc_norm = "{'sig1': 2, 'sig2': 20}"
 res = '(180, 80)'
 threshold = 0
-figsize = (6, 3)
+repeat_no = 0
+figsize = (8, 4)
 
 
 # filter data
@@ -52,6 +54,7 @@ traj = data.loc[(data['matcher'] == matcher) & (data['res'] == res)
                 #& (data['loc_norm'] == loc_norm) 
                 & (data['gauss_loc_norm'] == gauss_loc_norm)
                 & (data['route_id'] == route_id)
+                # & (data['num_of_repeat'] == repeat_no)
                 ]
 traj = traj.to_dict(orient='records')[0]
 traj['window_log'] = literal_eval(traj['window_log'])
@@ -59,7 +62,8 @@ traj['window_log'] = literal_eval(traj['window_log'])
 
 traj['best_sims'] = literal_eval(traj['best_sims'])
 traj['rmfs'] = np.load(os.path.join(results_path, traj['rmfs_file']+'.npy'), allow_pickle=True)
-
+if traj.get('tfc_idxs'):
+    traj['tfc_idxs'] = literal_eval(traj['tfc_idxs'])
 
 
 ####
@@ -88,13 +92,19 @@ def thresh_log_update(prev_sim, curr_sim, window, thresh=0.1):
 def moving_average(x, w):
     return np.convolve(x, np.ones(w), 'valid') / w
 
-def sma_log_update(prev_sim, curr_sim, window, ):
-    
-    if curr_sim > thresh or window <= min_window:
+d2i_q = deque(maxlen=3)
+d2i_q.append(0)
+prev_sma = 0
+def d2i_log_update(prev_sim, curr_sim, curr_qmet, window, prev_sma):
+    d2i_q.append(curr_qmet)
+    sma = sum(d2i_q) / len(d2i_q)
+    # if sma < prev_sma or window <= min_window:
+    if (sma < prev_sma and curr_sim > prev_sim) or window <= min_window:
         window += round(min_window/np.log(window))
     else:
         window -= round(np.log(window))
-    return window
+    prev_sma = sma
+    return window, prev_sma
 
 
 ########
@@ -122,12 +132,12 @@ ax2.plot(np.diff(traj['window_log'][start_i:end_i], axis=1), color="orange", lab
 ax2.plot(window_log, label='thresh=0.1%')
 ax1.legend(loc=2)
 ax2.legend(loc=0)
-plt.show()
+#plt.show()
 plt.close()
 
 
 ####################
-# replot for the entire trajectory
+# Thresh window update
 w_size = np.squeeze(np.diff(traj['window_log'], axis=1))
 thresh = [.1, 0.05]
 window_per_thresh = []
@@ -144,9 +154,8 @@ for th in thresh:
         window_log.append(window)
     window_per_thresh.append(window_log)
 
-###### 
-# # test another criterion
 # use eval metrics to get a score
+# get all the best match rmfs
 rsims = []
 for i in range(len(traj['rmfs'])):
     w = traj.get('window_log')[i]
@@ -157,8 +166,28 @@ gauss_scores = eval_gauss_rmf_fit(rsims)
 #weighted_gauss_scores = eval_gauss_rmf_fit(rsims, weighted=True)
 #rsims = np.array(rsims)
 d2i_scores = d2i_rmfs_eval(rsims)
+sma_d2i = moving_average(d2i_scores, 3)
 
 
+####### d2i log metric update
+window = w_size[0]
+d2i_window_log = []
+d2i_window_log.append(window)
+prev_sma = 0
+for i in range(len(traj['best_sims'])-1):
+    curr_met = d2i_scores[i]
+    #prev_met = d2i_scores[i]
+    curr_sim = traj['best_sims'][i+1]
+    prev_sim = traj['best_sims'][i]
+
+    # add here a new criterion for window update
+    window, prev_sma = d2i_log_update(prev_sim, curr_sim, curr_met, window, prev_sma)
+    d2i_window_log.append(window)
+
+
+
+#Ploting
+###############################################################################
 fig, ax1 = plt.subplots(figsize=figsize)
 #plt.title(title, loc="left")
 #ax1.plot(range(len(traj['abs_index_diff'])), traj['abs_index_diff'], label='index missmatch')
@@ -166,14 +195,18 @@ ax1.set_ylim([0, 260])
 ax1.plot(range(len(w_size)), w_size, label='window size')
 for i, th in enumerate(thresh):
     ax1.plot(window_per_thresh[i], label=f'thresh={th}%')
+#ax1.plot(d2i_window_log, label='d2i w. update' )
 
+ylims = ax1.get_ylim()
+ax1.vlines(traj.get('tfc_idxs'), ymin=ylims[0], ymax=ylims[1], linestyles='dashed', colors='r', label='fail points')
 ax1.set_ylabel('route index scale')
-
 ax2 = ax1.twinx()
 ax2.plot(range(len(traj['best_sims'])), traj['best_sims'], label='image diff.', color='g')
-ax2.plot(gauss_scores, label='gauss', color='m')
-ax2.set_ylim([0.0, 1.0])
-ax2.set_ylabel(f'{matcher} image distance')
+ax2.plot(scale2_0_1(sma_d2i), label='sma_d2i', color='c')
+#ax2.plot(gauss_scores, label='gauss', color='m')
+#ax2.plot(scale2_0_1(d2i_scores), label='d2i', color='m')
+#ax2.set_ylim([0.0, 1.0])
+ax2.set_ylabel(f'{matcher} image distance and quality metric score')
 ax1.legend(loc=0)
 ax2.legend(loc=2)
 plt.show()
@@ -183,8 +216,11 @@ plt.show()
 ## plot the just scores 
 fig, ax1 = plt.subplots(figsize=figsize)
 
-ax1.plot(scale2_0_1(gauss_scores), label='gauss')
+#ax1.plot(scale2_0_1(gauss_scores), label='gauss')
 ax1.plot(scale2_0_1(d2i_scores), label='d2i')
+ax1.plot(scale2_0_1(sma_d2i), label='sma_d2i')
+ylims = ax1.get_ylim()
+ax1.vlines(traj.get('tfc_idxs'), ymin=ylims[0], ymax=ylims[1], linestyles='dashed', colors='r', label='fail points')
 ax1.set_ylabel('quality scores')
 ax1.set_xlabel('test points')
 #plt.plot(scale2_0_1(weighted_gauss_scores), label='w_gauss')
@@ -192,9 +228,9 @@ ax2 = ax1.twinx()
 ax2.plot(range(len(traj['best_sims'])), traj['best_sims'], label='image diff.', color='g')
 ax2.set_ylabel('cc image distance')
 #ax2.set_ylim([0.0, 1.0])
-
-plt.legend()
-plt.show()
+ax1.legend(loc=2)
+ax2.legend(loc=0)
+#plt.show()
 
 
 #######################
@@ -216,4 +252,4 @@ ax2.plot(range(len(traj['best_sims'])), traj['best_sims'], label='best sim', col
 ax2.set_ylabel('scores')
 ax1.legend(loc=2)
 ax2.legend(loc=0)
-plt.show()
+#plt.show()

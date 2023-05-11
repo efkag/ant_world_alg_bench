@@ -16,7 +16,7 @@ from source.routedatabase import Route
 sns.set_context("paper", font_scale=1)
 
 
-directory = '2023-01-20_mid_update'
+directory = '2023-04-20_test'
 results_path = os.path.join('Results', 'newant', directory)
 fig_save_path = os.path.join('Results', 'newant', directory, 'analysis')
 with open(os.path.join(results_path, 'params.yml')) as fp:
@@ -34,11 +34,10 @@ data['th'] = data['th'].apply(literal_eval)
 data['matched_index'] = data['matched_index'].apply(literal_eval)
 
 # Plot a specific route
-route_id = 5
-fig_save_path = os.path.join(fig_save_path, f'15route{route_id}')
-check_for_dir_and_create(fig_save_path)
+route_id = 7
+
 r_path = os.path.join(routes_path ,f'route{route_id}')
-window = 15
+window = -15
 blur =  True
 matcher = 'corr'
 edge = 'False'# '(180, 200)'
@@ -46,8 +45,12 @@ loc_norm = 'False' # {'kernel_shape':(5, 5)}
 gauss_loc_norm = "{'sig1': 2, 'sig2': 20}"
 res = '(180, 80)'
 threshold = 0
+repeat_no = 0
 figsize = (10, 10)
 title = 'D'
+
+fig_save_path = os.path.join(fig_save_path, f"route{route_id}",  f'w={window}route{route_id}')
+check_for_dir_and_create(fig_save_path)
 
 traj = data.loc[(data['matcher'] == matcher) & (data['res'] == res) 
                 #& (data['edge'] == edge) 
@@ -56,6 +59,8 @@ traj = data.loc[(data['matcher'] == matcher) & (data['res'] == res)
                 #& (data['loc_norm'] == loc_norm) 
                 & (data['gauss_loc_norm'] == gauss_loc_norm)
                 & (data['route_id'] == route_id)
+                ##### with repeats
+                & (data['num_of_repeat'] == repeat_no)
                 ]
 
 traj = traj.to_dict(orient='records')[0]

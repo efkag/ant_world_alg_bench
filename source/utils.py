@@ -98,6 +98,7 @@ def plot_route(route, traj=None, scale=None, window=None, windex=None, save=Fals
         fig.savefig(path + '/' + str(windex) + '.png')
         plt.close(fig)
     elif save:
+        path = os.path.join(path, 'routemap.png')
         print(f'fig saved at: {path}')
         fig.savefig(path)
 
@@ -635,6 +636,59 @@ def cos_sim(a, b):
     :return:
     """
     return np.dot(a, b) / (norm(a) * norm(b))
+
+
+def entropy_im(img, bins=256):
+    #get the histogram
+    amarg = np.histogramdd(np.ravel(img), bins = bins)[0]/img.size
+    amarg = amarg[np.ravel(amarg) > 0]
+    return -np.sum(np.multiply(amarg, np.log2(amarg)))
+
+
+def mutual_inf(a, b, bins=256):
+    if isinstance(b, list):
+        return [_mut_inf(a, img, bins) for img in b]
+
+    return mutual_inf(a, b, bins)
+
+
+def _mut_inf(a, b, bins=256):
+    hist_2d, x_edges, y_edges = np.histogram2d(a.ravel(), b.ravel(), bins=bins)
+    pab = hist_2d / float(np.sum(hist_2d))
+    pa = np.sum(pab, axis=1) # marginal for x over y
+    pb = np.sum(pab, axis=0) # marginal for y over x
+    pa_pb = pa[:, None] * pb[None, :] # Broadcast to multiply marginals
+    # Now we can do the calculation using the pxy, px_py 2D arrays
+    nzs = pab > 0 # Only non-zero pxy values contribute to the sum
+    return np.sum(pab[nzs] * np.log(pab[nzs] / pa_pb[nzs]))
+
+
+def entropy_dist(a, b, bins=256):
+    if isinstance(b, list):
+        return [_entropy_dist(a, img, bins) for img in b]
+
+    return _entropy_dist(a, b, bins)
+
+
+def _entropy_dist(a, b, bins=256):
+    ## how many bins? 256 always? 
+    # ask andy here for join entropy vs H(a)
+    # amarg = np.histogram(np.ravel(a), bins = bins)[0]/a.size
+    # amarg = amarg[amarg > 0]
+    # aentropy = -np.sum(np.multiply(amarg, np.log2(amarg)))
+
+    hist_2d, x_edges, y_edges = np.histogram2d(a.ravel(), b.ravel(), bins=bins)
+    pab = hist_2d / float(np.sum(hist_2d))
+    pa = np.sum(pab, axis=1) # marginal for a over b
+    pb = np.sum(pab, axis=0) # marginal for b over a
+    pa_pb = pa[:, None] * pb[None, :] # Broadcast to multiply marginals
+    # Now we can do the calculation using the pxy, px_py 2D arrays
+    nzs = pab > 0 # Only non-zero pab values contribute to the sum
+
+    pab_joint = pab[np.logical_and(pab, pab)]
+    ent_pab = -np.sum(pab_joint * np.log(pab_joint))
+    #here from practical rasons i could also subtract from the entropy of a
+    return ent_pab - (np.sum(pab[nzs] * np.log(pab[nzs] / pa_pb[nzs])))
 
 
 def rmf(query_img, ref_imgs, matcher=mae, d_range=(0, 360), d_step=1):

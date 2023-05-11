@@ -1,8 +1,9 @@
-from tracemalloc import start
+import os
 import numpy as np
 import pandas as pd
 import copy
 import matplotlib
+from matplotlib import cm
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import axes3d
 from source.utils import pol2cart_headings
@@ -20,7 +21,7 @@ def nans_imgshow(img):
     plt.show()
 
 
-def plot_3d(data, show=True, rows_cols_idx=111, title=''):
+def plot_3d(data, show=True, rows_cols_idx=111, title='', save=False, path=''):
     '''
     Plots the 2d data given in a 3d wireframe.
     Assumes first dimension is number of images,
@@ -28,6 +29,8 @@ def plot_3d(data, show=True, rows_cols_idx=111, title=''):
     :param data:
     :return:
     '''
+    if not path:
+        path='3dplot.png'
     # The second dimension of the data is the search angle
     # i.e the degree rotated to the left (-deg) and degree rotated to the right (+deg)
     deg = round(data.shape[1]/2)
@@ -37,11 +40,17 @@ def plot_3d(data, show=True, rows_cols_idx=111, title=''):
     y = np.linspace(0, no_of_imgs, no_of_imgs)
     X, Y = np.meshgrid(x, y)
 
-    # fig = plt.figure()
-    # ax = fig.add_subplot(111, projection='3d')
-    ax = plt.subplot(rows_cols_idx, projection='3d')
-    ax.plot_wireframe(X, Y, data)
+    fig = plt.figure()
+    ax = fig.add_subplot(rows_cols_idx, projection='3d')
+    # ax = plt.subplot(rows_cols_idx, projection='3d')
+    ax.plot_surface(X, Y, data, cmap=cm.coolwarm)
     ax.title.set_text(title)
+    ax.set_ylabel('Images in transaltion (image index)')
+    ax.set_xlabel('Search angle in degrees')
+    ax.set_zlabel('Distance measure', rotation=45)
+    ax.view_init(azim=45)
+    if save: fig.savefig(path)    
+
     if show: plt.show()
 
 def img_3d(img, show=True, title=''):

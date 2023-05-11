@@ -34,8 +34,11 @@ class Agent:
             self.noise = lambda : np.random.normal(scale=pitch_roll_sig)
         else:
             self.noise = lambda : 0
+        # trial_fail_count (TFC) params
         self.repos_thresh = repos_thresh
         self.trial_fail_count = None
+        self.tfc_indices = []
+
         self.pipe = Pipeline()
         # the route object
         self.route = None
@@ -45,6 +48,9 @@ class Agent:
         self.prev_dist = 0
         # keep track of the index 
         self.prev_idx = 0
+
+    def set_seed(self, seed):
+        np.random.seed(seed)
 
     def record_route(self, route, path, route_id=1):
         check_for_dir_and_create(path)
@@ -106,15 +112,14 @@ class Agent:
     def test_nav(self, coords, r=0.05, t=100, sigma=0.1, **kwargs):
         #TODO: Here we need to initialise the progrees tracking variables. 
         # It is not clear how that would work with the route segmentation
-        # keep track of distance and the index progress
-        self.prev_dist = 0
+        # keep track of the index progress
+        #TODO: prev index should be initialised as the first index
         self.prev_idx = 0
 
         self.repos_thresh = kwargs.get('repos_thresh')
         # random initial position and heading
         # near the first location of the route
         if sigma:
-            np.random.seed(0)
             self.h = np.random.randint(0, 360)
             x = coords['x']
             x = np.random.normal(x, sigma)
@@ -125,7 +130,6 @@ class Agent:
             self.xy = (coords['x'], coords['y'])
             self.h = coords['yaw']
 
-        self.prev_dist = 0
 
         # Place agent to the initial position and render the image
         img = self.get_img(self.xy, self.h)
@@ -164,23 +168,25 @@ class Agent:
                 self.xy = xy
                 self.trial_fail_count += 1
                 self.nav.reset_window(idx)
+                self.tfc_indices.append(self.i)
                 return
-            # check distance form the start of the route
-            # dist = self.route.dist_from_start(self.xy)
-            # if (self.i + 1) % 10 == 0:
-            #     if dist <= self.prev_dist:
-            #         self.xy = xy
-            #         self.trial_fail_count += 1
-            #         self.nav.reset_window(idx)
-            #     self.prev_dist = dist
-            
-            # check progress of the index closest to the query point
 
+            # check progress of the index closest to the query point
             if idx <= self.prev_idx:
                 self.xy = xy
                 self.trial_fail_count += 1
                 self.nav.reset_window(idx)
+                self.tfc_indices.append(self.i)
             self.prev_idx = idx
+        
+        # check distance form the start of the route
+        # dist = self.route.dist_from_start(self.xy)
+        # if (self.i + 1) % 10 == 0:
+        #     if dist <= self.prev_dist:
+        #         self.xy = xy
+        #         self.trial_fail_count += 1
+        #         self.nav.reset_window(idx)
+        #     self.prev_dist = dist
 
 
     def segment_test(self, route, nav, segment_length=3, **kwargs):
@@ -199,6 +205,7 @@ class Agent:
 
     def run_agent(self, route, nav, segment_length=None, **kwargs):
         self.trial_fail_count = 0
+        self.tfc_indices = []
         self.route = route
         self.pipe = Pipeline(**kwargs)
         self.nav = nav
@@ -214,7 +221,10 @@ class Agent:
         self.record_route(grid, path)
 
     def get_trial_fail_count(self):
-        return self.trial_fail_count if self.rec_grid else None
+        return self.trial_fail_count
+    
+    def get_tfc_indices(self):
+        return self.tfc_indices
 
 
 """

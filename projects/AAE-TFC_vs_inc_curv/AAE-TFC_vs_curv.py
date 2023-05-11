@@ -17,7 +17,7 @@ from ast import literal_eval
 fig_save_path = os.path.join(fwd, 'figures')
 check_for_dir_and_create(fig_save_path)
 
-directory = '2022-11-23_mid_update'
+directory = '2023-01-25_mid_update'
 fig_save_path = os.path.join('Results', 'newant', directory)
 data = pd.read_csv(os.path.join(fig_save_path, 'results.csv'), index_col=False)
 # Convert list of strings to actual list of lists

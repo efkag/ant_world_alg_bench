@@ -114,13 +114,14 @@ def bench(params, routes_path, route_ids):
     return log
 
 
-def benchmark(results_path, routes_path, params, route_ids,  parallel=False, cores=None):
+def benchmark(results_path, routes_path, params, route_ids,  parallel=False, cores=None, num_of_repeats=None):
 
     assert isinstance(params, dict)
     assert isinstance(route_ids, list)
 
     if parallel:
-        bench_paral(results_path, params, routes_path, route_ids, cores)
+        bench_paral(results_path, params, routes_path, route_ids, cores, 
+                    num_of_repeats=num_of_repeats)
         # log = unpack_results(log)
     else:
         log = bench(params, routes_path, route_ids)
@@ -151,13 +152,18 @@ def unpack_results(results):
     return log
 
 
-def bench_paral(results_path, params, routes_path, route_ids=None, cores=None):
+def bench_paral(results_path, params, routes_path, route_ids=None, cores=None, num_of_repeats=None):
     # save the parmeters of the test in a json file
     check_for_dir_and_create(results_path)
     param_path = os.path.join(results_path, 'params.yml')
     temp_params = copy.deepcopy(params)
     temp_params['routes_path'] = routes_path
     temp_params['route_ids'] = route_ids
+    # if there are no repeats then only one repeat per route
+    if not num_of_repeats:  
+        num_of_repeats = 1
+    temp_params['num_of_repeats'] = num_of_repeats
+    #save params to yaml
     with open(param_path, 'w') as fp:
         yaml.dump(temp_params, fp)
 
@@ -187,7 +193,10 @@ def bench_paral(results_path, params, routes_path, route_ids=None, cores=None):
     # Pickle the parameter object to use in the worker script
     for i, chunk in enumerate(chunks):
         params = {'chunk': chunk, 'route_ids': route_ids, 
-        'routes_path': routes_path, 'results_path':results_path, 'i': i}
+                'routes_path': routes_path, 
+                'results_path':results_path, 
+                'i': i,
+                'num_of_repeats':num_of_repeats}
         with open('chunks/chunk{}.p'.format(i), 'wb') as file:
             pickle.dump(params, file)
     print('{} chunks pickled'.format(no_of_chunks))
