@@ -75,18 +75,18 @@ class Benchmark:
         with open(param_path, 'w') as fp:
             yaml.dump(params, fp)
 
-
-        print(multiprocessing.cpu_count(), ' CPU cores found')
+        existing_cores = multiprocessing.cpu_count()
+        print(existing_cores, ' CPU cores found')
 
         grid = self.get_grid_dict(params)
         shared = self._init_shared()
         self.total_jobs = len(grid)
         shared['total_jobs'] = self.total_jobs * len(route_ids)
 
-        if self.total_jobs < multiprocessing.cpu_count():
+        if self.total_jobs < existing_cores:
             no_of_chunks = self.total_jobs
         else:
-            no_of_chunks = multiprocessing.cpu_count() - 1
+            no_of_chunks = existing_cores - 1
         # Generate list chunks of grid combinations
         chunks = self.get_grid_chunks(grid, no_of_chunks)
 
@@ -210,12 +210,12 @@ class Benchmark:
 
         log = {'route_id': [], 'blur': [], 'edge': [], 'res': [], 'window': [], 'matcher': [],
              'deg_range':[], 'mean_error': [], 'seconds': [], 'errors': [], 
-             'abs_index_diff': [], 'window_log': [], 'dist_diff': [], 
-             'tx': [], 'ty': [], 'th': [], 'best_sims':[], 
+             'abs_index_diff': [], 'window_log': [], 'matched_index': [], 'dist_diff': [], 
+             'tx': [], 'ty': [], 'th': [],'ah': [] ,'best_sims':[], 
              'loc_norm':[], 'gauss_loc_norm':[], 'wave':[]}
         
         # Load all routes
-        routes = load_routes(routes_path, route_ids, max_dist=dist)
+        routes = load_routes(routes_path, route_ids, max_dist=dist, grid_path=grid_path)
         #  Go though all combinations in the chunk
         for combo in chunk:
 
@@ -231,10 +231,10 @@ class Benchmark:
                 test_imgs = pipe.apply(route.get_qimgs())
                 # Run navigation algorithm
                 if window:
-                    nav = spm.SequentialPerfectMemory(route_imgs, matcher, deg_range=(-180, 180), window=window)
+                    nav = spm.SequentialPerfectMemory(route_imgs, matcher, deg_range=(-180, 180), window=window, **combo)
                     recovered_heading, window_log = nav.navigate(test_imgs)
                 else:
-                    nav = pm.PerfectMemory(route_imgs, matcher)
+                    nav = pm.PerfectMemory(route_imgs, matcher, deg_range=(0, 180), **combo)
                     recovered_heading = nav.navigate(test_imgs)
                 toc = time.perf_counter()
                 # Get time complexity
@@ -247,17 +247,19 @@ class Benchmark:
                 abs_index_diffs = np.absolute(np.subtract(nav.get_index_log(), min_dist_index))
                 dist_diff = calc_dists(route.get_xycoords(), min_dist_index, matched_index)
                 mean_route_error = np.mean(errors)
-                deg_range = nav.deg_range()
+                window_log = nav.get_window_log()
+                rec_headings = nav.get_rec_headings()
+                deg_range = nav.deg_range
 
-                log['loc_norm'].append(combo.get('loc_norm'))
-                log['gauss_loc_norm'].append(combo.get('gauss_loc_norm'))
-                log['wave'].append(combo.get('wave'))
 
                 log['route_id'].append(route.get_route_id())
                 log['blur'].append(combo.get('blur'))
                 log['edge'].append(combo.get('edge_range'))
                 log['res'].append(combo.get('shape'))
                 log['window'].append(window)
+                log['loc_norm'].append(combo.get('loc_norm'))
+                log['gauss_loc_norm'].append(combo.get('gauss_loc_norm'))
+                log['wave'].append(combo.get('wave'))
                 log['matcher'].append(matcher)
                 log['deg_range'].append(deg_range)
                 log['mean_error'].append(mean_route_error)
@@ -266,6 +268,8 @@ class Benchmark:
                 log['tx'].append(traj['x'].tolist())
                 log['ty'].append(traj['y'].tolist())
                 log['th'].append(traj['heading'])
+                log['ah'].append(recovered_heading)
+                log['matched_index'].append(matched_index)
                 log['abs_index_diff'].append(abs_index_diffs.tolist())
                 log['dist_diff'].append(dist_diff.tolist())
                 log['errors'].append(errors)
