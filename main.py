@@ -7,7 +7,7 @@ from source import navbench
 
 def static_bench():
     results_path = f'/its/home/sk526/ant_world_alg_bench/Results/ftl/{string_date}'
-    routes_path = 'path/to/ftl/routes'
+    routes_path = '/its/home/sk526/sussex-ftl-dataset/repeating-routes/route1'
     # grid_path = '/home/efkag/PycharmProjects/ant_world_alg_bench/new-antworld/grid70'
     # parameters = {'blur': [True], 'segment_l': [3], 'shape': [(180, 50), (90, 25)], 'edge_range': [(180, 200)],
     #               'window': list(range(10, 12)), 'matcher': ['corr', 'rmse']}
@@ -23,8 +23,8 @@ def static_bench():
     routes = [1]
     bench = navbench.Benchmark(results_path, routes_path, 
                                grid_path=None, 
-                               filename='test.csv')
-    bench.benchmark(parameters, routes, parallel=True)
+                               filename='results.csv')
+    bench.benchmark(parameters, routes, parallel=True, cores=1)
 
 
 def live_bench():

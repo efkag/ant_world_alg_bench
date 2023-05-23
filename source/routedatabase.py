@@ -209,3 +209,13 @@ class BoBRoute:
     
     def get_route_dict(self):
         return self.route_dict
+    
+def load_routes(path, ids, suffix=None, **kwargs):
+    routes = []
+    for id in ids:
+        if suffix:
+            route_path = os.path.join(path, suffix)
+        route_path =  os.path.join(route_path, '{}'.format(id))
+        r = Route(route_path, id, **kwargs)
+        routes.append(r)
+    return routes

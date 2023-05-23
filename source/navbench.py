@@ -70,7 +70,7 @@ class Benchmark:
         shared = manager.dict({'jobs': 0, 'total_jobs': 0})
         return shared
 
-    def bench_paral(self, results_path,  params, route_ids=None):
+    def bench_paral(self, results_path,  params, route_ids=None, cores=None):
         # save the parmeters of the test in a json file
         check_for_dir_and_create(results_path)
         param_path = os.path.join(results_path, 'params.yml')
@@ -78,17 +78,23 @@ class Benchmark:
             yaml.dump(params, fp)
 
         existing_cores = multiprocessing.cpu_count()
-        print(existing_cores, ' CPU cores found')
+        if cores and cores > existing_cores:
+            cores = existing_cores - 1
+        elif cores and cores <= existing_cores:
+            cores = cores
+        else:
+            cores = existing_cores - 1
+        print(existing_cores, ' CPU cores found. Using ', cores, ' cores')
 
         grid = self.get_grid_dict(params)
         shared = self._init_shared()
         self.total_jobs = len(grid)
         shared['total_jobs'] = self.total_jobs * len(route_ids)
 
-        if self.total_jobs < existing_cores:
+        if self.total_jobs < cores:
             no_of_chunks = self.total_jobs
         else:
-            no_of_chunks = existing_cores - 1
+            no_of_chunks = cores
         # Generate list chunks of grid combinations
         chunks = self.get_grid_chunks(grid, no_of_chunks)
 
@@ -183,14 +189,14 @@ class Benchmark:
             self.total_jobs = self.total_jobs * len(params[k])
         print('Total number of jobs: {}'.format(self.total_jobs))
 
-    def benchmark(self, params, route_ids, parallel=False):
+    def benchmark(self, params, route_ids, parallel=True, cores=None):
 
         assert isinstance(params, dict)
         assert isinstance(route_ids, list)
 
         if parallel:
             self.log = None
-            self.log = self.bench_paral(params, route_ids)
+            self.log = self.bench_paral(params, route_ids, cores=cores)
             self.unpack_results()
         else:
             self.log = self.bench_singe_core(params, route_ids)
@@ -219,6 +225,7 @@ class Benchmark:
         
         # Load all routes
         routes = load_routes(routes_path, route_ids, max_dist=dist, grid_path=grid_path)
+        #TODO: here i need to make the query images and data for each route.
         #  Go though all combinations in the chunk
         for combo in chunk:
 
@@ -234,10 +241,10 @@ class Benchmark:
                 test_imgs = pipe.apply(route.get_qimgs())
                 # Run navigation algorithm
                 if window:
-                    nav = spm.SequentialPerfectMemory(route_imgs, matcher, deg_range=(-180, 180), window=window, **combo)
+                    nav = spm.SequentialPerfectMemory(route_imgs, matcher, window=window, **combo)
                     recovered_heading, window_log = nav.navigate(test_imgs)
                 elif window == 0:
-                    nav = pm.PerfectMemory(route_imgs, matcher, deg_range=(0, 180), **combo)
+                    nav = pm.PerfectMemory(route_imgs, matcher, **combo)
                     recovered_heading = nav.navigate(test_imgs)
                 # else:
                 #     infomaxParams = infomax.Params()
