@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import cv2 as cv
 import pandas as pd
@@ -5,7 +6,7 @@ from scipy.spatial.distance import cdist
 # TODO: Figre out why thsi import when used outsite of the package has to use the 'source.' 
 # and when used withing the package is is not needed. 
 from source.utils import calc_dists, travel_dist, pre_process, angular_error, seq_angular_error, travel_dist
-import os
+
 
 class Route:
     def __init__(self, path, route_id, read_imgs=True, grid_path=None, max_dist=0.2):
@@ -164,3 +165,47 @@ def load_routes(path, ids, **kwargs):
         routes.append(r)
     return routes
 
+
+class BoBRoute:
+
+    def __init__(self, path, read_imgs=True, unwraper=None):
+        self.path = path
+        self.read_imgs = read_imgs
+        self.proc_imgs = []
+        self.proc_qimgs= []
+        #self.route_id = str(route_id)
+        self.unwraper = unwraper
+        self.route_dict = self.load_route()
+        
+
+    def load_route(self):
+        route_data = pd.read_csv(os.path.join(self.path, 'database_entries.csv'), index_col=False)
+        route_data = route_data[route_data["X [mm]"].notnull()]
+        route_data.rename(str.strip, axis='columns', inplace=True, errors="raise")
+        # rename columns to filename,pitch,roll,x,y,yaw,z
+        route_data = route_data.to_dict('list')
+        key_maps = {'X [mm]': 'x', 'Y [mm]': 'y', 'Z [mm]':'z', 
+                    'Heading [degrees]':'yaw', 
+                    'IMU pitch [degrees]':'pitch', 
+                    'IMU roll [degrees]':'roll',
+                    'Filename':'filename'}
+        for k in key_maps:
+            route_data[key_maps[k]] = route_data.pop(k)
+        print(route_data.keys())
+        if self.read_imgs:
+            imgs = []
+            for i in route_data['filename']:
+                #careful the filenames contain a leading space
+                im_path = os.path.join(self.path, i.strip())
+                img = cv.imread(im_path, cv.IMREAD_GRAYSCALE)
+                imgs.append(img)
+            # unwrap the images
+            if self.unwraper:
+                self.unwraper = self.unwraper(imgs[0])
+                for i, im in enumerate(imgs):
+                    imgs[i] = self.unwraper.unwarp(im)
+            route_data['imgs'] = imgs
+        return route_data
+    
+    def get_route_dict(self):
+        return self.route_dict

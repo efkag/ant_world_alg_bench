@@ -130,7 +130,8 @@ class Benchmark:
                 # _, test_x, test_y, test_imgs, route_x, route_y, \
                 #     route_heading, route_imgs = load_route(route, self.dist)
                 route = Route(route_path, route_id, grid_path=self.grid_path)
-
+                
+                # TODO: here the query images need to be the othe repeat of the route!
                 tic = time.perf_counter()
                 # Preprocess images
                 test_imgs = pre_process(route.get_qimgs(), combo_dict)
