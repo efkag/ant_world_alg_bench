@@ -5,6 +5,7 @@ import pickle
 import os
 from source.utils import pre_process, calc_dists
 from source import seqnav as spm, perfect_memory as pm
+from source import infomax
 import pandas as pd
 import time
 import numpy as np
@@ -38,14 +39,16 @@ log = {'route_id': [], 't':[], 'blur': [], 'edge': [], 'res': [], 'window': [],
        'matcher': [], 'deg_range':[], 'segment_len': [], 'trial_fail_count':[], 'mean_error': [], 
        'seconds': [], 'errors': [], 'dist_diff': [], 'abs_index_diff': [], 'window_log': [], 
        'matched_index': [], 'tx': [], 'ty': [], 'th': [], 'ah': [], 'rmfs_file':[], 'best_sims':[],
-       'loc_norm':[], 'gauss_loc_norm':[], 'wave':[], 'num_of_repeat':[], 'tfc_idxs':[]}
+       'loc_norm':[], 'gauss_loc_norm':[], 'wave':[], 'num_of_repeat':[], 'tfc_idxs':[],
+       'nav-name':[]}
+
 agent = aw.Agent()
 
 #  Go though all combinations in the chunk
 for combo in chunk:
 
     matcher = combo['matcher']
-    window = combo['window']
+    window = combo.get('window')
     t = combo['t']
     segment_length = combo.get('segment_l')
     rpt = combo.get('repeat') # the repeat number
@@ -58,11 +61,15 @@ for combo in chunk:
         pipe = Pipeline(**combo)
         route_imgs = pipe.apply(route.get_imgs())
         # Run navigation algorithm
+        #TODO: Need to select navigator instance based on 
+        # information coming from the chunk combo
         if window:
             nav = spm.SequentialPerfectMemory(route_imgs, matcher, deg_range=(-180, 180), **combo)
-        else:
+        elif window == 0:
             nav = pm.PerfectMemory(route_imgs, matcher, deg_range=(-180, 180), **combo)
-
+        else:
+            infomaxParams = infomax.Params()
+            nav = infomax.InfomaxNetwork(infomaxParams, route_imgs, deg_range=(-180, 180), **combo)
         # if segment_length:
         #     traj, nav = agent.segment_test(route, nav, segment_length=segment_length, t=t, r=r, sigma=None, preproc=combo)
         # else:
@@ -77,8 +84,12 @@ for combo in chunk:
         errors, min_dist_index = route.calc_errors(traj)
         # Difference between matched index and minimum distance index and distance between points
         matched_index = nav.get_index_log()
-        abs_index_diffs = np.absolute(np.subtract(nav.get_index_log(), min_dist_index))
-        dist_diff = calc_dists(route.get_xycoords(), min_dist_index, matched_index)
+        if matched_index:
+            abs_index_diffs = np.absolute(np.subtract(nav.get_index_log(), min_dist_index)).tolist()
+            dist_diff = calc_dists(route.get_xycoords(), min_dist_index, matched_index).tolist()
+        else:
+            abs_index_diffs = None
+            dist_diff = None
         mean_route_error = np.mean(errors)
         window_log = nav.get_window_log()
         rec_headings = nav.get_rec_headings()
@@ -90,7 +101,7 @@ for combo in chunk:
         np.save(rmfs_path, rmf_logs)
 
 
-
+        log['nav-name'].append(nav.get_name())
         log['route_id'].extend([route.get_route_id()])
         log['t'].append(t)
         log['num_of_repeat'].append(rpt)
@@ -115,8 +126,8 @@ for combo in chunk:
         log['th'].append(traj['heading'].tolist())
         log['ah'].append(rec_headings)
         log['matched_index'].append(matched_index)
-        log['abs_index_diff'].append(abs_index_diffs.tolist())
-        log['dist_diff'].append(dist_diff.tolist())
+        log['abs_index_diff'].append(abs_index_diffs)
+        log['dist_diff'].append(dist_diff)
         log['errors'].append(errors)
         log['best_sims'].append(nav.get_best_sims())
         jobs += 1
