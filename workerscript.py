@@ -63,13 +63,13 @@ for combo in chunk:
         # Run navigation algorithm
         #TODO: Need to select navigator instance based on 
         # information coming from the chunk combo
-        # if window:
-        #     nav = spm.SequentialPerfectMemory(route_imgs, matcher, deg_range=(-180, 180), **combo)
-        # else:
-        #     nav = pm.PerfectMemory(route_imgs, matcher, deg_range=(-180, 180), **combo)
-        infomaxParams = infomax.Params()
-
-        nav = infomax.InfomaxNetwork(infomaxParams, route_imgs, deg_range=(-180, 180), **combo)
+        if window:
+            nav = spm.SequentialPerfectMemory(route_imgs, matcher, deg_range=(-180, 180), **combo)
+        elif window == 0:
+            nav = pm.PerfectMemory(route_imgs, matcher, deg_range=(-180, 180), **combo)
+        else:
+            infomaxParams = infomax.Params()
+            nav = infomax.InfomaxNetwork(infomaxParams, route_imgs, deg_range=(-180, 180), **combo)
         # if segment_length:
         #     traj, nav = agent.segment_test(route, nav, segment_length=segment_length, t=t, r=r, sigma=None, preproc=combo)
         # else:
