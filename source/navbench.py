@@ -10,10 +10,11 @@ import numpy as np
 import yaml
 from source.routedatabase import Route, load_routes
 from source.imgproc import Pipeline
+from source import infomax
 
 
 class Benchmark:
-    def __init__(self, results_path, routes_path, grid_path,  filename='results.csv'):
+    def __init__(self, results_path, routes_path, grid_path=None,  filename='results.csv'):
         self.results_path = results_path + filename
         self.routes_path = routes_path
         self.grid_path = grid_path
@@ -44,7 +45,8 @@ class Benchmark:
         return not (combo['edge_range'] and combo['blur'])
 
     def remove_non_blur_edge(self, combo):
-        return not combo['edge_range'] and not combo['blur']
+        return not combo.get('edge_range') and not combo.get('blur') and not combo.get('gauss_loc_norm') and not combo.get('loc_norm')
+        #return not combo['edge_range'] and not combo['blur']
 
     def get_grid_dict(self, params):
         grid = itertools.product(*[params[k] for k in params])
@@ -213,7 +215,7 @@ class Benchmark:
              'deg_range':[], 'mean_error': [], 'seconds': [], 'errors': [], 
              'abs_index_diff': [], 'window_log': [], 'matched_index': [], 'dist_diff': [], 
              'tx': [], 'ty': [], 'th': [],'ah': [] ,'best_sims':[], 
-             'loc_norm':[], 'gauss_loc_norm':[], 'wave':[]}
+             'loc_norm':[], 'gauss_loc_norm':[], 'wave':[], 'nav-name':[]}
         
         # Load all routes
         routes = load_routes(routes_path, route_ids, max_dist=dist, grid_path=grid_path)
@@ -234,9 +236,13 @@ class Benchmark:
                 if window:
                     nav = spm.SequentialPerfectMemory(route_imgs, matcher, deg_range=(-180, 180), window=window, **combo)
                     recovered_heading, window_log = nav.navigate(test_imgs)
-                else:
+                elif window == 0:
                     nav = pm.PerfectMemory(route_imgs, matcher, deg_range=(0, 180), **combo)
                     recovered_heading = nav.navigate(test_imgs)
+                # else:
+                #     infomaxParams = infomax.Params()
+                #     nav = infomax.InfomaxNetwork(infomaxParams, route_imgs, deg_range=(-180, 180), **combo)
+                # here i need a navigate method for infomax.
                 toc = time.perf_counter()
                 # Get time complexity
                 time_compl = toc - tic
@@ -252,7 +258,7 @@ class Benchmark:
                 rec_headings = nav.get_rec_headings()
                 deg_range = nav.deg_range
 
-
+                log['nav-name'].append(nav.get_name())
                 log['route_id'].append(route.get_route_id())
                 log['blur'].append(combo.get('blur'))
                 log['edge'].append(combo.get('edge_range'))
