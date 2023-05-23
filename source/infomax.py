@@ -28,7 +28,7 @@ class Params():
 
 
 class InfomaxNetwork(nn.Module):
-    def __init__(self, infomaxParams, imgs, deg_range=(-180, 180), degree_shift=1):
+    def __init__(self, infomaxParams, imgs, deg_range=(-180, 180), degree_shift=1, **kwargs):
         super(InfomaxNetwork, self).__init__()
         
         self.deg_range = deg_range
@@ -38,8 +38,14 @@ class InfomaxNetwork(nn.Module):
         self.num_of_cols_perdegree = self.num_of_cols / 360
         self.degrees = np.arange(*deg_range)
         self.total_search_angle = round((deg_range[1] - deg_range[0]) / self.deg_step)
+        
+        # Log Variables
+        self.recovered_heading = []
+        self.logs = []
+        self.best_sims = []
 
         # prep imgs
+        # self.imgs = torch.from_numpy(np.array([i.flatten() for i in imgs])).float()
         self.imgs = [torch.unsqueeze(torch.from_numpy(item).float(), 0) for item in imgs]
 
         self.size = self.imgs[0].flatten().size(0)
@@ -105,10 +111,22 @@ class InfomaxNetwork(nn.Module):
 
     def TrainNet(self, train_set):
         # Standarise the inputs
+        # train_set = self.Standardize(train_set)
         train_set = [self.Standardize(img) for img in train_set]
         for epoch in range(self.params.noEpochs):
+            # u = self.Forward(train_set)
+            # h = u.squeeze()
+            # y = torch.tanh(u)
+            # for param in self.parameters():
+            #     W = param
+            # WH = torch.matmul(h, W)
+            # update = torch.outer(torch.add(y, h).squeeze(), WH)
+            # dW = (W - update)
+            # # New normalisation of the eta by the netwrok size (inputs units * out units)
+            # change = (self.params.lr / (self.size*self.params.outputSize)) * (dW)
+            # newWeights = W + change
+            # self.fc1.weight = nn.Parameter(newWeights)
             for img in train_set:
-                #x = torch.flatten(img.squeeze())
                 u = self.Forward(img)
                 h = u.squeeze()
                 y = torch.tanh(u)
@@ -136,8 +154,6 @@ class InfomaxNetwork(nn.Module):
         return torch.roll(img, -cols_to_shift, dims=1)
 
     def get_heading(self, query_img):
-        #TODO: here we need custom RMF or to use teh INfomax a matcher in the utils module
-        # probabaly best to make a rotator here...?
         query_img = torch.unsqueeze(torch.from_numpy(query_img).float(), 0)
         query_img = self.Standardize(query_img)
         rot_qimgs = torch.empty((self.total_search_angle, self.num_of_rows, self.num_of_cols),  requires_grad=False)
@@ -146,7 +162,50 @@ class InfomaxNetwork(nn.Module):
             rot_qimgs[i] = self.rotate(rot, query_img)
             rsims.append(self.Familiarity((query_img)))
         rsim = self.Familiarity(rot_qimgs)
-        return rsim.squeeze().detach().numpy()
+        # convert to numpy
+        rsim = rsim.squeeze().detach().numpy()
+        # save the rsim for the logs
+        self.logs.append(rsim)
+
+        idx = np.argmin(rsim)
+        self.best_sims.append(rsim[idx])
+        rec_head = self.degrees[idx]
+        self.recovered_heading.append(rec_head)
+        return rec_head
+    
+    def get_rsim(self, query_img):
+        query_img = torch.unsqueeze(torch.from_numpy(query_img).float(), 0)
+        query_img = self.Standardize(query_img)
+        rot_qimgs = torch.empty((self.total_search_angle, self.num_of_rows, self.num_of_cols),  requires_grad=False)
+        rsims = []
+        for i, rot in enumerate(self.degrees):
+            rot_qimgs[i] = self.rotate(rot, query_img)
+            rsims.append(self.Familiarity((query_img)))
+        rsim = self.Familiarity(rot_qimgs)
+        # convert to numpy
+        rsim = rsim.squeeze().detach().numpy()
+        return rsim
+    
+    def get_name(self):
+        return 'InfoMax'
+
+    def get_rec_headings(self):
+        return self.recovered_heading
+
+    def get_index_log(self):
+        return None
+
+    def get_window_log(self):
+        return None
+
+    def get_rsims_log(self):
+        return self.logs
+
+    def get_best_sims(self):
+        return self.best_sims
+
+
+    def reset_window(self, pointer):pass
 
 
 def Train(modelName, trainDataset, infomaxParams):
@@ -182,3 +241,4 @@ def LoadModel(modelPath):
     net = InfomaxNetwork(input_dimensions, params)
     net.load_state_dict(state)
     return (net)
+
