@@ -8,15 +8,18 @@ import multiprocessing
 import functools
 import numpy as np
 import yaml
-from source.routedatabase import Route, load_routes
+from source.routedatabase import Route, load_routes, load_bob_routes
 from source.imgproc import Pipeline
 from source import infomax
 
 
 class Benchmark:
-    def __init__(self, results_path, routes_path, grid_path=None,  filename='results.csv'):
+    def __init__(self, results_path, routes_path, grid_path=None,  filename='results.csv', 
+                 route_path_suffix=None, grid_dist=None, route_repeats=None):
         self.results_path = results_path + filename
         self.routes_path = routes_path
+        self.route_path_suffix = route_path_suffix
+        self.route_repeats = route_repeats
         self.grid_path = grid_path
         check_for_dir_and_create(results_path)
         self.jobs = 0
@@ -24,7 +27,8 @@ class Benchmark:
         self.bench_logs = []
         self.route_ids = None
         self.routes_data = []
-        self.dist = 0.2  # Distance between grid images and route images
+        #self.dist = 0.2  # Distance between grid images and route images
+        self.dist = grid_dist
         self.log = {'route_id': [], 'blur': [], 'edge': [], 'res': [], 'window': [],
                     'matcher': [], 'mean_error': [], 'errors': [], 'seconds': [],
                     'abs_index_diff': [], 'window_log': [], 'best_sims': [], 'dist_diff': [],
@@ -70,10 +74,10 @@ class Benchmark:
         shared = manager.dict({'jobs': 0, 'total_jobs': 0})
         return shared
 
-    def bench_paral(self, results_path,  params, route_ids=None, cores=None):
+    def bench_paral(self, params, route_ids=None, cores=None):
         # save the parmeters of the test in a json file
-        check_for_dir_and_create(results_path)
-        param_path = os.path.join(results_path, 'params.yml')
+        check_for_dir_and_create(self.results_path)
+        param_path = os.path.join(self.results_path, 'params.yml')
         with open(param_path, 'w') as fp:
             yaml.dump(params, fp)
 
@@ -99,9 +103,14 @@ class Benchmark:
         chunks = self.get_grid_chunks(grid, no_of_chunks)
 
         print('{} combinations, testing on {} routes, running on {} cores'.format(self.total_jobs, len(route_ids), no_of_chunks))
+        
+        #Make a dict of parameter arguments
+        arg_params = {'route_ids': route_ids, 'grid_dist':self.dist,
+                      'routes_path':self.routes_path, 'grid_path':self.grid_path,
+                      'route_path_suffix':self.route_path_suffix,
+                      'repeats':self.route_repeats}
         # Partial callable
-        worker = functools.partial(self.worker_bench, route_ids,
-                                   self.dist, self.routes_path, self.grid_path, shared)
+        worker = functools.partial(self.worker_bench, arg_params, shared)
 
         pool = multiprocessing.Pool()
 
@@ -215,7 +224,14 @@ class Benchmark:
 
 
     @staticmethod
-    def worker_bench(route_ids, dist, routes_path, grid_path, shared, chunk):
+    def worker_bench(arg_params, shared, chunk):
+        # unpack shared bench parameters
+        route_ids = arg_params.get('route_ids')
+        dist =  arg_params.get('grid_dist')
+        routes_path =  arg_params.get('routes_path')
+        grid_path =  arg_params.get('grid_path')
+        route_path_suffix = arg_params.get('route_path_suffix')
+        repeats = arg_params.get('repeats')
 
         log = {'route_id': [], 'blur': [], 'edge': [], 'res': [], 'window': [], 'matcher': [],
              'deg_range':[], 'mean_error': [], 'seconds': [], 'errors': [], 
@@ -224,8 +240,10 @@ class Benchmark:
              'loc_norm':[], 'gauss_loc_norm':[], 'wave':[], 'nav-name':[]}
         
         # Load all routes
-        routes = load_routes(routes_path, route_ids, max_dist=dist, grid_path=grid_path)
-        #TODO: here i need to make the query images and data for each route.
+        # routes = load_routes(routes_path, route_ids, max_dist=dist, grid_path=grid_path)
+        routes = load_bob_routes(routes_path, route_ids, 
+                                 suffix=route_path_suffix, repeats=repeats)
+        # routes = make_query_routes(routes)
         #  Go though all combinations in the chunk
         for combo in chunk:
 

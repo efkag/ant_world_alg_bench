@@ -3,10 +3,10 @@ import numpy as np
 import cv2 as cv
 import pandas as pd
 from scipy.spatial.distance import cdist
-# TODO: Figre out why thsi import when used outsite of the package has to use the 'source.' 
-# and when used withing the package is is not needed. 
-from source.utils import calc_dists, travel_dist, pre_process, angular_error, seq_angular_error, travel_dist
 
+from source.utils import calc_dists, travel_dist, pre_process, angular_error, seq_angular_error, travel_dist
+from source.unwraper import Unwraper
+from source.imgproc import resize
 
 class Route:
     def __init__(self, path, route_id, read_imgs=True, grid_path=None, max_dist=0.2):
@@ -168,14 +168,17 @@ def load_routes(path, ids, **kwargs):
 
 class BoBRoute:
 
-    def __init__(self, path, read_imgs=True, unwraper=None):
+    def __init__(self, path, route_id=None, read_imgs=True, unwraper=Unwraper, **kwargs):
         self.path = path
         self.read_imgs = read_imgs
         self.proc_imgs = []
         self.proc_qimgs= []
-        #self.route_id = str(route_id)
+        self.route_id = str(route_id)
         self.unwraper = unwraper
+        # mDefult resizing to the max size needed for the benchmarks
+        self.resizer = resize((360, 180))
         self.route_dict = self.load_route()
+
         
 
     def load_route(self):
@@ -191,7 +194,7 @@ class BoBRoute:
                     'Filename':'filename'}
         for k in key_maps:
             route_data[key_maps[k]] = route_data.pop(k)
-        print(route_data.keys())
+        # print(route_data.keys())
         if self.read_imgs:
             imgs = []
             for i in route_data['filename']:
@@ -203,19 +206,68 @@ class BoBRoute:
             if self.unwraper:
                 self.unwraper = self.unwraper(imgs[0])
                 for i, im in enumerate(imgs):
-                    imgs[i] = self.unwraper.unwarp(im)
+                    im = self.unwraper.unwarp(im)
+                    imgs[i] = self.resizer(im)
             route_data['imgs'] = imgs
         return route_data
     
+    def set_query_data(self, qx, qy, qyaw, qimgs):
+        self.route_dict['qx'] = qx
+        self.route_dict['qy'] = qy
+        self.route_dict['qyaw'] = qyaw
+        self.route_dict['qimgs'] = qimgs
+
+    def get_xycoords(self):
+        return {'x': self.route_dict['x'], 'y': self.route_dict['y']}
+
+    def get_yaw(self): return self.route_dict['yaw']
+
+    def get_pitch(self): return self.route_dict['pitch']
+
+    def get_roll(self): return self.route_dict['roll']
+    
+    def get_imgs(self):
+        return self.route_dict['imgs']
+
+    def get_qimgs(self):
+        return self.route_dict['qimgs']
+
     def get_route_dict(self):
         return self.route_dict
     
-def load_routes(path, ids, suffix=None, **kwargs):
+def load_bob_routes(path, ids, suffix=None, repeats=None, **kwargs):
     routes = []
+    # Thiis the the reference route choosen from the repeats. Usualy the first one.
+    ref_route_repeat_id = 1
     for id in ids:
+        route_path =  os.path.join(path, 'route{}'.format(id))
         if suffix:
-            route_path = os.path.join(path, suffix)
-        route_path =  os.path.join(route_path, '{}'.format(id))
-        r = Route(route_path, id, **kwargs)
+            route_path = os.path.join(route_path, suffix)
+        # the referencee route is always 0, i.e the first route recorded
+        route_path = route_path + str(ref_route_repeat_id)
+        r = BoBRoute(route_path, route_id=id, **kwargs)
+        if repeats:
+            repeats_path =  os.path.join(path, 'route{}'.format(id))
+            make_query_repeat_routes(r, ref_route_repeat_id, repeats_path, repeats,
+                                     suffix=suffix)
         routes.append(r)
     return routes
+
+def make_query_repeat_routes(route, route_ref_id, rep_path, repeats, suffix=None, **kwargs):
+    repeats = [*range(1, repeats+1)]
+    repeats.remove(route_ref_id)
+    if suffix:
+        rep_path = os.path.join(rep_path, suffix)
+    qx = []
+    qy = []
+    qyaw = []
+    qimgs = []
+    for rep in repeats:
+        route_path = rep_path + str(rep)
+        r = BoBRoute(route_path, **kwargs)
+        xy = r.get_xycoords()
+        qx.extend(xy['x'])
+        qy.extend(xy['y'])
+        qyaw.extend(r.get_yaw())
+        qimgs.extend(r.get_imgs())
+    route.set_query_data(qx, qy, qyaw, qimgs)
