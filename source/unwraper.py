@@ -8,8 +8,8 @@ class Unwraper():
     def __init__(self, img) -> None:
     
         # TODO: need to work out how to crop properly here or crop lafter the unwrap
-        # cropBlock=int((int(img.shape[1])-int(img.shape[0]))/2)
-        # img=img[:,cropBlock:-cropBlock]
+        # self.cropBlock=int((int(img.shape[1])-int(img.shape[0]))/2)
+        # img=img[:,self.cropBlock:-self.cropBlock]
 
         # distance to the centre of the image
         ##########################

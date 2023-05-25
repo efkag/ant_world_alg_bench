@@ -242,7 +242,7 @@ class Benchmark:
         # Load all routes
         # routes = load_routes(routes_path, route_ids, max_dist=dist, grid_path=grid_path)
         routes = load_bob_routes(routes_path, route_ids, 
-                                 suffix=route_path_suffix, repeats=repeats)
+                                 suffix=route_path_suffix, repeats=repeats, **combo)
         # routes = make_query_routes(routes)
         #  Go though all combinations in the chunk
         for combo in chunk:

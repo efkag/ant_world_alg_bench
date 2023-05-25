@@ -13,7 +13,8 @@ def static_bench():
     #               'window': list(range(10, 12)), 'matcher': ['corr', 'rmse']}
     
     parameters = {'blur': [True, False], 
-                  'shape': [(180, 80)], 
+                  'shape': [(180, 80)],
+                  'vcrop':[.6],
                   'edge_range': [(180, 200), False],
                   'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
                   'deg_range':(-180, 180),

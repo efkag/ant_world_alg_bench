@@ -168,7 +168,8 @@ def load_routes(path, ids, **kwargs):
 
 class BoBRoute:
 
-    def __init__(self, path, route_id=None, read_imgs=True, unwraper=Unwraper, **kwargs):
+    def __init__(self, path, route_id=None, read_imgs=True, unwraper=Unwraper,
+                 vcrop=1, **kwargs):
         self.path = path
         self.read_imgs = read_imgs
         self.proc_imgs = []
@@ -176,10 +177,14 @@ class BoBRoute:
         self.route_id = str(route_id)
         self.unwraper = unwraper
         # mDefult resizing to the max size needed for the benchmarks
-        self.resizer = resize((360, 180))
+        self.img_shape = (360, 180)
+        self.resizer = resize(self.img_shape)
+        self.vcrop = vcrop
+        # change vcrop from percentage to an actual row index
+        self.vcrop = int(round(self.img_shape[1] * self.vcrop))
+
         self.route_dict = self.load_route()
 
-        
 
     def load_route(self):
         route_data = pd.read_csv(os.path.join(self.path, 'database_entries.csv'), index_col=False)
@@ -207,10 +212,15 @@ class BoBRoute:
                 self.unwraper = self.unwraper(imgs[0])
                 for i, im in enumerate(imgs):
                     im = self.unwraper.unwarp(im)
-                    imgs[i] = self.resizer(im)
+                    im = self.resizer(im)
+                    im = im[self.vcrop:, :]
+                    imgs[i] = im
             route_data['imgs'] = imgs
         return route_data
     
+    def calc_errors(self, trajectory):
+        return seq_angular_error(self.route_dict, trajectory)
+
     def set_query_data(self, qx, qy, qyaw, qimgs):
         self.route_dict['qx'] = qx
         self.route_dict['qy'] = qy
@@ -249,7 +259,7 @@ def load_bob_routes(path, ids, suffix=None, repeats=None, **kwargs):
         if repeats:
             repeats_path =  os.path.join(path, 'route{}'.format(id))
             make_query_repeat_routes(r, ref_route_repeat_id, repeats_path, repeats,
-                                     suffix=suffix)
+                                     suffix=suffix, **kwargs)
         routes.append(r)
     return routes
 
