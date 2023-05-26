@@ -8,18 +8,18 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from source.utils import check_for_dir_and_create, meancurv2d
+from source.routedatabase import load_routes
 import seaborn as sns
-from source.routedatabase import Route, load_routes
 import yaml
 sns.set_context("paper", font_scale=1)
 
-directory = '2023-04-26_test'
-results_path = os.path.join('Results', 'newant', directory)
+directory = '2023-01-25_mid_update'
 fig_save_path = os.path.join('Results', 'newant', directory)
 data = pd.read_csv(os.path.join(fig_save_path, 'results.csv'), index_col=False)
-with open(os.path.join(results_path, 'params.yml')) as fp:
+with open(os.path.join(fig_save_path, 'params.yml')) as fp:
     params = yaml.load(fp)
 routes_path = params['routes_path']
+route_ids = params['route_ids']
 # Convert list of strings to actual list of lists
 data['errors'] = data['errors'].apply(eval)
 data['dist_diff'] = data['dist_diff'].apply(eval)
@@ -45,6 +45,14 @@ traj = data.loc[(data['matcher'] == matcher)
 
 method = np.mean
 grouped = traj.groupby(['window', 'route_id'])["trial_fail_count"].apply(method).to_frame("trial_fail_count").reset_index()
+
+route_curvatures = []
+routes = load_routes(routes_path, route_ids)
+for route in routes:
+    xy = route.get_xycoords()
+    k = meancurv2d(xy['x'], xy['y'])
+    route_curvatures.append(k)
+# then i need to order by k and plot.
 
 # pm_data = grouped.loc[grouped['window'] == 0]
 # plt.plot(pm_data['route_id'], pm_data['mean_error'], label='PM')

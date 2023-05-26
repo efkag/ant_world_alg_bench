@@ -21,6 +21,23 @@ def nans_imgshow(img):
     plt.show()
 
 
+def imgshow(image, size=(10, 10), title='', save_id=None):
+    """
+    Display the image given as a 2d or 3d array of values.
+    :param size: Size of the plot for the image
+    :param image: Input image to display
+    """
+    image = np.squeeze(image)
+    fig = plt.figure(figsize=size)
+    plt.imshow(image, cmap='gray', interpolation='bilinear')
+    plt.xticks([]), plt.yticks([])  # to hide tick values on X and Y axis
+    # or plt.axis('off')
+    plt.title(title, loc="left")
+    plt.tight_layout(pad=0)
+    if save_id: fig.savefig(str(save_id) + ".png", bbox_inches="tight")
+    plt.show()
+
+
 def plot_3d(data, show=True, rows_cols_idx=111, title='', save=False, path=''):
     '''
     Plots the 2d data given in a 3d wireframe.

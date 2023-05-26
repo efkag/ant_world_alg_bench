@@ -357,77 +357,84 @@ class SequentialPerfectMemory:
         else:
             self.window -= self.window_margin
 
+
     def navigate(self, query_imgs):
         assert isinstance(query_imgs, list)
-
-        # upper = int(self.window/2)
-        # lower = self.window - upper
-        # mem_pointer = upper
-        mem_pointer = 0
-        flimit = self.window
-        blimit = 0
-        self.window_log.append([blimit, flimit])
-        # For every query image
         for query_img in query_imgs:
-
-            # get the rotational similarities between a query image and a window of route images
-            wrsims = rmf(query_img, self.route_images[blimit:flimit], self.matcher, self.deg_range, self.deg_step)
-            self.window_log.append([blimit, flimit])
-            # Holds the best rot. match between the query image and route images
-            wind_sims = []
-            # Recovered headings for the current image
-            wind_headings = []
-            # get best similarity match adn index w.r.t degrees
-            indices = self.argminmax(wrsims, axis=1)
-            for i, idx in enumerate(indices):
-                wind_sims.append(wrsims[i, idx])
-                wind_headings.append(self.degrees[idx])
-
-            # Save the best degree and sim for each window similarities
-            self.window_sims.append(wind_sims)
-            self.window_headings.append(wind_headings)
-            # append the rsims of all window route images for that current image
-            self.logs.append(wrsims)
-            idx = self.argminmax(wind_sims)
-            self.best_sims.append(wind_sims[idx])
-            h = wind_headings[idx]
-            self.recovered_heading.append(h)
-            # self.average_heading2(h)
-            # self.average_headings(wind_headings)
-            # self.consensus_heading(wind_headings, h)
-
-            mem_pointer += idx
-            if mem_pointer + self.window > self.route_end:
-                mem_pointer = blimit + idx
-                flimit = self.route_end
-                blimit = self.route_end - self.window
-            else:
-                blimit = mem_pointer
-                flimit = mem_pointer + self.window
-
-            self.matched_index_log.append(mem_pointer)
-            # self.window_log.append([blimit, flimit])
-
-
-            # Change the pointer and bounds for an adaptive window.
-            if self.adaptive:
-                self.dynamic_window_sim(wind_sims[idx])
-                # self.dynamic_window_h2(h)
-                # self.dynamic_window_h(wind_headings)
-
-            #
-            # # Lower confidence of the memories depending on the match score
-            # window_mean = sum(wind_sims)/len(wind_sims)
-            # if i == 0: # If this is the first window
-            #     self.CMA.extend([window_mean] * 2)
-            # else:
-            #     cma = self.CMA[-1]
-            #     self.CMA.append(cma + ((window_mean-cma)/(len(self.CMA)+1)))
-            # for j in range(mem_pointer, limit):
-            #     if wind_sims[j-mem_pointer] > self.CMA[-1]:
-            #         self.confidence[j] -= 0.1
-
+            self.get_heading(query_img)
         return self.recovered_heading, self.window_log
+    
+    # def navigate(self, query_imgs):
+    #     assert isinstance(query_imgs, list)
+
+    #     # upper = int(self.window/2)
+    #     # lower = self.window - upper
+    #     # mem_pointer = upper
+    #     mem_pointer = 0
+    #     flimit = self.window
+    #     blimit = 0
+    #     self.window_log.append([blimit, flimit])
+    #     # For every query image
+    #     for query_img in query_imgs:
+
+    #         # get the rotational similarities between a query image and a window of route images
+    #         wrsims = rmf(query_img, self.route_images[blimit:flimit], self.matcher, self.deg_range, self.deg_step)
+    #         self.window_log.append([blimit, flimit])
+    #         # Holds the best rot. match between the query image and route images
+    #         wind_sims = []
+    #         # Recovered headings for the current image
+    #         wind_headings = []
+    #         # get best similarity match adn index w.r.t degrees
+    #         indices = self.argminmax(wrsims, axis=1)
+    #         for i, idx in enumerate(indices):
+    #             wind_sims.append(wrsims[i, idx])
+    #             wind_headings.append(self.degrees[idx])
+
+    #         # Save the best degree and sim for each window similarities
+    #         self.window_sims.append(wind_sims)
+    #         self.window_headings.append(wind_headings)
+    #         # append the rsims of all window route images for that current image
+    #         self.logs.append(wrsims)
+    #         idx = self.argminmax(wind_sims)
+    #         self.best_sims.append(wind_sims[idx])
+    #         h = wind_headings[idx]
+    #         self.recovered_heading.append(h)
+    #         # self.average_heading2(h)
+    #         # self.average_headings(wind_headings)
+    #         # self.consensus_heading(wind_headings, h)
+
+    #         mem_pointer += idx
+    #         if mem_pointer + self.window > self.route_end:
+    #             mem_pointer = blimit + idx
+    #             flimit = self.route_end
+    #             blimit = self.route_end - self.window
+    #         else:
+    #             blimit = mem_pointer
+    #             flimit = mem_pointer + self.window
+
+    #         self.matched_index_log.append(mem_pointer)
+    #         # self.window_log.append([blimit, flimit])
+
+
+    #         # Change the pointer and bounds for an adaptive window.
+    #         if self.adaptive:
+    #             self.dynamic_window_sim(wind_sims[idx])
+    #             # self.dynamic_window_h2(h)
+    #             # self.dynamic_window_h(wind_headings)
+
+    #         #
+    #         # # Lower confidence of the memories depending on the match score
+    #         # window_mean = sum(wind_sims)/len(wind_sims)
+    #         # if i == 0: # If this is the first window
+    #         #     self.CMA.extend([window_mean] * 2)
+    #         # else:
+    #         #     cma = self.CMA[-1]
+    #         #     self.CMA.append(cma + ((window_mean-cma)/(len(self.CMA)+1)))
+    #         # for j in range(mem_pointer, limit):
+    #         #     if wind_sims[j-mem_pointer] > self.CMA[-1]:
+    #         #         self.confidence[j] -= 0.1
+
+    #     return self.recovered_heading, self.window_log
 
     def get_rec_headings(self):
         return self.recovered_heading
