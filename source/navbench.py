@@ -16,7 +16,7 @@ from source import infomax
 class Benchmark:
     def __init__(self, results_path, routes_path, grid_path=None,  filename='results.csv', 
                  route_path_suffix=None, grid_dist=None, route_repeats=None):
-        self.results_path = results_path + filename
+        self.results_path = results_path
         self.routes_path = routes_path
         self.route_path_suffix = route_path_suffix
         self.route_repeats = route_repeats
@@ -112,7 +112,7 @@ class Benchmark:
         # Partial callable
         worker = functools.partial(self.worker_bench, arg_params, shared)
 
-        pool = multiprocessing.Pool()
+        pool = multiprocessing.Pool(processes=no_of_chunks)
 
         logs = pool.map_async(worker, chunks)
         pool.close()
@@ -211,7 +211,8 @@ class Benchmark:
             self.log = self.bench_singe_core(params, route_ids)
 
         bench_results = pd.DataFrame(self.log)
-        bench_results.to_csv(self.results_path, index=False)
+        write_path = os.path.join(self.results_path, 'results.csv')
+        bench_results.to_csv(write_path, index=False)
         print(bench_results)
 
     def unpack_results(self):
@@ -242,7 +243,7 @@ class Benchmark:
         # Load all routes
         # routes = load_routes(routes_path, route_ids, max_dist=dist, grid_path=grid_path)
         routes = load_bob_routes(routes_path, route_ids, 
-                                 suffix=route_path_suffix, repeats=repeats, **combo)
+                                 suffix=route_path_suffix, repeats=repeats)
         # routes = make_query_routes(routes)
         #  Go though all combinations in the chunk
         for combo in chunk:
@@ -259,7 +260,7 @@ class Benchmark:
                 test_imgs = pipe.apply(route.get_qimgs())
                 # Run navigation algorithm
                 if window:
-                    nav = spm.SequentialPerfectMemory(route_imgs, matcher, window=window, **combo)
+                    nav = spm.SequentialPerfectMemory(route_imgs, matcher, **combo)
                     recovered_heading, window_log = nav.navigate(test_imgs)
                 elif window == 0:
                     nav = pm.PerfectMemory(route_imgs, matcher, **combo)
@@ -272,7 +273,8 @@ class Benchmark:
                 # Get time complexity
                 time_compl = toc - tic
                 # Get the errors and the minimum distant index of the route memory
-                traj = {'x': route['qx'], 'y': route['qy'], 'heading': recovered_heading}
+                qxy = route.get_qxycoords()
+                traj = {'x': qxy['x'], 'y': qxy['y'], 'heading': recovered_heading}
                 errors, min_dist_index = route.calc_errors(traj)
                 # Difference between matched index and minimum distance index and distance between points
                 matched_index = nav.get_index_log()

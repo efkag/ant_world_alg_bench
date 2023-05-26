@@ -16,12 +16,12 @@ def static_bench():
                   'shape': [(180, 80)],
                   'vcrop':[.6],
                   'edge_range': [(180, 200), False],
-                  'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
-                  'deg_range':(-180, 180),
-                  'window': [0, 15, 20, 25, -15], 
-                  'matcher': ['mae', 'corr']}
+                  #'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
+                  'deg_range':[(-180, 180)],
+                  'window': [15], 
+                  'matcher': ['mae']}
     
-    routes = [1, 2, 3]
+    routes = [1]
     bench = navbench.Benchmark(results_path, routes_path, 
                                grid_path=None, 
                                filename='results.csv',

@@ -168,8 +168,7 @@ def load_routes(path, ids, **kwargs):
 
 class BoBRoute:
 
-    def __init__(self, path, route_id=None, read_imgs=True, unwraper=Unwraper,
-                 vcrop=1, **kwargs):
+    def __init__(self, path, route_id=None, read_imgs=True, unwraper=Unwraper, **kwargs):
         self.path = path
         self.read_imgs = read_imgs
         self.proc_imgs = []
@@ -179,9 +178,9 @@ class BoBRoute:
         # mDefult resizing to the max size needed for the benchmarks
         self.img_shape = (360, 180)
         self.resizer = resize(self.img_shape)
-        self.vcrop = vcrop
-        # change vcrop from percentage to an actual row index
-        self.vcrop = int(round(self.img_shape[1] * self.vcrop))
+        # self.vcrop = vcrop
+        # # change vcrop from percentage to an actual row index
+        # self.vcrop = int(round(self.img_shape[1] * self.vcrop))
 
         self.route_dict = self.load_route()
 
@@ -199,6 +198,9 @@ class BoBRoute:
                     'Filename':'filename'}
         for k in key_maps:
             route_data[key_maps[k]] = route_data.pop(k)
+        # convert the lists to numpy arrays
+        for k in route_data:
+            route_data[k] = np.array(route_data[k])
         # print(route_data.keys())
         if self.read_imgs:
             imgs = []
@@ -213,7 +215,7 @@ class BoBRoute:
                 for i, im in enumerate(imgs):
                     im = self.unwraper.unwarp(im)
                     im = self.resizer(im)
-                    im = im[self.vcrop:, :]
+                    #im = im[self.vcrop:, :]
                     imgs[i] = im
             route_data['imgs'] = imgs
         return route_data
@@ -229,6 +231,9 @@ class BoBRoute:
 
     def get_xycoords(self):
         return {'x': self.route_dict['x'], 'y': self.route_dict['y']}
+    
+    def get_qxycoords(self):
+        return {'x': self.route_dict['qx'], 'y': self.route_dict['qy']}
 
     def get_yaw(self): return self.route_dict['yaw']
 
