@@ -221,12 +221,12 @@ class BoBRoute:
         return route_data
     
     def calc_errors(self, trajectory):
-        return seq_angular_error(self.route_dict, trajectory)
+        return angular_error(self.route_dict, trajectory)
 
     def set_query_data(self, qx, qy, qyaw, qimgs):
-        self.route_dict['qx'] = qx
-        self.route_dict['qy'] = qy
-        self.route_dict['qyaw'] = qyaw
+        self.route_dict['qx'] = np.array(qx)
+        self.route_dict['qy'] = np.array(qy)
+        self.route_dict['qyaw'] = np.array(qyaw)
         self.route_dict['qimgs'] = qimgs
 
     def get_xycoords(self):
@@ -249,6 +249,9 @@ class BoBRoute:
 
     def get_route_dict(self):
         return self.route_dict
+    
+    def get_route_id(self):
+        return self.route_id
     
 def load_bob_routes(path, ids, suffix=None, repeats=None, **kwargs):
     routes = []
