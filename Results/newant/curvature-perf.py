@@ -43,7 +43,7 @@ traj = data.loc[(data['matcher'] == matcher)
                 #& (data['loc_norm'] == loc_norm)]
 
 
-method = np.median
+method = np.mean
 grouped = traj.groupby(['window', 'route_id'])["trial_fail_count"].apply(method).to_frame("trial_fail_count").reset_index()
 
 route_curvatures = []
@@ -78,7 +78,7 @@ for w in w_size:
     tfc_sorted = w_data["trial_fail_count"].to_numpy()[ind]
     ax.plot(route_ids, tfc_sorted, label=f'w={w}')
 ax.set_xlabel('routes in increasing curvature')
-ax.set_ylabel('median trial fails')
+ax.set_ylabel('mean trial fails')
 ax.legend()
 plt.show()
 

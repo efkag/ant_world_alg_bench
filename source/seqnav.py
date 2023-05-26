@@ -462,6 +462,12 @@ class SequentialPerfectMemory:
 
     def get_CMA(self):
         return self.CMA
+    
+    def get_name(self):
+        if self.adaptive:
+            return 'A-SMW'
+        else:
+            return 'SMW'
 
 
 class Seq2SeqPerfectMemory:
@@ -762,3 +768,6 @@ class Seq2SeqPerfectMemory:
 
     def get_CMA(self):
         return self.CMA
+
+    def get_name(self):
+        return 'seq2seqA-SMW'

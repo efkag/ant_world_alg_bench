@@ -30,11 +30,17 @@ data['abs_index_diff'] = data['abs_index_diff'].apply(literal_eval)
 #metric =  'mean_error'
 # metric = 'errors'
 metric =  'trial_fail_count'
+method = sum
 figsize= (8, 5)
 
-window = -15
+# data = data.groupby('window')[metric].apply().to_frame(metric).reset_index()
+# sns.boxplot(data=data, x='window', y=metric)
+# plt.show()
+
+window = 25
 data = data.loc[data['window'] == window]
-data = data.groupby('route_id')[metric].apply(sum).to_frame(metric).reset_index()
+data = data.groupby('route_id')[metric].apply(method).to_frame(metric).reset_index()
+
 
 # Get the curvatures here
 curvatures = []
@@ -45,15 +51,15 @@ for route in routes:
     k = meancurv2d(route_dict['x'], route_dict['y'])
     curvatures.append(k)
 
-data['curvature'] = np.round((curvatures), decimals=3)
+data['curvature'] = np.round((curvatures), decimals=4)
 # sns.scatterplot(data=data, x='route_id', y=metric)
 
 data = data.explode(metric)
 
 
-x = data['route_id'].to_numpy(dtype=np.float)
-y = data[metric].to_numpy(dtype=np.float)
-sns.violinplot(x=x, y=y)
+# x = data['route_id'].to_numpy(dtype=np.float)
+# y = data[metric].to_numpy(dtype=np.float)
+# sns.violinplot(x=x, y=y)
 #plt.show()
 
 
@@ -65,4 +71,4 @@ ax.set_ylim(0, 60)
 ax.tick_params(axis='x', labelrotation=45)
 plt.tight_layout(pad=0)
 fig.savefig(os.path.join(fig_save_path, f'curv-perf-met:{metric}-w:{window}'))
-#plt.show()
+plt.show()

@@ -3,6 +3,8 @@ import os
 # path = os.path.join(os.path.dirname(__file__), os.pardir)
 fwd = os.path.dirname(__file__)
 sys.path.append(os.getcwd())
+import time
+
 
 import numpy as np
 import torch
@@ -29,13 +31,16 @@ imgs = pipe.apply(route.get_imgs())
 img_array = imgs[0]
 
 infomaxParams = infomax.Params()
-
+tic = time.perf_counter()
 infomaxnet = infomax.InfomaxNetwork(infomaxParams, imgs, deg_range=deg_range)
-
+dt = time.perf_counter() - tic
+print(f'it took {dt} seconds to train infomax')
 # only to be used if further training is required
 #infomaxnet.TrainNet(imgs)
-
-rsim = infomaxnet.get_heading(img_array)
+tic = time.perf_counter()
+rsim = infomaxnet.get_rsim(img_array)
+dt = time.perf_counter() - tic
+print(f'it took {dt} seconds to eval. one image RIDF with infomax')
 
 plt.plot(range(*deg_range), rsim)
 plt.show()

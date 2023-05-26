@@ -93,3 +93,6 @@ class PerfectMemory:
 
     def get_best_sims(self):
         return self.best_sims
+    
+    def get_name(self):
+        return 'PM'

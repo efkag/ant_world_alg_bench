@@ -9,8 +9,9 @@ from source.routedatabase import Route, load_routes
 from source.display import plot_route
 from source.utils import meancurv2d
 
-routes_path = '/its/home/sk526/ant_world_alg_bench/new-antworld/inc-curve'
-route_ids = [0, 1, 2, 3, 4, 5, 6]
+routes_path = '/its/home/sk526/ant_world_alg_bench/new-antworld/curve-bins'
+route_ids = [5, 6, 7, 8, 9]
+#route_ids = [*range(5)]
 routes = load_routes(routes_path, route_ids)
 
 

@@ -13,7 +13,7 @@ from source.routedatabase import Route
 import yaml
 sns.set_context("paper", font_scale=1)
 
-directory = '2023-04-20_test'
+directory = '2023-04-26_test'
 results_path = os.path.join('Results', 'newant', directory)
 fig_save_path = os.path.join('Results', 'newant', directory, 'analysis')
 data = pd.read_csv(os.path.join(results_path, 'results.csv'), index_col=False)
@@ -30,7 +30,7 @@ data['th'] = data['th'].apply(literal_eval)
 
 
 # Plot a specific route
-route_id = 7
+route_id = 10
 fig_save_path = os.path.join(fig_save_path, f"route{route_id}")
 check_for_dir_and_create(fig_save_path)
 path = os.path.join(routes_path, f"route{route_id}")
@@ -44,7 +44,7 @@ loc_norm = 'False'
 threshold = 0
 repeat_no = 0
 
-figsize = (10, 10)
+figsize = (5, 5)
 title = None
 
 
