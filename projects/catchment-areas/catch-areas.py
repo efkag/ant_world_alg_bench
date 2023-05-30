@@ -7,6 +7,7 @@ sys.path.append(os.getcwd())
 
 import cv2 as cv
 import numpy as np
+import pandas as pd
 import seaborn as sns
 from matplotlib import pyplot as plt
 from source.imgproc import Pipeline
@@ -36,7 +37,7 @@ margin = 50
 ref_imgs = imgs[qi-margin:qi+margin]
 
 
-def catch_areas(query_img, ref_imgs, matcher=mae):
+def catch_areas(query_img, ref_imgs, matcher=mae, **kwargs):
     '''
     Find the catchment areas for each RIDF between the query image and the ref images.
     '''
@@ -59,12 +60,11 @@ def catch_areas(query_img, ref_imgs, matcher=mae):
     return ridf_field, areas, area_lims
 
 
-def trans_catch_areas(query_img, ref_imgs, matcher=mae):
+def trans_catch_areas(query_img, ref_imgs, matcher=mae, **kwargs    ):
         '''
         Find the translational catchment areas for each RIDF between the query image and the ref images.
         '''
         ridf_field = rmf(query_img, ref_imgs, matcher=matcher, d_range=(-180, 180))
-        #TODO here i need to pick images/RIDF where their minima is less than 45 form the query image.
 
         # translational idf of the ridf field minima
         tidf = np.min(ridf_field, axis=1)
@@ -75,24 +75,43 @@ def trans_catch_areas(query_img, ref_imgs, matcher=mae):
         halfright = diffs[min_tidf_i:]
         halfleft = diffs[:min_tidf_i]
         #find the poit where the gradiend sign change moving away from the minima
-        right_lim = min_tidf_i + np.argmax(halfright < 0.0)
+        # add 1 cause the diff array is one elment shorter than the tidf
+        right_lim = min_tidf_i + np.argmax(halfright < 0.0) + 1
         # flip the half left side of the RIDF in order to find the first
         # possitive change fo the gradient moving or the minima to the left
         left_lim = min_tidf_i - np.argmax(np.flip(halfleft) > 0.0)
         area_lims = (left_lim, right_lim)
         area = right_lim - left_lim
 
-        plt.plot(tidf)
-        left_lim = area_lims[0]
-        right_lim = area_lims[1]
-        plt.scatter(range(left_lim, right_lim), tidf[left_lim:right_lim])
-        plt.show()
+        # plt.plot(tidf)
+        # left_lim = area_lims[0]
+        # right_lim = area_lims[1]
+        # plt.scatter(range(left_lim, right_lim), tidf[left_lim:right_lim])
+        # plt.show()
 
         return ridf_field, area, area_lims
 
 
-field, area, area_lims = trans_catch_areas(qimg, ref_imgs)
-print(area)
+def catch_areas_routes(route, index_step=10, in_translation=False, **kwargs):
+    imgs = route.get_imgs()
+    route_id = route.get_route_id()
+    save_path = os.path.join(fwd, f'route{route_id}-results')
+    logs = {'route_id':[], 'area':[], 'area_lims':[]}
+    check_for_dir_and_create(save_path)
+    for i in range(0, len(imgs), index_step):
+         ridf, area, area_lims = catch_areas(imgs[i], imgs, **kwargs)
+         file = os.path.join(save_path, f'index:{i}_route:{route_id}')
+         logs['area'].append(area)
+         logs['route_id'].append(route_id)
+         logs['area_lims'].append(area_lims)
+         np.save(file, ridf)
+    df = pd.DataFrame(logs)
+    file_path = os.path.join(save_path, 'results.csv')
+    df.to_csv(file_path, index=False)
+
+
+# field, area, area_lims = trans_catch_areas(qimg, ref_imgs)
+# print(area)
 
 
 #ploting of RIDF catchment areas
@@ -107,9 +126,9 @@ print(area)
 
 
 # check the stat of the area
-areas = catch_areas(qimg, ref_imgs)[1]
-plt.hist(areas)
-plt.show()
+# areas = catch_areas(qimg, ref_imgs)[1]
+# plt.hist(areas)
+# plt.show()
 
-plt.boxplot(areas)
-plt.show()
+# plt.boxplot(areas)
+# plt.show()
