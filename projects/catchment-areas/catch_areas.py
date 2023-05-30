@@ -92,15 +92,17 @@ def trans_catch_areas(query_img, ref_imgs, matcher=mae, **kwargs    ):
         return ridf_field, area, area_lims
 
 
-def catch_areas_routes(route, index_step=10, in_translation=False, **kwargs):
+def catch_areas_4route(route, index_step=10, in_translation=False, **kwargs):
     imgs = route.get_imgs()
     route_id = route.get_route_id()
     save_path = os.path.join(fwd, f'route{route_id}-results')
     logs = {'route_id':[], 'area':[], 'area_lims':[]}
     check_for_dir_and_create(save_path)
+    arrays_save_path = os.path.join(save_path, 'arrays')
+    check_for_dir_and_create(arrays_save_path)
     for i in range(0, len(imgs), index_step):
          ridf, area, area_lims = catch_areas(imgs[i], imgs, **kwargs)
-         file = os.path.join(save_path, f'index:{i}_route:{route_id}')
+         file = os.path.join(arrays_save_path,f'index:{i}_route:{route_id}')
          logs['area'].append(area)
          logs['route_id'].append(route_id)
          logs['area_lims'].append(area_lims)
