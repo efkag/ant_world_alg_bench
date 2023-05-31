@@ -16,25 +16,7 @@ from source.routedatabase import Route, BoBRoute
 from source.unwraper import Unwraper
 from source.display import plot_3d
 
-route_path = 'test-routes/FTLroutes/N-1-01'
 
-route = BoBRoute(path=route_path, read_imgs=True, unwraper=Unwraper)
-
-imgs = route.get_imgs()
-
-params = {'blur': True,
-        'shape': (180, 80), 
-        #'edge_range': (180, 200)
-        }
-pipe = Pipeline(**params)
-imgs = pipe.apply(imgs)
-
-
-
-qi = int(len(imgs)/2)
-qimg = imgs[qi]
-margin = 50
-ref_imgs = imgs[qi-margin:qi+margin]
 
 
 def catch_areas(query_img, ref_imgs, matcher=mae, **kwargs):
@@ -110,6 +92,27 @@ def catch_areas_4route(route, index_step=10, in_translation=False, **kwargs):
     df = pd.DataFrame(logs)
     file_path = os.path.join(save_path, 'results.csv')
     df.to_csv(file_path, index=False)
+
+
+# route_path = 'test-routes/FTLroutes/N-1-01'
+
+# route = BoBRoute(path=route_path, read_imgs=True, unwraper=Unwraper)
+
+# imgs = route.get_imgs()
+
+# params = {'blur': True,
+#         'shape': (180, 80), 
+#         #'edge_range': (180, 200)
+#         }
+# pipe = Pipeline(**params)
+# imgs = pipe.apply(imgs)
+
+
+
+# qi = int(len(imgs)/2)
+# qimg = imgs[qi]
+# margin = 50
+# ref_imgs = imgs[qi-margin:qi+margin]
 
 
 # field, area, area_lims = trans_catch_areas(qimg, ref_imgs)
