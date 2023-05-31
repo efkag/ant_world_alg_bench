@@ -250,6 +250,9 @@ class BoBRoute:
     def get_route_dict(self):
         return self.route_dict
     
+    def get_route_id(self):
+        return self.route_id
+    
 def load_bob_routes(path, ids, suffix=None, repeats=None, **kwargs):
     routes = []
     # Thiis the the reference route choosen from the repeats. Usualy the first one.
