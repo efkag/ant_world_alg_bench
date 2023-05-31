@@ -476,6 +476,18 @@ def rotate(d, image):
     return np.roll(image, -cols_to_shift, axis=1)
 
 
+def center_ridf(ridfs):
+    '''
+    Cneter the ridfs so that the minima are 
+    in the middle of the array.
+    '''
+    for i, ridf in enumerate(ridfs):
+        idx = np.argmin(ridf)
+        center_shift = int(round(-idx + len(ridf)/2))
+        ridfs[i] = np.roll(ridf, center_shift)
+    return ridfs
+
+
 def mse(a, b):
     """
     Image Differencing Function MSE

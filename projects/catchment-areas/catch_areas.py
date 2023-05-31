@@ -11,7 +11,7 @@ import pandas as pd
 import seaborn as sns
 from matplotlib import pyplot as plt
 from source.imgproc import Pipeline
-from source.utils import rmf, cor_dist, mae, rmse,  rotate, check_for_dir_and_create
+from source.utils import rmf, cor_dist, mae, rmse, center_ridf, check_for_dir_and_create
 from source.routedatabase import Route, BoBRoute
 from source.unwraper import Unwraper
 from source.display import plot_3d
@@ -24,6 +24,7 @@ def catch_areas(query_img, ref_imgs, matcher=mae, **kwargs):
     Find the catchment areas for each RIDF between the query image and the ref images.
     '''
     ridf_field = rmf(query_img, ref_imgs, matcher=matcher, d_range=(-180, 180))
+    ridf_field = center_ridf(ridf_field)
     indices = np.argmin(ridf_field, axis=1)
     #grad = np.gradient(ridf_field, axis=1)
     diffs = np.diff(ridf_field, axis=1)
@@ -108,13 +109,10 @@ def catch_areas_4route(route, index_step=10, in_translation=False, **kwargs):
 # imgs = pipe.apply(imgs)
 
 
-
 # qi = int(len(imgs)/2)
 # qimg = imgs[qi]
-# margin = 50
+# margin = 40
 # ref_imgs = imgs[qi-margin:qi+margin]
-
-
 # field, area, area_lims = trans_catch_areas(qimg, ref_imgs)
 # print(area)
 
