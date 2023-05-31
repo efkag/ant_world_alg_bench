@@ -18,7 +18,7 @@ from catch_areas import catch_areas_4route
 
 routes_path = '/its/home/sk526/sussex-ftl-dataset/repeating-routes'
 route_ids = [1, 2, 3]
-routes = load_bob_routes(routes_path, route_ids)
+routes = load_bob_routes(routes_path, route_ids, suffix='N-')
 
 for r in routes:
     catch_areas_4route(r, index_step=10)
