@@ -43,7 +43,7 @@ def catch_areas(query_img, ref_imgs, matcher=mae, **kwargs):
     return ridf_field, areas, area_lims
 
 
-def trans_catch_areas(query_img, ref_imgs, matcher=mae, **kwargs    ):
+def trans_catch_areas(query_img, ref_imgs, matcher=mae, **kwargs):
         '''
         Find the translational catchment areas for each RIDF between the query image and the ref images.
         '''
@@ -76,6 +76,12 @@ def trans_catch_areas(query_img, ref_imgs, matcher=mae, **kwargs    ):
 
 
 def catch_areas_4route(route, index_step=10, in_translation=False, **kwargs):
+    # choose evaluator
+    if in_translation:
+         evaluator = trans_catch_areas
+    else:
+         evaluator = catch_areas
+    
     imgs = route.get_imgs()
     route_id = route.get_route_id()
     save_path = os.path.join(fwd, f'route{route_id}-results')
@@ -84,7 +90,7 @@ def catch_areas_4route(route, index_step=10, in_translation=False, **kwargs):
     arrays_save_path = os.path.join(save_path, 'arrays')
     check_for_dir_and_create(arrays_save_path)
     for i in range(0, len(imgs), index_step):
-         ridf, area, area_lims = catch_areas(imgs[i], imgs, **kwargs)
+         ridf, area, area_lims = evaluator(imgs[i], imgs, **kwargs)
          file = os.path.join(arrays_save_path,f'index:{i}_route:{route_id}')
          logs['area'].append(area)
          logs['route_id'].append(route_id)
