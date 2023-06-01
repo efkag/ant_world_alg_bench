@@ -92,7 +92,7 @@ def catch_areas_4route(route, index_step=10, in_translation=False, **kwargs):
     for i in range(0, len(imgs), index_step):
          ridf, area, area_lims = evaluator(imgs[i], imgs, **kwargs)
          file = os.path.join(arrays_save_path,f'index:{i}_route:{route_id}')
-         logs['area'].append(area)
+         logs['area'].append(area.tolist())
          logs['route_id'].append(route_id)
          logs['area_lims'].append(area_lims)
          np.save(file, ridf)
