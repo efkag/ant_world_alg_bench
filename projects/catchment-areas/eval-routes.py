@@ -21,4 +21,4 @@ route_ids = [1, 2, 3]
 routes = load_bob_routes(routes_path, route_ids, suffix='N-')
 
 for r in routes:
-    catch_areas_4route(r, index_step=10)
+    catch_areas_4route(r, index_step=10, in_translation=True)
