@@ -66,16 +66,10 @@ def trans_catch_areas(query_img, ref_imgs, matcher=mae, **kwargs):
         area_lims = (left_lim, right_lim)
         area = right_lim - left_lim
 
-        # plt.plot(tidf)
-        # left_lim = area_lims[0]
-        # right_lim = area_lims[1]
-        # plt.scatter(range(left_lim, right_lim), tidf[left_lim:right_lim])
-        # plt.show()
-
         return ridf_field, area, area_lims
 
 
-def catch_areas_4route(route, index_step=10, in_translation=False, **kwargs):
+def catch_areas_4route(route, index_step=10, in_translation=False, start_i=10, **kwargs):
     # choose evaluator
     if in_translation:
          evaluator = trans_catch_areas
@@ -89,7 +83,7 @@ def catch_areas_4route(route, index_step=10, in_translation=False, **kwargs):
     check_for_dir_and_create(save_path)
     arrays_save_path = os.path.join(save_path, 'arrays')
     check_for_dir_and_create(arrays_save_path)
-    for i in range(0, len(imgs), index_step):
+    for i in range(start_i, len(imgs), index_step):
          ridf, area, area_lims = evaluator(imgs[i], imgs, **kwargs)
          file = os.path.join(arrays_save_path,f'index:{i}_route:{route_id}')
          logs['area'].append(area.tolist())
