@@ -30,10 +30,15 @@ y = shape[1] // 2
 
 blank[x, y] = 1
 
-plt.imshow(blank, cmap='hot')
+# plt.imshow(blank, cmap='hot')
+# plt.show()
+
+k = cv.GaussianBlur(blank, (5, 5), 0)
+
+plt.imshow(k, cmap='hot')
 plt.show()
 
-k = cv.GaussianBlur(blank, (5, 5), 1)
-
+k = cv.getGaussianKernel(5, 0)
+print(k)
 plt.imshow(k, cmap='hot')
 plt.show()

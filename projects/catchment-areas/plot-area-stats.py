@@ -19,6 +19,8 @@ path = os.path.join(path, folder)
 routes = [1, 2, 3]
 
 
+
+
 data = []
 for r in routes:
     file_path = os.path.join(path, f'route{r}-results', 'results.csv')
@@ -36,6 +38,11 @@ data = pd.concat(data)
 #data.explode('area')
 
 data.boxplot('area', 'route_id')
+plt.suptitle('')
+ax = plt.gca()
+ax.set_title('')
+plt.xlabel('route')
+plt.ylabel('catchment area size')
 plt.show()
 
 

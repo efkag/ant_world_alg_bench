@@ -5,6 +5,10 @@ import os
 fwd = os.path.dirname(__file__)
 sys.path.append(os.getcwd())
 
+from datetime import date
+today = date.today()
+string_date = today.strftime("%Y-%m-%d")
+
 import cv2 as cv
 import numpy as np
 import pandas as pd
@@ -69,7 +73,7 @@ def trans_catch_areas(query_img, ref_imgs, matcher=mae, **kwargs):
         return ridf_field, area, area_lims
 
 
-def catch_areas_4route(route, index_step=10, in_translation=False, start_i=10, **kwargs):
+def catch_areas_4route(route, pipe=None, index_step=10, in_translation=False, start_i=10, **kwargs):
     # choose evaluator
     if in_translation:
          evaluator = trans_catch_areas
@@ -77,8 +81,10 @@ def catch_areas_4route(route, index_step=10, in_translation=False, start_i=10, *
          evaluator = catch_areas
     
     imgs = route.get_imgs()
+    if pipe:
+        imgs = pipe.apply(imgs)
     route_id = route.get_route_id()
-    save_path = os.path.join(fwd, f'route{route_id}-results')
+    save_path = os.path.join(fwd, string_date, f'route{route_id}-results')
     logs = {'route_id':[], 'area':[], 'area_lims':[]}
     check_for_dir_and_create(save_path)
     arrays_save_path = os.path.join(save_path, 'arrays')
