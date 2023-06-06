@@ -41,14 +41,16 @@ ridf_field, areas, area_lims = catch_areas(imgs[30], imgs[25:35])
 
 imgshow(imgs[30], path=fwd, save_id='img')
 
-fig, ax = plt.subplots(figsize=(10, 5))
-ax.plot(ridf_field[5], label='RIDF')
+fig, ax = plt.subplots(figsize=(7, 3))
+ax.plot(range(-180, 180),ridf_field[5], label='RIDF')
+ax.plot(range(-180, 180),np.gradient(ridf_field[5]), label='RIDF gradient')
 left_lim = area_lims[5][0]
 right_lim = area_lims[5][1]
 ax.set_xlabel('angle [degrees]')
 ax.set_ylabel('IDF')
 plt.tight_layout(pad=0.5)
-ax.scatter(range(left_lim, right_lim), ridf_field[5, left_lim:right_lim], label='catchment area points')
-fig.savefig(os.path.join(fwd, 'catch.png'))
+ax.scatter(range(left_lim-180, right_lim-180), ridf_field[5, left_lim:right_lim], s=10, label='catchment area points')
+#ax.set_xticklabels([*range(-180, 180, 10)])
 plt.legend()
+fig.savefig(os.path.join(fwd, 'catch.png'))
 plt.show()

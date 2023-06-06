@@ -894,6 +894,14 @@ def angular_error(route, trajectory):
         errors.append(180 - abs(abs(recovered_headings[i] - route_heading[mindist_index[-1]]) - 180))
     return errors, mindist_index
 
+def angular_diff(a, b):
+    '''
+    Assumes angles are in degrees in [-360, 360]
+    return: smallest angle diff in [0, 360]
+    '''
+    assert len(a) == len(b)
+    return 180 - np.abs(np.abs(a - b) - 180)
+
 
 def divergence_traj(route, trajectory):
     traj_xy = np.column_stack([trajectory['x'], trajectory['y']])

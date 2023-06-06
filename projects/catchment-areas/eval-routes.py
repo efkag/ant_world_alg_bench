@@ -28,4 +28,5 @@ params = {'blur': True,
 pipe = Pipeline(**params)
 
 for r in routes:
-    catch_areas_4route(r, index_step=10, in_translation=False)
+    catch_areas_4route(r, pipe=pipe, index_step=10, in_translation=True, 
+                       error_thresh=25)
