@@ -62,8 +62,10 @@ def trans_catch_areas(query_img, ref_imgs, matcher=mae, error_thresh=25,
             headings = np.take(degrees, indices)
             headings = squash_deg(headings + yaw)
             diffs = angular_diff(headings, yaw)
-            #TODO: maybe the same for right_i
-            right_i = ref_i + np.argmax(diffs[ref_i:] > error_thresh)
+            if diffs[ref_i:].all == False:
+                right_i = ref_i + len(diffs[ref_i:])
+            else:
+                right_i = ref_i + np.argmax(diffs[ref_i:] > error_thresh)
             if diffs[:ref_i].all() == False:
                 left_i = ref_i - len(diffs[:ref_i])
             else:
