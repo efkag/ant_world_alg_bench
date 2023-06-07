@@ -107,7 +107,7 @@ def catch_areas_4route(route, pipe=None, index_step=10, in_translation=False, st
     check_for_dir_and_create(save_path)
     arrays_save_path = os.path.join(save_path, 'arrays')
     check_for_dir_and_create(arrays_save_path)
-    for i in range(start_i, len(imgs), index_step):
+    for i in range(start_i, len(imgs)-start_i, index_step):
          ridf, area, area_lims = evaluator(imgs[i], imgs, route=route, ref_i=i, **kwargs)
          file = os.path.join(arrays_save_path,f'index:{i}_route:{route_id}')
          logs['area'].append(area.tolist())
