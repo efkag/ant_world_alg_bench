@@ -12,9 +12,9 @@ from matplotlib import pyplot as plt
 import seaborn as sns
 from ast import literal_eval
 
-path = 'projects/catchment-areas/2023-06-06'
-folder = 'rot_eval'
-in_translation = False
+path = 'projects/catchment-areas/2023-06-08'
+folder = 'tran_eval'
+in_translation = True
 path = os.path.join(path, folder)
 routes = [1, 2, 3]
 

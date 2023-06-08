@@ -57,16 +57,16 @@ def trans_catch_areas(query_img, ref_imgs, matcher=mae, error_thresh=25,
         ref_i = kwargs.get('ref_i')
         if error_thresh:
             route = kwargs.get('route')
-            yaw = route.get_yaw()
+            yaw = squash_deg(route.get_yaw())
             indices = np.argmin(ridf_field, axis=1)
             headings = np.take(degrees, indices)
             headings = squash_deg(headings + yaw)
             diffs = angular_diff(headings, yaw)
-            if diffs[ref_i:].all == False:
+            if np.argmax(diffs[ref_i:] > error_thresh).all() == False:
                 right_i = ref_i + len(diffs[ref_i:])
             else:
                 right_i = ref_i + np.argmax(diffs[ref_i:] > error_thresh)
-            if diffs[:ref_i].all() == False:
+            if np.argmax(np.flip(diffs[:ref_i]) > error_thresh).all() == False:
                 left_i = ref_i - len(diffs[:ref_i])
             else:
                 left_i = ref_i - np.argmax(np.flip(diffs[:ref_i]) > error_thresh)
@@ -81,10 +81,17 @@ def trans_catch_areas(query_img, ref_imgs, matcher=mae, error_thresh=25,
         halfleft = diffs[:min_tidf_i]
         #find the poit where the gradiend sign change moving away from the minima
         # add 1 cause the diff array is one elment shorter than the tidf
-        right_lim = ref_i + min_tidf_i + np.argmax(halfright < 0.0) + 1
+        if np.argmax(halfright < 0.0).all() == False:
+            right_lim = left_i + min_tidf_i + len(halfright) + 1
+        else:
+            right_lim = left_i + min_tidf_i + np.argmax(halfright < 0.0) + 1
         # flip the half left side of the RIDF in order to find the first
         # possitive change fo the gradient moving or the minima to the left
-        left_lim = ref_i - min_tidf_i - np.argmax(np.flip(halfleft) > 0.0)
+        if np.argmax(np.flip(halfleft) > 0.0).all() == False:
+            left_lim = left_i + min_tidf_i - len(halfleft)
+        else:
+            left_lim = left_i + min_tidf_i - np.argmax(np.flip(halfleft) > 0.0)
+        
         area_lims = (left_lim, right_lim)
         area = right_lim - left_lim
 
@@ -108,12 +115,15 @@ def catch_areas_4route(route, pipe=None, index_step=10, in_translation=False, st
     arrays_save_path = os.path.join(save_path, 'arrays')
     check_for_dir_and_create(arrays_save_path)
     for i in range(start_i, len(imgs)-start_i, index_step):
-         ridf, area, area_lims = evaluator(imgs[i], imgs, route=route, ref_i=i, **kwargs)
-         file = os.path.join(arrays_save_path,f'index:{i}_route:{route_id}')
-         logs['area'].append(area.tolist())
-         logs['route_id'].append(route_id)
-         logs['area_lims'].append(area_lims)
-         np.save(file, ridf)
+        ridf, area, area_lims = evaluator(imgs[i], imgs, route=route, ref_i=i, **kwargs)
+        if type(area) is np.ndarray:
+            logs['area'].append(area.tolist())
+        else:
+           logs['area'].append(area) 
+        logs['route_id'].append(route_id)
+        logs['area_lims'].append(area_lims)
+        file = os.path.join(arrays_save_path,f'index:{i}_route:{route_id}')
+        np.save(file, ridf)
     df = pd.DataFrame(logs)
     file_path = os.path.join(save_path, 'results.csv')
     df.to_csv(file_path, index=False)

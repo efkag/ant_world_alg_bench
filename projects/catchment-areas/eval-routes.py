@@ -29,4 +29,4 @@ pipe = Pipeline(**params)
 
 for r in routes:
     catch_areas_4route(r, pipe=pipe, index_step=10, in_translation=True, 
-                       error_thresh=25)
+                       error_thresh=30)

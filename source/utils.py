@@ -896,11 +896,11 @@ def angular_error(route, trajectory):
 
 def angular_diff(a, b):
     '''
-    Assumes angles are in degrees in [-360, 360]
-    return: smallest angle diff in [0, 360]
+    Assumes angles are in degrees in [-inf, inf]
+    return: smallest angle diff in [0, 180]
     '''
     assert len(a) == len(b)
-    return 180 - np.abs(np.abs(a - b) - 180)
+    return np.abs(180 - np.abs((a - b)%360 - 180))
 
 
 def divergence_traj(route, trajectory):
