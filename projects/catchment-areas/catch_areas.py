@@ -15,7 +15,7 @@ import pandas as pd
 import seaborn as sns
 from matplotlib import pyplot as plt
 from source.imgproc import Pipeline
-from source.utils import rmf, cor_dist, mae, rmse, squash_deg, angular_diff, center_ridf, check_for_dir_and_create
+from source.utils import rmf, cor_dist, mae, rmse, squash_deg, travel_dist, angular_diff, center_ridf, check_for_dir_and_create
 from source.routedatabase import Route, BoBRoute
 from source.unwraper import Unwraper
 from source.display import plot_3d
@@ -106,11 +106,12 @@ def catch_areas_4route(route, pipe=None, index_step=10, in_translation=False, st
          evaluator = catch_areas
     
     imgs = route.get_imgs()
+    xy = route.get_xycoords()
     if pipe:
         imgs = pipe.apply(imgs)
     route_id = route.get_route_id()
     save_path = os.path.join(fwd, string_date, f'route{route_id}-results')
-    logs = {'route_id':[], 'area':[], 'area_lims':[]}
+    logs = {'route_id':[], 'area':[], 'area_lims':[], 'area_cm':[]}
     check_for_dir_and_create(save_path)
     arrays_save_path = os.path.join(save_path, 'arrays')
     check_for_dir_and_create(arrays_save_path)
@@ -122,6 +123,11 @@ def catch_areas_4route(route, pipe=None, index_step=10, in_translation=False, st
            logs['area'].append(area) 
         logs['route_id'].append(route_id)
         logs['area_lims'].append(area_lims)
+        if in_translation:
+            x = xy['x'][area_lims[0]:area_lims[1]]
+            y = xy['y'][area_lims[0]:area_lims[1]]
+            d_mm = travel_dist(x, y)
+            logs['area_cm'].append(d_mm)
         file = os.path.join(arrays_save_path,f'index:{i}_route:{route_id}')
         np.save(file, ridf)
     df = pd.DataFrame(logs)
