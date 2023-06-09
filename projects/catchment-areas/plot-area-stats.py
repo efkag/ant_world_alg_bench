@@ -12,7 +12,7 @@ from matplotlib import pyplot as plt
 import seaborn as sns
 from ast import literal_eval
 
-path = 'projects/catchment-areas/2023-06-08'
+path = 'projects/catchment-areas/2023-06-09'
 folder = 'tran_eval'
 in_translation = True
 path = os.path.join(path, folder)
@@ -27,7 +27,8 @@ for r in routes:
     df = pd.read_csv(file_path)
     if not in_translation:
         df['area'] = df['area'].apply(literal_eval)
-        df = df.explode('area')
+        df['area_cm'] = df['area_cm'].apply(literal_eval)
+        df = df.explode('area_cm')
     data.append(df)
 
 
@@ -43,6 +44,15 @@ ax = plt.gca()
 ax.set_title('')
 plt.xlabel('route')
 plt.ylabel('catchment area size')
+plt.show()
+
+# in cm 
+data.boxplot('area_cm', 'route_id')
+plt.suptitle('')
+ax = plt.gca()
+ax.set_title('')
+plt.xlabel('route')
+plt.ylabel('catchment area size [cm]')
 plt.show()
 
 
