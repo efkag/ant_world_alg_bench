@@ -11,6 +11,10 @@ import pandas as pd
 from matplotlib import pyplot as plt
 import seaborn as sns
 from ast import literal_eval
+from source.utils import check_for_dir_and_create
+
+save_path = os.path.join(fwd, 'figs')
+check_for_dir_and_create(save_path)
 
 path = 'projects/catchment-areas/2023-06-09'
 folder = 'tran_eval'
@@ -38,7 +42,8 @@ data = pd.concat(data)
 
 #data.explode('area')
 
-data.boxplot('area', 'route_id')
+fig, ax = plt.subplots(figsize=(7, 3))
+data.boxplot('area', 'route_id', ax=ax)
 plt.suptitle('')
 ax = plt.gca()
 ax.set_title('')
@@ -47,17 +52,20 @@ plt.ylabel('catchment area size')
 plt.show()
 
 # in cm 
-data.boxplot('area_cm', 'route_id')
+fig, ax = plt.subplots(figsize=(7, 3))
+data.boxplot('area_cm', 'route_id', ax=ax)
 plt.suptitle('')
 ax = plt.gca()
 ax.set_title('')
 plt.xlabel('route')
 plt.ylabel('catchment area size [cm]')
+plt.tight_layout(pad=0.5)
+fig.savefig(os.path.join(fwd, 'figs', 'FTL_CA_in_cm'))
 plt.show()
 
 
-x = data['route_id'].to_numpy()
-y = data['area'].to_numpy()
+# x = data['route_id'].to_numpy()
+# y = data['area'].to_numpy()
 # plt.boxplot( )
 # plt.show()
 
