@@ -18,7 +18,6 @@ from source.imgproc import Pipeline
 from source.utils import rmf, cor_dist, mae, rmse, squash_deg, travel_dist, angular_diff, center_ridf, check_for_dir_and_create
 from source.routedatabase import Route, BoBRoute
 from source.unwraper import Unwraper
-from source.display import plot_3d
 
 
 
@@ -65,7 +64,7 @@ def trans_catch_areas(query_img, ref_imgs, matcher=mae, error_thresh=25,
             if np.argmax(diffs[ref_i:] > error_thresh).all() == False:
                 right_i = ref_i + len(diffs[ref_i:])
             else:
-                right_i = ref_i + np.argmax(diffs[ref_i:] > error_thresh)
+                right_i = ref_i + np.argmax(diffs[ref_i:] > error_thresh) + 1
             if np.argmax(np.flip(diffs[:ref_i]) > error_thresh).all() == False:
                 left_i = ref_i - len(diffs[:ref_i])
             else:
@@ -81,6 +80,8 @@ def trans_catch_areas(query_img, ref_imgs, matcher=mae, error_thresh=25,
         halfleft = diffs[:min_tidf_i]
         #find the poit where the gradiend sign change moving away from the minima
         # add 1 cause the diff array is one elment shorter than the tidf
+        if halfright.size == 0:
+            print('here')
         if np.argmax(halfright < 0.0).all() == False:
             right_lim = left_i + min_tidf_i + len(halfright) + 1
         else:
