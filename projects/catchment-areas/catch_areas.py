@@ -127,6 +127,7 @@ def catch_areas_4route(route, pipe=None, index_step=10, in_translation=False, st
         if in_translation:
             x = xy['x'][area_lims[0]:area_lims[1]]
             y = xy['y'][area_lims[0]:area_lims[1]]
+            ### This depends on the data base
             d_cm = travel_dist(x, y) / 10
             logs['area_cm'].append(d_cm)
         file = os.path.join(arrays_save_path,f'index:{i}_route:{route_id}')
