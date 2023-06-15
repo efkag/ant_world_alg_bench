@@ -1,1 +1,0 @@
-FTL with croped imgs

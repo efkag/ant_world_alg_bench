@@ -18,7 +18,7 @@ from source.imgproc import Pipeline
 from source.utils import rmf, cor_dist, mae, rmse, center_ridf, check_for_dir_and_create
 from source.routedatabase import Route, BoBRoute
 from source.unwraper import Unwraper
-from catch_areas import trans_catch_areas, catch_areas
+from catch_areas import trans_catch_areas, rot_catch_areas
 from source.display import imgshow
 
 route_path = 'test-routes/FTLroutes/N-1-01'
@@ -37,7 +37,7 @@ pipe = Pipeline(**params)
 imgs = pipe.apply(imgs)
 
 
-ridf_field, areas, area_lims = catch_areas(imgs[30], imgs[25:35])
+ridf_field, areas, area_lims = rot_catch_areas(imgs[30], imgs[25:35])
 
 imgshow(imgs[30], path=fwd, save_id='img')
 

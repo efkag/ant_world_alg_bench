@@ -22,17 +22,27 @@ from source.unwraper import Unwraper
 
 
 
-def catch_areas(query_img, ref_imgs, matcher=mae, **kwargs):
+def rot_catch_areas(query_img, ref_imgs, matcher=mae, deg_range=(-180, 180), **kwargs):
     '''
     Find the catchment areas for each RIDF between the query image and the ref images.
     '''
-    ridf_field = rmf(query_img, ref_imgs, matcher=matcher, d_range=(-180, 180))
+    degrees = np.arange(*deg_range)
+    ridf_field = rmf(query_img, ref_imgs, matcher=matcher, d_range=deg_range)
+    #### get the angular errors of the RIDFS
+    route = kwargs.get('route')
+    yaw = squash_deg(route.get_yaw())
+    indices = np.argmin(ridf_field, axis=1)
+    headings = np.take(degrees, indices)
+    headings = squash_deg(headings + yaw)
+    adiffs = angular_diff(headings, yaw)
+    #### cneter the RIDF to get the Rotational CA of each later
     ridf_field = center_ridf(ridf_field)
     indices = np.argmin(ridf_field, axis=1)
     #grad = np.gradient(ridf_field, axis=1)
     diffs = np.diff(ridf_field, axis=1)
     areas = np.empty(len(ref_imgs))
     area_lims = []
+    # calac the rotCA for each
     for i, j in enumerate(indices):
         halfright = diffs[i, j:]
         halfleft = diffs[i, :j]
@@ -43,7 +53,7 @@ def catch_areas(query_img, ref_imgs, matcher=mae, **kwargs):
         left_lim = j - np.argmax(np.flip(halfleft) > 0.0)
         area_lims.append((left_lim, right_lim))
         areas[i] = right_lim - left_lim
-    return ridf_field, areas, area_lims
+    return ridf_field, areas, area_lims, adiffs
 
 
 def trans_catch_areas(query_img, ref_imgs, matcher=mae, error_thresh=25, 
@@ -54,21 +64,29 @@ def trans_catch_areas(query_img, ref_imgs, matcher=mae, error_thresh=25,
         ridf_field = rmf(query_img, ref_imgs, matcher=matcher, d_range=deg_range)
         degrees = np.arange(*deg_range)
         ref_i = kwargs.get('ref_i')
+        adiffs = np.array([])
         if error_thresh:
             route = kwargs.get('route')
             yaw = squash_deg(route.get_yaw())
             indices = np.argmin(ridf_field, axis=1)
             headings = np.take(degrees, indices)
             headings = squash_deg(headings + yaw)
-            diffs = angular_diff(headings, yaw)
-            if np.argmax(diffs[ref_i:] > error_thresh).all() == False:
-                right_i = ref_i + len(diffs[ref_i:])
+            adiffs = angular_diff(headings, yaw)
+            if np.argmax(adiffs[ref_i:] > error_thresh).all() == False:
+                right_i = ref_i + len(adiffs[ref_i:])
             else:
-                right_i = ref_i + np.argmax(diffs[ref_i:] > error_thresh) + 1
-            if np.argmax(np.flip(diffs[:ref_i]) > error_thresh).all() == False:
-                left_i = ref_i - len(diffs[:ref_i])
+                right_i = ref_i + np.argmax(adiffs[ref_i:] > error_thresh)
+            if np.argmax(np.flip(adiffs[:ref_i]) > error_thresh).all() == False:
+                left_i = ref_i - len(adiffs[:ref_i])
             else:
-                left_i = ref_i - np.argmax(np.flip(diffs[:ref_i]) > error_thresh)
+                left_i = ref_i - np.argmax(np.flip(adiffs[:ref_i]) > error_thresh)
+            # save the angular diffs of the tCA for analysis later
+            adiffs = adiffs[left_i:right_i]
+        # This is done to reset the indices that fall within the AAE thresh
+        # Previousl;y the indices were used to constrain the catchment areas search.
+        # By resseting them we make it the CA serach indepedent of the AAE threshold 
+        left_i = 0
+        right_i = None
         # translational idf of the ridf field minima
         tidf = np.min(ridf_field, axis=1)
         tidf = tidf[left_i:right_i]
@@ -96,15 +114,16 @@ def trans_catch_areas(query_img, ref_imgs, matcher=mae, error_thresh=25,
         area_lims = (left_lim, right_lim)
         area = right_lim - left_lim
 
-        return ridf_field, area, area_lims
+        return ridf_field, area, area_lims, adiffs
 
 
-def catch_areas_4route(route, pipe=None, index_step=10, in_translation=False, start_i=10, **kwargs):
+def catch_areas_4route(route, pipe=None, index_step=10, in_translation=False, 
+                       start_i=10, **kwargs):
     # choose evaluator
     if in_translation:
          evaluator = trans_catch_areas
     else:
-         evaluator = catch_areas
+         evaluator = rot_catch_areas
     
     imgs = route.get_imgs()
     xy = route.get_xycoords()
@@ -112,18 +131,20 @@ def catch_areas_4route(route, pipe=None, index_step=10, in_translation=False, st
         imgs = pipe.apply(imgs)
     route_id = route.get_route_id()
     save_path = os.path.join(fwd, string_date, f'route{route_id}-results')
-    logs = {'route_id':[], 'area':[], 'area_lims':[], 'area_cm':[]}
+    logs = {'route_id':[],'ref_i':[], 'area':[], 'area_lims':[], 'area_cm':[], 'adiffs':[]}
     check_for_dir_and_create(save_path)
     arrays_save_path = os.path.join(save_path, 'arrays')
     check_for_dir_and_create(arrays_save_path)
     for i in range(start_i, len(imgs)-start_i, index_step):
-        ridf, area, area_lims = evaluator(imgs[i], imgs, route=route, ref_i=i, **kwargs)
+        ridf, area, area_lims, adiffs = evaluator(imgs[i], imgs, route=route, ref_i=i, **kwargs)
+        logs['ref_i'].append(i)
         if type(area) is np.ndarray:
             logs['area'].append(area.tolist())
         else:
-           logs['area'].append(area) 
+           logs['area'].append(area)
         logs['route_id'].append(route_id)
         logs['area_lims'].append(area_lims)
+        logs['adiffs'].append(adiffs.tolist())
         if in_translation:
             x = xy['x'][area_lims[0]:area_lims[1]]
             y = xy['y'][area_lims[0]:area_lims[1]]

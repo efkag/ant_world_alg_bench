@@ -37,10 +37,10 @@ ref_imgs = pipe.apply(ref_imgs)
 # cv.imwrite(img_path, img)
 
 deg_range = (-180, 180)
-mae_dist_surf = rmf(q_img, ref_imgs, matcher=mae, d_range=deg_range)
+#mae_dist_surf = rmf(q_img, ref_imgs, matcher=mae, d_range=deg_range)
 entropy_dist_surf = (rmf(q_img, ref_imgs, matcher=entropy_dist, d_range=deg_range))
-corr_dist_surf = (rmf(q_img, ref_imgs, matcher=cor_dist, d_range=deg_range))
+#corr_dist_surf = (rmf(q_img, ref_imgs, matcher=cor_dist, d_range=deg_range))
 # degrees array
 degrees = np.arange(*deg_range)
 save_path = os.path.join(fwd, 'rmf-surfaces', 'entropy_dist_surf.png')
-plot_3d(mae_dist_surf, save=True, path=save_path)
+plot_3d(entropy_dist_surf, save=True, path=save_path)
