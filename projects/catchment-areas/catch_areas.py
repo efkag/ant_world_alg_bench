@@ -53,7 +53,7 @@ def rot_catch_areas(query_img, ref_imgs, matcher=mae, deg_range=(-180, 180), **k
         left_lim = j - np.argmax(np.flip(halfleft) > 0.0)
         area_lims.append((left_lim, right_lim))
         areas[i] = right_lim - left_lim
-    return ridf_field, areas, area_lims, adiffs
+    return ridf_field, areas, area_lims, adiffs, None
 
 
 def trans_catch_areas(query_img, ref_imgs, matcher=mae, error_thresh=25, 
@@ -80,7 +80,8 @@ def trans_catch_areas(query_img, ref_imgs, matcher=mae, error_thresh=25,
                 left_i = ref_i - len(adiffs[:ref_i])
             else:
                 left_i = ref_i - np.argmax(np.flip(adiffs[:ref_i]) > error_thresh)
-            # save the angular diffs of the tCA for analysis later
+            # save the indices of the angular diffs of the tCA for analysis later
+            aae_lims = (left_i, ref_i)
             adiffs = adiffs[left_i:right_i]
         # This is done to reset the indices that fall within the AAE thresh
         # Previousl;y the indices were used to constrain the catchment areas search.
@@ -114,7 +115,7 @@ def trans_catch_areas(query_img, ref_imgs, matcher=mae, error_thresh=25,
         area_lims = (left_lim, right_lim)
         area = right_lim - left_lim
 
-        return ridf_field, area, area_lims, adiffs
+        return ridf_field, area, area_lims, adiffs, aae_lims
 
 
 def catch_areas_4route(route, pipe=None, index_step=10, in_translation=False, 
@@ -131,12 +132,13 @@ def catch_areas_4route(route, pipe=None, index_step=10, in_translation=False,
         imgs = pipe.apply(imgs)
     route_id = route.get_route_id()
     save_path = os.path.join(fwd, string_date, f'route{route_id}-results')
-    logs = {'route_id':[],'ref_i':[], 'area':[], 'area_lims':[], 'area_cm':[], 'adiffs':[]}
+    logs = {'route_id':[],'ref_i':[], 'area':[], 'area_lims':[], 'area_cm':[], 
+            'adiffs':[], 'aae_lims':[], 'aae_cm':[]}
     check_for_dir_and_create(save_path)
     arrays_save_path = os.path.join(save_path, 'arrays')
     check_for_dir_and_create(arrays_save_path)
     for i in range(start_i, len(imgs)-start_i, index_step):
-        ridf, area, area_lims, adiffs = evaluator(imgs[i], imgs, route=route, ref_i=i, **kwargs)
+        ridf, area, area_lims, adiffs, aae_lims = evaluator(imgs[i], imgs, route=route, ref_i=i, **kwargs)
         logs['ref_i'].append(i)
         if type(area) is np.ndarray:
             logs['area'].append(area.tolist())
@@ -144,13 +146,21 @@ def catch_areas_4route(route, pipe=None, index_step=10, in_translation=False,
            logs['area'].append(area)
         logs['route_id'].append(route_id)
         logs['area_lims'].append(area_lims)
+        logs['aae_lims'].append(aae_lims)
         logs['adiffs'].append(adiffs.tolist())
         if in_translation:
             x = xy['x'][area_lims[0]:area_lims[1]]
             y = xy['y'][area_lims[0]:area_lims[1]]
-            ### This depends on the data base
+            ### This depends on the data base units
             d_cm = travel_dist(x, y) / 10
             logs['area_cm'].append(d_cm)
+        if in_translation and kwargs.get('error_thresh'):
+            x = xy['x'][aae_lims[0]:aae_lims[1]]
+            y = xy['y'][aae_lims[0]:aae_lims[1]]
+            ### This depends on the data base units
+            d_cm = travel_dist(x, y) / 10
+            logs['aae_cm'].append(d_cm)
+
         file = os.path.join(arrays_save_path,f'index:{i}_route:{route_id}')
         np.save(file, ridf)
     df = pd.DataFrame(logs)
