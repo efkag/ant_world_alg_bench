@@ -36,13 +36,15 @@ for r in routes:
     ftl_data.append(df)
 ftl_data = pd.concat(ftl_data)
 
+
+### angular diffs
 fig, ax = plt.subplots(figsize=(7, 3))
-ftl_data.boxplot('adiffs', 'route_id', ax=ax)
+ftl_data.boxplot('aae_cm', 'route_id', ax=ax)
 plt.suptitle('')
 ax = plt.gca()
 ax.set_title('')
 plt.xlabel('route')
-plt.ylabel('angular error (AAE < 30)')
+plt.ylabel('catchment radius (AAE < 30)')
 plt.show()
 
 ###############################################

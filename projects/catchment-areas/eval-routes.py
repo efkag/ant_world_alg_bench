@@ -16,23 +16,23 @@ from source.utils import rmf, cor_dist, mae, rmse,  rotate, check_for_dir_and_cr
 from source.routedatabase import Route, BoBRoute, load_bob_routes, load_routes
 from catch_areas import catch_areas_4route
 
-routes_path = '/its/home/sk526/sussex-ftl-dataset/repeating-routes'
-route_ids = [1, 2, 3]
-routes = load_bob_routes(routes_path, route_ids, suffix='N-')
-params = {'blur': True,
-          'vcrop':.6,
-          'shape': (360, 180), 
-        #'edge_range': (180, 200)
-        }
-
-
-# routes_path = '/its/home/sk526/ant_world_alg_bench/new-antworld/inc-curve'
-# route_ids = [0, 1, 2, 3, 4, 5, 6]
-# route = load_routes(routes_path, route_ids)
+# routes_path = '/its/home/sk526/sussex-ftl-dataset/repeating-routes'
+# route_ids = [1, 2, 3]
+# routes = load_bob_routes(routes_path, route_ids, suffix='N-')
 # params = {'blur': True,
+#           'vcrop':.6,
 #           'shape': (360, 180), 
 #         #'edge_range': (180, 200)
 #         }
+
+
+routes_path = '/its/home/sk526/ant_world_alg_bench/new-antworld/inc-curve'
+route_ids = [0, 1, 2, 3, 4, 5, 6]
+routes = load_routes(routes_path, route_ids)
+params = {'blur': True,
+          'shape': (360, 180), 
+        #'edge_range': (180, 200)
+        }
 
 pipe = Pipeline(**params)
 
