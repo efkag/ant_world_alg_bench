@@ -476,6 +476,18 @@ def rotate(d, image):
     return np.roll(image, -cols_to_shift, axis=1)
 
 
+def center_ridf(ridfs):
+    '''
+    Cneter the ridfs so that the minima are 
+    in the middle of the array.
+    '''
+    for i, ridf in enumerate(ridfs):
+        idx = np.argmin(ridf)
+        center_shift = int(round(-idx + len(ridf)/2))
+        ridfs[i] = np.roll(ridf, center_shift)
+    return ridfs
+
+
 def mse(a, b):
     """
     Image Differencing Function MSE
@@ -881,6 +893,14 @@ def angular_error(route, trajectory):
         mindist_index.append(idx)
         errors.append(180 - abs(abs(recovered_headings[i] - route_heading[mindist_index[-1]]) - 180))
     return errors, mindist_index
+
+def angular_diff(a, b):
+    '''
+    Assumes angles are in degrees in [-inf, inf]
+    return: smallest angle diff in [0, 180]
+    '''
+    assert len(a) == len(b)
+    return np.abs(180 - np.abs((a - b)%360 - 180))
 
 
 def divergence_traj(route, trajectory):

@@ -21,7 +21,7 @@ def nans_imgshow(img):
     plt.show()
 
 
-def imgshow(image, size=(10, 10), title='', save_id=None):
+def imgshow(image, size=(10, 10), title='', path='', save_id=None):
     """
     Display the image given as a 2d or 3d array of values.
     :param size: Size of the plot for the image
@@ -34,7 +34,9 @@ def imgshow(image, size=(10, 10), title='', save_id=None):
     # or plt.axis('off')
     plt.title(title, loc="left")
     plt.tight_layout(pad=0)
-    if save_id: fig.savefig(str(save_id) + ".png", bbox_inches="tight")
+    if path and save_id:
+        save_path = os.path.join(path, str(save_id) + ".png") 
+        fig.savefig(save_path, bbox_inches="tight")
     plt.show()
 
 
