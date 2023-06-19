@@ -1,6 +1,7 @@
 from source.utils import pre_process, load_route_naw, seq_angular_error, check_for_dir_and_create, calc_dists
 from source import seqnav as spm, perfect_memory as pm
 import os
+import copy
 import pandas as pd
 import time
 import itertools
@@ -78,8 +79,11 @@ class Benchmark:
         # save the parmeters of the test in a json file
         check_for_dir_and_create(self.results_path)
         param_path = os.path.join(self.results_path, 'params.yml')
+        temp_params = copy.deepcopy(params)
+        temp_params['routes_path'] = self.routes_path
+        temp_params['route_ids'] = route_ids
         with open(param_path, 'w') as fp:
-            yaml.dump(params, fp)
+            yaml.dump(temp_params, fp)
 
         existing_cores = multiprocessing.cpu_count()
         if cores and cores > existing_cores:
