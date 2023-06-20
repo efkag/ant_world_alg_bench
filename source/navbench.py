@@ -1,5 +1,3 @@
-from source.utils import pre_process, load_route_naw, seq_angular_error, check_for_dir_and_create, calc_dists
-from source import seqnav as spm, perfect_memory as pm
 import os
 import copy
 import pandas as pd
@@ -9,6 +7,8 @@ import multiprocessing
 import functools
 import numpy as np
 import yaml
+from source.utils import pre_process, load_route_naw, check_for_dir_and_create, calc_dists, squash_deg
+from source import seqnav as spm, perfect_memory as pm
 from source.routedatabase import Route, load_routes, load_bob_routes
 from source.imgproc import Pipeline
 from source import infomax
@@ -279,6 +279,8 @@ class Benchmark:
                 # Get the errors and the minimum distant index of the route memory
                 qxy = route.get_qxycoords()
                 traj = {'x': qxy['x'], 'y': qxy['y'], 'heading': recovered_heading}
+                #!!!!!! Important step to get the heading in the global coord system
+                traj['heading'] = squash_deg(route.get_qyaw() + recovered_heading)
                 errors, min_dist_index = route.calc_errors(traj)
                 # Difference between matched index and minimum distance index and distance between points
                 matched_index = nav.get_index_log()
@@ -305,7 +307,9 @@ class Benchmark:
                 log['window_log'].append(window_log)
                 log['tx'].append(traj['x'].tolist())
                 log['ty'].append(traj['y'].tolist())
+                # This is the heading in the global coord system
                 log['th'].append(traj['heading'])
+                # This is the agent heading from the egocentric agent refernce
                 log['ah'].append(recovered_heading)
                 log['matched_index'].append(matched_index)
                 log['abs_index_diff'].append(abs_index_diffs.tolist())

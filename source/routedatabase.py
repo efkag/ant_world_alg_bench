@@ -237,6 +237,8 @@ class BoBRoute:
 
     def get_yaw(self): return self.route_dict['yaw']
 
+    def get_qyaw(self): return self.route_dict['qyaw']
+
     def get_pitch(self): return self.route_dict['pitch']
 
     def get_roll(self): return self.route_dict['roll']

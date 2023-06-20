@@ -25,7 +25,7 @@ title = ''
 route_id = 1
 fig_save_path = os.path.join(fig_save_path, f"route{route_id}")
 check_for_dir_and_create(fig_save_path)
-matcher = 'mae'
+matcher = 'corr'
 edge = 'False'  # 'False'
 blur = True
 res = '(180, 80)'
