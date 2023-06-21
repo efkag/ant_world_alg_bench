@@ -8,7 +8,8 @@ import pandas as pd
 import numpy as np
 import seaborn as sns
 from ast import literal_eval
-from source.utils import load_route_naw, plot_route, animated_window, check_for_dir_and_create
+from source.utils import animated_window, check_for_dir_and_create
+from source.display import plot_ftl_route
 from source.routedatabase import Route, BoBRoute
 import yaml
 sns.set_context("paper", font_scale=1)
@@ -83,7 +84,7 @@ temp_save_path = os.path.join(fig_save_path, 'route{}.w{}.m{}.res{}.edge{}.glocn
     .format(route_id, window, matcher, res, edge, g_loc_norm, threshold))
 
 
-plot_route(route, traj, scale=90, size=figsize, save=False, path=temp_save_path, title=title)
+plot_ftl_route(route, traj, scale=90, size=figsize, save=False, path=temp_save_path, title=title)
 
 
 
