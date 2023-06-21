@@ -257,9 +257,7 @@ def plot_ftl_route(route, traj=None, scale=None, window=None, windex=None, save=
         ax.scatter(traj['x'], traj['y'])
         # ax.plot(traj['x'], traj['y'])
         ax.quiver(traj['x'], traj['y'], u, v, scale=scale)
-    #plt.axis('equal')
-    plt.xlim([-15, 15])
-    plt.ylim([-15, 15])
+    plt.axis('equal')
     plt.tight_layout()
     if save and windex:
         fig.savefig(path + '/' + str(windex) + '.png')
