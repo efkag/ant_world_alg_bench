@@ -218,7 +218,7 @@ def plot_ftl_route(route, traj=None, scale=None, window=None, windex=None, save=
     '''
     Plots the route and any given test points if available.
     Note the route headings are rotated 90 degrees as the 0 degree origin
-    for the antworld is north but for pyplot it is east.
+    for the FTL seesm to be east but for some reason it does not plot properly
     :param route:
     :param traj:
     :param scale:
