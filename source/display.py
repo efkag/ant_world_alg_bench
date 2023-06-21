@@ -131,7 +131,7 @@ def plot_route_errors(route, traj, route_i, error_i, size=(10, 10), scale=None, 
 def plot_matches(route, traj, matches, scale=None, size=(10, 10), path=None, title=None):
     fig, ax = plt.subplots(figsize=size)
     ax.set_title(title,  loc="left")
-    plt.tight_layout(pad=0)
+    
     # Plot the route datapoints
     u, v = pol2cart_headings(90 - route['yaw'])
     ax.scatter(route['x'], route['y'])
@@ -151,7 +151,7 @@ def plot_matches(route, traj, matches, scale=None, size=(10, 10), path=None, tit
     ys = np.column_stack((ry, ty))
     for x, y in zip(xs, ys):
         plt.plot(x, y, c='k')
-
+    plt.tight_layout()
     if path:
         fig.savefig(path)
     plt.show()
@@ -176,7 +176,7 @@ def plot_route(route, traj=None, scale=None, window=None, windex=None, save=Fals
     '''
     fig, ax = plt.subplots(figsize=size)
     ax.set_title(title,  loc="left")
-    plt.tight_layout(pad=0)
+    
     u, v = pol2cart_headings(90 - route['yaw'])
     ax.scatter(route['x'], route['y'])
     ax.quiver(route['x'], route['y'], u, v, scale=scale)
@@ -204,6 +204,63 @@ def plot_route(route, traj=None, scale=None, window=None, windex=None, save=Fals
     #plt.axis('equal')
     plt.xlim([-15, 15])
     plt.ylim([-15, 15])
+    plt.tight_layout()
+    if save and windex:
+        fig.savefig(path + '/' + str(windex) + '.png')
+        plt.close(fig)
+    elif save:
+        fig.savefig(path)
+
+    if not save: plt.show()
+    plt.close(fig)
+
+def plot_ftl_route(route, traj=None, scale=None, window=None, windex=None, save=False, size=(10, 10), path=None, title=None):
+    '''
+    Plots the route and any given test points if available.
+    Note the route headings are rotated 90 degrees as the 0 degree origin
+    for the antworld is north but for pyplot it is east.
+    :param route:
+    :param traj:
+    :param scale:
+    :param window:
+    :param windex:
+    :param save:
+    :param size:
+    :param path:
+    :param title:
+    :return:
+    '''
+    fig, ax = plt.subplots(figsize=size)
+    ax.set_title(title,  loc="left")
+    
+    u, v = pol2cart_headings(90 + route['yaw'])
+    ax.scatter(route['x'], route['y'])
+    ax.quiver(route['x'], route['y'], u, v, scale=scale)
+    if window is not None and windex:
+        start = window[0]
+        end = window[1]
+        ax.quiver(route['x'][start:end], route['y'][start:end], u[start:end], v[start:end], color='r', scale=scale)
+        if not traj:
+            ax.scatter(route['qx'][:windex], route['qy'][:windex])
+        else:
+            ax.scatter(traj['x'][:windex], traj['y'][:windex])
+            u, v = pol2cart_headings(90 + traj['heading'])
+            ax.quiver(traj['x'][:windex], traj['y'][:windex], u[:windex], v[:windex], scale=scale)
+    # Plot grid test points
+    if 'qx' in route and window is None:
+        ax.scatter(route['qx'], route['qy'])
+    # Plot the trajectory of the agent when repeating the route
+    if traj and not window:
+        # TODO: This re-correction (90 - headings) of the heading may not be necessary.
+        # TODO: I need to test if this will work as expected when the new results are in.
+        u, v = pol2cart_headings(90 + traj['heading'])
+        ax.scatter(traj['x'], traj['y'])
+        # ax.plot(traj['x'], traj['y'])
+        ax.quiver(traj['x'], traj['y'], u, v, scale=scale)
+    #plt.axis('equal')
+    plt.xlim([-15, 15])
+    plt.ylim([-15, 15])
+    plt.tight_layout()
     if save and windex:
         fig.savefig(path + '/' + str(windex) + '.png')
         plt.close(fig)

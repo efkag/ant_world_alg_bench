@@ -217,7 +217,7 @@ class Benchmark:
         bench_results = pd.DataFrame(self.log)
         write_path = os.path.join(self.results_path, 'results.csv')
         bench_results.to_csv(write_path, index=False)
-        print(bench_results)
+        #print(bench_results)
 
     def unpack_results(self):
         results = self.log.get()

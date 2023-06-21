@@ -27,7 +27,7 @@ def static_bench():
                                filename='results.csv',
                                route_path_suffix='N-',
                                route_repeats=5)
-    bench.benchmark(parameters, routes, parallel=True, cores=1)
+    bench.benchmark(parameters, routes, parallel=True)
 
 
 def live_bench():

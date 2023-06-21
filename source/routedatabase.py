@@ -4,7 +4,7 @@ import cv2 as cv
 import pandas as pd
 from scipy.spatial.distance import cdist
 
-from source.utils import calc_dists, travel_dist, pre_process, angular_error, seq_angular_error, travel_dist
+from source.utils import calc_dists, squash_deg, travel_dist, pre_process, angular_error, seq_angular_error, travel_dist
 from source.unwraper import Unwraper
 from source.imgproc import resize
 
@@ -201,6 +201,7 @@ class BoBRoute:
         # convert the lists to numpy arrays
         for k in route_data:
             route_data[k] = np.array(route_data[k])
+        route_data['yaw'] = squash_deg(route_data['yaw'])
         # print(route_data.keys())
         if self.read_imgs:
             imgs = []

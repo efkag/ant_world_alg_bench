@@ -68,7 +68,7 @@ def plot_route(route, traj=None, scale=None, window=None, windex=None, save=Fals
     '''
     fig, ax = plt.subplots(figsize=size)
     ax.set_title(title,  loc="left")
-    plt.tight_layout(pad=0)
+    
     u, v = pol2cart_headings(90 - route['yaw'])
     ax.scatter(route['x'], route['y'])
     ax.quiver(route['x'], route['y'], u, v, scale=scale)
@@ -94,6 +94,7 @@ def plot_route(route, traj=None, scale=None, window=None, windex=None, save=Fals
         # ax.plot(traj['x'], traj['y'])
         ax.quiver(traj['x'], traj['y'], u, v, scale=scale)
     plt.axis('equal')
+    plt.tight_layout()
     if save and windex:
         fig.savefig(path + '/' + str(windex) + '.png')
         plt.close(fig)
@@ -865,6 +866,9 @@ def seq_angular_error(route, trajectory, memory_pointer=0):
 
 
 def angular_error(route, trajectory):
+    '''
+    route yaw and trajectory yaw must be within 
+    '''
     # Holds the angular error between the query position and the closest route position
     errors = []
     mindist_index = []
