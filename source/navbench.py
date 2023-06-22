@@ -9,7 +9,7 @@ import numpy as np
 import yaml
 from source.utils import pre_process, load_route_naw, check_for_dir_and_create, calc_dists, squash_deg
 from source import seqnav as spm, perfect_memory as pm
-from source.routedatabase import Route, load_routes, load_bob_routes
+from source.routedatabase import Route, load_routes, load_bob_routes, load_bob_routes_repeats
 from source.imgproc import Pipeline
 from source import infomax
 
@@ -114,7 +114,7 @@ class Benchmark:
                       'route_path_suffix':self.route_path_suffix,
                       'repeats':self.route_repeats}
         # Partial callable
-        worker = functools.partial(self.worker_bench, arg_params, shared)
+        worker = functools.partial(self.worker_bench_repeats, arg_params, shared)
 
         pool = multiprocessing.Pool(processes=no_of_chunks)
 
@@ -291,6 +291,11 @@ class Benchmark:
                 rec_headings = nav.get_rec_headings()
                 deg_range = nav.deg_range
 
+                # TODO: save ridf fields
+                # rmf_logs_file = 'rmfs' + str(chunk_id) + str(jobs)
+                # rmfs_path = os.path.join(results_path, rmf_logs_file)
+                # np.save(rmfs_path, rmf_logs)
+
                 log['nav-name'].append(nav.get_name())
                 log['route_id'].append(route.get_route_id())
                 log['blur'].append(combo.get('blur'))
@@ -308,14 +313,114 @@ class Benchmark:
                 log['tx'].append(traj['x'].tolist())
                 log['ty'].append(traj['y'].tolist())
                 # This is the heading in the global coord system
-                log['th'].append(traj['heading'])
-                # This is the agent heading from the egocentric agent refernce
+                log['th'].append(traj['heading'].tolist())
+                # This is the agent heading from the egocentric agent reference
                 log['ah'].append(recovered_heading)
                 log['matched_index'].append(matched_index)
                 log['abs_index_diff'].append(abs_index_diffs.tolist())
                 log['dist_diff'].append(dist_diff.tolist())
                 log['errors'].append(errors)
                 log['best_sims'].append(nav.get_best_sims())
+                # Increment the complete jobs shared variable
+                shared['jobs'] = shared['jobs'] + 1
+                print(multiprocessing.current_process(), ' jobs completed: {}/{}'.format(shared['jobs'], shared['total_jobs']))
+        return log
+    
+    @staticmethod
+    def worker_bench_repeats(arg_params, shared, chunk):
+        # unpack shared bench parameters
+        route_ids = arg_params.get('route_ids')
+        dist =  arg_params.get('grid_dist')
+        routes_path =  arg_params.get('routes_path')
+        grid_path =  arg_params.get('grid_path')
+        route_path_suffix = arg_params.get('route_path_suffix')
+        repeats = arg_params.get('repeats')
+
+        log = {'route_id': [], 'rep_id': [], 'blur': [], 'edge': [], 'res': [], 'window': [], 'matcher': [],
+             'deg_range':[], 'mean_error': [], 'seconds': [], 'errors': [], 
+             'abs_index_diff': [], 'window_log': [], 'matched_index': [], 'dist_diff': [], 
+             'tx': [], 'ty': [], 'th': [],'ah': [] ,'best_sims':[], 
+             'loc_norm':[], 'gauss_loc_norm':[], 'wave':[], 'nav-name':[]}
+        
+        # Load all routes
+        # routes = load_routes(routes_path, route_ids, max_dist=dist, grid_path=grid_path)
+        routes, repeat_routes = load_bob_routes_repeats(routes_path, route_ids, 
+                                 suffix=route_path_suffix, repeats=repeats)
+        # routes = make_query_routes(routes)
+        #  Go though all combinations in the chunk
+        for combo in chunk:
+
+            matcher = combo['matcher']
+            window = combo['window']
+            window_log = None
+            for ri, route in enumerate(routes):  # for every route
+                
+                for rep_route in repeat_routes[ri]: # for every repeat route
+                    tic = time.perf_counter()
+                    # Preprocess images
+                    pipe = Pipeline(**combo)
+                    route_imgs = pipe.apply(route.get_imgs())
+                    test_imgs = pipe.apply(rep_route.get_imgs())
+                    # Run navigation algorithm
+                    if window:
+                        nav = spm.SequentialPerfectMemory(route_imgs, matcher, **combo)
+                        recovered_heading, window_log = nav.navigate(test_imgs)
+                    elif window == 0:
+                        nav = pm.PerfectMemory(route_imgs, matcher, **combo)
+                        recovered_heading = nav.navigate(test_imgs)
+                    # else:
+                    #     infomaxParams = infomax.Params()
+                    #     nav = infomax.InfomaxNetwork(infomaxParams, route_imgs, deg_range=(-180, 180), **combo)
+                    # here i need a navigate method for infomax.
+                    toc = time.perf_counter()
+                    # Get time complexity
+                    time_compl = toc - tic
+                    # Get the errors and the minimum distant index of the route memory
+                    qxy = rep_route.get_xycoords()
+                    traj = {'x': qxy['x'], 'y': qxy['y'], 'heading': recovered_heading}
+                    #!!!!!! Important step to get the heading in the global coord system
+                    traj['heading'] = squash_deg(rep_route.get_yaw() + recovered_heading)
+                    errors, min_dist_index = route.calc_errors(traj)
+                    # Difference between matched index and minimum distance index and distance between points
+                    matched_index = nav.get_index_log()
+                    abs_index_diffs = np.absolute(np.subtract(nav.get_index_log(), min_dist_index))
+                    dist_diff = calc_dists(route.get_xycoords(), min_dist_index, matched_index)
+                    mean_route_error = np.mean(errors)
+                    window_log = nav.get_window_log()
+                    rec_headings = nav.get_rec_headings()
+                    deg_range = nav.deg_range
+
+                    # TODO: save ridf fields
+                    # rmf_logs_file = 'rmfs' + str(chunk_id) + str(jobs)
+                    # rmfs_path = os.path.join(results_path, rmf_logs_file)
+                    # np.save(rmfs_path, rmf_logs)
+
+                    log['nav-name'].append(nav.get_name())
+                    log['route_id'].append(route.get_route_id())
+                    log['rep_id'].append(rep_route.get_route_id())
+                    log['blur'].append(combo.get('blur'))
+                    log['edge'].append(combo.get('edge_range'))
+                    log['res'].append(combo.get('shape'))
+                    log['window'].append(window)
+                    log['loc_norm'].append(combo.get('loc_norm'))
+                    log['gauss_loc_norm'].append(combo.get('gauss_loc_norm'))
+                    log['wave'].append(combo.get('wave'))
+                    log['matcher'].append(matcher)
+                    log['deg_range'].append(deg_range)
+                    log['mean_error'].append(mean_route_error)
+                    log['seconds'].append(time_compl)
+                    log['window_log'].append(window_log)
+                    log['tx'].append(traj['x'].tolist())
+                    log['ty'].append(traj['y'].tolist())
+                    # This is the heading in the global coord system
+                    log['th'].append(traj['heading'].tolist())
+                    # This is the agent heading from the egocentric agent reference
+                    log['ah'].append(recovered_heading)
+                    log['matched_index'].append(matched_index)
+                    log['abs_index_diff'].append(abs_index_diffs.tolist())
+                    log['dist_diff'].append(dist_diff.tolist())
+                    log['errors'].append(errors)
+                    log['best_sims'].append(nav.get_best_sims())
                 # Increment the complete jobs shared variable
                 shared['jobs'] = shared['jobs'] + 1
                 print(multiprocessing.current_process(), ' jobs completed: {}/{}'.format(shared['jobs'], shared['total_jobs']))

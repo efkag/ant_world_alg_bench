@@ -14,7 +14,7 @@ from source.routedatabase import Route, BoBRoute
 import yaml
 sns.set_context("paper", font_scale=1)
 
-directory = 'ftl/2023-05-26'
+directory = 'ftl/2023-06-20'
 results_path = os.path.join('Results', directory)
 fig_save_path = os.path.join('Results', directory, 'analysis')
 data = pd.read_csv(os.path.join(results_path, 'results.csv'), index_col=False)
@@ -31,11 +31,11 @@ data['th'] = data['th'].apply(literal_eval)
 
 
 # Plot a specific route
-route_id = 10
+route_id = 1
 fig_save_path = os.path.join(fig_save_path, f"route{route_id}")
 check_for_dir_and_create(fig_save_path)
-path = os.path.join(routes_path, f"route{route_id}")
-window = -15
+route_path = os.path.join(routes_path, f"route{route_id}", 'N-1')
+window = 15
 matcher = 'corr'
 edge = 'False' 
 res = '(180, 80)'
@@ -45,7 +45,7 @@ loc_norm = 'False'
 threshold = 0
 repeat_no = 0
 
-figsize = (5, 5)
+figsize = (10, 10)
 title = None
 
 
@@ -59,9 +59,9 @@ traj = data.loc[(data['matcher'] == matcher)
                 & (data['route_id'] == route_id)]
 
 ### for repeats
-traj = traj.loc[traj['num_of_repeat'] == repeat_no]
+#traj = traj.loc[traj['num_of_repeat'] == repeat_no]
 
-# traj = data.to_dict(orient='records')[0]
+#traj = data.to_dict(orient='records')[0]
 if window:
     w_log = literal_eval(traj['window_log'].to_list()[0])
 
@@ -71,10 +71,10 @@ traj = {'x': np.array(traj['tx'].tolist()[0]),
         'y': np.array(traj['ty'].tolist()[0]),
         'heading': np.array(traj['th'].tolist()[0])}
 
-route = BoBRoute(path, route_id=route_id)
+route = BoBRoute(route_path, route_id=route_id)
 route = route.get_route_dict()
 if threshold:
-    index = np.argwhere(errors > threshold)[0]
+    index = np.argwhere(errors >= threshold)[0]
     thres = {}
     thres['x'] = traj['x'][index]
     thres['y'] = traj['y'][index]
@@ -84,10 +84,11 @@ temp_save_path = os.path.join(fig_save_path, 'route{}.w{}.m{}.res{}.edge{}.glocn
     .format(route_id, window, matcher, res, edge, g_loc_norm, threshold))
 
 
-plot_ftl_route(route, traj, scale=90, size=figsize, save=False, path=temp_save_path, title=title)
+plot_ftl_route(route, traj, scale=90, size=figsize, save=False, 
+               path=temp_save_path, title=title)
 
 
 
-if window:
-    temp_path = os.path.join(fig_save_path,'window-plots')
-    animated_window(route, w_log, traj=traj, path=temp_path, size=figsize, title=None)
+# if window:
+#     temp_path = os.path.join(fig_save_path,'window-plots')
+#     animated_window(route, w_log, traj=traj, path=temp_path, size=figsize, title=None)

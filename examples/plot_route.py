@@ -36,11 +36,12 @@ route_path = route_path + str(1)
 
 route = BoBRoute(path=route_path, route_id=route_id, read_imgs=False)
 route = route.get_route_dict()
-# print(route['yaw'])
-# # for some reason the FTL data is shifted by 90 deg
-# u, v = pol2cart_headings(90 +  route['yaw'] )
-# plt.scatter(route['x'], route['y'])
-# plt.quiver(route['x'], route['y'], u, v)
-# plt.show()
+print(route['yaw'])
+# for some reason the FTL data is shifted by 90 deg
+u, v = pol2cart_headings(270 +  route['yaw'] )
+plt.scatter(route['x'], route['y'])
+plt.quiver(route['x'], route['y'], u, v)
+plt.axis('equal')
+plt.show()
 
-plot_ftl_route(route)
+# plot_ftl_route(route)

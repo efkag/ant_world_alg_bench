@@ -292,3 +292,30 @@ def make_query_repeat_routes(route, route_ref_id, rep_path, repeats, suffix=None
         qyaw.extend(r.get_yaw())
         qimgs.extend(r.get_imgs())
     route.set_query_data(qx, qy, qyaw, qimgs)
+
+
+def load_bob_routes_repeats(path, ids, suffix=None, repeats=None, **kwargs):
+    routes = []
+    repeat_routes = []
+    # Thiis the the reference route choosen from the repeats. Usualy the first one.
+    ref_route_repeat_id = 1
+    for id in ids:
+        route_path =  os.path.join(path, 'route{}'.format(id))
+        if suffix:
+            route_path = os.path.join(route_path, suffix)
+            #this is the preat routes path with the suffix
+            repeats_path = route_path
+        # the referencee route is always 0, i.e the first route recorded
+        route_path = route_path + str(ref_route_repeat_id)
+        r = BoBRoute(route_path, route_id=id, **kwargs)
+        if repeats:
+            repeat_ids = [*range(1, repeats+1)]
+            repeat_ids.remove(ref_route_repeat_id)
+            rep_routes_temp_l = []
+            for rep in repeat_ids:
+                route_path = repeats_path + str(rep)
+                r = BoBRoute(route_path, route_id=rep, **kwargs)
+                rep_routes_temp_l.append(r)
+            repeat_routes.append(rep_routes_temp_l)
+        routes.append(r)
+    return routes, repeat_routes
