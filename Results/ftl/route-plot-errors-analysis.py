@@ -14,7 +14,7 @@ from source.routedatabase import Route, BoBRoute
 import yaml
 sns.set_context("paper", font_scale=1)
 
-directory = 'ftl/2023-06-20'
+directory = 'ftl/2023-06-22'
 results_path = os.path.join('Results', directory)
 fig_save_path = os.path.join('Results', directory, 'analysis')
 data = pd.read_csv(os.path.join(results_path, 'results.csv'), index_col=False)
@@ -34,6 +34,7 @@ data['th'] = data['th'].apply(literal_eval)
 route_id = 1
 fig_save_path = os.path.join(fig_save_path, f"route{route_id}")
 check_for_dir_and_create(fig_save_path)
+# reference route is always route repeat 1
 route_path = os.path.join(routes_path, f"route{route_id}", 'N-1')
 window = 15
 matcher = 'corr'
@@ -43,7 +44,8 @@ blur = True
 g_loc_norm = "{'sig1': 2, 'sig2': 20}"
 loc_norm = 'False'
 threshold = 0
-repeat_no = 0
+# rep_id is the repeat route id used for the testing
+rep_id = 2
 
 figsize = (10, 10)
 title = None

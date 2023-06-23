@@ -12,7 +12,7 @@ from ast import literal_eval
 sns.set_context("paper", font_scale=1)
 
 
-directory = 'ftl/2023-06-20'
+directory = 'ftl/2023-06-22'
 results_path = os.path.join('Results', directory)
 fig_save_path = os.path.join('Results', directory, 'analysis')
 data = pd.read_csv(os.path.join(results_path, 'results.csv'), index_col=False)
@@ -28,7 +28,7 @@ edge = 'False'
 blur = True
 res = '(180, 80)'
 g_loc_norm = "{'sig1': 2, 'sig2': 20}"
-g_loc_norm = "False"
+#g_loc_norm = "False"
 # loc_norm = 'False'
 data = data.loc[(data['matcher'] == matcher) 
                 & (data['edge'] == edge) 
