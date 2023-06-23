@@ -6,7 +6,6 @@ sys.path.append(os.getcwd())
 
 import pandas as pd
 import numpy as np
-from source.analysis import log_error_points
 import matplotlib.pyplot as plt
 import seaborn as sns
 from ast import literal_eval

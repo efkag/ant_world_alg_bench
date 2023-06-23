@@ -13,6 +13,7 @@ from ast import literal_eval
 import yaml
 from source.utils import load_route_naw, plot_route, animated_window, check_for_dir_and_create
 from source.routedatabase import Route
+from source.antworld2 import Agent
 sns.set_context("paper", font_scale=1)
 
 
@@ -79,5 +80,5 @@ else:
 route = Route(r_path, route_id=route_id).get_route_dict()
 plot_route(route, traj, scale=70, size=figsize, save=True, path=fig_save_path, title=title)
 
-log_error_points(route, traj, thresh=threshold, target_path=fig_save_path)
+log_error_points(route, traj, thresh=threshold, target_path=fig_save_path, aw=Agent)
 
