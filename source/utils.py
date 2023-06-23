@@ -915,7 +915,9 @@ def check_for_dir_and_create(directory, remove=False):
     if remove and os.path.exists(directory):
         shutil.rmtree(directory)
     if not os.path.exists(directory):
+        original_umask =os.umask(0)
         os.makedirs(directory, exist_ok=True)
+        os.umask(original_umask)
 
 
 def load_loop_route(route_dir, route_id=1, grid_pos_limit=100):
