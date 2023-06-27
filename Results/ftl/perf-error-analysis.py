@@ -39,6 +39,7 @@ data = data.loc[(data['matcher'] == matcher)
                 ]
 # window_labels = ['Adaptive (20)', 'PM', 'w=15', 'w=20', 'w=25', 'w=30']
 
+thresh = 0
 
 '''
 Plot errors vs window sizes for a combo of parameters
@@ -51,7 +52,8 @@ df = data.groupby(['window'])['errors'].apply(sum).to_frame('errors').reset_inde
 df = df.explode('errors')
 df['errors']=df['errors'].astype('float64')
 #temporary meause to abs the values
-df['errors']=df['errors'].apply(abs)
+if thresh:
+    df = df.loc[df['errors'] >= thresh]
 sns.violinplot(data=df, x='window', y='errors', cut=0, ax=ax)
 
 window_labels = ['Adaptive SMW', 'PM', 'Fixed 15', 'Fixed 25', 'Fixed 25']
