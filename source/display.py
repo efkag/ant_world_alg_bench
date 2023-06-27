@@ -39,6 +39,14 @@ def imgshow(image, size=(10, 10), title='', path='', save_id=None):
         fig.savefig(save_path, bbox_inches="tight")
     plt.show()
 
+def imghist(img, bins=256, ax=None):
+    if ax:
+        ax.hist(img.flatten(), bins=bins, density=True)
+        return ax
+    else:
+        plt.hist(img.flatten(), bins=bins, density=True)
+        plt.show()
+
 
 def plot_3d(data, show=True, rows_cols_idx=111, title='', save=False, path=''):
     '''
