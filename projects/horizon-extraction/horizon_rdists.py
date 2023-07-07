@@ -64,8 +64,8 @@ plt.show()
 
 
 ### use the diff of the points as a signal
-points = np.vstack((x, y)).astype(np.float64)
-norms = np.linalg.norm(points, axis=0)
+#points = np.vstack((x, y)).astype(np.float64)
+#norms = np.linalg.norm(points, axis=0)
 def norm2(x, y):
     dx = x[1:] - x[:-1]
     dy = y[1:] - y[:-1]
@@ -79,3 +79,15 @@ plt.plot(x, dists)
 plt.scatter(x, y)
 plt.plot(x, y)
 plt.show()
+
+def horizon_ext(edges_img):
+    y, x = np.where(edges_img > 0)
+    ##### need to order points by x values
+    sort_ind = np.argsort(x)
+    x = np.take(x, sort_ind)
+    y = np.take(y, sort_ind)
+    # subtraction of the max from y flips the edges points and oriantated them correctly
+    # thisis because the top left corner of the image is considered the origin (0 ,0)
+    y = y.max() - y
+    dists = norm2(x, y)
+    return dists
