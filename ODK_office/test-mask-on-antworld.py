@@ -12,6 +12,7 @@ import cv2 as cv
 from source.utils import load_route_naw, plot_route, seq_angular_error, animated_window, pre_process, check_for_dir_and_create
 from source import seqnav
 from source import perfect_memory as pm
+from source.antworld2 import Agent
 from source.analysis import log_error_points
 
 path = 'ODK_office/odk-mask.pickle'
@@ -47,7 +48,8 @@ traj['heading'] = np.array(traj['heading'])
 # plot_route(route, traj)
 path = os.path.join(fwd, 'odk-antworld', 'no-mask')
 check_for_dir_and_create(path, remove=True)
-log_error_points(route, traj, nav, thresh=0.0, route_id=route_id, target_path=path)
+log_error_points(route, traj, nav, thresh=0.0, route_id=route_id, 
+                 target_path=path, aw_agent=Agent)
 
 
 ### Masked
@@ -76,4 +78,5 @@ traj['heading'] = np.array(traj['heading'])
 
 path = os.path.join(fwd, 'odk-antworld', 'masked')
 check_for_dir_and_create(path)
-log_error_points(route, traj, nav, thresh=0.0, route_id=route_id, target_path=path)
+log_error_points(route, traj, nav, thresh=0.0, route_id=route_id, 
+                 target_path=path, aw_agent=Agent)

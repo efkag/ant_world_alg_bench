@@ -4,7 +4,7 @@ import cv2 as cv
 import pandas as pd
 from scipy.spatial.distance import cdist
 
-from source.utils import calc_dists, travel_dist, pre_process, angular_error, seq_angular_error, travel_dist
+from source.utils import calc_dists, squash_deg, travel_dist, pre_process, angular_error, seq_angular_error, travel_dist
 from source.unwraper import Unwraper
 from source.imgproc import resize
 
@@ -207,6 +207,7 @@ class BoBRoute:
         # convert the lists to numpy arrays
         for k in route_data:
             route_data[k] = np.array(route_data[k])
+        route_data['yaw'] = squash_deg(route_data['yaw'])
         # print(route_data.keys())
         if self.read_imgs:
             imgs = []
@@ -227,12 +228,12 @@ class BoBRoute:
         return route_data
     
     def calc_errors(self, trajectory):
-        return seq_angular_error(self.route_dict, trajectory)
+        return angular_error(self.route_dict, trajectory)
 
     def set_query_data(self, qx, qy, qyaw, qimgs):
-        self.route_dict['qx'] = qx
-        self.route_dict['qy'] = qy
-        self.route_dict['qyaw'] = qyaw
+        self.route_dict['qx'] = np.array(qx)
+        self.route_dict['qy'] = np.array(qy)
+        self.route_dict['qyaw'] = np.array(qyaw)
         self.route_dict['qimgs'] = qimgs
 
     def get_xycoords(self):
@@ -242,6 +243,8 @@ class BoBRoute:
         return {'x': self.route_dict['qx'], 'y': self.route_dict['qy']}
 
     def get_yaw(self): return self.route_dict['yaw']
+
+    def get_qyaw(self): return self.route_dict['qyaw']
 
     def get_pitch(self): return self.route_dict['pitch']
 
@@ -295,3 +298,30 @@ def make_query_repeat_routes(route, route_ref_id, rep_path, repeats, suffix=None
         qyaw.extend(r.get_yaw())
         qimgs.extend(r.get_imgs())
     route.set_query_data(qx, qy, qyaw, qimgs)
+
+
+def load_bob_routes_repeats(path, ids, suffix=None, repeats=None, **kwargs):
+    routes = []
+    repeat_routes = []
+    # Thiis the the reference route choosen from the repeats. Usualy the first one.
+    ref_route_repeat_id = 1
+    for rid in ids:
+        route_path =  os.path.join(path, 'route{}'.format(rid))
+        if suffix:
+            route_path = os.path.join(route_path, suffix)
+            #this is the preat routes path with the suffix
+            repeats_path = route_path
+        # the referencee route is always 0, i.e the first route recorded
+        route_path = route_path + str(ref_route_repeat_id)
+        r = BoBRoute(route_path, route_id=rid, **kwargs)
+        routes.append(r)
+        if repeats:
+            repeat_ids = [*range(1, repeats+1)]
+            repeat_ids.remove(ref_route_repeat_id)
+            rep_routes_temp_l = []
+            for rep in repeat_ids:
+                route_path = repeats_path + str(rep)
+                r = BoBRoute(route_path, route_id=rep, **kwargs)
+                rep_routes_temp_l.append(r)
+            repeat_routes.append(rep_routes_temp_l)
+    return routes, repeat_routes

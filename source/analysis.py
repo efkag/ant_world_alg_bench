@@ -3,8 +3,7 @@ from scipy.spatial.distance import cdist
 import os
 import cv2 as cv
 import matplotlib.pyplot as plt
-from source.utils import rotate, pair_rmf, mae, mse, rmf, check_for_dir_and_create, weighted_mse
-from source import antworld2
+from source.utils import rotate, pair_rmf, mse, rmf, check_for_dir_and_create, weighted_mse
 from source.display import plot_route_errors
 
 
@@ -36,14 +35,16 @@ def perc_outliers(data):
     return perc
 
 
-def log_error_points(route, traj, thresh=0.5, target_path=None):
+def log_error_points(route, traj, thresh=0.5, target_path=None, aw_agent=None):
     if not target_path:
         logs_path = 'route'
     logs_path = target_path
     check_for_dir_and_create(logs_path)
     # the antworld agent or query images for static bench
-    if not route.get('qimgs'):
-        agent = antworld2.Agent()
+    if not route.get('qimgs') and aw_agent:
+        agent = aw_agent()
+    else:
+        raise Exception('No query image and no agent')
     # get xy coords
     traj_xy = np.column_stack((traj['x'], traj['y']))
     route_xy = np.column_stack((route['x'], route['y']))
