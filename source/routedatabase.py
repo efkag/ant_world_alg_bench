@@ -148,6 +148,12 @@ class Route:
 
     def get_xycoords(self):
         return {'x': self.route_dict['x'], 'y': self.route_dict['y']}
+    
+    def get_yaw(self): return self.route_dict['yaw']
+
+    def get_pitch(self): return self.route_dict['pitch']
+
+    def get_roll(self): return self.route_dict['roll']
 
     def get_starting_coords(self):
         return {'x': self.route_dict['x'][0],

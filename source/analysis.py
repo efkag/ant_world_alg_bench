@@ -257,3 +257,58 @@ def d2i_rmfs_eval(rsims):
     depths = np.max(rsims, axis=1)-np.min(rsims, axis=1)
     integs = np.trapz(rsims, axis=1)
     return np.squeeze(depths/integs)
+
+
+def trans_catch_areas(query_img, ref_imgs, matcher=mae):
+        '''
+        Find the translational catchment areas for each RIDF between the query image and the ref images.
+        '''
+        ridf_field = rmf(query_img, ref_imgs, matcher=matcher, d_range=(-180, 180))
+
+        # translational idf of the ridf field minima
+        tidf = np.min(ridf_field, axis=1)
+        # the minima in translation
+        min_tidf_i = np.argmin(tidf)
+        diffs = np.diff(tidf)
+
+        halfright = diffs[min_tidf_i:]
+        halfleft = diffs[:min_tidf_i]
+        #find the poit where the gradiend sign change moving away from the minima
+        # add 1 cause the diff array is one elment shorter than the tidf
+        right_lim = min_tidf_i + np.argmax(halfright < 0.0) + 1
+        # flip the half left side of the RIDF in order to find the first
+        # possitive change fo the gradient moving or the minima to the left
+        left_lim = min_tidf_i - np.argmax(np.flip(halfleft) > 0.0)
+        area_lims = (left_lim, right_lim)
+        area = right_lim - left_lim
+
+        # plt.plot(tidf)
+        # left_lim = area_lims[0]
+        # right_lim = area_lims[1]
+        # plt.scatter(range(left_lim, right_lim), tidf[left_lim:right_lim])
+        # plt.show()
+
+        return ridf_field, area, area_lims
+
+
+def catch_areas(query_img, ref_imgs, matcher=mae):
+    '''
+    Find the catchment areas for each RIDF between the query image and the ref images.
+    '''
+    ridf_field = rmf(query_img, ref_imgs, matcher=matcher, d_range=(-180, 180))
+    indices = np.argmin(ridf_field, axis=1)
+    #grad = np.gradient(ridf_field, axis=1)
+    diffs = np.diff(ridf_field, axis=1)
+    areas = np.empty(len(ref_imgs))
+    area_lims = []
+    for i, j in enumerate(indices):
+        halfright = diffs[i, j:]
+        halfleft = diffs[i, :j]
+        #find the poit where the gradiend sign change moving away from the minima
+        right_lim = j + np.argmax(halfright < 0.0)
+        # flip the half left side of the RIDF in order to find the first
+        # possitive change fo the gradient moving or the minima to the left
+        left_lim = j - np.argmax(np.flip(halfleft) > 0.0)
+        area_lims.append((left_lim, right_lim))
+        areas[i] = right_lim - left_lim
+    return ridf_field, areas, area_lims
