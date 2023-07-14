@@ -27,7 +27,8 @@ sns.set_context("paper", font_scale=1)
 
 # Plot FTL route
 route_path = '/its/home/sk526/sussex-ftl-dataset/repeating-routes'
-route_id = 2
+route_path = '/home/efkag/ant_world_alg_bench/ftl/repeating-routes'
+route_id = 3
 suffix = 'N-'
 route_path = os.path.join(route_path, f"route{route_id}")
 route_path = os.path.join(route_path, suffix)
@@ -38,9 +39,9 @@ route = BoBRoute(path=route_path, route_id=route_id, read_imgs=False)
 route = route.get_route_dict()
 print(route['yaw'])
 # for some reason the FTL data is shifted by 90 deg
-u, v = pol2cart_headings(270 +  route['yaw'] )
+u, v = pol2cart_headings(90 +  route['yaw'] )
 plt.scatter(route['x'], route['y'])
-plt.quiver(route['x'], route['y'], u, v)
+plt.quiver(route['x'], route['y'], u, v, scale=70)
 plt.axis('equal')
 plt.show()
 

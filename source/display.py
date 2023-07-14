@@ -251,8 +251,6 @@ def plot_ftl_route(route, traj=None, scale=None, window=None, windex=None, save=
         ax.scatter(route['qx'], route['qy'])
     # Plot the trajectory of the agent when repeating the route
     if traj and not window:
-        # TODO: This re-correction (90 - headings) of the heading may not be necessary.
-        # TODO: I need to test if this will work as expected when the new results are in.
         u, v = pol2cart_headings(90 + traj['heading'])
         ax.scatter(traj['x'], traj['y'])
         # ax.plot(traj['x'], traj['y'])
