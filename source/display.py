@@ -9,6 +9,7 @@ from mpl_toolkits.mplot3d import axes3d
 from source.utils import pol2cart_headings
 import seaborn as sns
 
+
 def nans_imgshow(img):
     if np.nanmax(img) > 1.:
         img = img/np.nanmax(img)
@@ -110,7 +111,7 @@ def plot_multiline(data, scatter=False, labels=None, xlabel=None, ylabel=None):
     plt.legend()
     plt.show()
 
-
+    
 def plot_route_errors(route, traj, route_i, error_i, size=(10, 10), scale=None, path=None):
     fig, ax = plt.subplots(figsize=size)
     u, v = pol2cart_headings(90 - route['yaw'])

@@ -3,10 +3,10 @@ import numpy as np
 import cv2 as cv
 import pandas as pd
 from scipy.spatial.distance import cdist
-
 from source.utils import calc_dists, squash_deg, travel_dist, pre_process, angular_error, seq_angular_error, travel_dist
 from source.unwraper import Unwraper
 from source.imgproc import resize
+
 
 class Route:
     def __init__(self, path, route_id, read_imgs=True, grid_path=None, max_dist=0.2):
