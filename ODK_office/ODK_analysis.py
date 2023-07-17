@@ -2,7 +2,7 @@ import sys
 import os
 path = os.path.join(os.path.dirname(__file__), os.pardir)
 fwd = os.path.dirname(__file__)
-sys.path.append(path)
+sys.path.append(os.getcwd())
 
 import numpy as np
 import pandas as pd

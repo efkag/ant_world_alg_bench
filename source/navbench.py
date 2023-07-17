@@ -1,18 +1,26 @@
-from source.utils import pre_process, load_route_naw, seq_angular_error, check_for_dir_and_create, calc_dists
-from source import seqnav as spm, perfect_memory as pm
+import os
+import copy
 import pandas as pd
 import time
 import itertools
 import multiprocessing
 import functools
 import numpy as np
-from source.routedatabase import Route
+import yaml
+from source.utils import pre_process, load_route_naw, check_for_dir_and_create, calc_dists, squash_deg
+from source import seqnav as spm, perfect_memory as pm
+from source.routedatabase import Route, load_routes, load_bob_routes, load_bob_routes_repeats
+from source.imgproc import Pipeline
+from source import infomax
 
 
 class Benchmark:
-    def __init__(self, results_path, routes_path, grid_path,  filename='results.csv'):
-        self.results_path = results_path + filename
+    def __init__(self, results_path, routes_path, grid_path=None,  filename='results.csv', 
+                 route_path_suffix=None, grid_dist=None, route_repeats=None):
+        self.results_path = results_path
         self.routes_path = routes_path
+        self.route_path_suffix = route_path_suffix
+        self.route_repeats = route_repeats
         self.grid_path = grid_path
         check_for_dir_and_create(results_path)
         self.jobs = 0
@@ -20,7 +28,8 @@ class Benchmark:
         self.bench_logs = []
         self.route_ids = None
         self.routes_data = []
-        self.dist = 0.2  # Distance between grid images and route images
+        #self.dist = 0.2  # Distance between grid images and route images
+        self.dist = grid_dist
         self.log = {'route_id': [], 'blur': [], 'edge': [], 'res': [], 'window': [],
                     'matcher': [], 'mean_error': [], 'errors': [], 'seconds': [],
                     'abs_index_diff': [], 'window_log': [], 'best_sims': [], 'dist_diff': [],
@@ -41,7 +50,8 @@ class Benchmark:
         return not (combo['edge_range'] and combo['blur'])
 
     def remove_non_blur_edge(self, combo):
-        return not combo['edge_range'] and not combo['blur']
+        return not combo.get('edge_range') and not combo.get('blur') and not combo.get('gauss_loc_norm') and not combo.get('loc_norm')
+        #return not combo['edge_range'] and not combo['blur']
 
     def get_grid_dict(self, params):
         grid = itertools.product(*[params[k] for k in params])
@@ -65,27 +75,48 @@ class Benchmark:
         shared = manager.dict({'jobs': 0, 'total_jobs': 0})
         return shared
 
-    def bench_paral(self, params, route_ids=None):
-        print(multiprocessing.cpu_count(), ' CPU cores found')
+    def bench_paral(self, params, route_ids=None, cores=None):
+        # save the parmeters of the test in a json file
+        check_for_dir_and_create(self.results_path)
+        param_path = os.path.join(self.results_path, 'params.yml')
+        temp_params = copy.deepcopy(params)
+        temp_params['routes_path'] = self.routes_path
+        temp_params['route_ids'] = route_ids
+        with open(param_path, 'w') as fp:
+            yaml.dump(temp_params, fp)
+
+        existing_cores = multiprocessing.cpu_count()
+        if cores and cores > existing_cores:
+            cores = existing_cores - 1
+        elif cores and cores <= existing_cores:
+            cores = cores
+        else:
+            cores = existing_cores - 1
+        print(existing_cores, ' CPU cores found. Using ', cores, ' cores')
 
         grid = self.get_grid_dict(params)
         shared = self._init_shared()
         self.total_jobs = len(grid)
         shared['total_jobs'] = self.total_jobs * len(route_ids)
 
-        if self.total_jobs < multiprocessing.cpu_count():
+        if self.total_jobs < cores:
             no_of_chunks = self.total_jobs
         else:
-            no_of_chunks = multiprocessing.cpu_count() - 1
+            no_of_chunks = cores
         # Generate list chunks of grid combinations
         chunks = self.get_grid_chunks(grid, no_of_chunks)
 
         print('{} combinations, testing on {} routes, running on {} cores'.format(self.total_jobs, len(route_ids), no_of_chunks))
+        
+        #Make a dict of parameter arguments
+        arg_params = {'route_ids': route_ids, 'grid_dist':self.dist,
+                      'routes_path':self.routes_path, 'grid_path':self.grid_path,
+                      'route_path_suffix':self.route_path_suffix,
+                      'repeats':self.route_repeats}
         # Partial callable
-        worker = functools.partial(self.worker_bench, route_ids,
-                                   self.dist, self.routes_path, self.grid_path, shared)
+        worker = functools.partial(self.worker_bench_repeats, arg_params, shared)
 
-        pool = multiprocessing.Pool()
+        pool = multiprocessing.Pool(processes=no_of_chunks)
 
         logs = pool.map_async(worker, chunks)
         pool.close()
@@ -120,7 +151,8 @@ class Benchmark:
                 # _, test_x, test_y, test_imgs, route_x, route_y, \
                 #     route_heading, route_imgs = load_route(route, self.dist)
                 route = Route(route_path, route_id, grid_path=self.grid_path)
-
+                
+                # TODO: here the query images need to be the othe repeat of the route!
                 tic = time.perf_counter()
                 # Preprocess images
                 test_imgs = pre_process(route.get_qimgs(), combo_dict)
@@ -170,21 +202,22 @@ class Benchmark:
             self.total_jobs = self.total_jobs * len(params[k])
         print('Total number of jobs: {}'.format(self.total_jobs))
 
-    def benchmark(self, params, route_ids, parallel=False):
+    def benchmark(self, params, route_ids, parallel=True, cores=None):
 
         assert isinstance(params, dict)
         assert isinstance(route_ids, list)
 
         if parallel:
             self.log = None
-            self.log = self.bench_paral(params, route_ids)
+            self.log = self.bench_paral(params, route_ids, cores=cores)
             self.unpack_results()
         else:
             self.log = self.bench_singe_core(params, route_ids)
 
         bench_results = pd.DataFrame(self.log)
-        bench_results.to_csv(self.results_path, index=False)
-        print(bench_results)
+        write_path = os.path.join(self.results_path, 'results.csv')
+        bench_results.to_csv(write_path, index=False)
+        #print(bench_results)
 
     def unpack_results(self):
         results = self.log.get()
@@ -196,62 +229,198 @@ class Benchmark:
 
 
     @staticmethod
-    def worker_bench(route_ids, dist, routes_path, grid_path, shared, chunk):
+    def worker_bench(arg_params, shared, chunk):
+        # unpack shared bench parameters
+        route_ids = arg_params.get('route_ids')
+        dist =  arg_params.get('grid_dist')
+        routes_path =  arg_params.get('routes_path')
+        grid_path =  arg_params.get('grid_path')
+        route_path_suffix = arg_params.get('route_path_suffix')
+        repeats = arg_params.get('repeats')
 
-        log = {'route_id': [], 'blur': [], 'edge': [], 'res': [], 'window': [],
-               'matcher': [], 'mean_error': [], 'seconds': [], 'errors': [],
-               'abs_index_diff': [], 'window_log': [], 'best_sims': [], 'dist_diff': [],
-               'tx': [], 'ty': [], 'th': []}
+        log = {'route_id': [], 'blur': [], 'edge': [], 'res': [], 'window': [], 'matcher': [],
+             'deg_range':[], 'mean_error': [], 'seconds': [], 'errors': [], 
+             'abs_index_diff': [], 'window_log': [], 'matched_index': [], 'dist_diff': [], 
+             'tx': [], 'ty': [], 'th': [],'ah': [] ,'best_sims':[], 
+             'loc_norm':[], 'gauss_loc_norm':[], 'wave':[], 'nav-name':[]}
+        
+        # Load all routes
+        # routes = load_routes(routes_path, route_ids, max_dist=dist, grid_path=grid_path)
+        routes = load_bob_routes(routes_path, route_ids, 
+                                 suffix=route_path_suffix, repeats=repeats)
+        # routes = make_query_routes(routes)
         #  Go though all combinations in the chunk
         for combo in chunk:
 
             matcher = combo['matcher']
             window = combo['window']
             window_log = None
-            for route_id in route_ids:  # for every route
-                route_path = routes_path + 'route' + str(route_id) + '/'
-                # _, test_x, test_y, test_imgs, route_x, route_y, \
-                # route_heading, route_imgs = load_route(route, dist)
-                route = Route(route_path, route_id, grid_path=grid_path, max_dist=dist)
+            for route in routes:  # for every route
 
                 tic = time.perf_counter()
                 # Preprocess images
-                test_imgs = pre_process(route.get_qimgs(), combo)
-                route_imgs = pre_process(route.get_imgs(), combo)
+                pipe = Pipeline(**combo)
+                route_imgs = pipe.apply(route.get_imgs())
+                test_imgs = pipe.apply(route.get_qimgs())
                 # Run navigation algorithm
                 if window:
-                    nav = spm.SequentialPerfectMemory(route_imgs, matcher, window=window)
+                    nav = spm.SequentialPerfectMemory(route_imgs, matcher, **combo)
                     recovered_heading, window_log = nav.navigate(test_imgs)
-                else:
-                    nav = pm.PerfectMemory(route_imgs, matcher)
+                elif window == 0:
+                    nav = pm.PerfectMemory(route_imgs, matcher, **combo)
                     recovered_heading = nav.navigate(test_imgs)
+                # else:
+                #     infomaxParams = infomax.Params()
+                #     nav = infomax.InfomaxNetwork(infomaxParams, route_imgs, deg_range=(-180, 180), **combo)
+                # here i need a navigate method for infomax.
                 toc = time.perf_counter()
                 # Get time complexity
                 time_compl = toc - tic
                 # Get the errors and the minimum distant index of the route memory
-                traj = {'x': route['qx'], 'y': route['qy'], 'heading': recovered_heading}
+                qxy = route.get_qxycoords()
+                traj = {'x': qxy['x'], 'y': qxy['y'], 'heading': recovered_heading}
+                #!!!!!! Important step to get the heading in the global coord system
+                traj['heading'] = squash_deg(route.get_qyaw() + recovered_heading)
                 errors, min_dist_index = route.calc_errors(traj)
                 # Difference between matched index and minimum distance index and distance between points
                 matched_index = nav.get_index_log()
                 abs_index_diffs = np.absolute(np.subtract(nav.get_index_log(), min_dist_index))
                 dist_diff = calc_dists(route.get_xycoords(), min_dist_index, matched_index)
                 mean_route_error = np.mean(errors)
-                log['route_id'].extend([route_id])
-                log['blur'].extend([combo.get('blur')])
-                log['edge'].extend([combo.get('edge_range')])
+                window_log = nav.get_window_log()
+                rec_headings = nav.get_rec_headings()
+                deg_range = nav.deg_range
+
+                # TODO: save ridf fields
+                # rmf_logs_file = 'rmfs' + str(chunk_id) + str(jobs)
+                # rmfs_path = os.path.join(results_path, rmf_logs_file)
+                # np.save(rmfs_path, rmf_logs)
+
+                log['nav-name'].append(nav.get_name())
+                log['route_id'].append(route.get_route_id())
+                log['blur'].append(combo.get('blur'))
+                log['edge'].append(combo.get('edge_range'))
                 log['res'].append(combo.get('shape'))
-                log['window'].extend([window])
-                log['matcher'].extend([matcher])
+                log['window'].append(window)
+                log['loc_norm'].append(combo.get('loc_norm'))
+                log['gauss_loc_norm'].append(combo.get('gauss_loc_norm'))
+                log['wave'].append(combo.get('wave'))
+                log['matcher'].append(matcher)
+                log['deg_range'].append(deg_range)
                 log['mean_error'].append(mean_route_error)
                 log['seconds'].append(time_compl)
                 log['window_log'].append(window_log)
-                log['best_sims'].append(nav.get_best_sims())
                 log['tx'].append(traj['x'].tolist())
                 log['ty'].append(traj['y'].tolist())
-                log['th'].append(traj['heading'])
+                # This is the heading in the global coord system
+                log['th'].append(traj['heading'].tolist())
+                # This is the agent heading from the egocentric agent reference
+                log['ah'].append(recovered_heading)
+                log['matched_index'].append(matched_index)
                 log['abs_index_diff'].append(abs_index_diffs.tolist())
                 log['dist_diff'].append(dist_diff.tolist())
                 log['errors'].append(errors)
+                log['best_sims'].append(nav.get_best_sims())
+                # Increment the complete jobs shared variable
+                shared['jobs'] = shared['jobs'] + 1
+                print(multiprocessing.current_process(), ' jobs completed: {}/{}'.format(shared['jobs'], shared['total_jobs']))
+        return log
+    
+    @staticmethod
+    def worker_bench_repeats(arg_params, shared, chunk):
+        # unpack shared bench parameters
+        route_ids = arg_params.get('route_ids')
+        dist =  arg_params.get('grid_dist')
+        routes_path =  arg_params.get('routes_path')
+        grid_path =  arg_params.get('grid_path')
+        route_path_suffix = arg_params.get('route_path_suffix')
+        repeats = arg_params.get('repeats')
+
+        log = {'route_id': [], 'rep_id': [], 'blur': [], 'edge': [], 'res': [], 'window': [], 'matcher': [],
+             'deg_range':[], 'mean_error': [], 'seconds': [], 'errors': [], 
+             'abs_index_diff': [], 'window_log': [], 'matched_index': [], 'dist_diff': [], 
+             'tx': [], 'ty': [], 'th': [],'ah': [] ,'best_sims':[], 
+             'loc_norm':[], 'gauss_loc_norm':[], 'wave':[], 'nav-name':[]}
+        
+        # Load all routes
+        # routes = load_routes(routes_path, route_ids, max_dist=dist, grid_path=grid_path)
+        routes, repeat_routes = load_bob_routes_repeats(routes_path, route_ids, 
+                                 suffix=route_path_suffix, repeats=repeats)
+        # routes = make_query_routes(routes)
+        #  Go though all combinations in the chunk
+        for combo in chunk:
+
+            matcher = combo['matcher']
+            window = combo['window']
+            window_log = None
+            for ri, route in enumerate(routes):  # for every route
+                
+                for rep_route in repeat_routes[ri]: # for every repeat route
+                    tic = time.perf_counter()
+                    # Preprocess images
+                    pipe = Pipeline(**combo)
+                    route_imgs = pipe.apply(route.get_imgs())
+                    test_imgs = pipe.apply(rep_route.get_imgs())
+                    # Run navigation algorithm
+                    if window:
+                        nav = spm.SequentialPerfectMemory(route_imgs, matcher, **combo)
+                        recovered_heading, window_log = nav.navigate(test_imgs)
+                    elif window == 0:
+                        nav = pm.PerfectMemory(route_imgs, matcher, **combo)
+                        recovered_heading = nav.navigate(test_imgs)
+                    # else:
+                    #     infomaxParams = infomax.Params()
+                    #     nav = infomax.InfomaxNetwork(infomaxParams, route_imgs, deg_range=(-180, 180), **combo)
+                    # here i need a navigate method for infomax.
+                    toc = time.perf_counter()
+                    # Get time complexity
+                    time_compl = toc - tic
+                    # Get the errors and the minimum distant index of the route memory
+                    qxy = rep_route.get_xycoords()
+                    traj = {'x': qxy['x'], 'y': qxy['y'], 'heading': recovered_heading}
+                    #!!!!!! Important step to get the heading in the global coord system
+                    traj['heading'] = squash_deg(rep_route.get_yaw() + recovered_heading)
+                    errors, min_dist_index = route.calc_errors(traj)
+                    # Difference between matched index and minimum distance index and distance between points
+                    matched_index = nav.get_index_log()
+                    abs_index_diffs = np.absolute(np.subtract(nav.get_index_log(), min_dist_index))
+                    dist_diff = calc_dists(route.get_xycoords(), min_dist_index, matched_index)
+                    mean_route_error = np.mean(errors)
+                    window_log = nav.get_window_log()
+                    rec_headings = nav.get_rec_headings()
+                    deg_range = nav.deg_range
+
+                    # TODO: save ridf fields
+                    # rmf_logs_file = 'rmfs' + str(chunk_id) + str(jobs)
+                    # rmfs_path = os.path.join(results_path, rmf_logs_file)
+                    # np.save(rmfs_path, rmf_logs)
+
+                    log['nav-name'].append(nav.get_name())
+                    log['route_id'].append(route.get_route_id())
+                    log['rep_id'].append(rep_route.get_route_id())
+                    log['blur'].append(combo.get('blur'))
+                    log['edge'].append(combo.get('edge_range'))
+                    log['res'].append(combo.get('shape'))
+                    log['window'].append(window)
+                    log['loc_norm'].append(combo.get('loc_norm'))
+                    log['gauss_loc_norm'].append(combo.get('gauss_loc_norm'))
+                    log['wave'].append(combo.get('wave'))
+                    log['matcher'].append(matcher)
+                    log['deg_range'].append(deg_range)
+                    log['mean_error'].append(mean_route_error)
+                    log['seconds'].append(time_compl)
+                    log['window_log'].append(window_log)
+                    log['tx'].append(traj['x'].tolist())
+                    log['ty'].append(traj['y'].tolist())
+                    # This is the heading in the global coord system
+                    log['th'].append(traj['heading'].tolist())
+                    # This is the agent heading from the egocentric agent reference
+                    log['ah'].append(recovered_heading)
+                    log['matched_index'].append(matched_index)
+                    log['abs_index_diff'].append(abs_index_diffs.tolist())
+                    log['dist_diff'].append(dist_diff.tolist())
+                    log['errors'].append(errors)
+                    log['best_sims'].append(nav.get_best_sims())
                 # Increment the complete jobs shared variable
                 shared['jobs'] = shared['jobs'] + 1
                 print(multiprocessing.current_process(), ' jobs completed: {}/{}'.format(shared['jobs'], shared['total_jobs']))

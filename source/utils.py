@@ -9,6 +9,7 @@ import os
 import shutil
 from scipy.spatial.distance import cosine, correlation, cdist, pdist
 from scipy.stats import circmean
+from collections.abc import Iterable
 
 
 def display_image(image, size=(10, 10), title='Title', save_id=None):
@@ -67,7 +68,7 @@ def plot_route(route, traj=None, scale=None, window=None, windex=None, save=Fals
     '''
     fig, ax = plt.subplots(figsize=size)
     ax.set_title(title,  loc="left")
-    plt.tight_layout(pad=0)
+    
     u, v = pol2cart_headings(90 - route['yaw'])
     ax.scatter(route['x'], route['y'])
     ax.quiver(route['x'], route['y'], u, v, scale=scale)
@@ -93,10 +94,13 @@ def plot_route(route, traj=None, scale=None, window=None, windex=None, save=Fals
         # ax.plot(traj['x'], traj['y'])
         ax.quiver(traj['x'], traj['y'], u, v, scale=scale)
     plt.axis('equal')
+    plt.tight_layout()
     if save and windex:
         fig.savefig(path + '/' + str(windex) + '.png')
         plt.close(fig)
     elif save:
+        path = os.path.join(path, 'routemap.png')
+        print(f'fig saved at: {path}')
         fig.savefig(path)
 
     if not save: plt.show()
@@ -243,7 +247,7 @@ def load_route_naw(path, route_id=1, imgs=False, query=False, max_dist=0.5, grid
 
 def write_route(path, route, route_id=1):
     route = pd.DataFrame(route)
-    route.to_csv(path + 'route' + str(route_id) + '.csv', index=False)
+    route.to_csv(os.path.join(path, 'route' + str(route_id) + '.csv'), index=False)
 
 
 def travel_dist(x, y):
@@ -342,6 +346,27 @@ def line_incl(x, y):
     incl = np.arctan2(np.subtract(y[1:], y[:-1]), np.subtract(x[1:], x[:-1])) * 180 / np.pi
     incl = np.append(incl, incl[-1])
     return incl
+
+
+def meancurv2d(x, y):
+    '''
+    Calculates the mean curvature of a set of points (x, y) that belong to a curve.
+    :param x:
+    :param y:
+    :return:
+    '''
+    # first derivatives
+    dx = np.gradient(x)
+    dy = np.gradient(y)
+
+    # second derivatives
+    d2x = np.gradient(dx)
+    d2y = np.gradient(dy)
+
+    # calculate the mean curvature from first and second derivatives
+    curvature = np.abs(dx * d2y - d2x * dy) / (dx * dx + dy * dy) ** 1.5
+
+    return np.mean(curvature)
 
 
 def squash_deg(degrees):
@@ -452,6 +477,38 @@ def rotate(d, image):
     return np.roll(image, -cols_to_shift, axis=1)
 
 
+def center_ridf(ridfs):
+    '''
+    Cneter the ridfs so that the minima are 
+    in the middle of the array.
+    '''
+    for i, ridf in enumerate(ridfs):
+        idx = np.argmin(ridf)
+        center_shift = int(round(-idx + len(ridf)/2))
+        ridfs[i] = np.roll(ridf, center_shift)
+    return ridfs
+
+
+def mse(a, b):
+    """
+    Image Differencing Function MSE
+    :param a: A single query image
+    :param b: One or more reference images
+    :return:
+    """
+    if isinstance(b, list):
+        return [np.mean(np.subtract(ref_img, a)**2) for ref_img in b]
+
+    return np.mean(np.subtract(a, b)**2)
+
+
+def weighted_mse(a, b, weights=None):
+    if isinstance(b, list):
+        return [np.mean(weights * np.subtract(ref_img, a)**2) for ref_img in b]
+
+    return np.mean(weights * np.subtract(a, b)**2)
+
+
 def rmse(a, b):
     """
     Image Differencing Function RMSE
@@ -460,9 +517,9 @@ def rmse(a, b):
     :return:
     """
     if isinstance(b, list):
-        return [np.sqrt(np.subtract(ref_img, a).mean()) for ref_img in b]
+        return [np.sqrt(np.mean(np.subtract(ref_img, a)**2)) for ref_img in b]
 
-    return np.sqrt(np.subtract(b, a).mean())
+    return np.sqrt(np.mean(np.subtract(a, b)**2))
 
 
 def mae(a, b):
@@ -594,6 +651,59 @@ def cos_sim(a, b):
     return np.dot(a, b) / (norm(a) * norm(b))
 
 
+def entropy_im(img, bins=256):
+    #get the histogram
+    amarg = np.histogramdd(np.ravel(img), bins = bins)[0]/img.size
+    amarg = amarg[np.ravel(amarg) > 0]
+    return -np.sum(np.multiply(amarg, np.log2(amarg)))
+
+
+def mutual_inf(a, b, bins=256):
+    if isinstance(b, list):
+        return [_mut_inf(a, img, bins) for img in b]
+
+    return mutual_inf(a, b, bins)
+
+
+def _mut_inf(a, b, bins=256):
+    hist_2d, x_edges, y_edges = np.histogram2d(a.ravel(), b.ravel(), bins=bins)
+    pab = hist_2d / float(np.sum(hist_2d))
+    pa = np.sum(pab, axis=1) # marginal for x over y
+    pb = np.sum(pab, axis=0) # marginal for y over x
+    pa_pb = pa[:, None] * pb[None, :] # Broadcast to multiply marginals
+    # Now we can do the calculation using the pxy, px_py 2D arrays
+    nzs = pab > 0 # Only non-zero pxy values contribute to the sum
+    return np.sum(pab[nzs] * np.log(pab[nzs] / pa_pb[nzs]))
+
+
+def entropy_dist(a, b, bins=256):
+    if isinstance(b, list):
+        return [_entropy_dist(a, img, bins) for img in b]
+
+    return _entropy_dist(a, b, bins)
+
+
+def _entropy_dist(a, b, bins=256):
+    ## how many bins? 256 always? 
+    # ask andy here for join entropy vs H(a)
+    # amarg = np.histogram(np.ravel(a), bins = bins)[0]/a.size
+    # amarg = amarg[amarg > 0]
+    # aentropy = -np.sum(np.multiply(amarg, np.log2(amarg)))
+
+    hist_2d, x_edges, y_edges = np.histogram2d(a.ravel(), b.ravel(), bins=bins)
+    pab = hist_2d / float(np.sum(hist_2d))
+    pa = np.sum(pab, axis=1) # marginal for a over b
+    pb = np.sum(pab, axis=0) # marginal for b over a
+    pa_pb = pa[:, None] * pb[None, :] # Broadcast to multiply marginals
+    # Now we can do the calculation using the pxy, px_py 2D arrays
+    nzs = pab > 0 # Only non-zero pab values contribute to the sum
+
+    pab_joint = pab[np.logical_and(pab, pab)]
+    ent_pab = -np.sum(pab_joint * np.log(pab_joint))
+    #here from practical rasons i could also subtract from the entropy of a
+    return ent_pab - (np.sum(pab[nzs] * np.log(pab[nzs] / pa_pb[nzs])))
+
+
 def rmf(query_img, ref_imgs, matcher=mae, d_range=(0, 360), d_step=1):
     """
     Rotational Matching Function.
@@ -641,8 +751,35 @@ def pair_rmf(query_imgs, ref_imgs, matcher=mae, d_range=(0, 360), d_step=1):
     total_search_angle = round((d_range[1] - d_range[0]) / d_step)
     sims = np.empty((len(ref_imgs), total_search_angle), dtype=np.float)
 
-    for i, q_img, r_img in enumerate(zip(query_imgs, ref_imgs)):
+    for i, (q_img, r_img) in enumerate(zip(query_imgs, ref_imgs)):
         sims[i] = [matcher(rotate(rot, q_img), r_img) for rot in degrees]
+
+    return sims
+
+def seq2seqrmf(query_imgs, ref_imgs, matcher=mae, d_range=(0, 360), d_step=1):
+    """
+    Rotational Matching Function.
+    Rotates multiple query images and compares then with one or more reference images
+    :param query_img:
+    :param ref_imgs:
+    :param matcher:
+    :param d_range:
+    :param d_step:
+    :return:
+    """
+    assert d_step > 0
+    assert isinstance(query_imgs, Iterable)
+    if not isinstance(ref_imgs, list):
+        ref_imgs = [ref_imgs]
+
+    degrees = range(*d_range, d_step)
+    total_search_angle = round((d_range[1] - d_range[0]) / d_step)
+    sims = np.empty((len(query_imgs)*len(ref_imgs), total_search_angle), dtype=np.float)
+    for i, query_img in enumerate(query_imgs):
+        for j, rot in enumerate(degrees):
+            # rotated query image
+            rqimg = rotate(rot, query_img)
+            sims[:(i+1)*len(query_imgs), j] = matcher(rqimg, ref_imgs)
 
     return sims
 
@@ -709,7 +846,7 @@ def degree_error(x_cords, y_cords, x_route_cords, y_route_cords, route_heading, 
     return errors, k
 
 
-def seq_angular_error(route, trajectory):
+def seq_angular_error(route, trajectory, memory_pointer=0):
     # TODO: Modify the function to calculate all the distances first (distance matrix)
     # TODO: and then calculate the minimum argument and extract the error.
     # Holds the angular error between the query position and the closest route position
@@ -717,7 +854,7 @@ def seq_angular_error(route, trajectory):
     mindist_index = []
     route_end = len(route['x'])
     search_step = 20
-    memory_pointer = 0
+    memory_pointer = memory_pointer
     limit = memory_pointer + search_step
 
     grid_xy = np.column_stack([trajectory['x'], trajectory['y']])
@@ -741,6 +878,9 @@ def seq_angular_error(route, trajectory):
 
 
 def angular_error(route, trajectory):
+    '''
+    route yaw and trajectory yaw must be within 
+    '''
     # Holds the angular error between the query position and the closest route position
     errors = []
     mindist_index = []
@@ -757,6 +897,23 @@ def angular_error(route, trajectory):
         mindist_index.append(idx)
         errors.append(180 - abs(abs(recovered_headings[i] - route_heading[mindist_index[-1]]) - 180))
     return errors, mindist_index
+
+def angular_diff(a, b):
+    '''
+    Assumes angles are in degrees in [-inf, inf]
+    return: smallest angle diff in [0, 180]
+    '''
+    assert len(a) == len(b)
+    return np.abs(180 - np.abs((a - b)%360 - 180))
+
+
+def divergence_traj(route, trajectory):
+    traj_xy = np.column_stack([trajectory['x'], trajectory['y']])
+    route_xy = np.column_stack([route['x'], route['y']])
+    #calculate all pairs distances
+    dists = cdist(traj_xy, route_xy, metric='euclidean')
+    # return the min distance for each test position.
+    return np.amin(dists, axis=1)
 
 
 def mean_seq_angular_error(route, trajectory):
@@ -778,7 +935,7 @@ def check_for_dir_and_create(directory, remove=False):
     if remove and os.path.exists(directory):
         shutil.rmtree(directory)
     if not os.path.exists(directory):
-        os.makedirs(directory)
+        os.makedirs(directory, exist_ok=True)
 
 
 def load_loop_route(route_dir, route_id=1, grid_pos_limit=100):
@@ -843,3 +1000,7 @@ def load_loop_route(route_dir, route_id=1, grid_pos_limit=100):
                 world_grid_imgs.append(img)
 
     return world, X_inlimit, Y_inlimit, world_grid_imgs, X_route, Y_route, Heading_route, route_images
+
+
+def scale2_0_1(a):
+    return (a-np.min(a))/(np.max(a)-np.min(a))

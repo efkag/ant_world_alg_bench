@@ -1,5 +1,5 @@
 import math
-from source.utils import line_incl, pol2cart_headings, check_for_dir_and_create, pol2cart, squash_deg, travel_dist
+from source.utils import calc_dists, line_incl, pol2cart_headings, check_for_dir_and_create, pol2cart, squash_deg, travel_dist
 from matplotlib import pyplot as plt
 import numpy as np
 pi = math.pi
@@ -65,7 +65,7 @@ def meancurv2d(x, y):
     return np.mean(curvature)
 
 
-def random_circle_points(r, no_of_points=5):
+def random_circle_points(r, no_of_points=10):
     '''
     Generates random points within a circle given the desired radius.
     It assumes the center is (0,0)
@@ -94,9 +94,10 @@ def random_gauss_points(mean=(0, 0), sigma=10, no_of_points=5):
     return np.random.multivariate_normal(mean, cov, no_of_points)
 
 
-def random_line_points(start=-10, end=10, sigma=5, steps=10):
-    x = np.linspace(start, end, steps)
-    y = x + np.random.normal(0, sigma, steps)
+def random_line_points(start=-10, end=10, sigma=5, no_of_points=5):
+    x = np.linspace(start, end, no_of_points)
+    y = np.full_like(x, x)
+    y[1:-1] = x[1:-1] + np.random.normal(0, sigma, no_of_points-2)
     xy = np.column_stack((x, y))
     return xy
 
@@ -122,7 +123,7 @@ def generate_from_points(path, generator='gauss', **kwargs):
     return generate(points, path, curve_points=curve_points)
 
 
-def generate(xy, save_path, curve_points=250, plot=True):
+def generate(xy, save_path, curve_points=250, plot=False):
     '''
     Given control points from one of the methods above.
     Uses the control points to generate points on a bezier curve.
@@ -153,6 +154,7 @@ def generate(xy, save_path, curve_points=250, plot=True):
 
     print('mean curvature:', meancurv2d(x_route, y_route))
     print('traveled distance', travel_dist(route['x'], route['y']))
+    print('average dist between points', travel_dist(route['x'], route['y'])/curve_points)
     if plot:
         u, v = pol2cart_headings(90 - heading)
         plt.scatter(x_route, y_route)

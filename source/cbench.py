@@ -1,9 +1,11 @@
+from source import utils
 from source.utils import pre_process, calc_dists, load_route_naw, seq_angular_error, check_for_dir_and_create
 from source import seqnav as spm, perfect_memory as pm
 from source.routedatabase import Route
 import time
 import itertools
 import os
+import copy
 import pandas as pd
 import numpy as np
 from source import antworld2 as aw
@@ -12,6 +14,7 @@ from subprocess import Popen
 from queue import Queue, Empty
 from threading import Thread
 import sys
+import yaml
 
 
 def get_grid_dict(params):
@@ -22,19 +25,22 @@ def get_grid_dict(params):
         for i, k in enumerate(params):
             combo_dict[k] = combo[i]
         grid_dict.append(combo_dict)
-
+    
+    # remove the combination where we have both blur and adge detection
     grid_dict[:] = [x for x in grid_dict if remove_blur_edge(x)]
+    # Remove combinations where we have neither blur nor edge detection nor gauss_loc_norm
+    # generally if all the main pre-proc functions are not being used then we don't want to test those combinations
     grid_dict[:] = [x for x in grid_dict if not remove_non_blur_edge(x)]
 
     return grid_dict
 
 
 def remove_blur_edge(combo):
-    return not (combo['edge_range'] and combo['blur'])
+    return not (combo.get('edge_range') and combo.get('blur'))
 
 
 def remove_non_blur_edge(combo):
-    return not combo['edge_range'] and not combo['blur']
+    return not combo.get('edge_range') and not combo.get('blur') and not combo.get('gauss_loc_norm') and not combo.get('loc_norm')
 
 
 def bench(params, routes_path, route_ids):
@@ -108,13 +114,14 @@ def bench(params, routes_path, route_ids):
     return log
 
 
-def benchmark(results_path, routes_path, params, route_ids,  parallel=False, cores=None):
+def benchmark(results_path, routes_path, params, route_ids,  parallel=False, cores=None, num_of_repeats=None):
 
     assert isinstance(params, dict)
     assert isinstance(route_ids, list)
 
     if parallel:
-        bench_paral(params, routes_path, route_ids, cores)
+        bench_paral(results_path, params, routes_path, route_ids, cores, 
+                    num_of_repeats=num_of_repeats)
         # log = unpack_results(log)
     else:
         log = bench(params, routes_path, route_ids)
@@ -145,77 +152,81 @@ def unpack_results(results):
     return log
 
 
-def bench_paral(params, routes_path, route_ids=None, cores=None):
-    existing_cores = os.cpu_count()
-    print(existing_cores, ' CPU cores found')
-    if cores and cores <= existing_cores:
-        existing_cores = cores
+def bench_paral(results_path, params, routes_path, route_ids=None, cores=None, num_of_repeats=None):
+    # save the parmeters of the test in a json file
+    check_for_dir_and_create(results_path)
+    param_path = os.path.join(results_path, 'params.yml')
+    temp_params = copy.deepcopy(params)
+    temp_params['routes_path'] = routes_path
+    temp_params['route_ids'] = route_ids
+    # if there are no repeats then only one repeat per route
+    if not num_of_repeats:  
+        num_of_repeats = 1
+    temp_params['num_of_repeats'] = num_of_repeats
+    #save params to yaml
+    with open(param_path, 'w') as fp:
+        yaml.dump(temp_params, fp)
 
+    existing_cores = os.cpu_count()
+    if cores and cores > existing_cores:
+        cores = existing_cores - 1
+    elif cores and cores <= existing_cores:
+        cores = cores
+    else:
+        cores = existing_cores - 1
+    print(existing_cores, ' CPU cores found. Using ', cores, ' cores')
 
     grid = get_grid_dict(params)
     total_jobs = len(grid)
 
-    if total_jobs < existing_cores:
+    if total_jobs < cores:
         no_of_chunks = total_jobs
     else:
-        no_of_chunks = existing_cores - 1
+        no_of_chunks = cores
     # Generate a list of chunks of grid combinations
     chunks = get_grid_chunks(grid, no_of_chunks)
     print('{} combinations, testing on {} routes, running on {} cores'.format(total_jobs, len(route_ids), no_of_chunks))
     chunks_path = 'chunks'
-    check_for_dir_and_create(chunks_path)
+    check_for_dir_and_create(chunks_path, remove=True)
     print('Saving chunks in', chunks_path)
 
     # Pickle the parameter object to use in the worker script
     for i, chunk in enumerate(chunks):
-        params = {'chunk': chunk, 'route_ids': route_ids, 'routes_path': routes_path, 'i': i}
+        params = {'chunk': chunk, 'route_ids': route_ids, 
+                'routes_path': routes_path, 
+                'results_path':results_path, 
+                'i': i,
+                'num_of_repeats':num_of_repeats}
         with open('chunks/chunk{}.p'.format(i), 'wb') as file:
             pickle.dump(params, file)
     print('{} chunks pickled'.format(no_of_chunks))
 
+
+    work_path = os.path.join(os.path.dirname(__file__), 'workerscript.py')
+    work_path = 'workerscript.py'
     processes = []
     for i, chunk in enumerate(chunks):
-        cmd_list = ['python3', 'workerscript.py', 'chunks/chunk{}.p'.format(i)]
+        cmd_list = ['python3', work_path, 'chunks/chunk{}.p'.format(i)]
         p = Popen(cmd_list)
         processes.append(p)
 
     for p in processes:
         p.wait()
 
+    # combine the results that each worker produces into one .csv file
+    combine_results(results_path)
 
-def enqueue_output(out, queue):
-    for line in iter(out.readline, ''):
-        queue.put(line)
-    out.close()
+def combine_results(path):
+    files = find_csv_filenames(path)
+    r = []
+    for f in files:
+        filepath = os.path.join(path, f)
+        r.append(pd.read_csv(filepath)) 
+    results = pd.concat(r, ignore_index=True)
+    path = os.path.join(path, 'results.csv')
+    results.to_csv(path, index=False)
 
-
-def print_stdout_from_procs(processes):
-    q = Queue()
-    threads = []
-    for p in processes:
-        threads.append(Thread(target=enqueue_output, args=(p.stdout, q)))
-
-    for t in threads:
-        t.daemon = True
-        t.start()
-
-    while True:
-        try:
-            line = q.get_nowait()
-        except Empty:
-            pass
-        else:
-            sys.stdout.write(line)
-
-        # break when all processes are done.
-        if all(p.poll() is not None for p in processes):
-            break
-
-    for t in threads:
-        t.join()
-
-    for p in processes:
-        p.stdout.close()
-
-    print('All processes done')
+def find_csv_filenames(path_to_dir, suffix=".csv" ):
+    filenames = os.listdir(path_to_dir)
+    return [ filename for filename in filenames if filename.endswith( suffix ) ]
 

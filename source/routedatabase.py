@@ -1,9 +1,12 @@
+import os
 import numpy as np
 import cv2 as cv
 import pandas as pd
 from scipy.spatial.distance import cdist
-from source.utils import calc_dists, travel_dist, pre_process, angular_error, seq_angular_error, travel_dist
-import os
+from source.utils import calc_dists, squash_deg, travel_dist, pre_process, angular_error, seq_angular_error, travel_dist
+from source.unwraper import Unwraper
+from source.imgproc import resize
+
 
 class Route:
     def __init__(self, path, route_id, read_imgs=True, grid_path=None, max_dist=0.2):
@@ -21,7 +24,8 @@ class Route:
         self.no_of_segments = None
 
     def load_route(self):
-        route_data = pd.read_csv(self.path + '/route' + self.route_id + '.csv', index_col=False)
+        data_path = os.path.join(self.path, 'route' + self.route_id + '.csv')
+        route_data = pd.read_csv(data_path, index_col=False)
         route_data = route_data.to_dict('list')
         # convert the lists to numpy arrays
         for k in route_data:
@@ -29,7 +33,8 @@ class Route:
         if self.read_imgs:
             imgs = []
             for i in route_data['filename']:
-                img = cv.imread(os.path.join(self.path, i), cv.IMREAD_GRAYSCALE)
+                imgfile = os.path.join(self.path, i)
+                img = cv.imread(imgfile, cv.IMREAD_GRAYSCALE)
                 imgs.append(img)
             route_data['imgs'] = imgs
 
@@ -108,9 +113,23 @@ class Route:
 
     def calc_errors(self, trajectory):
         if self.is_segmented:
+            # TODO: for sgement we need to calculate the seq. error but starting 
+            # the search at the start of each segment 
             return angular_error(self.route_dict, trajectory)
         else:
             return seq_angular_error(self.route_dict, trajectory)
+
+    def min_dist_from_route(self, xy):
+        dist = cdist([xy], np.column_stack((self.route_dict['x'], self.route_dict['y'])), 'euclidean')
+        min_dist = np.min(dist)
+        min_idx = np.argmin(dist)
+        min_xy = (self.route_dict['x'][min_idx], self.route_dict['y'][min_idx])
+        return min_idx, min_dist, min_xy
+    
+    def dist_from_start(self, xy):
+        dx = xy[0] - self.route_dict['x'][0]
+        dy = xy[1] - self.route_dict['y'][0]
+        return np.sqrt(dx**2+dy**2)
 
     def get_tavel_distance(self):
         return travel_dist(self.route_dict['x'], self.route_dict['y'])
@@ -129,17 +148,180 @@ class Route:
 
     def get_xycoords(self):
         return {'x': self.route_dict['x'], 'y': self.route_dict['y']}
+    
+    def get_yaw(self): return self.route_dict['yaw']
+
+    def get_pitch(self): return self.route_dict['pitch']
+
+    def get_roll(self): return self.route_dict['roll']
 
     def get_starting_coords(self):
         return {'x': self.route_dict['x'][0],
                 'y': self.route_dict['y'][0],
                 'yaw': self.route_dict['yaw'][0]}
-
+    
+    def get_route_id(self):
+        return self.route_id
 
 def load_routes(path, ids, **kwargs):
     routes = []
     for id in ids:
-        r = Route(path, id, **kwargs)
+        route_path =  os.path.join(path, 'route{}'.format(id))
+        r = Route(route_path, id, **kwargs)
         routes.append(r)
     return routes
 
+
+class BoBRoute:
+
+    def __init__(self, path, route_id=None, read_imgs=True, unwraper=Unwraper, **kwargs):
+        self.path = path
+        self.read_imgs = read_imgs
+        self.proc_imgs = []
+        self.proc_qimgs= []
+        self.route_id = str(route_id)
+        self.unwraper = unwraper
+        # mDefult resizing to the max size needed for the benchmarks
+        self.img_shape = (360, 180)
+        self.resizer = resize(self.img_shape)
+        # self.vcrop = vcrop
+        # # change vcrop from percentage to an actual row index
+        # self.vcrop = int(round(self.img_shape[1] * self.vcrop))
+
+        self.route_dict = self.load_route()
+
+
+    def load_route(self):
+        route_data = pd.read_csv(os.path.join(self.path, 'database_entries.csv'), index_col=False)
+        route_data = route_data[route_data["X [mm]"].notnull()]
+        route_data.rename(str.strip, axis='columns', inplace=True, errors="raise")
+        # rename columns to filename,pitch,roll,x,y,yaw,z
+        route_data = route_data.to_dict('list')
+        key_maps = {'X [mm]': 'x', 'Y [mm]': 'y', 'Z [mm]':'z', 
+                    'Heading [degrees]':'yaw', 
+                    'IMU pitch [degrees]':'pitch', 
+                    'IMU roll [degrees]':'roll',
+                    'Filename':'filename'}
+        for k in key_maps:
+            route_data[key_maps[k]] = route_data.pop(k)
+        # convert the lists to numpy arrays
+        for k in route_data:
+            route_data[k] = np.array(route_data[k])
+        route_data['yaw'] = squash_deg(route_data['yaw'])
+        # print(route_data.keys())
+        if self.read_imgs:
+            imgs = []
+            for i in route_data['filename']:
+                #careful the filenames contain a leading space
+                im_path = os.path.join(self.path, i.strip())
+                img = cv.imread(im_path, cv.IMREAD_GRAYSCALE)
+                imgs.append(img)
+            # unwrap the images
+            if self.unwraper:
+                self.unwraper = self.unwraper(imgs[0])
+                for i, im in enumerate(imgs):
+                    im = self.unwraper.unwarp(im)
+                    im = self.resizer(im)
+                    #im = im[self.vcrop:, :]
+                    imgs[i] = im
+            route_data['imgs'] = imgs
+        return route_data
+    
+    def calc_errors(self, trajectory):
+        return angular_error(self.route_dict, trajectory)
+
+    def set_query_data(self, qx, qy, qyaw, qimgs):
+        self.route_dict['qx'] = np.array(qx)
+        self.route_dict['qy'] = np.array(qy)
+        self.route_dict['qyaw'] = np.array(qyaw)
+        self.route_dict['qimgs'] = qimgs
+
+    def get_xycoords(self):
+        return {'x': self.route_dict['x'], 'y': self.route_dict['y']}
+    
+    def get_qxycoords(self):
+        return {'x': self.route_dict['qx'], 'y': self.route_dict['qy']}
+
+    def get_yaw(self): return self.route_dict['yaw']
+
+    def get_qyaw(self): return self.route_dict['qyaw']
+
+    def get_pitch(self): return self.route_dict['pitch']
+
+    def get_roll(self): return self.route_dict['roll']
+    
+    def get_imgs(self):
+        return self.route_dict['imgs']
+
+    def get_qimgs(self):
+        return self.route_dict['qimgs']
+
+    def get_route_dict(self):
+        return self.route_dict
+    
+    def get_route_id(self):
+        return self.route_id
+    
+def load_bob_routes(path, ids, suffix=None, repeats=None, **kwargs):
+    routes = []
+    # Thiis the the reference route choosen from the repeats. Usualy the first one.
+    ref_route_repeat_id = 1
+    for id in ids:
+        route_path =  os.path.join(path, 'route{}'.format(id))
+        if suffix:
+            route_path = os.path.join(route_path, suffix)
+        # the referencee route is always 0, i.e the first route recorded
+        route_path = route_path + str(ref_route_repeat_id)
+        r = BoBRoute(route_path, route_id=id, **kwargs)
+        if repeats:
+            repeats_path =  os.path.join(path, 'route{}'.format(id))
+            make_query_repeat_routes(r, ref_route_repeat_id, repeats_path, repeats,
+                                     suffix=suffix, **kwargs)
+        routes.append(r)
+    return routes
+
+def make_query_repeat_routes(route, route_ref_id, rep_path, repeats, suffix=None, **kwargs):
+    repeats = [*range(1, repeats+1)]
+    repeats.remove(route_ref_id)
+    if suffix:
+        rep_path = os.path.join(rep_path, suffix)
+    qx = []
+    qy = []
+    qyaw = []
+    qimgs = []
+    for rep in repeats:
+        route_path = rep_path + str(rep)
+        r = BoBRoute(route_path, **kwargs)
+        xy = r.get_xycoords()
+        qx.extend(xy['x'])
+        qy.extend(xy['y'])
+        qyaw.extend(r.get_yaw())
+        qimgs.extend(r.get_imgs())
+    route.set_query_data(qx, qy, qyaw, qimgs)
+
+
+def load_bob_routes_repeats(path, ids, suffix=None, repeats=None, **kwargs):
+    routes = []
+    repeat_routes = []
+    # Thiis the the reference route choosen from the repeats. Usualy the first one.
+    ref_route_repeat_id = 1
+    for rid in ids:
+        route_path =  os.path.join(path, 'route{}'.format(rid))
+        if suffix:
+            route_path = os.path.join(route_path, suffix)
+            #this is the preat routes path with the suffix
+            repeats_path = route_path
+        # the referencee route is always 0, i.e the first route recorded
+        route_path = route_path + str(ref_route_repeat_id)
+        r = BoBRoute(route_path, route_id=rid, **kwargs)
+        routes.append(r)
+        if repeats:
+            repeat_ids = [*range(1, repeats+1)]
+            repeat_ids.remove(ref_route_repeat_id)
+            rep_routes_temp_l = []
+            for rep in repeat_ids:
+                route_path = repeats_path + str(rep)
+                r = BoBRoute(route_path, route_id=rep, **kwargs)
+                rep_routes_temp_l.append(r)
+            repeat_routes.append(rep_routes_temp_l)
+    return routes, repeat_routes

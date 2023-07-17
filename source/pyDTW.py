@@ -12,7 +12,8 @@ class DTW:
         self.HP_vert, self.HP_hor = HP
     
     def get_filters(self, img_shape):
-        (h,w) = img_shape
+        # For this benchmark code the width of the image is first and the height second
+        (w,h) = img_shape
         # Setup filters as matrizes
         LP_vert = np.zeros((int(h/2),h))
         HP_vert = np.zeros((int(h/2),h))
@@ -43,8 +44,8 @@ class DTW:
         
     def dwt_haar(self, img):
         '''
-        For high res use Vertical -> HL
-        For low res use Horizontal -> HH
+        For high res use Vertical -> HL (1/2 deg per pixel)
+        For low res use Horizontal -> HH (1 deg per pixel or below)
         '''
         # Filter rows
         I_gr = matmul(self.LP_vert, img)

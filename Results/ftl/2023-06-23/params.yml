@@ -1,0 +1,36 @@
+blur:
+- true
+- false
+deg_range:
+- !!python/tuple
+  - -180
+  - 180
+edge_range:
+- !!python/tuple
+  - 180
+  - 200
+- false
+gauss_loc_norm:
+- sig1: 2
+  sig2: 20
+- false
+matcher:
+- mae
+- corr
+route_ids:
+- 1
+- 2
+- 3
+routes_path: /mnt/data0/sk526/sussex-ftl-dataset/repeating-routes
+shape:
+- !!python/tuple
+  - 180
+  - 80
+vcrop:
+- 0.6
+window:
+- 0
+- 15
+- 20
+- 25
+- -15
