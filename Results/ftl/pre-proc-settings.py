@@ -18,15 +18,15 @@ data = pd.read_csv(os.path.join(results_path, 'results.csv'), index_col=False)
 data['errors'] = data['errors'].apply(eval)
 
 #select window size
-window = 0
+window = -15
 data = data.loc[data['window'] == window]
 grouping_func = sum
-grouping_factors = ['blur', 'gauss_loc_norm', 'matcher']
+grouping_factors = ['blur', 'edge', 'gauss_loc_norm', 'matcher']
 metric = 'errors'
 grouped = data.groupby(grouping_factors)[metric].apply(grouping_func).to_frame(metric).reset_index()
 
 
-#combine colusmk mfor plotting
+#combine colums for plotting
 grouped['combined'] = grouped[grouping_factors].apply(lambda row: '\n'.join(row.values.astype(str)), axis=1) 
 grouped = grouped.explode('errors')
 
@@ -35,6 +35,6 @@ fig, ax = plt.subplots(figsize=figsize)
 sns.barplot(x="combined", y=metric, data=grouped, ax=ax, estimator=np.mean, capsize=.2)
 #ax.bar(x=grouped['combined'], y=)
 #ax.tick_params(axis='x', labelrotation=90)
-path = os.path.join(fig_save_path, f'w={window}.png')
+path = os.path.join(fig_save_path, f'factors=[{grouping_factors}]w={window}.png')
 fig.savefig(path)
 plt.show() 
