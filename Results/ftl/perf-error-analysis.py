@@ -58,10 +58,29 @@ sns.violinplot(data=df, x='window', y='errors', cut=0, ax=ax)
 
 window_labels = ['Adaptive SMW', 'PM', 'Fixed 15', 'Fixed 25', 'Fixed 25']
 ax.set_xticklabels(window_labels)
-ax.set_ylabel('Angular error')
-ax.set_xlabel('Window size')
+ax.set_ylabel('absolute angular error')
+ax.set_xlabel('window size')
 plt.tight_layout()
 
-fig_save_path = os.path.join(fig_save_path, 'm{}.res{}.b{}.e{}.gloc{}.png'.format(matcher, res, blur, edge, g_loc_norm))
-fig.savefig(fig_save_path)
+save_path = os.path.join(fig_save_path, 'm{}.res{}.b{}.e{}.gloc{}.png'.format(matcher, res, blur, edge, g_loc_norm))
+fig.savefig(save_path)
+plt.show()
+
+
+'''
+Plot scatter of different algos for a pre-proc setting
+'''
+
+figsize = (7, 3)
+fig, ax = plt.subplots(figsize=figsize)
+df = data.groupby(['window'])['errors'].apply(sum).to_frame('errors').reset_index()
+df = df.explode('errors')
+x = df.loc[df['window'] == 0]['errors'].to_numpy()
+y = df.loc[df['window'] == -15]['errors'].to_numpy()
+ax.scatter(x, y)
+ax.set_ylabel('ASMW AAE')
+ax.set_xlabel('PM AAE')
+plt.tight_layout()
+save_path = os.path.join(fig_save_path, f'scatter-m{matcher}.res{res}.b{blur}.e{edge}.gloc{g_loc_norm}.png')
+fig.savefig(save_path)
 plt.show()

@@ -17,6 +17,9 @@ data = pd.read_csv(os.path.join(results_path, 'results.csv'), index_col=False)
 # data['trial_fail_count'] = data['trial_fail_count'].apply(eval)
 data['errors'] = data['errors'].apply(eval)
 
+#select route
+route_id = 1
+data = data.loc[data['route_id'] == route_id]
 #select window size
 window = -15
 data = data.loc[data['window'] == window]
@@ -35,6 +38,6 @@ fig, ax = plt.subplots(figsize=figsize)
 sns.barplot(x="combined", y=metric, data=grouped, ax=ax, estimator=np.mean, capsize=.2)
 #ax.bar(x=grouped['combined'], y=)
 #ax.tick_params(axis='x', labelrotation=90)
-path = os.path.join(fig_save_path, f'factors=[{grouping_factors}]w={window}.png')
+path = os.path.join(fig_save_path, f'route{route_id}-factors={grouping_factors}-w={window}.png')
 fig.savefig(path)
 plt.show() 
