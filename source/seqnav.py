@@ -467,7 +467,7 @@ class SequentialPerfectMemory:
         if self.adaptive:
             return 'A-SMW'
         else:
-            return 'SMW'
+            return f'SMW{self.window}'
 
 
 class Seq2SeqPerfectMemory:
