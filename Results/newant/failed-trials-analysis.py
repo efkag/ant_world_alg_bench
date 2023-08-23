@@ -48,13 +48,15 @@ data = pd.concat([data, imax_df])
 #################
 # in case of repeats
 method = np.mean
-data = data.groupby(['window', 'route_id'])["trial_fail_count"].apply(method).to_frame("trial_fail_count").reset_index()
-
+#data = data.groupby(['window', 'route_id'])["trial_fail_count"].apply(method).to_frame("trial_fail_count").reset_index()
+##### if the dataset had nav-names
+data = data.groupby(['nav-name', 'route_id'])["trial_fail_count"].apply(method).to_frame("trial_fail_count").reset_index()
 
 figsize = (6.5, 4)
 fig, ax = plt.subplots(figsize=figsize)
-#ax.set_ylim(0, 100)
-sns.barplot(x="window", y="trial_fail_count", data=data, ax=ax, estimator=method, capsize=.2, ci=None)
+#ax.set_ylim(0, 20)
+#sns.barplot(x="window", y="trial_fail_count", data=data, ax=ax, estimator=method, capsize=.2, ci=None)
+sns.barplot(x="nav-name", y="trial_fail_count", data=data, ax=ax, estimator=method, capsize=.2, ci=None)
 # window_labels = ['Adaptive SMW', 'PM', 'Fixed 15', 'Fixed 25']
 # ax.set_xticklabels(window_labels)
 plt.tight_layout()
