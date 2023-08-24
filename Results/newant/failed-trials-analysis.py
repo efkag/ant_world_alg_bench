@@ -52,6 +52,7 @@ method = np.mean
 ##### if the dataset had nav-names
 data = data.groupby(['nav-name', 'route_id'])["trial_fail_count"].apply(method).to_frame("trial_fail_count").reset_index()
 
+
 figsize = (6.5, 4)
 fig, ax = plt.subplots(figsize=figsize)
 #ax.set_ylim(0, 20)
@@ -59,9 +60,36 @@ fig, ax = plt.subplots(figsize=figsize)
 sns.barplot(x="nav-name", y="trial_fail_count", data=data, ax=ax, estimator=method, capsize=.2, ci=None)
 # window_labels = ['Adaptive SMW', 'PM', 'Fixed 15', 'Fixed 25']
 # ax.set_xticklabels(window_labels)
+ax.set_xlabel('Navigation Algorithm')
+ax.set_ylabel('Mean TFC')
 plt.tight_layout()
 # path = os.path.join(fig_save_path, f'route[{route_id}]-failed trials.png')
-fig_save_path = os.path.join(fig_save_path, 'failed trials.png')
-fig.savefig(fig_save_path)
+temp_save_path = os.path.join(fig_save_path, 'failed-trials-noimax.png')
+fig.savefig(temp_save_path)
 plt.show()
 
+
+################# joint plot
+
+fig, axs = plt.subplots(2, 1, figsize=figsize)
+
+ax = axs[0]
+cols = ['steelblue', 'orange', 'green', 'red', 'purple', 'grey']
+ax.set_title('All Navigation Algorithms')
+sns.barplot(x="nav-name", y="trial_fail_count", data=data, ax=ax, 
+            estimator=method, capsize=.2, ci=None, palette=cols)
+ax.set_xlabel('navigation algorithm')
+ax.set_ylabel('mean TFC')
+
+ax = axs[1]
+ax.set_title('Temporal Algorithms')
+cols = ['steelblue', 'green', 'red', 'purple', 'grey']
+data = data.drop(data[data['nav-name'] == 'InfoMax'].index)
+sns.barplot(x="nav-name", y="trial_fail_count", data=data, ax=ax, 
+            estimator=method, capsize=.2, ci=None, palette=cols)
+ax.set_xlabel('navigation algorithm')
+ax.set_ylabel('mean TFC')
+plt.tight_layout()
+temp_save_path = os.path.join(fig_save_path, 'failed-trials-joinplot.png')
+fig.savefig(temp_save_path)
+plt.show()
