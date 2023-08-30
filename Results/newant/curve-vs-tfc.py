@@ -14,7 +14,7 @@ from ast import literal_eval
 import yaml
 
 
-directory = '2023-04-26_test'
+directory = '2023-04-26/combined'
 results_path = os.path.join('Results', 'newant', directory)
 fig_save_path = os.path.join('Results', 'newant', directory, 'analysis')
 check_for_dir_and_create(fig_save_path)
@@ -22,6 +22,8 @@ data = pd.read_csv(os.path.join(results_path, 'results.csv'), index_col=False)
 with open(os.path.join(results_path, 'params.yml')) as fp:
     params = yaml.load(fp)
 routes_path = params['routes_path']
+
+#data.drop(data[data['nav-name'] == 'InfoMax'].index, inplace=True)
 # Convert list of strings to actual list of lists
 data['errors'] = data['errors'].apply(literal_eval)
 data['dist_diff'] = data['dist_diff'].apply(literal_eval)
@@ -31,13 +33,15 @@ data['abs_index_diff'] = data['abs_index_diff'].apply(literal_eval)
 # metric = 'errors'
 metric =  'trial_fail_count'
 method = sum
-figsize= (8, 5)
+figsize= (7, 5)
 
-# data = data.groupby('window')[metric].apply().to_frame(metric).reset_index()
+# data = data.groupby('window')[metric].apply(sum).to_frame(metric).reset_index()
 # sns.boxplot(data=data, x='window', y=metric)
 # plt.show()
 
-window = 25
+
+
+window = 0
 data = data.loc[data['window'] == window]
 data = data.groupby('route_id')[metric].apply(method).to_frame(metric).reset_index()
 

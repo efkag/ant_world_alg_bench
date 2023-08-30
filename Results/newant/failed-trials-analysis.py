@@ -31,6 +31,7 @@ g_loc_norm = "{'sig1': 2, 'sig2': 20}"
 title = 'D'
 
 imax_df = data.loc[data['nav-name'] == 'InfoMax']
+data = pd.concat([data, imax_df])
 
 data = data.loc[(data['matcher'] == matcher) & (data['res'] == res) 
                 & (data['blur'] == blur) 
@@ -39,11 +40,11 @@ data = data.loc[(data['matcher'] == matcher) & (data['res'] == res)
                 #& (data['loc_norm'] == loc_norm)
                 #& (data['route_id'] == route_id ) 
                 # & (data['num_of_repeat'] == 0) 
-                # & (data['route_id'] <= 4 ) #& (data['route_id'] < 10 )
+             & (data['route_id'] <= 4 ) #& (data['route_id'] < 10 )
                 
 ]
 
-data = pd.concat([data, imax_df])
+
 
 #################
 # in case of repeats
@@ -64,9 +65,9 @@ ax.set_xlabel('Navigation Algorithm')
 ax.set_ylabel('Mean TFC')
 plt.tight_layout()
 # path = os.path.join(fig_save_path, f'route[{route_id}]-failed trials.png')
-temp_save_path = os.path.join(fig_save_path, 'failed-trials-noimax.png')
+temp_save_path = os.path.join(fig_save_path, 'failed-trials.png')
 fig.savefig(temp_save_path)
-plt.show()
+#plt.show()
 
 
 ################# joint plot
