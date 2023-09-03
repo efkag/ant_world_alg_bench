@@ -24,6 +24,7 @@ with open(os.path.join(results_path, 'params.yml')) as fp:
 routes_path = params['routes_path']
 
 #data.drop(data[data['nav-name'] == 'InfoMax'].index, inplace=True)
+
 # Convert list of strings to actual list of lists
 data['errors'] = data['errors'].apply(literal_eval)
 data['dist_diff'] = data['dist_diff'].apply(literal_eval)

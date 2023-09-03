@@ -23,7 +23,7 @@ with open(os.path.join(results_path, 'params.yml')) as fp:
 routes_path = params['routes_path']
 route_ids = params['route_ids']
 
-data.drop(data[data['nav-name'] == 'InfoMax'].index, inplace=True)
+#data.drop(data[data['nav-name'] == 'InfoMax'].index, inplace=True)
 
 
 # Convert list of strings to actual list of lists
