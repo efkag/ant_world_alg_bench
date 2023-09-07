@@ -3,7 +3,7 @@ from scipy.spatial.distance import cdist
 import os
 import cv2 as cv
 import matplotlib.pyplot as plt
-from source.utils import rotate, pair_rmf, mse, rmf, check_for_dir_and_create, weighted_mse
+from source.utils import rotate, pair_rmf, mae, mse, rmf, check_for_dir_and_create, weighted_mse
 from source.display import plot_route_errors
 
 

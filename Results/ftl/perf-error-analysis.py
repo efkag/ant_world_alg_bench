@@ -18,8 +18,8 @@ fig_save_path = os.path.join('Results', directory, 'analysis')
 data = pd.read_csv(os.path.join(results_path, 'results.csv'), index_col=False)
 # Convert list of strings to actual list of lists
 data['errors'] = data['errors'].apply(literal_eval)
-data['dist_diff'] = data['dist_diff'].apply(literal_eval)
-data['abs_index_diff'] = data['abs_index_diff'].apply(literal_eval)
+# data['dist_diff'] = data['dist_diff'].apply(literal_eval)
+# data['abs_index_diff'] = data['abs_index_diff'].apply(literal_eval)
 
 
 check_for_dir_and_create(fig_save_path)

@@ -26,7 +26,7 @@ params = {'blur': True,
         }
 pipe = Pipeline(**params)
 imgs = pipe.apply(route.get_imgs())
-
+imgs = imgs[:10]
 # keep one numpy image for testing
 img_array = imgs[0]
 
