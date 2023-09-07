@@ -162,8 +162,6 @@ class InfomaxNetwork(nn.Module):
             
             rot_qimgs[i] = rimg
         rsim = self.Familiarity(rot_qimgs).squeeze().detach().numpy()
-        # convert to numpy
-        rsim = rsim.squeeze().detach().numpy()
         # save the rsim for the logs
         self.logs.append(rsim)
 
