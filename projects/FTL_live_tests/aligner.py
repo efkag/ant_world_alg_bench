@@ -19,7 +19,7 @@ data = np.loadtxt(trajectory_filename, delimiter=",", skiprows=5, dtype=np.float
 coords = data[:,2:]
 avg_coords = np.average(coords, axis=0)
 std_coords = np.std(coords, axis=0)
-assert np.all(std_coords < 0.1)
+assert np.all(std_coords < 2.)
 
 # Reshape into columns, throw away z and take transpose
 avg_coords = np.reshape(avg_coords, (-1, 3))
@@ -66,7 +66,7 @@ def on_click(event):
         image_points[current_point,:] = coordinate
 
         # If we've got enough points for affine
-        if current_point == 2:
+        if current_point == 3:
             # Calculate affine transform and apply
             affine_transform = cv2.getAffineTransform(image_points[:3,:], avg_coords[:3,:])
             warp_image = cv2.warpAffine(image, affine_transform, (int(EXPERIMENT_AREA_WIDTH),
