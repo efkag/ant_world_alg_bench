@@ -6,7 +6,7 @@ from source import navbench
 
 
 def static_bench():
-    results_path = f'/its/home/sk526/ant_world_alg_bench/Results/ftl/deg-range-{string_date}'
+    results_path = f'/its/home/sk526/ant_world_alg_bench/Results/ftl/{string_date}'
     #results_path = f'/its/home/sk526/Results/ftl/{string_date}'
     routes_path = '/its/home/sk526/sussex-ftl-dataset/repeating-routes'
     #routes_path = '/mnt/data0/sk526/sussex-ftl-dataset/repeating-routes'
@@ -19,12 +19,12 @@ def static_bench():
                   'vcrop':[.6],
                   #'edge_range': [(180, 200), False],
                   #'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
-                  'deg_range':[(-45, 45)],
+                  'deg_range':[(-180, 180)],
                   #'window': [0, 15, 20, 25, -15], 
                   #'matcher': ['mae', 'corr']
                   }
     
-    routes = [1]
+    routes = [1, 2, 3]
     bench = navbench.Benchmark(results_path, routes_path, 
                                grid_path=None, 
                                filename='results.csv',

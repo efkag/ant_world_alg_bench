@@ -14,7 +14,7 @@ from source.routedatabase import Route, BoBRoute
 import yaml
 sns.set_context("paper", font_scale=1)
 
-directory = 'ftl/deg-range-2023-09-07'
+directory = 'ftl/2023-09-08'
 results_path = os.path.join('Results', directory)
 fig_save_path = os.path.join('Results', directory, 'analysis')
 data = pd.read_csv(os.path.join(results_path, 'results.csv'), index_col=False)

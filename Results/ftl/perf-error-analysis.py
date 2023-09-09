@@ -12,7 +12,7 @@ from ast import literal_eval
 sns.set_context("paper", font_scale=1)
 
 
-directory = 'ftl/2023-06-23'
+directory = 'ftl/combined'
 results_path = os.path.join('Results', directory)
 fig_save_path = os.path.join('Results', directory, 'analysis')
 data = pd.read_csv(os.path.join(results_path, 'results.csv'), index_col=False)
@@ -21,6 +21,8 @@ data['errors'] = data['errors'].apply(literal_eval)
 # data['dist_diff'] = data['dist_diff'].apply(literal_eval)
 # data['abs_index_diff'] = data['abs_index_diff'].apply(literal_eval)
 
+imax_df = data.loc[data['nav-name'] == 'InfoMax']
+data.drop(data[data['nav-name'] == 'InfoMax'].index, inplace=True)
 
 check_for_dir_and_create(fig_save_path)
 matcher = 'corr'
@@ -38,7 +40,7 @@ data = data.loc[(data['matcher'] == matcher)
                 #& (data['loc_norm'] == loc_norm)]
                 ]
 # window_labels = ['Adaptive (20)', 'PM', 'w=15', 'w=20', 'w=25', 'w=30']
-
+data = pd.concat([data, imax_df])
 thresh = 0
 
 '''
@@ -48,16 +50,16 @@ figsize = (7, 3)
 fig, ax = plt.subplots(figsize=figsize)
 plt.title('m{}.res{}.b{}.e{}.gloc{}.png'.format(matcher, res, blur, edge, g_loc_norm))
 # Group then back to dataframe
-df = data.groupby(['window'])['errors'].apply(sum).to_frame('errors').reset_index()
+df = data.groupby(['nav-name'])['errors'].apply(sum).to_frame('errors').reset_index()
 df = df.explode('errors')
 df['errors']=df['errors'].astype('float64')
 #temporary meause to abs the values
 if thresh:
     df = df.loc[df['errors'] >= thresh]
-sns.violinplot(data=df, x='window', y='errors', cut=0, ax=ax)
+sns.violinplot(data=df, x='nav-name', y='errors', cut=0, ax=ax)
 
-window_labels = ['Adaptive SMW', 'PM', 'Fixed 15', 'Fixed 25', 'Fixed 25']
-ax.set_xticklabels(window_labels)
+# window_labels = ['Adaptive SMW', 'PM', 'Fixed 15', 'Fixed 25', 'Fixed 25']
+# ax.set_xticklabels(window_labels)
 ax.set_ylabel('absolute angular error')
 ax.set_xlabel('window size')
 plt.tight_layout()
