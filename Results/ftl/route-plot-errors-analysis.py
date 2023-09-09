@@ -40,7 +40,7 @@ check_for_dir_and_create(fig_save_path)
 route_path = os.path.join(routes_path, f"route{route_id}", 'N-1')
 window = None
 # matcher = 'corr'
-# edge = 'False' 
+# edge = 'False'
 # res = '(180, 80)'
 # blur = True
 # g_loc_norm = "{'sig1': 2, 'sig2': 20}"
