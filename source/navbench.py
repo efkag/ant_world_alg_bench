@@ -64,8 +64,9 @@ class Benchmark:
                 combo_dict[k] = combo[i]
             grid_dict.append(combo_dict)
 
-        grid_dict[:] = [x for x in grid_dict if self.remove_blur_edge(x)]
-        grid_dict[:] = [x for x in grid_dict if not self.remove_non_blur_edge(x)]
+        if params.get('edge_range'):
+            grid_dict[:] = [x for x in grid_dict if self.remove_blur_edge(x)]
+            grid_dict[:] = [x for x in grid_dict if not self.remove_non_blur_edge(x)]
         return grid_dict
 
     @staticmethod
@@ -350,8 +351,8 @@ class Benchmark:
         #  Go though all combinations in the chunk
         for combo in chunk:
 
-            matcher = combo['matcher']
-            window = combo['window']
+            matcher = combo.get('matcher')
+            window = combo.get('window')
             window_log = None
             for ri, route in enumerate(routes):  # for every route
                 
@@ -368,9 +369,10 @@ class Benchmark:
                     elif window == 0:
                         nav = pm.PerfectMemory(route_imgs, matcher, **combo)
                         recovered_heading = nav.navigate(test_imgs)
-                    # else:
-                    #     infomaxParams = infomax.Params()
-                    #     nav = infomax.InfomaxNetwork(infomaxParams, route_imgs, deg_range=(-180, 180), **combo)
+                    else:
+                        infomaxParams = infomax.Params()
+                        nav = infomax.InfomaxNetwork(infomaxParams, route_imgs, **combo)
+                        recovered_heading = nav.navigate(test_imgs)
                     # here i need a navigate method for infomax.
                     toc = time.perf_counter()
                     # Get time complexity
@@ -378,13 +380,19 @@ class Benchmark:
                     # Get the errors and the minimum distant index of the route memory
                     qxy = rep_route.get_xycoords()
                     traj = {'x': qxy['x'], 'y': qxy['y'], 'heading': recovered_heading}
-                    #!!!!!! Important step to get the heading in the global coord system
+                    #################!!!!!! Important step to get the heading in the global coord system
                     traj['heading'] = squash_deg(rep_route.get_yaw() + recovered_heading)
                     errors, min_dist_index = route.calc_errors(traj)
                     # Difference between matched index and minimum distance index and distance between points
                     matched_index = nav.get_index_log()
-                    abs_index_diffs = np.absolute(np.subtract(nav.get_index_log(), min_dist_index))
-                    dist_diff = calc_dists(route.get_xycoords(), min_dist_index, matched_index)
+                    if matched_index:
+                        abs_index_diffs = np.absolute(np.subtract(nav.get_index_log(), min_dist_index))
+                        dist_diff = calc_dists(route.get_xycoords(), min_dist_index, matched_index)
+                        abs_index_diffs.tolist()
+                        dist_diff = dist_diff.tolist()
+                    else:
+                        abs_index_diffs = None
+                        dist_diff = None
                     mean_route_error = np.mean(errors)
                     window_log = nav.get_window_log()
                     rec_headings = nav.get_rec_headings()
@@ -417,8 +425,8 @@ class Benchmark:
                     # This is the agent heading from the egocentric agent reference
                     log['ah'].append(recovered_heading)
                     log['matched_index'].append(matched_index)
-                    log['abs_index_diff'].append(abs_index_diffs.tolist())
-                    log['dist_diff'].append(dist_diff.tolist())
+                    log['abs_index_diff'].append(abs_index_diffs)
+                    log['dist_diff'].append(dist_diff)
                     log['errors'].append(errors)
                     log['best_sims'].append(nav.get_best_sims())
                 # Increment the complete jobs shared variable

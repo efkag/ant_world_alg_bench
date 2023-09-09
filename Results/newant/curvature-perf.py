@@ -13,13 +13,19 @@ import seaborn as sns
 import yaml
 sns.set_context("paper", font_scale=1)
 
-directory = '2023-01-25_mid_update'
-fig_save_path = os.path.join('Results', 'newant', directory)
-data = pd.read_csv(os.path.join(fig_save_path, 'results.csv'), index_col=False)
-with open(os.path.join(fig_save_path, 'params.yml')) as fp:
+directory = '2023-04-26/combined'
+results_path = os.path.join('Results', 'newant', directory)
+fig_save_path = os.path.join('Results', 'newant', directory, 'analysis')
+check_for_dir_and_create(fig_save_path)
+data = pd.read_csv(os.path.join(results_path, 'results.csv'), index_col=False)
+with open(os.path.join(results_path, 'params.yml')) as fp:
     params = yaml.load(fp)
 routes_path = params['routes_path']
 route_ids = params['route_ids']
+
+#data.drop(data[data['nav-name'] == 'InfoMax'].index, inplace=True)
+
+
 # Convert list of strings to actual list of lists
 data['errors'] = data['errors'].apply(eval)
 data['dist_diff'] = data['dist_diff'].apply(eval)
@@ -44,7 +50,7 @@ traj = data.loc[(data['matcher'] == matcher)
 
 
 method = np.mean
-grouped = traj.groupby(['window', 'route_id'])["trial_fail_count"].apply(method).to_frame("trial_fail_count").reset_index()
+grouped = traj.groupby(['window', 'route_id', 'nav-name'])["trial_fail_count"].apply(method).to_frame("trial_fail_count").reset_index()
 
 route_curvatures = []
 routes = load_routes(routes_path, route_ids)
@@ -70,16 +76,18 @@ curvatures = np.array(curvatures)
 ind = np.argsort(curvatures)
 curvatures = curvatures[ind]
 
-# Plot a line of the median tfc across the repeats for each window size
+# Plot a line of the median or mean or sum tfc across the repeats for each window size
 w_size = pd.unique(data['window'])
-fig , ax = plt.subplots(figsize=(8, 5))
+fig , ax = plt.subplots(figsize=(7, 4))
 for w in w_size:
     w_data = grouped.loc[grouped['window'] == w]
     tfc_sorted = w_data["trial_fail_count"].to_numpy()[ind]
-    ax.plot(route_ids, tfc_sorted, label=f'w={w}')
+    lbl = pd.unique(w_data['nav-name'])[0]
+    ax.plot(route_ids, tfc_sorted, label=lbl)
 ax.set_xlabel('routes in increasing curvature')
-ax.set_ylabel('mean trial fails')
+ax.set_ylabel('mean TFC')
 ax.legend()
+fig.savefig(os.path.join(fig_save_path, 'curv-per-nav'))
 plt.show()
 
 

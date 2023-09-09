@@ -7,7 +7,7 @@ from pathlib import Path
 fwd = Path(__file__).resolve()
 path=str(Path(fwd).parents[1])
 
-
+import matplotlib.pyplot as plt
 # Set global variable for the pytorch device
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 device = torch.device("cpu")
@@ -154,16 +154,14 @@ class InfomaxNetwork(nn.Module):
         return torch.roll(img, -cols_to_shift, dims=1)
 
     def get_heading(self, query_img):
-        query_img = torch.unsqueeze(torch.from_numpy(query_img).float(), 0)
+        query_img = torch.from_numpy(query_img).float()
         query_img = self.Standardize(query_img)
         rot_qimgs = torch.empty((self.total_search_angle, self.num_of_rows, self.num_of_cols),  requires_grad=False)
-        rsims = []
         for i, rot in enumerate(self.degrees):
-            rot_qimgs[i] = self.rotate(rot, query_img)
-            rsims.append(self.Familiarity((query_img)))
-        rsim = self.Familiarity(rot_qimgs)
-        # convert to numpy
-        rsim = rsim.squeeze().detach().numpy()
+            rimg = self.rotate(rot, query_img)
+            
+            rot_qimgs[i] = rimg
+        rsim = self.Familiarity(rot_qimgs).squeeze().detach().numpy()
         # save the rsim for the logs
         self.logs.append(rsim)
 
@@ -174,17 +172,27 @@ class InfomaxNetwork(nn.Module):
         return rec_head
     
     def get_rsim(self, query_img):
-        query_img = torch.unsqueeze(torch.from_numpy(query_img).float(), 0)
+        query_img = torch.from_numpy(query_img).float()
         query_img = self.Standardize(query_img)
         rot_qimgs = torch.empty((self.total_search_angle, self.num_of_rows, self.num_of_cols),  requires_grad=False)
-        rsims = []
+        #rsim = []
         for i, rot in enumerate(self.degrees):
-            rot_qimgs[i] = self.rotate(rot, query_img)
-            rsims.append(self.Familiarity((query_img)))
-        rsim = self.Familiarity(rot_qimgs)
-        # convert to numpy
-        rsim = rsim.squeeze().detach().numpy()
+            rimg = self.rotate(rot, query_img)
+            # temp = rimg.squeeze().detach().numpy()
+            # plt.imshow(temp)
+            # plt.show()
+            
+            rot_qimgs[i] = rimg
+            # rimg = torch.unsqueeze(rimg, 0)
+            # rsim.append( np.asscalar( self.Familiarity(rimg).squeeze().detach().numpy()) )
+        rsim = self.Familiarity(rot_qimgs).squeeze().detach().numpy()
         return rsim
+
+    def navigate(self, query_imgs):
+        assert isinstance(query_imgs, list)
+        for query_img in query_imgs:
+            self.get_heading(query_img)
+        return self.recovered_heading
     
     def get_name(self):
         return 'InfoMax'

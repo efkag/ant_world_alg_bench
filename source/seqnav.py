@@ -465,9 +465,9 @@ class SequentialPerfectMemory:
     
     def get_name(self):
         if self.adaptive:
-            return 'A-SMW'
+            return f'A-SMW({self.window})'
         else:
-            return 'SMW'
+            return f'SMW({self.window})'
 
 
 class Seq2SeqPerfectMemory:

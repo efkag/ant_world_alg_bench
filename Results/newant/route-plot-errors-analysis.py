@@ -13,13 +13,16 @@ from source.routedatabase import Route
 import yaml
 sns.set_context("paper", font_scale=1)
 
-directory = '2023-04-26_test'
+directory = '2023-04-26/combined'
 results_path = os.path.join('Results', 'newant', directory)
 fig_save_path = os.path.join('Results', 'newant', directory, 'analysis')
 data = pd.read_csv(os.path.join(results_path, 'results.csv'), index_col=False)
 with open(os.path.join(results_path, 'params.yml')) as fp:
     params = yaml.load(fp)
 routes_path = params['routes_path']
+
+data.drop(data[data['nav-name'] == 'InfoMax'].index, inplace=True)
+
 # Convert list of strings to actual list of lists
 data['errors'] = data['errors'].apply(literal_eval)
 data['dist_diff'] = data['dist_diff'].apply(literal_eval)
@@ -30,11 +33,11 @@ data['th'] = data['th'].apply(literal_eval)
 
 
 # Plot a specific route
-route_id = 10
+route_id = 9
 fig_save_path = os.path.join(fig_save_path, f"route{route_id}")
 check_for_dir_and_create(fig_save_path)
 path = os.path.join(routes_path, f"route{route_id}")
-window = -15
+window = 0
 matcher = 'corr'
 edge = 'False' 
 res = '(180, 80)'
@@ -44,7 +47,7 @@ loc_norm = 'False'
 threshold = 0
 repeat_no = 0
 
-figsize = (5, 5)
+figsize = (3, 3)
 title = None
 
 
@@ -79,14 +82,13 @@ if threshold:
     thres['y'] = traj['y'][index]
     thres['heading'] = traj['heading'][index]
 
-temp_save_path = os.path.join(fig_save_path, 'route{}.w{}.m{}.res{}.edge{}.glocnorm{}.thres{}.png'\
-    .format(route_id, window, matcher, res, edge, g_loc_norm, threshold))
+temp_save_path = os.path.join(fig_save_path, f'route{route_id}.w{window}.m{matcher}.res{res}.edge{edge}.glocnorm{g_loc_norm}.thres{threshold}.png')
+
+print(temp_save_path)
+plot_route(route, traj, scale=None, size=figsize, save=True, path=temp_save_path, title=title)
 
 
-plot_route(route, traj, scale=90, size=figsize, save=False, path=temp_save_path, title=title)
 
-
-
-if window:
-    temp_path = os.path.join(fig_save_path,'window-plots')
-    animated_window(route, w_log, traj=traj, path=temp_path, size=figsize, title=None)
+# if window:
+#     temp_path = os.path.join(fig_save_path,'window-plots')
+#     animated_window(route, w_log, traj=traj, path=temp_path, size=figsize, title=None)

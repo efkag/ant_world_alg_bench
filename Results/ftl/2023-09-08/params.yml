@@ -1,0 +1,8 @@
+blur: [true]
+deg_range:
+- !!python/tuple [-180, 180]
+route_ids: [1, 2, 3]
+routes_path: /its/home/sk526/sussex-ftl-dataset/repeating-routes
+shape:
+- !!python/tuple [180, 80]
+vcrop: [0.6]
