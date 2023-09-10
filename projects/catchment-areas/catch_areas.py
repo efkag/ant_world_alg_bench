@@ -152,12 +152,14 @@ def catch_areas_4route(route, pipe=None, index_step=10, in_translation=False,
             x = xy['x'][area_lims[0]:area_lims[1]]
             y = xy['y'][area_lims[0]:area_lims[1]]
             ### This depends on the data base units
+            #TODO: need to find better solution to the units problem
             d_cm = travel_dist(x, y) / 10
             logs['area_cm'].append(d_cm)
         if in_translation and kwargs.get('error_thresh'):
             x = xy['x'][aae_lims[0]:aae_lims[1]]
             y = xy['y'][aae_lims[0]:aae_lims[1]]
             ### This depends on the data base units
+            #TODO: need to find better solution to the units problem
             d_cm = travel_dist(x, y) / 10
             logs['aae_cm'].append(d_cm)
 
