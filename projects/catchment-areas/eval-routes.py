@@ -26,11 +26,11 @@ from catch_areas import catch_areas_4route
 #         }
 
 
-routes_path = '/its/home/sk526/ant_world_alg_bench/new-antworld/inc-curve'
-route_ids = [0, 1, 2, 3, 4, 5, 6]
+routes_path = '/its/home/sk526/ant_world_alg_bench/new-antworld/curve-bins'
+route_ids = [*range(20)]
 routes = load_routes(routes_path, route_ids)
 params = {'blur': True,
-          'shape': (360, 180), 
+          'shape': (180, 80), 
         #'edge_range': (180, 200)
         }
 
