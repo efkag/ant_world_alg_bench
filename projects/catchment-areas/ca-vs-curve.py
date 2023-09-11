@@ -20,14 +20,14 @@ check_for_dir_and_create(save_path)
 
 #ANTWORLD2
 ###############################################
-path = 'projects/catchment-areas/antworld2/2023-06-16'
+path = 'projects/catchment-areas/antworld2/2023-09-10'
 folder = 'tran_eval'
 in_translation = True
 path = os.path.join(path, folder)
 
 
-routes_path = '/its/home/sk526/ant_world_alg_bench/new-antworld/inc-curve'
-route_ids = [0, 1, 2, 3, 4, 5, 6]
+routes_path = '/its/home/sk526/ant_world_alg_bench/new-antworld/curve-bins'
+route_ids = [*range(20)]
 
 routes = load_routes(routes_path, route_ids)
 curvatures = []
