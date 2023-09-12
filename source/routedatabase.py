@@ -312,7 +312,7 @@ def load_bob_routes_repeats(path, ids, suffix=None, repeats=None, **kwargs):
     routes = []
     repeat_routes = []
     # Thiis the the reference route choosen from the repeats. Usualy the first one.
-    ref_route_repeat_id = 1
+    ref_route_repeat_id = 2
     for rid in ids:
         route_path =  os.path.join(path, 'route{}'.format(rid))
         if suffix:
