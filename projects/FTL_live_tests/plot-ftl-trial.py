@@ -22,11 +22,11 @@ def load_testing_logs(route_path, dname):
     route['yaw'] = np.array(route.pop(' Heading [degrees]'))
     return route
 
-route_id=4
+route_id=1
 pm_logs = ['pm0', 'pm1', 'pm2', 'pm3', 'pm4'] 
 asmw_logs = ['asmw0', 'asmw1', 'asmw2', 'asmw3', 'asmw4'] 
 
-route_path = os.path.join(fwd, 'ftl-live-tests', f'r{route_id}')
+route_path = os.path.join(fwd, '2023-09-11', f'route{route_id}')
 route_data = os.path.join(route_path, 'database_entries.csv')
 dt = pd.read_csv(route_data, index_col=False)
 print(dt.columns)
@@ -68,7 +68,7 @@ for i, log in enumerate(asmw_logs):
     r = load_testing_logs(logs_path, log)
     plt.plot(r['x'], r['y'], '--', label='asmw{}'.format(i))
     plt.scatter(r['x'][-1], r['y'][-1])
-    plt.annotate('asmw{} ends'.format(i), (r['x'][-1], r['y'][-1]))
+    #plt.annotate('asmw{} ends'.format(i), (r['x'][-1], r['y'][-1]))
 
 
 
