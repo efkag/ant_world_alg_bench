@@ -41,6 +41,7 @@ class SequentialPerfectMemory:
 
         # Window parameters
         if window < 0:
+            self.starting_window = abs(window)
             self.window = abs(window)
             self.adaptive = True
             self.upper = int(round(self.window/2))
@@ -465,7 +466,7 @@ class SequentialPerfectMemory:
     
     def get_name(self):
         if self.adaptive:
-            return f'A-SMW({self.window})'
+            return f'A-SMW({self.starting_window})'
         else:
             return f'SMW({self.window})'
 
