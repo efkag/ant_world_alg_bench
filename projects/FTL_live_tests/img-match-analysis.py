@@ -72,26 +72,3 @@ if window_heatmap:
         rdff = rmf(im, w_imgs, matcher=mae, d_range=(-90, 90))
         ridf_mins = np.min(rdff, axis=1)
         heatmap[i, ws:we] = ridf_mins
-else:
-    for i, im in enumerate(trial_imgs):
-        #get the RDF field
-        rdff = rmf(im, ref_imgs, matcher=mae, d_range=(-90, 90))
-        ridf_mins = np.min(rdff, axis=1)
-        heatmap[i,:] = ridf_mins
-
-matched_i = trial['matched_index']
-ws = trial['ws']
-we = trial['we']
-
-fig_size = (7, 4)
-fig, ax = plt.subplots(figsize=fig_size)
-sns.heatmap(heatmap, ax=ax)
-#ax.imshow(heatmap)
-ax.plot(matched_i, range(len(matched_i)))
-ax.plot(ws, range(len(ws)), c='g')
-ax.plot(we, range(len(we)), c='g')
-ax.set_xlabel('route images')
-ax.set_ylabel('query images')
-plt.tight_layout()
-fig.savefig(os.path.join(fig_save_path, 'heatmap.png'))
-plt.show()
