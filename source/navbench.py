@@ -346,16 +346,15 @@ class Benchmark:
         # Load all routes
         # routes = load_routes(routes_path, route_ids, max_dist=dist, grid_path=grid_path)
 
-        # routes = make_query_routes(routes)
         #  Go though all combinations in the chunk
         for combo in chunk:
-
+            routes, repeat_routes = load_bob_routes_repeats(routes_path, route_ids,
+                                                ref_route=combo.get('ref_route'), suffix=route_path_suffix, repeats=repeats)
             matcher = combo.get('matcher')
             window = combo.get('window')
             window_log = None
             for ri, route in enumerate(routes):  # for every route
-                routes, repeat_routes = load_bob_routes_repeats(routes_path, route_ids,
-                                                ref_route=combo.get('ref_route'), suffix=route_path_suffix, repeats=repeats)
+                
                 for rep_route in repeat_routes[ri]: # for every repeat route
                     tic = time.perf_counter()
                     # Preprocess images
