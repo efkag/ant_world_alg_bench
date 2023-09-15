@@ -15,13 +15,14 @@ def static_bench():
     #               'window': list(range(10, 12)), 'matcher': ['corr', 'rmse']}
     
     parameters = {'blur': [True], 
-                  'shape': [(180, 80)],
-                  'vcrop':[.6],
+                  'shape': [(180, 60), (90, 30)],
+                  'vcrop':[1. ,.8, .6, .4, .2],
                   'edge_range': [(180, 200), False],
                   'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
                   'deg_range':[(-180, 180)],
                   'window': [0, 15, 20, 25, -15], 
-                  'matcher': ['mae', 'corr']
+                  'matcher': ['mae', 'corr'],
+                  'ref_route': [1, 2, 3, 4, 5]
                   }
     
     routes = [1, 2, 3]
@@ -31,7 +32,7 @@ def static_bench():
                                route_path_suffix='N-',
                                route_repeats=5
                                )
-    bench.benchmark(parameters, routes, parallel=True, cores=30)
+    bench.benchmark(parameters, routes, parallel=True, cores=40)
 
 
 # def live_bench():
