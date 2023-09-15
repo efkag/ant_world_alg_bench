@@ -206,7 +206,9 @@ class BoBRoute:
                     'IMU roll [degrees]':'roll',
                     'Filename':'filename'}
         for k in key_maps:
-            route_data[key_maps[k]] = route_data.pop(k)
+            #check the key exists
+            if route_data.get(k):
+                route_data[key_maps[k]] = route_data.pop(k)
         # convert the lists to numpy arrays
         for k in route_data:
             route_data[k] = np.array(route_data[k])

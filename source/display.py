@@ -96,7 +96,7 @@ def img_3d(img, show=True, title=''):
     if show: plt.show()
 
 
-def plot_multiline(data, scatter=False, labels=None, xlabel=None, ylabel=None):
+def plot_ridf_multiline(data, scatter=False, labels=None, xlabel=None, ylabel=None):
     if data.ndim < 2:
         data = np.expand_dims(data, axis=0)
 
@@ -108,6 +108,19 @@ def plot_multiline(data, scatter=False, labels=None, xlabel=None, ylabel=None):
         if scatter: plt.scatter(x, line)
     plt.xlabel(xlabel, fontsize=25)
     plt.ylabel(ylabel, fontsize=25)
+    plt.legend()
+    plt.show()
+
+
+def plot_multiline(data, scatter=False, labels=None, xlabel=None, ylabel=None):
+    if data.ndim < 2:
+        data = np.expand_dims(data, axis=0)
+
+    for i, line in enumerate(data):
+        plt.plot(line, label=labels[i])
+        if scatter: plt.scatter(range(len(line)), line)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
     plt.legend()
     plt.show()
 

@@ -9,7 +9,7 @@ sys.path.append(cwd)
 import numpy as np
 import cv2 as cv
 import matplotlib.pyplot as plt
-from source.display import plot_multiline, plot_3d
+from source.display import plot_ridf_multiline, plot_3d
 from source.utils import rmf, cor_dist, save_image, mse, pre_process, pair_rmf
 from source.routedatabase import Route
 from source.analysis import  eval_pair_rmf

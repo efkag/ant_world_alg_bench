@@ -80,6 +80,10 @@ def imvcrop(shape=None, vcrop=1.):
     return lambda im: im[vcrop:, :]
 
 
+def histeq():
+    return lambda im: cv.equalizeHist(im)
+
+
 def make_pipeline(sets):
     '''
     Create a pre-processing pipeline from a dictionary of settings
@@ -92,6 +96,8 @@ def make_pipeline(sets):
     if sets.get('vcrop'):
         im_shape = sets.get('shape')
         pipe.append(imvcrop(shape=im_shape, vcrop=sets.get('vcrop')))
+    if sets.get('histeq'):
+        pipe.append(histeq())
     if sets.get('blur'):
         pipe.append(gauss_blur(0))
     if sets.get('edge_range'):

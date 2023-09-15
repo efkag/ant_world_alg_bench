@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import cv2 as cv
 import matplotlib.pyplot as plt
-from source.display import nans_imgshow, plot_multiline, plot_3d
+from source.display import nans_imgshow, plot_ridf_multiline, plot_3d
 from source.utils import pol2cart_headings, save_image
 import pickle
 
