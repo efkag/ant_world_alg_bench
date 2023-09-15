@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 import cv2 as cv
 import matplotlib.pyplot as plt
-from source.display import nans_imgshow, plot_multiline, plot_3d
+from source.display import nans_imgshow, plot_ridf_multiline, plot_3d
 from source.analysis import rgb02nan, nanrgb2grey, nanrbg2greyweighted
 from source.utils import nanmae, nan_cor_dist, rmf, cor_dist, save_image, rotate
 import pickle
@@ -67,7 +67,7 @@ h = int(degrees[index])
 test_rotated = rotate(h, testimgs[35])
 save_image('test rotated.png', test_rotated)
 
-plot_multiline(sims, xlabel='Degrees', ylabel='Image Difference')
+plot_ridf_multiline(sims, xlabel='Degrees', ylabel='Image Difference')
 # plot_3d(sims, show=True)
 
 heat = np.abs(testimgs[35] - greysnaps[127])

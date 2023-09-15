@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 # from source.display import nans_imgshow, plot_multiline, plot_3d
 from source.analysis import rgb02nan, nanrgb2grey, nanrbg2greyweighted
 from source.utils import nanmae, nan_cor_dist, rmf, cor_dist, save_image, rotate
-from source.display import plot_multiline
+from source.display import plot_ridf_multiline
 import pickle
 
 data_path = fwd + '/robot_spin/'

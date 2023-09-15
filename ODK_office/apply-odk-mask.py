@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import pickle
 import cv2 as cv
 from source.utils import nanmae, nan_cor_dist, rmf, rotate, load_route_naw
-from source.display import plot_multiline, nans_imgshow
+from source.display import plot_ridf_multiline, nans_imgshow
 
 path = 'ODK_office/odk-mask.pickle'
 with open(path, 'rb') as handle:
@@ -45,7 +45,7 @@ nan_sims = rmf(imn, imn, matcher=nanmae, d_range=(-180, 180))
 
 
 sims = np.stack([sims, masked_sims, nan_sims], axis=0)
-plot_multiline(sims, labels=['original', 'masked', 'nan-masked'])
+plot_ridf_multiline(sims, labels=['original', 'masked', 'nan-masked'])
 
 imm2 = np.ma.masked_invalid(imn).astype(np.int32)
 print(imm.dtype, imm2.dtype)

@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import cv2 as cv
 import matplotlib.pyplot as plt
-from source.display import nans_imgshow, plot_multiline, plot_3d
+from source.display import nans_imgshow, plot_ridf_multiline, plot_3d
 from source.analysis import rgb02nan, nanrgb2grey, nanrbg2greyweighted
 from source.utils import nanmae, nan_cor_dist, rmf, cor_dist, save_image, rotate
 import time
