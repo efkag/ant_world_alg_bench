@@ -33,7 +33,7 @@ def static_bench():
                                route_path_suffix='N-',
                                route_repeats=5
                                )
-    bench.benchmark(parameters, routes, parallel=True, cores=1)
+    bench.benchmark(parameters, routes, parallel=True, cores=40)
 
 
 # def live_bench():
