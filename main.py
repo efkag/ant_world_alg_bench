@@ -6,10 +6,11 @@ from source import navbench
 
 
 def static_bench():
-    #results_path = f'/its/home/sk526/ant_world_alg_bench/Results/ftl/{string_date}'
-    results_path = f'/mnt/data0/sk526/Results/ftl/{string_date}'
-    #outes_path = '/its/home/sk526/sussex-ftl-dataset/repeating-routes'
-    routes_path = '/mnt/data0/sk526/sussex-ftl-dataset/repeating-routes'
+    results_path = f'/its/home/sk526/ant_world_alg_bench/Results/ftl/{string_date}'
+    #results_path = f'/mnt/data0/sk526/Results/ftl/{string_date}'
+    
+    routes_path = '/its/home/sk526/sussex-ftl-dataset/repeating-routes'
+    #routes_path = '/mnt/data0/sk526/sussex-ftl-dataset/repeating-routes'
     # grid_path = '/home/efkag/PycharmProjects/ant_world_alg_bench/new-antworld/grid70'
     # parameters = {'blur': [True], 'segment_l': [3], 'shape': [(180, 50), (90, 25)], 'edge_range': [(180, 200)],
     #               'window': list(range(10, 12)), 'matcher': ['corr', 'rmse']}
@@ -20,7 +21,7 @@ def static_bench():
                   'edge_range': [(180, 200), False],
                   'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
                   'deg_range':[(-180, 180)],
-                  'window': [0, 15, 20, 25, -15], 
+                  'window': [0], 
                   'matcher': ['mae', 'corr'],
                   'ref_route': [1, 2, 3, 4, 5]
                   }
@@ -32,7 +33,7 @@ def static_bench():
                                route_path_suffix='N-',
                                route_repeats=5
                                )
-    bench.benchmark(parameters, routes, parallel=True, cores=40)
+    bench.benchmark(parameters, routes, parallel=True, cores=1)
 
 
 # def live_bench():

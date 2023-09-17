@@ -337,7 +337,7 @@ class Benchmark:
         route_path_suffix = arg_params.get('route_path_suffix')
         repeats = arg_params.get('repeats')
 
-        log = {'route_id': [], 'rep_id': [], 'blur': [], 'edge': [], 'res': [], 'window': [], 'matcher': [],
+        log = {'route_id': [], 'ref_route':[], 'rep_id': [], 'blur': [], 'edge': [], 'res': [], 'window': [], 'matcher': [],
              'deg_range':[], 'mean_error': [], 'seconds': [], 'errors': [], 
              'abs_index_diff': [], 'window_log': [], 'matched_index': [], 'dist_diff': [], 
              'tx': [], 'ty': [], 'th': [],'ah': [] ,'best_sims':[], 
