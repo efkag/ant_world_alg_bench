@@ -39,12 +39,12 @@ check_for_dir_and_create(fig_save_path)
 # reference route is always route repeat 1
 route_path = os.path.join(routes_path, f"route{route_id}", 'N-1')
 window = None
-# matcher = 'corr'
-# edge = 'False'
-# res = '(180, 80)'
-# blur = True
-# g_loc_norm = "{'sig1': 2, 'sig2': 20}"
-# loc_norm = 'False'
+matcher = 'corr'
+edge = 'False'
+res = '(180, 80)'
+blur = True
+g_loc_norm = "{'sig1': 2, 'sig2': 20}"
+loc_norm = 'False'
 threshold = 0
 # # rep_id is the repeat route id used for the testing
 rep_id = 2
@@ -53,17 +53,20 @@ figsize = (10, 10)
 title = None
 
 
-# traj = data.loc[(data['matcher'] == matcher) 
-#                 & (data['res'] == res) 
-#                 #& (data['edge'] == edge) 
-#                 & (data['blur'] == blur) 
-#                 & (data['window'] == window) 
-#                 & (data['gauss_loc_norm'] == g_loc_norm) 
-#                 # & (data['loc_norm'] == loc_norm) 
-#                 & (data['route_id'] == route_id)]
+traj = data.loc[(data['matcher'] == matcher) 
+                & (data['res'] == res) 
+                #& (data['edge'] == edge) 
+                & (data['blur'] == blur) 
+                & (data['window'] == window) 
+                & (data['gauss_loc_norm'] == g_loc_norm) 
+                # & (data['loc_norm'] == loc_norm) 
+                & (data['route_id'] == route_id)]
 
 ## for repeats
-traj = data.loc[data['rep_id'] == rep_id]
+if not window:  
+    traj = data.loc[data['rep_id'] == rep_id]
+else:
+    traj = traj.loc[data['rep_id'] == rep_id]
 
 #traj = data.to_dict(orient='records')[0]
 

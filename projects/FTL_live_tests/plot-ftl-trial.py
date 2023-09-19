@@ -42,8 +42,17 @@ route['yaw'] = np.array(route.pop(' Heading [degrees]'))
 background = cv2.imread(os.path.join(fwd, "top-down.png"))
 background = cv2.cvtColor(background, cv2.COLOR_BGR2RGB)
 
+
+
+
+'''
+Here all the xy are flipped and rotated by 270 degreee to  plot aproaproiately
+-y, -x => x, y
+'''
+
+
 fig = plt.figure(figsize=(3.5, 3.5))
-plt.title('C', loc='left')
+#plt.title('C', loc='left')
 plt.plot(-route['y'], -route['x'], label='training')
 
 plt.scatter(-route['y'][0], -route['x'][0])
@@ -60,6 +69,7 @@ plt.yticks([])
 '''
 Plot trials
 '''
+
 logs_path = os.path.join(route_path, 'testing')
 for i, log in enumerate(pm_logs):
     r = load_testing_logs(logs_path, log)

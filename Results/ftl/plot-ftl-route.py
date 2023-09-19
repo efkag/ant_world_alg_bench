@@ -19,7 +19,7 @@ import seaborn as sns
 sns.set_context("paper", font_scale=1)
 
 
-route_id = 1
+route_id = 3
 repeating = True
 #route_path = os.path.join(fwd, 'ftl-live-tests', f'r{route_id}')
 route_path = os.path.join(f'/its/home/sk526/sussex-ftl-dataset/repeating-routes/route{route_id}')
@@ -43,22 +43,21 @@ route['x'] = np.array(route.pop('X [mm]'))
 route['y'] = np.array(route.pop(' Y [mm]'))
 route['yaw'] = np.array(route.pop(' Heading [degrees]'))
 
-background = cv2.imread(os.path.join(fwd, "top-down.png"))
+background = cv2.imread(os.path.join('projects/FTL_live_tests', "top-down.png"))
 background = cv2.cvtColor(background, cv2.COLOR_BGR2RGB)
 
-
 '''
-Here all the y axis is flipped and rotated by 270 degreee to  plot aproaproiately
--y, -x => x, y
+Here all the y axis is flipped  to plot aproaproiately
+x, -y => x, y
 '''
 
+adjust_c = 550 #mm
 
-fig_size = (10, 10)
-fig = plt.figure(figsize=fig_size)
-plt.plot(route['x'], -route['y'], label='training')
+fig = plt.figure(figsize=(4, 4))
+plt.plot(route['x'], route['y']+adjust_c, label='training')
 
-plt.scatter(route['x'][0], route['y'][0])
-plt.annotate('Start', (route['x'][0], route['y'][0]))
+plt.scatter(route['x'][0], route['y'][0]+adjust_c)
+plt.annotate('Start', (route['x'][0], route['y'][0]+adjust_c))
 
 
 # Show background
@@ -82,7 +81,7 @@ def load_testing_logs(route_path, dname):
 if repeating:
     for i, rid in enumerate(repeats):
         r = load_testing_logs(route_path, f'N-{rid}')
-        plt.plot(r['x'], r['y'], '--', label=f'repeat{i}')
+        plt.plot(r['x'], r['y'] + adjust_c, '--', label=f'rep.{i}')
 
 plt.legend()
 plt.tight_layout()
