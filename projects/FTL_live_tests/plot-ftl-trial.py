@@ -75,23 +75,23 @@ for i, log in enumerate(pm_logs):
     r = load_testing_logs(logs_path, log)
     # if i==0:
     # use the label for the legend if it is the first iteration
-    plt.plot(-r['y'], -r['x'], ':', label='pm{}'.format(i))
+    plt.plot(-r['y'], -r['x'], ':', label=f'pm{i}')
     # else:
     #     plt.plot(-r['y'], -r['x'], ':')
     plt.scatter(-r['y'][-1], -r['x'][-1])
     #plt.annotate('pm{} ends'.format(i), (r['x'][-1], r['y'][-1]))
 
 
-# logs_path = os.path.join(route_path, 'testing')
-# for i, log in enumerate(asmw_logs):
-#     r = load_testing_logs(logs_path, log)
-#     # use the label for the legend if it is the first iteration
-#     # if i==0:
-#     plt.plot(-r['y'], -r['x'], '--', label='asmw'.format(i))
-#     # else:
-#     #     plt.plot(-r['y'], -r['x'], '--')
-#     plt.scatter(-r['y'][-1], -r['x'][-1])
-#     #plt.annotate('asmw{} ends'.format(i), (r['x'][-1], r['y'][-1]))
+logs_path = os.path.join(route_path, 'testing')
+for i, log in enumerate(asmw_logs):
+    r = load_testing_logs(logs_path, log)
+    # use the label for the legend if it is the first iteration
+    # if i==0:
+    plt.plot(-r['y'], -r['x'], '--', label=f'asmw{i}')
+    # else:
+    #     plt.plot(-r['y'], -r['x'], '--')
+    plt.scatter(-r['y'][-1], -r['x'][-1])
+    #plt.annotate('asmw{} ends'.format(i), (r['x'][-1], r['y'][-1]))
 
 
 
