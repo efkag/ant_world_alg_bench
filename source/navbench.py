@@ -239,7 +239,7 @@ class Benchmark:
         results_path = arg_params.get('results_path')
         chunk_id = multiprocessing.current_process()._identity
 
-        log = {'route_id': [], 'blur': [], 'edge': [], 'res': [], 'vrop':[], 
+        log = {'route_id': [], 'blur': [], 'edge': [], 'res': [], 'vcrop':[], 
                'window': [], 'matcher': [], 'deg_range':[], 'mean_error': [], 
                'seconds': [], 'errors': [], 'abs_index_diff': [], 'window_log': [], 
                'matched_index': [], 'dist_diff': [], 'tx': [], 'ty': [], 'th': [],
