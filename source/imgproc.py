@@ -46,10 +46,11 @@ def lin(img, kernel_shape=(3, 3)):
     Normalises and standarises each pixel using 
     the mean the std.dev of the neighboring pixels
     '''
+    img = img.astype(np.int16, copy=False)
     mu = cv.blur(img, kernel_shape)
     img = img - mu
     var = cv.blur(img*img, kernel_shape)
-    sig = var**0.5 + np.finfo(float).eps
+    sig = var**0.5 #+ np.finfo(float).eps
     return img / sig
 
 
@@ -64,10 +65,11 @@ def glin(img, sig1=2, sig2=20):
     the weighted mean the std.dev of the neighboring pixels
     The weighted mean is calculated using the gaussian kernel
     '''
+    img = img.astype(np.int16, copy=False)
     mu = cv.GaussianBlur(img, (0, 0), sig1)
     img = img - mu
     var = cv.GaussianBlur(img*img, (0, 0), sig2)
-    sig = var**0.5 + np.finfo(float).eps
+    sig = var**0.5 #+ np.finfo(float).eps
     return img / sig
 
 
@@ -75,8 +77,11 @@ def gauss_loc_norm(sig1=2, sig2=20):
     return lambda im: glin(im, sig1, sig2)
 
 
-def imvcrop(shape=None, vcrop=1.):
-    vcrop = int(round(shape[1] * vcrop))
+def imvcrop(shape=None, vcrop=None):
+    if vcrop < 1. and vcrop > 0:
+        vcrop = int(round(shape[1] * vcrop))
+    else:
+        vcrop = None
     return lambda im: im[vcrop:, :]
 
 
@@ -110,8 +115,8 @@ def make_pipeline(sets):
     if sets.get('wave'):
         im_size = sets.get('shape')
         pipe.append(wavelet(im_size))
-    # Always change the datatype to int16 to avoid wrap-around!!
-    pipe.append(mod_dtype(np.int16))
+    # Always change the datatype to int16 or float32 to avoid wrap-around!!
+    pipe.append(mod_dtype(np.float32))
     return pipe
 
 
@@ -121,7 +126,7 @@ class Pipeline:
             self.pipe = make_pipeline(sets)
         else:
             self.pipe = []
-            self.pipe.append(mod_dtype(np.int16))
+            self.pipe.append(mod_dtype(np.float32))
 
     def apply(self, imgs):
         if not isinstance(imgs, list):

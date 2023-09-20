@@ -36,6 +36,7 @@ def static_bench():
     bench.benchmark(parameters, routes, parallel=True, cores=40)
 
 
+
 def static_bench_antworld():
     results_path = f'/its/home/sk526/ant_world_alg_bench/Results/newant/{string_date}'
     #results_path = f'/mnt/data0/sk526/Results/aw/{string_date}'
@@ -65,6 +66,7 @@ def static_bench_antworld():
                                filename='results.csv'
                                )
     bench.benchmark(parameters, routes, parallel=True, cores=1)
+
 
 
 # def live_bench():

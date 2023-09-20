@@ -12,7 +12,7 @@ from ast import literal_eval
 sns.set_context("paper", font_scale=1)
 
 
-directory = 'ftl/combined'
+directory = 'ftl/2023-06-23'
 results_path = os.path.join('Results', directory)
 fig_save_path = os.path.join('Results', directory, 'analysis')
 data = pd.read_csv(os.path.join(results_path, 'results.csv'), index_col=False)
@@ -21,10 +21,12 @@ data['errors'] = data['errors'].apply(literal_eval)
 # data['dist_diff'] = data['dist_diff'].apply(literal_eval)
 # data['abs_index_diff'] = data['abs_index_diff'].apply(literal_eval)
 
-imax_df = data.loc[data['nav-name'] == 'InfoMax']
-#data.drop(data[data['nav-name'] == 'InfoMax'].index, inplace=True)
+
+# imax_df = data.loc[data['nav-name'] == 'InfoMax']
+# data.drop(data[data['nav-name'] == 'InfoMax'].index, inplace=True)
 
 check_for_dir_and_create(fig_save_path)
+route_id = 3
 matcher = 'corr'
 edge = 'False'
 blur = True
@@ -37,6 +39,7 @@ data = data.loc[(data['matcher'] == matcher)
                 & (data['res'] == res) 
                 & (data['blur'] == blur) 
                 & (data['gauss_loc_norm'] == g_loc_norm) 
+                & (data['route_id'] == route_id)
                 #& (data['loc_norm'] == loc_norm)]
                 ]
 # window_labels = ['Adaptive (20)', 'PM', 'w=15', 'w=20', 'w=25', 'w=30']
@@ -73,7 +76,9 @@ plt.show()
 '''
 PLot count of AAE > x
 '''
+
 thresh = 45
+
 df = data.groupby(['nav-name'])['errors'].apply(sum).to_frame('errors').reset_index()
 df = df.explode('errors')
 if thresh:

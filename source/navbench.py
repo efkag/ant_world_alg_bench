@@ -354,15 +354,15 @@ class Benchmark:
                'abs_index_diff': [], 'window_log': [], 'matched_index': [], 'dist_diff': [], 
                'tx': [], 'ty': [], 'th': [],'ah': [] , 'rmfs_file':[], 'best_sims':[], 
                'loc_norm':[], 'gauss_loc_norm':[], 'wave':[], 'nav-name':[]}
+
         
         # Load all routes
         # routes = load_routes(routes_path, route_ids, max_dist=dist, grid_path=grid_path)
-        routes, repeat_routes = load_bob_routes_repeats(routes_path, route_ids, 
-                                 suffix=route_path_suffix, repeats=repeats)
-        # routes = make_query_routes(routes)
+
         #  Go though all combinations in the chunk
         for combo in chunk:
-
+            routes, repeat_routes = load_bob_routes_repeats(routes_path, route_ids,
+                                                ref_route=combo.get('ref_route'), suffix=route_path_suffix, repeats=repeats)
             matcher = combo.get('matcher')
             window = combo.get('window')
             window_log = None
@@ -417,6 +417,7 @@ class Benchmark:
 
                     log['nav-name'].append(nav.get_name())
                     log['route_id'].append(route.get_route_id())
+                    log['ref_route'].append(combo.get('ref_route'))
                     log['rep_id'].append(rep_route.get_route_id())
                     log['blur'].append(combo.get('blur'))
                     log['edge'].append(combo.get('edge_range'))
