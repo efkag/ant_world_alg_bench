@@ -75,20 +75,28 @@ trial_imgs = pipe.apply(trial_imgs)
 max_heat_value = 0
 heatmap = np.full((len(trial_imgs), len(ref_imgs)), max_heat_value)
 
-if window_heatmap:
-    #this populated the heatmap fro the windows only
-    for i, (im, ws, we) in enumerate(zip(trial_imgs, trial['ws'], trial['we'])):
-        w_imgs = ref_imgs[ws:we]
-        #get the RDF field
-        rdff = rmf(im, w_imgs, matcher=mae, d_range=(-90, 90))
-        ridf_mins = np.min(rdff, axis=1)
-        heatmap[i, ws:we] = ridf_mins
+
+
+file_path = os.path.join(fig_save_path,f'heatmap-route({route_id})-trial({trial_name}.npy')
+if os.path.isfile(file_path):
+    heatmap = np.load(file_path)
 else:
-    for i, im in enumerate(trial_imgs):
-        #get the RDF field
-        rdff = rmf(im, ref_imgs, matcher=mae, d_range=(-90, 90))
-        ridf_mins = np.min(rdff, axis=1)
-        heatmap[i,:] = ridf_mins
+    if window_heatmap:
+        #this populated the heatmap fro the windows only
+        for i, (im, ws, we) in enumerate(zip(trial_imgs, trial['ws'], trial['we'])):
+            w_imgs = ref_imgs[ws:we]
+            #get the RDF field
+            rdff = rmf(im, w_imgs, matcher=mae, d_range=(-90, 90))
+            ridf_mins = np.min(rdff, axis=1)
+            heatmap[i, ws:we] = ridf_mins
+    else:
+        for i, im in enumerate(trial_imgs):
+            #get the RDF field
+            rdff = rmf(im, ref_imgs, matcher=mae, d_range=(-90, 90))
+            ridf_mins = np.min(rdff, axis=1)
+            heatmap[i,:] = ridf_mins
+        np.save(file_path, heatmap)
+
 # pm trial
 if pm_best_match:
     #trial data
@@ -107,7 +115,7 @@ sns.heatmap(heatmap, ax=ax)
 #ax.imshow(heatmap)
 ax.plot(matched_i, range(len(matched_i)), label='ASMW match')
 if pm_best_match:
-    ax.plot(pm_matched_i, range(len(pm_matched_i)), label='PM match')
+    ax.plot(pm_matched_i, range(len(pm_matched_i)), c='k', label='PM match')
 ax.plot(ws, range(len(ws)), c='g', label='window limits')
 ax.plot(we, range(len(we)), c='g')
 ax.set_xlabel('route images')

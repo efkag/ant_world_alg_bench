@@ -113,7 +113,7 @@ class Benchmark:
         arg_params = {'route_ids': route_ids, 'grid_dist':self.dist,
                       'routes_path':self.routes_path, 'grid_path':self.grid_path,
                       'route_path_suffix':self.route_path_suffix,
-                      'repeats':self.route_repeats}
+                      'repeats':self.route_repeats, 'results_path':self.results_path}
         # Partial callable
         worker = functools.partial(self.worker_bench_repeats, arg_params, shared)
 
@@ -334,8 +334,10 @@ class Benchmark:
         dist =  arg_params.get('grid_dist')
         routes_path =  arg_params.get('routes_path')
         grid_path =  arg_params.get('grid_path')
+        results_path = arg_params.get('results_path')
         route_path_suffix = arg_params.get('route_path_suffix')
         repeats = arg_params.get('repeats')
+        chunk_id = multiprocessing.current_process()._identity
 
         log = {'route_id': [], 'rep_id': [], 'blur': [], 'edge': [], 'res': [], 'window': [], 'matcher': [],
              'deg_range':[], 'mean_error': [], 'seconds': [], 'errors': [], 
@@ -398,10 +400,10 @@ class Benchmark:
                     rec_headings = nav.get_rec_headings()
                     deg_range = nav.deg_range
 
-                    # TODO: save ridf fields
-                    # rmf_logs_file = 'rmfs' + str(chunk_id) + str(jobs)
-                    # rmfs_path = os.path.join(results_path, rmf_logs_file)
-                    # np.save(rmfs_path, rmf_logs)
+                    rmf_logs = np.array(nav.get_rsims_log(), dtype=object)
+                    rmf_logs_file = 'rmfs' + str(chunk_id) + str(shared['jobs'] + str(rep_route.get_route_id()))
+                    rmfs_path = os.path.join(results_path, rmf_logs_file)
+                    np.save(rmfs_path, rmf_logs)
 
                     log['nav-name'].append(nav.get_name())
                     log['route_id'].append(route.get_route_id())
@@ -423,7 +425,7 @@ class Benchmark:
                     # This is the heading in the global coord system
                     log['th'].append(traj['heading'].tolist())
                     # This is the agent heading from the egocentric agent reference
-                    log['ah'].append(recovered_heading)
+                    log['ah'].append(rec_headings)
                     log['matched_index'].append(matched_index)
                     log['abs_index_diff'].append(abs_index_diffs)
                     log['dist_diff'].append(dist_diff)
