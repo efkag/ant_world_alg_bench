@@ -36,6 +36,37 @@ def static_bench():
     bench.benchmark(parameters, routes, parallel=True, cores=40)
 
 
+def static_bench_antworld():
+    results_path = f'/its/home/sk526/ant_world_alg_bench/Results/newant/{string_date}'
+    #results_path = f'/mnt/data0/sk526/Results/aw/{string_date}'
+
+    routes_path = '/its/home/sk526/ant_world_alg_bench/new-antworld/curve-bins'
+    #routes_path = '/mnt/data0/sk526/new-antworld/curve-bins'
+
+    grid_path = '/its/home/sk526/ant_world_alg_bench/new-antworld/grid70'
+    #grid_path = '/mnt/data0/sk526/new-antworld/grid70'
+    # parameters = {'blur': [True], 'segment_l': [3], 'shape': [(180, 50), (90, 25)], 'edge_range': [(180, 200)],
+    #               'window': list(range(10, 12)), 'matcher': ['corr', 'rmse']}
+    
+    parameters = {'blur': [True], 
+                  'shape': [(180, 90), (90, 45)],
+                  'vcrop':[1. ,.8, .6, .4, .2],
+                  'edge_range': [(180, 200), False],
+                  'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
+                  'deg_range':[(-180, 180)],
+                  'window': [0], 
+                  'matcher': ['mae', 'corr'],
+                  'ref_route': [1, 2, 3, 4, 5]
+                  }
+    
+    routes = [1]
+    bench = navbench.Benchmark(results_path, routes_path, 
+                               grid_path=grid_path, 
+                               filename='results.csv'
+                               )
+    bench.benchmark(parameters, routes, parallel=True, cores=1)
+
+
 # def live_bench():
 #     #'segment_length':[3],
 #     results_path = f'/its/home/sk526/ant_world_alg_bench/Results/newant/{string_date}_infomax'

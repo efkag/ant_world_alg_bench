@@ -237,19 +237,19 @@ class Benchmark:
         routes_path =  arg_params.get('routes_path')
         grid_path =  arg_params.get('grid_path')
         route_path_suffix = arg_params.get('route_path_suffix')
-        repeats = arg_params.get('repeats')
+        results_path = arg_params.get('results_path')
+        chunk_id = multiprocessing.current_process()._identity
 
-        log = {'route_id': [], 'blur': [], 'edge': [], 'res': [], 'window': [], 'matcher': [],
-             'deg_range':[], 'mean_error': [], 'seconds': [], 'errors': [], 
-             'abs_index_diff': [], 'window_log': [], 'matched_index': [], 'dist_diff': [], 
-             'tx': [], 'ty': [], 'th': [],'ah': [] ,'best_sims':[], 
-             'loc_norm':[], 'gauss_loc_norm':[], 'wave':[], 'nav-name':[]}
+        log = {'route_id': [], 'blur': [], 'edge': [], 'res': [], 'vrop':[], 
+               'window': [], 'matcher': [], 'deg_range':[], 'mean_error': [], 
+               'seconds': [], 'errors': [], 'abs_index_diff': [], 'window_log': [], 
+               'matched_index': [], 'dist_diff': [], 'tx': [], 'ty': [], 'th': [],
+               'ah': [] , 'rmfs_file':[],'best_sims':[], 'loc_norm':[], 
+               'gauss_loc_norm':[], 'wave':[], 'nav-name':[]}
         
         # Load all routes
-        # routes = load_routes(routes_path, route_ids, max_dist=dist, grid_path=grid_path)
-        routes = load_bob_routes(routes_path, route_ids, 
-                                 suffix=route_path_suffix, repeats=repeats)
-        # routes = make_query_routes(routes)
+        routes = load_routes(routes_path, route_ids, max_dist=dist, grid_path=grid_path)
+
         #  Go though all combinations in the chunk
         for combo in chunk:
 
@@ -270,9 +270,10 @@ class Benchmark:
                 elif window == 0:
                     nav = pm.PerfectMemory(route_imgs, matcher, **combo)
                     recovered_heading = nav.navigate(test_imgs)
-                # else:
-                #     infomaxParams = infomax.Params()
-                #     nav = infomax.InfomaxNetwork(infomaxParams, route_imgs, deg_range=(-180, 180), **combo)
+                else:
+                    infomaxParams = infomax.Params()
+                    nav = infomax.InfomaxNetwork(infomaxParams, route_imgs, **combo)
+                    recovered_heading = nav.navigate(test_imgs)
                 # here i need a navigate method for infomax.
                 toc = time.perf_counter()
                 # Get time complexity
@@ -292,16 +293,17 @@ class Benchmark:
                 rec_headings = nav.get_rec_headings()
                 deg_range = nav.deg_range
 
-                # TODO: save ridf fields
-                # rmf_logs_file = 'rmfs' + str(chunk_id) + str(jobs)
-                # rmfs_path = os.path.join(results_path, rmf_logs_file)
-                # np.save(rmfs_path, rmf_logs)
+                rmf_logs = np.array(nav.get_rsims_log(), dtype=object)
+                rmf_logs_file = 'rmfs' + str(chunk_id) + str(shared['jobs'])
+                rmfs_path = os.path.join(results_path, rmf_logs_file)
+                np.save(rmfs_path, rmf_logs)
 
                 log['nav-name'].append(nav.get_name())
                 log['route_id'].append(route.get_route_id())
                 log['blur'].append(combo.get('blur'))
                 log['edge'].append(combo.get('edge_range'))
                 log['res'].append(combo.get('shape'))
+                log['vcrop'].append(combo.get('vcrop'))
                 log['window'].append(window)
                 log['loc_norm'].append(combo.get('loc_norm'))
                 log['gauss_loc_norm'].append(combo.get('gauss_loc_norm'))
@@ -311,12 +313,13 @@ class Benchmark:
                 log['mean_error'].append(mean_route_error)
                 log['seconds'].append(time_compl)
                 log['window_log'].append(window_log)
+                log['rmfs_file'].append(rmf_logs_file)
                 log['tx'].append(traj['x'].tolist())
                 log['ty'].append(traj['y'].tolist())
                 # This is the heading in the global coord system
                 log['th'].append(traj['heading'].tolist())
                 # This is the agent heading from the egocentric agent reference
-                log['ah'].append(recovered_heading)
+                log['ah'].append(rec_headings)
                 log['matched_index'].append(matched_index)
                 log['abs_index_diff'].append(abs_index_diffs.tolist())
                 log['dist_diff'].append(dist_diff.tolist())
@@ -339,11 +342,12 @@ class Benchmark:
         repeats = arg_params.get('repeats')
         chunk_id = multiprocessing.current_process()._identity
 
-        log = {'route_id': [], 'rep_id': [], 'blur': [], 'edge': [], 'res': [], 'window': [], 'matcher': [],
-             'deg_range':[], 'mean_error': [], 'seconds': [], 'errors': [], 
-             'abs_index_diff': [], 'window_log': [], 'matched_index': [], 'dist_diff': [], 
-             'tx': [], 'ty': [], 'th': [],'ah': [] ,'best_sims':[], 
-             'loc_norm':[], 'gauss_loc_norm':[], 'wave':[], 'nav-name':[]}
+        log = {'route_id': [], 'rep_id': [], 'blur': [], 'edge': [], 'res': [], 
+               'vrop':[],'window': [], 'matcher': [],
+               'deg_range':[], 'mean_error': [], 'seconds': [], 'errors': [], 
+               'abs_index_diff': [], 'window_log': [], 'matched_index': [], 'dist_diff': [], 
+               'tx': [], 'ty': [], 'th': [],'ah': [] , 'rmfs_file':[], 'best_sims':[], 
+               'loc_norm':[], 'gauss_loc_norm':[], 'wave':[], 'nav-name':[]}
         
         # Load all routes
         # routes = load_routes(routes_path, route_ids, max_dist=dist, grid_path=grid_path)
@@ -411,6 +415,7 @@ class Benchmark:
                     log['blur'].append(combo.get('blur'))
                     log['edge'].append(combo.get('edge_range'))
                     log['res'].append(combo.get('shape'))
+                    log['vcrop'].append(combo.get('vcrop'))
                     log['window'].append(window)
                     log['loc_norm'].append(combo.get('loc_norm'))
                     log['gauss_loc_norm'].append(combo.get('gauss_loc_norm'))
@@ -426,6 +431,7 @@ class Benchmark:
                     log['th'].append(traj['heading'].tolist())
                     # This is the agent heading from the egocentric agent reference
                     log['ah'].append(rec_headings)
+                    log['rmfs_file'].append(rmf_logs_file)
                     log['matched_index'].append(matched_index)
                     log['abs_index_diff'].append(abs_index_diffs)
                     log['dist_diff'].append(dist_diff)
