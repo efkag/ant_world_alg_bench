@@ -190,7 +190,7 @@ class Benchmark:
                 self.log['best_sims'].append(nav.get_best_sims())
                 self.log['tx'].append(traj['x'].tolist())
                 self.log['ty'].append(traj['y'].tolist())
-                self.log['th'].append(traj['heading'])
+                self.log['th'].append(traj['heading'].tolist())
                 self.log['abs_index_diff'].append(abs_index_diffs.tolist())
                 self.log['dist_diff'].append(dist_diff.tolist())
                 self.log['errors'].append(errors)
@@ -288,7 +288,7 @@ class Benchmark:
                 if matched_index:
                     abs_index_diffs = np.absolute(np.subtract(nav.get_index_log(), min_dist_index))
                     dist_diff = calc_dists(route.get_xycoords(), min_dist_index, matched_index)
-                    abs_index_diffs.tolist()
+                    abs_index_diffs = abs_index_diffs.tolist()
                     dist_diff = dist_diff.tolist()
                 else:
                     abs_index_diffs = None
@@ -327,8 +327,8 @@ class Benchmark:
                 # This is the agent heading from the egocentric agent reference
                 log['ah'].append(rec_headings)
                 log['matched_index'].append(matched_index)
-                log['abs_index_diff'].append(abs_index_diffs.tolist())
-                log['dist_diff'].append(dist_diff.tolist())
+                log['abs_index_diff'].append(abs_index_diffs)
+                log['dist_diff'].append(dist_diff)
                 log['errors'].append(errors)
                 log['best_sims'].append(nav.get_best_sims())
                 # Increment the complete jobs shared variable
@@ -400,7 +400,7 @@ class Benchmark:
                     if matched_index:
                         abs_index_diffs = np.absolute(np.subtract(nav.get_index_log(), min_dist_index))
                         dist_diff = calc_dists(route.get_xycoords(), min_dist_index, matched_index)
-                        abs_index_diffs.tolist()
+                        abs_index_diffs = abs_index_diffs.tolist()
                         dist_diff = dist_diff.tolist()
                     else:
                         abs_index_diffs = None
