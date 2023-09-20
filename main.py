@@ -55,7 +55,7 @@ def static_bench_antworld():
                   'edge_range': [(180, 200), False],
                   'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
                   'deg_range':[(-180, 180)],
-                  'window': [0, 15, 20, 25, -15], 
+                  'window': [0], 
                   'matcher': ['mae', 'corr'],
                   'grid_dist':[0.2]
                   }
