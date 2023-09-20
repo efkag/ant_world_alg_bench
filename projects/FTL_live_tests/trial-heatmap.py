@@ -28,8 +28,9 @@ def load_testing_logs(route_path, dname):
     route['yaw'] = np.array(route.pop('Heading [degrees]'))
     route['filename'] = route.pop('Filename')
     route['matched_index'] = route.pop('Best snapshot index')
-    route['ws'] = route.pop('Window start')
-    route['we'] = route.pop('Window end')
+    if route.get('Window start'):
+        route['ws'] = route.pop('Window start')
+        route['we'] = route.pop('Window end')
     imgs = []
     for i in route['filename']:
         #careful the filenames contain a leading space
@@ -40,15 +41,23 @@ def load_testing_logs(route_path, dname):
 
     return route
 
-route_id=1
-window_heatmap = False
-combo = {'shape':(180, 50),'vcrop':0.5, 'histeq':True}
-pipe = Pipeline(**combo)
-
 pm_logs = ['pm0', 'pm1', 'pm2', 'pm3', 'pm4'] 
 asmw_logs = ['asmw0', 'asmw1', 'asmw2', 'asmw3', 'asmw4'] 
 
-route_path = os.path.join(fwd, 'ftl-live-tests', f'r{route_id}')
+#Params
+route_id=2
+pm_best_match = True
+window_heatmap = False
+trial_name = asmw_logs[1]
+pm_trial_name = pm_logs[1]
+
+
+combo = {'shape':(180, 50),'vcrop':0.5, 'histeq':True}
+pipe = Pipeline(**combo)
+
+
+
+route_path = os.path.join(fwd, '2023-09-11', f'route{route_id}')
 fig_save_path = os.path.join(route_path, 'analysis')
 check_for_dir_and_create(fig_save_path)
 
@@ -59,27 +68,42 @@ ref_imgs = pipe.apply(ref_imgs)
 
 #trial data
 logs_path = os.path.join(route_path, 'testing')
-trial = load_testing_logs(logs_path, asmw_logs[0])
+trial = load_testing_logs(logs_path, trial_name )
 trial_imgs = trial['imgs']
 trial_imgs = pipe.apply(trial_imgs)
 
-max_heat_value =100
+max_heat_value = 0
 heatmap = np.full((len(trial_imgs), len(ref_imgs)), max_heat_value)
 
-if window_heatmap:
-    #this populated the heatmap fro the windows only
-    for i, (im, ws, we) in enumerate(zip(trial_imgs, trial['ws'], trial['we'])):
-        w_imgs = ref_imgs[ws:we]
-        #get the RDF field
-        rdff = rmf(im, w_imgs, matcher=mae, d_range=(-90, 90))
-        ridf_mins = np.min(rdff, axis=1)
-        heatmap[i, ws:we] = ridf_mins
+
+
+file_path = os.path.join(fig_save_path,f'heatmap-route({route_id})-trial({trial_name}.npy')
+if os.path.isfile(file_path):
+    heatmap = np.load(file_path)
 else:
-    for i, im in enumerate(trial_imgs):
-        #get the RDF field
-        rdff = rmf(im, ref_imgs, matcher=mae, d_range=(-90, 90))
-        ridf_mins = np.min(rdff, axis=1)
-        heatmap[i,:] = ridf_mins
+    if window_heatmap:
+        #this populated the heatmap fro the windows only
+        for i, (im, ws, we) in enumerate(zip(trial_imgs, trial['ws'], trial['we'])):
+            w_imgs = ref_imgs[ws:we]
+            #get the RDF field
+            rdff = rmf(im, w_imgs, matcher=mae, d_range=(-90, 90))
+            ridf_mins = np.min(rdff, axis=1)
+            heatmap[i, ws:we] = ridf_mins
+    else:
+        for i, im in enumerate(trial_imgs):
+            #get the RDF field
+            rdff = rmf(im, ref_imgs, matcher=mae, d_range=(-90, 90))
+            ridf_mins = np.min(rdff, axis=1)
+            heatmap[i,:] = ridf_mins
+        np.save(file_path, heatmap)
+
+# pm trial
+if pm_best_match:
+    #trial data
+    logs_path = os.path.join(route_path, 'testing')
+    pm_trial = load_testing_logs(logs_path, pm_trial_name )
+    pm_matched_i = pm_trial['matched_index']
+
 
 matched_i = trial['matched_index']
 ws = trial['ws']
@@ -89,11 +113,15 @@ fig_size = (7, 4)
 fig, ax = plt.subplots(figsize=fig_size)
 sns.heatmap(heatmap, ax=ax)
 #ax.imshow(heatmap)
-ax.plot(matched_i, range(len(matched_i)))
-ax.plot(ws, range(len(ws)), c='g')
+ax.plot(matched_i, range(len(matched_i)), label='ASMW match')
+if pm_best_match:
+    ax.plot(pm_matched_i, range(len(pm_matched_i)), c='k', label='PM match')
+ax.plot(ws, range(len(ws)), c='g', label='window limits')
 ax.plot(we, range(len(we)), c='g')
 ax.set_xlabel('route images')
 ax.set_ylabel('query images')
+
+plt.legend()
 plt.tight_layout()
-fig.savefig(os.path.join(fig_save_path, 'heatmap.png'))
+fig.savefig(os.path.join(fig_save_path, f'heatmap-route({route_id})-trial({trial_name})-pmline({pm_best_match}).png'))
 plt.show()

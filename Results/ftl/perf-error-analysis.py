@@ -21,6 +21,7 @@ data['errors'] = data['errors'].apply(literal_eval)
 # data['dist_diff'] = data['dist_diff'].apply(literal_eval)
 # data['abs_index_diff'] = data['abs_index_diff'].apply(literal_eval)
 
+
 # imax_df = data.loc[data['nav-name'] == 'InfoMax']
 # data.drop(data[data['nav-name'] == 'InfoMax'].index, inplace=True)
 
@@ -42,7 +43,7 @@ data = data.loc[(data['matcher'] == matcher)
                 #& (data['loc_norm'] == loc_norm)]
                 ]
 # window_labels = ['Adaptive (20)', 'PM', 'w=15', 'w=20', 'w=25', 'w=30']
-#data = pd.concat([data, imax_df])
+data = pd.concat([data, imax_df])
 thresh = 0
 
 '''
@@ -50,7 +51,7 @@ Plot errors vs window sizes for a combo of parameters
 '''
 figsize = (7, 3)
 fig, ax = plt.subplots(figsize=figsize)
-plt.title('m{}.res{}.b{}.e{}.gloc{}.png'.format(matcher, res, blur, edge, g_loc_norm))
+#plt.title('m{}.res{}.b{}.e{}.gloc{}.png'.format(matcher, res, blur, edge, g_loc_norm))
 # Group then back to dataframe
 df = data.groupby(['nav-name'])['errors'].apply(sum).to_frame('errors').reset_index()
 df = df.explode('errors')
@@ -62,7 +63,7 @@ sns.violinplot(data=df, x='nav-name', y='errors', cut=0, ax=ax)
 
 # window_labels = ['Adaptive SMW', 'PM', 'Fixed 15', 'Fixed 25', 'Fixed 25']
 # ax.set_xticklabels(window_labels)
-ax.set_ylabel('absolute angular error')
+ax.set_ylabel('AAE')
 ax.set_xlabel('navigation algorithm')
 plt.tight_layout()
 
@@ -75,7 +76,9 @@ plt.show()
 '''
 PLot count of AAE > x
 '''
-thresh = 50
+
+thresh = 45
+
 df = data.groupby(['nav-name'])['errors'].apply(sum).to_frame('errors').reset_index()
 df = df.explode('errors')
 if thresh:
@@ -95,7 +98,7 @@ sns.barplot(data=df, x='nav-name', y='count', ax=ax)
 
 # window_labels = ['Adaptive SMW', 'PM', 'Fixed 15', 'Fixed 25', 'Fixed 25']
 # ax.set_xticklabels(window_labels)
-ax.set_ylabel('absolute angular error')
+ax.set_ylabel(f'count of AAE > {thresh}')
 ax.set_xlabel('navigation algorithm')
 plt.tight_layout()
 

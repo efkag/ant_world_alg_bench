@@ -72,6 +72,7 @@ class Route:
 
             route_data['qx'] = np.array(qx)
             route_data['qy'] = np.array(qy)
+            route_data['qyaw'] = np.full_like(route_data['qx'], 0.0)
             route_data['qimgs'] = qimg
 
         return route_data
@@ -145,6 +146,9 @@ class Route:
 
     def get_qimgs(self):
         return self.route_dict['qimgs']
+    
+    def get_qyaw(self): 
+        return self.route_dict['qyaw']
 
     def get_qxycoords(self):
         return {'x': self.route_dict['qx'], 'y': self.route_dict['qy']}
