@@ -54,14 +54,14 @@ def static_bench_antworld():
                   'edge_range': [(180, 200), False],
                   'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
                   'deg_range':[(-180, 180)],
-                  'window': [0], 
+                  'window': [0, 15, 20, 25, -15], 
                   'matcher': ['mae', 'corr'],
-                  'ref_route': [1, 2, 3, 4, 5]
+                  'grid_dist':[0.2]
                   }
     
     routes = [1]
     bench = navbench.Benchmark(results_path, routes_path, 
-                               grid_path=grid_path, 
+                               grid_path=grid_path, grid_dist=0.2,
                                filename='results.csv'
                                )
     bench.benchmark(parameters, routes, parallel=True, cores=1)
@@ -92,7 +92,8 @@ def static_bench_antworld():
 
 
 def main():
-    static_bench()
+    #static_bench()
+    static_bench_antworld()
     #live_bench()
 
 if __name__ == "__main__":

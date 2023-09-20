@@ -115,7 +115,7 @@ class Benchmark:
                       'route_path_suffix':self.route_path_suffix,
                       'repeats':self.route_repeats, 'results_path':self.results_path}
         # Partial callable
-        worker = functools.partial(self.worker_bench_repeats, arg_params, shared)
+        worker = functools.partial(self.worker_bench, arg_params, shared)
 
         pool = multiprocessing.Pool(processes=no_of_chunks)
 
@@ -236,7 +236,6 @@ class Benchmark:
         dist =  arg_params.get('grid_dist')
         routes_path =  arg_params.get('routes_path')
         grid_path =  arg_params.get('grid_path')
-        route_path_suffix = arg_params.get('route_path_suffix')
         results_path = arg_params.get('results_path')
         chunk_id = multiprocessing.current_process()._identity
 
@@ -274,7 +273,7 @@ class Benchmark:
                     infomaxParams = infomax.Params()
                     nav = infomax.InfomaxNetwork(infomaxParams, route_imgs, **combo)
                     recovered_heading = nav.navigate(test_imgs)
-                # here i need a navigate method for infomax.
+
                 toc = time.perf_counter()
                 # Get time complexity
                 time_compl = toc - tic
@@ -286,8 +285,15 @@ class Benchmark:
                 errors, min_dist_index = route.calc_errors(traj)
                 # Difference between matched index and minimum distance index and distance between points
                 matched_index = nav.get_index_log()
-                abs_index_diffs = np.absolute(np.subtract(nav.get_index_log(), min_dist_index))
-                dist_diff = calc_dists(route.get_xycoords(), min_dist_index, matched_index)
+                if matched_index:
+                    abs_index_diffs = np.absolute(np.subtract(nav.get_index_log(), min_dist_index))
+                    dist_diff = calc_dists(route.get_xycoords(), min_dist_index, matched_index)
+                    abs_index_diffs.tolist()
+                    dist_diff = dist_diff.tolist()
+                else:
+                    abs_index_diffs = None
+                    dist_diff = None
+                
                 mean_route_error = np.mean(errors)
                 window_log = nav.get_window_log()
                 rec_headings = nav.get_rec_headings()
