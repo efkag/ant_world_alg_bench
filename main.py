@@ -20,7 +20,7 @@ def static_bench():
                   'vcrop':[1. ,.8, .6, .4, .2],
                   'histeq':[True, False],
                   'edge_range': [(180, 200), False],
-                  'loc_norm': [True, False],
+                  'loc_norm': [{'kernel_shape':(3, 3)}, False],
                   'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
                   'deg_range':[(-180, 180)],
                   'window': [0], 
