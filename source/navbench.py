@@ -363,7 +363,7 @@ class Benchmark:
         repeats = arg_params.get('repeats')
         chunk_id = multiprocessing.current_process()._identity
 
-        log = {'route_id': [], 'rep_id': [], 'blur': [], 'edge': [], 'res': [], 
+        log = {'route_id': [],'ref_route':[], 'rep_id': [], 'blur': [], 'edge': [], 'res': [], 
                'vrop':[],'window': [], 'matcher': [],
                'deg_range':[], 'mean_error': [], 'seconds': [], 'errors': [], 
                'abs_index_diff': [], 'window_log': [], 'matched_index': [], 'dist_diff': [], 
