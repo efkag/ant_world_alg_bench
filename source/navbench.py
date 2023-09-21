@@ -129,7 +129,8 @@ class Benchmark:
                       'route_path_suffix':self.route_path_suffix,
                       'repeats':self.route_repeats, 'results_path':self.results_path}
         # Partial callable
-        worker = functools.partial(self.worker_bench, arg_params, shared)
+        #TODO: here i need to decide on a worked based on the dataset.
+        worker = functools.partial(self.worker_bench_repeats, arg_params, shared)
 
         pool = multiprocessing.Pool(processes=no_of_chunks)
 
