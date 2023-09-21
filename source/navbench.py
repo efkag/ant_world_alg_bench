@@ -426,7 +426,7 @@ class Benchmark:
                     deg_range = nav.deg_range
 
                     rmf_logs = np.array(nav.get_rsims_log(), dtype=object)
-                    rmf_logs_file = 'rmfs' + str(chunk_id) + str(shared['jobs'] + str(rep_route.get_route_id()))
+                    rmf_logs_file = f"rmfs-{chunk_id}-{shared['jobs']}-{rep_route.get_route_id()}"
                     rmfs_path = os.path.join(results_path, rmf_logs_file)
                     np.save(rmfs_path, rmf_logs)
 
