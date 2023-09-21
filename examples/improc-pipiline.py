@@ -15,7 +15,7 @@ route_path = 'new-antworld/exp1/route1/'
 route = Route(route_path, 1)
 
 params = {'blur': True,
-        'shape': (180, 70),
+        'shape': (180, 35),
         'histeq': True,
         #'edge_range': (180, 230),
         'gauss_loc_norm': {'sig1':2, 'sig2':20},

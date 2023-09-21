@@ -16,7 +16,7 @@ def static_bench():
     #               'window': list(range(10, 12)), 'matcher': ['corr', 'rmse']}
     
     parameters = {'blur': [True], 
-                  'shape': [(180, 60), (90, 30)],
+                  'shape': [(360, 80), (180, 40), (90, 20)],
                   'vcrop':[1. ,.8, .6, .4, .2],
                   'histeq':[True, False],
                   'edge_range': [(180, 200), False],
@@ -35,7 +35,7 @@ def static_bench():
                                route_path_suffix='N-',
                                route_repeats=5
                                )
-    bench.benchmark(parameters, routes, parallel=True, cores=40)
+    bench.benchmark(parameters, routes, parallel=True, cores=45)
 
 
 
