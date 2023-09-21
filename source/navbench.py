@@ -47,11 +47,22 @@ class Benchmark:
         return [lst[i::chunks] for i in range(chunks)]
 
     def remove_blur_edge(self, combo):
+        # removes a combination if it has both blurring and edges
         return not (combo['edge_range'] and combo['blur'])
 
     def remove_non_blur_edge(self, combo):
         return not combo.get('edge_range') and not combo.get('blur') and not combo.get('gauss_loc_norm') and not combo.get('loc_norm')
         #return not combo['edge_range'] and not combo['blur']
+
+    def remove_edge_loc_gloc_combos(self, combo):
+        return not (combo.get('edge_range') and combo.get('loc_norm') 
+                    and combo.get('gauss_loc_norm'))
+    
+    def remove_edge_gloc_combos(self, combo):
+        return not (combo.get('edge_range') and combo.get('gauss_loc_norm'))  
+    
+    def remove_edge_loc_combos(self, combo):
+        return not (combo.get('edge_range') and combo.get('loc_norm'))  
 
     def get_grid_dict(self, params):
         grid = itertools.product(*[params[k] for k in params])
@@ -64,9 +75,12 @@ class Benchmark:
                 combo_dict[k] = combo[i]
             grid_dict.append(combo_dict)
 
-        if params.get('edge_range'):
-            grid_dict[:] = [x for x in grid_dict if self.remove_blur_edge(x)]
-            grid_dict[:] = [x for x in grid_dict if not self.remove_non_blur_edge(x)]
+        if params.get('edge_range') or params.get('loc_norm') or params.get('gauss_loc_norm'):
+            #grid_dict[:] = [x for x in grid_dict if self.remove_blur_edge(x)]
+            #grid_dict[:] = [x for x in grid_dict if not self.remove_non_blur_edge(x)]
+            grid_dict[:] = [x for x in grid_dict if self.remove_edge_loc_gloc_combos(x)]
+            grid_dict[:] = [x for x in grid_dict if self.remove_edge_gloc_combos(x)]
+            grid_dict[:] = [x for x in grid_dict if self.remove_edge_loc_combos(x)]
         return grid_dict
 
     @staticmethod
