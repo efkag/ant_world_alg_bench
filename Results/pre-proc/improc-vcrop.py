@@ -34,6 +34,7 @@ grouped['errors'] = grouped['errors'].apply(np.median)
 
 #grouped['combined'] = grouped[['gauss_loc_norm', 'res']].apply(lambda row: '\n'.join(row.values.astype(str)), axis=1) 
 
+# Here I can add more in the combined column.
 grouped['combined'] = grouped['res'] + '\n' + grouped['gauss_loc_norm']
 
 
