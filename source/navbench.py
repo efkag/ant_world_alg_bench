@@ -16,7 +16,7 @@ from source import infomax
 
 class Benchmark:
     def __init__(self, results_path, routes_path, grid_path=None,  filename='results.csv', 
-                 route_path_suffix=None, grid_dist=None, route_repeats=None):
+                 route_path_suffix=None, grid_dist=None, route_repeats=None, bench_data=None):
         self.results_path = results_path
         self.routes_path = routes_path
         self.route_path_suffix = route_path_suffix
@@ -30,6 +30,7 @@ class Benchmark:
         self.routes_data = []
         #self.dist = 0.2  # Distance between grid images and route images
         self.dist = grid_dist
+        self.bench_data = bench_data
         self.log = {'route_id': [], 'blur': [], 'edge': [], 'res': [], 'window': [],
                     'matcher': [], 'mean_error': [], 'errors': [], 'seconds': [],
                     'abs_index_diff': [], 'window_log': [], 'best_sims': [], 'dist_diff': [],
@@ -130,7 +131,12 @@ class Benchmark:
                       'repeats':self.route_repeats, 'results_path':self.results_path}
         # Partial callable
         #TODO: here i need to decide on a worked based on the dataset.
-        worker = functools.partial(self.worker_bench_repeats, arg_params, shared)
+        if self.bench_data == 'ftl':
+            worker = functools.partial(self.worker_bench_repeats, arg_params, shared)
+        elif self.bench_data == 'aw2':
+            worker = functools.partial(self.worker_bench, arg_params, shared)
+        else:
+            raise Exception("Provide database type")
 
         pool = multiprocessing.Pool(processes=no_of_chunks)
 
