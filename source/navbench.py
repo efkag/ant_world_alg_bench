@@ -65,6 +65,9 @@ class Benchmark:
     def remove_edge_loc_combos(self, combo):
         return not (combo.get('edge_range') and combo.get('loc_norm'))  
 
+    def remove_gloc_loc_combos(self, combo):
+        return not (combo.get('gauss_loc_norm') and combo.get('loc_norm')) 
+
     def get_grid_dict(self, params):
         grid = itertools.product(*[params[k] for k in params])
 
@@ -82,6 +85,7 @@ class Benchmark:
             grid_dict[:] = [x for x in grid_dict if self.remove_edge_loc_gloc_combos(x)]
             grid_dict[:] = [x for x in grid_dict if self.remove_edge_gloc_combos(x)]
             grid_dict[:] = [x for x in grid_dict if self.remove_edge_loc_combos(x)]
+            grid_dict[:] = [x for x in grid_dict if self.remove_gloc_loc_combos(x)]
         return grid_dict
 
     @staticmethod
