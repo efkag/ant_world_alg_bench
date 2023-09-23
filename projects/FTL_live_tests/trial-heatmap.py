@@ -10,7 +10,6 @@ import pandas as pd
 from source.routedatabase import BoBRoute
 from source.unwraper import Unwraper
 from source.imgproc import Pipeline
-from source.unwraper import Unwraper
 from matplotlib import pyplot as plt
 import seaborn as sns
 from source.display import plot_ftl_route
@@ -37,8 +36,11 @@ def load_testing_logs(route_path, dname):
         im_path = os.path.join(route_path, i.strip())
         img = cv.imread(im_path, cv.IMREAD_GRAYSCALE)
         imgs.append(img)
+    unwraper = Unwraper(imgs[0])
+    for i, im in enumerate(imgs):
+        im = unwraper.unwarp(im)
+        imgs[i] = im
     route['imgs'] = imgs
-
     return route
 
 pm_logs = ['pm0', 'pm1', 'pm2', 'pm3', 'pm4'] 
@@ -47,6 +49,8 @@ asmw_logs = ['asmw0', 'asmw1', 'asmw2', 'asmw3', 'asmw4']
 #Params
 route_id=2
 pm_best_match = True
+#or
+pm_simu_best_match = True
 window_heatmap = False
 trial_name = asmw_logs[1]
 pm_trial_name = pm_logs[1]
@@ -72,12 +76,26 @@ trial = load_testing_logs(logs_path, trial_name )
 trial_imgs = trial['imgs']
 trial_imgs = pipe.apply(trial_imgs)
 
+
+# pm trial
+if pm_best_match and not pm_simu_best_match:
+    #trial data
+    logs_path = os.path.join(route_path, 'testing')
+    pm_trial = load_testing_logs(logs_path, pm_trial_name )
+    pm_matched_i = pm_trial['matched_index']
+
+# # use this for the HEAT map using the PM trial images
+# logs_path = os.path.join(route_path, 'testing')
+# pm_trial = load_testing_logs(logs_path, pm_trial_name )
+# trial_imgs = pm_trial['imgs']
+# trial_imgs = pipe.apply(trial_imgs)
+
 max_heat_value = 0
 heatmap = np.full((len(trial_imgs), len(ref_imgs)), max_heat_value)
 
 
 
-file_path = os.path.join(fig_save_path,f'heatmap-route({route_id})-trial({trial_name}.npy')
+file_path = os.path.join(fig_save_path,f'heatmap-route({route_id})-trial({trial_name}).npy')
 if os.path.isfile(file_path):
     heatmap = np.load(file_path)
 else:
@@ -97,12 +115,10 @@ else:
             heatmap[i,:] = ridf_mins
         np.save(file_path, heatmap)
 
-# pm trial
-if pm_best_match:
-    #trial data
-    logs_path = os.path.join(route_path, 'testing')
-    pm_trial = load_testing_logs(logs_path, pm_trial_name )
-    pm_matched_i = pm_trial['matched_index']
+
+
+if pm_best_match and pm_simu_best_match:
+    pm_matched_i = np.argmin(heatmap, axis=1)
 
 
 matched_i = trial['matched_index']
