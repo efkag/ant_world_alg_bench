@@ -386,7 +386,7 @@ def plot_multiroute(routes: list, **kwargs):
     plt.show()
 
 
-def heat_with_marginals(data):
+def heat_with_marginals(data, ax=None):
     '''
     Plot a 2D Heatmap with marginal distibutions.
     '''
@@ -399,7 +399,7 @@ def heat_with_marginals(data):
     z = data.flatten()
     df = {'rows': x, 'cols': y, 'rimg': z}
     df = pd.DataFrame(df)
-    g = sns.jointplot(data=df, x='rows', y='cols', kind="hist")
+    g = sns.jointplot(data=df, x='rows', y='cols', kind="hist", ax=ax)
     
     #g = sns.jointplot(data=df, x='rows', y='cols', kind='hist', bins=(c, H))
     g.ax_marg_y.cla()
