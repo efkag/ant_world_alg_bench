@@ -96,6 +96,7 @@ heatmap = np.full((len(trial_imgs), len(ref_imgs)), max_heat_value)
 
 
 file_path = os.path.join(fig_save_path,f'heatmap-route({route_id})-trial({trial_name}).npy')
+#file_path =  os.path.join(fig_save_path, 'heatmap-route(2)-trial(asmw1)-asmwimgs.npy')
 if os.path.isfile(file_path):
     heatmap = np.load(file_path)
 else:

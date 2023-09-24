@@ -13,6 +13,7 @@ from ast import literal_eval
 sns.set_context("paper", font_scale=0.9)
 
 directory = 'ftl/2023-09-22'
+directory = 'antworld2/2023-09-24'
 results_path = os.path.join('Results', 'pre-proc', directory)
 fig_save_path = os.path.join('Results', 'pre-proc', directory)
 fig_save_path = os.path.join(results_path, 'analysis')
