@@ -17,7 +17,7 @@ def static_bench():
     
     parameters = {'blur': [True], 
                   'shape': [(360, 80), (180, 40), (90, 20)],
-                  'vcrop':[0., .4, .6, .8],
+                  'vcrop':[0., .4, .6],
                   'histeq':[True, False],
                   'edge_range': [(180, 200), False],
                   #'loc_norm': [{'kernel_shape':(3, 3)}, False],
