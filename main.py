@@ -53,8 +53,8 @@ def static_bench_antworld():
     #               'window': list(range(10, 12)), 'matcher': ['corr', 'rmse']}
     
     parameters = {'blur': [True], 
-                  #'shape': [(360, 80),(180, 40), (90, 20)],
-                  'shape':[(90, 20)],
+                  'shape': [(360, 80),(180, 40), (90, 20)],
+                  #'shape':[(90, 20)],
                   'vcrop':[0., .4, .6],
                   'histeq':[True, False],
                   'edge_range': [(180, 200), False],
@@ -66,9 +66,7 @@ def static_bench_antworld():
                   'grid_dist':[0.2]
                   }
     
-    #routes = [*range(10)]
-
-    routes = [1]
+    routes = [*range(10)]
     bench = navbench.Benchmark(results_path, routes_path, 
                                grid_path=grid_path, grid_dist=0.2,
                                filename='results.csv',
