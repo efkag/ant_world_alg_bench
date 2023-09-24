@@ -53,9 +53,9 @@ def static_bench_antworld():
     #               'window': list(range(10, 12)), 'matcher': ['corr', 'rmse']}
     
     parameters = {'blur': [True], 
-                  #'shape': [(180, 40), (90, 20)],
+                  #'shape': [(360, 80),(180, 40), (90, 20)],
                   'shape':[(90, 20)],
-                  'vcrop':[0., .4, .6, .8],
+                  'vcrop':[0., .4, .6],
                   'histeq':[True, False],
                   'edge_range': [(180, 200), False],
                   #'loc_norm': [True, False],
