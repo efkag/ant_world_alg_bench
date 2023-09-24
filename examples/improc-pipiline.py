@@ -18,9 +18,9 @@ params = {'blur': True,
         'shape': (180, 35),
         'histeq': True,
         #'edge_range': (180, 230),
-        'gauss_loc_norm': {'sig1':2, 'sig2':20},
+        #'gauss_loc_norm': {'sig1':2, 'sig2':20},
         # 'loc_norm': {'kernel_shape':(3, 3)},
-        #'vcrop':1.
+        'vcrop':0.
         }
 
 

@@ -178,7 +178,6 @@ class Benchmark:
                 #     route_heading, route_imgs = load_route(route, self.dist)
                 route = Route(route_path, route_id, grid_path=self.grid_path)
                 
-                # TODO: here the query images need to be the othe repeat of the route!
                 tic = time.perf_counter()
                 # Preprocess images
                 test_imgs = pre_process(route.get_qimgs(), combo_dict)
@@ -264,7 +263,7 @@ class Benchmark:
         results_path = arg_params.get('results_path')
         chunk_id = multiprocessing.current_process()._identity
 
-        log = {'route_id': [], 'blur': [], 'edge': [], 'res': [], 'vcrop':[], 
+        log = {'route_id': [], 'blur': [], 'edge': [], 'res': [],  'histeq':[], 'vcrop':[], 
                'window': [], 'matcher': [], 'deg_range':[], 'mean_error': [], 
                'seconds': [], 'errors': [], 'abs_index_diff': [], 'window_log': [], 
                'matched_index': [], 'dist_diff': [], 'tx': [], 'ty': [], 'th': [],
@@ -332,6 +331,7 @@ class Benchmark:
                 log['nav-name'].append(nav.get_name())
                 log['route_id'].append(route.get_route_id())
                 log['blur'].append(combo.get('blur'))
+                log['histeq'].append(combo.get('histeq'))
                 log['edge'].append(combo.get('edge_range'))
                 log['res'].append(combo.get('shape'))
                 log['vcrop'].append(combo.get('vcrop'))
@@ -373,7 +373,7 @@ class Benchmark:
         repeats = arg_params.get('repeats')
         chunk_id = multiprocessing.current_process()._identity
 
-        log = {'route_id': [],'ref_route':[], 'rep_id': [], 'blur': [], 'edge': [], 'res': [], 
+        log = {'route_id': [],'ref_route':[], 'rep_id': [], 'blur': [], 'histeq':[], 'edge': [], 'res': [], 
                'vcrop':[],'window': [], 'matcher': [],
                'deg_range':[], 'mean_error': [], 'seconds': [], 'errors': [], 
                'abs_index_diff': [], 'window_log': [], 'matched_index': [], 'dist_diff': [], 
@@ -445,6 +445,7 @@ class Benchmark:
                     log['ref_route'].append(combo.get('ref_route'))
                     log['rep_id'].append(rep_route.get_route_id())
                     log['blur'].append(combo.get('blur'))
+                    log['histeq'].append(combo.get('histeq'))
                     log['edge'].append(combo.get('edge_range'))
                     log['res'].append(combo.get('shape'))
                     log['vcrop'].append(combo.get('vcrop'))

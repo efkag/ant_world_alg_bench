@@ -17,7 +17,7 @@ def static_bench():
     
     parameters = {'blur': [True], 
                   'shape': [(360, 80), (180, 40), (90, 20)],
-                  'vcrop':[1. ,.8, .6, .4],
+                  'vcrop':[0., .4, .6, .8],
                   'histeq':[True, False],
                   'edge_range': [(180, 200), False],
                   #'loc_norm': [{'kernel_shape':(3, 3)}, False],
@@ -41,20 +41,21 @@ def static_bench():
 
 
 def static_bench_antworld():
-    results_path = f'/its/home/sk526/ant_world_alg_bench/Results/newant/{string_date}'
-    #results_path = f'/mnt/data0/sk526/Results/aw/{string_date}'
+    #results_path = f'/its/home/sk526/ant_world_alg_bench/Results/newant/{string_date}'
+    results_path = f'/mnt/data0/sk526/Results/aw/{string_date}'
 
-    routes_path = '/its/home/sk526/ant_world_alg_bench/new-antworld/curve-bins'
-    #routes_path = '/mnt/data0/sk526/new-antworld/curve-bins'
+    #routes_path = '/its/home/sk526/ant_world_alg_bench/new-antworld/curve-bins'
+    routes_path = '/mnt/data0/sk526/new-antworld/curve-bins'
 
-    grid_path = '/its/home/sk526/ant_world_alg_bench/new-antworld/grid70'
-    #grid_path = '/mnt/data0/sk526/new-antworld/grid70'
+    #grid_path = '/its/home/sk526/ant_world_alg_bench/new-antworld/grid70'
+    grid_path = '/mnt/data0/sk526/new-antworld/grid70'
     # parameters = {'blur': [True], 'segment_l': [3], 'shape': [(180, 50), (90, 25)], 'edge_range': [(180, 200)],
     #               'window': list(range(10, 12)), 'matcher': ['corr', 'rmse']}
     
     parameters = {'blur': [True], 
-                  'shape': [(180, 40), (90, 20)],
-                  'vcrop':[1. ,.8, .6, .4],
+                  #'shape': [(180, 40), (90, 20)],
+                  'shape':[(90, 20)],
+                  'vcrop':[0., .4, .6, .8],
                   'histeq':[True, False],
                   'edge_range': [(180, 200), False],
                   #'loc_norm': [True, False],
@@ -65,13 +66,15 @@ def static_bench_antworld():
                   'grid_dist':[0.2]
                   }
     
-    routes = [*range(10)]
+    #routes = [*range(10)]
+
+    routes = [1]
     bench = navbench.Benchmark(results_path, routes_path, 
                                grid_path=grid_path, grid_dist=0.2,
                                filename='results.csv',
                                bench_data='aw2'
                                )
-    bench.benchmark(parameters, routes, parallel=True, cores=7)
+    bench.benchmark(parameters, routes, parallel=True, cores=10)
 
 
 
@@ -100,8 +103,8 @@ def static_bench_antworld():
 
 
 def main():
-    static_bench()
-    #static_bench_antworld()
+    #static_bench()
+    static_bench_antworld()
     #live_bench()
 
 if __name__ == "__main__":
