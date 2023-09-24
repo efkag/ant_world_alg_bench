@@ -28,7 +28,7 @@ data = data.loc[data['matcher'] == matcher]
 
 metric = 'errors'
 grouping_func = sum
-grouping_factors = ['gauss_loc_norm', 'res', 'edge', 'vcrop']
+grouping_factors = ['gauss_loc_norm', 'res', 'histeq', 'edge', 'vcrop']
 grouped = data.groupby(grouping_factors)[metric].apply(grouping_func).to_frame(metric).reset_index()
 #print(grouped)
 #alternate method
@@ -39,6 +39,9 @@ grouped['errors'] = grouped['errors'].apply(np.median)
 #grouped['combined'] = grouped[['gauss_loc_norm', 'res']].apply(lambda row: '\n'.join(row.values.astype(str)), axis=1) 
 
 
+grouped.loc[grouped["histeq"] == True, "histeq"] = 'histeq\n'
+grouped.loc[grouped["histeq"] == False, "histeq"] = ''
+
 grouped.loc[grouped["edge"] == "(180, 200)", "edge"] = 'edges\n'
 grouped.loc[grouped["edge"] == "False", "edge"] = ''
 
@@ -47,7 +50,7 @@ grouped.loc[grouped["gauss_loc_norm"] == "False", "gauss_loc_norm"] = ''
 
 grouped.loc[grouped["vcrop"] == 1.0, "vcrop"] = 0.0
 # Here I can add more in the combined column.
-grouped['pre processing'] = grouped['res'] + '\n' + grouped['edge'] + '\n' + grouped['gauss_loc_norm']
+grouped['pre processing'] = grouped['res'] +'\n' + grouped['histeq'] +'\n' + grouped['edge'] + '\n' + grouped['gauss_loc_norm']
 
 
 heat = grouped.pivot('pre processing', 'vcrop', 'errors')
