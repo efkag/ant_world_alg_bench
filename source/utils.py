@@ -704,6 +704,12 @@ def _entropy_dist(a, b, bins=256):
     return ent_pab - (np.sum(pab[nzs] * np.log(pab[nzs] / pa_pb[nzs])))
 
 
+def pick_im_matcher(im_matcher=None):
+    matchers = {'corr': cor_dist, 'rmse': rmse, 'mse':mse, 'mae': mae, 'rmse':rmse, 'entropy':entropy_dist}
+    if not matchers.get(im_matcher):
+        raise Exception('Non valid matcher method name')
+    return matchers.get(im_matcher)
+
 def rmf(query_img, ref_imgs, matcher=mae, d_range=(0, 360), d_step=1):
     """
     Rotational Matching Function.
