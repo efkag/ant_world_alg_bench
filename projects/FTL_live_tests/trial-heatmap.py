@@ -50,7 +50,7 @@ asmw_logs = ['asmw0', 'asmw1', 'asmw2', 'asmw3', 'asmw4']
 route_id=2
 pm_best_match = True
 #or
-pm_simu_best_match = True
+pm_simu_best_match = False
 window_heatmap = False
 trial_name = asmw_logs[1]
 pm_trial_name = pm_logs[1]
@@ -95,8 +95,8 @@ heatmap = np.full((len(trial_imgs), len(ref_imgs)), max_heat_value)
 
 
 
-file_path = os.path.join(fig_save_path,f'heatmap-route({route_id})-trial({trial_name}).npy')
-#file_path =  os.path.join(fig_save_path, 'heatmap-route(2)-trial(asmw1)-asmwimgs.npy')
+#file_path = os.path.join(fig_save_path,f'heatmap-route({route_id})-trial({trial_name}).npy')
+file_path =  os.path.join(fig_save_path, 'heatmap-route(2)-trial(asmw1)-asmwimgs.npy')
 if os.path.isfile(file_path):
     heatmap = np.load(file_path)
 else:
