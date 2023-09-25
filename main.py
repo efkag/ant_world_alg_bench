@@ -53,16 +53,16 @@ def static_bench_antworld():
     #               'window': list(range(10, 12)), 'matcher': ['corr', 'rmse']}
     
     parameters = {'blur': [True], 
-                  'shape': [(360, 80),(180, 40), (90, 20)],
+                  'shape': [(360, 80)],
                   #'shape':[(90, 20)],
-                  'vcrop':[0., .4, .6],
-                  'histeq':[True, False],
-                  'edge_range': [(180, 200), False],
+                  #'vcrop':[0., .4, .6],
+                  'histeq':[True],
+                  #'edge_range': [(180, 200), False],
                   #'loc_norm': [True, False],
-                  'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
+                  #'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
                   'deg_range':[(-180, 180)],
                   'window': [0], 
-                  'matcher': ['mae', 'corr'],
+                  'matcher': ['mae', 'mse', 'corr', 'entropy'],
                   'grid_dist':[0.2]
                   }
     
