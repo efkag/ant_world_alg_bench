@@ -1,4 +1,4 @@
-from source.utils import mae, rmse, cor_dist, rmf, nanmae
+from source.utils import pick_im_matcher, mae, rmse, cor_dist, rmf, nanmae
 import numpy as np
 
 
@@ -12,10 +12,7 @@ class PerfectMemory:
         self.recovered_heading = []
         self.logs = []
         self.matched_index_log = []
-        matchers = {'corr': cor_dist, 'rmse': rmse, 'mae':mae, 'nanmae':nanmae}
-        self.matcher = matchers.get(matching)
-        if not self.matcher:
-            raise Exception('Non valid matcher method name:{}'.format(matching))
+        self.matcher = pick_im_matcher(matching)
         self.argminmax = np.argmin
         self.best_sims = []
 

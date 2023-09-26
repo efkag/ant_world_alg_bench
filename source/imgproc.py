@@ -50,7 +50,7 @@ def lin(img, kernel_shape=(3, 3)):
     mu = cv.blur(img, kernel_shape)
     img = img - mu
     var = cv.blur(img*img, kernel_shape)
-    sig = var**0.5 #+ np.finfo(float).eps
+    sig = var**0.5 + np.finfo(float).eps
     return img / sig
 
 
@@ -69,7 +69,7 @@ def glin(img, sig1=2, sig2=20):
     mu = cv.GaussianBlur(img, (0, 0), sig1)
     img = img - mu
     var = cv.GaussianBlur(img*img, (0, 0), sig2)
-    sig = var**0.5 #+ np.finfo(float).eps
+    sig = var**0.5 + np.finfo(float).eps
     return img / sig
 
 

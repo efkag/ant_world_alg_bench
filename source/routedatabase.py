@@ -189,7 +189,7 @@ class BoBRoute:
         self.route_id = str(route_id)
         self.unwraper = unwraper
         # mDefult resizing to the max size needed for the benchmarks
-        self.img_shape = (360, 180)
+        self.img_shape = (720, 150)
         self.resizer = resize(self.img_shape)
         # self.vcrop = vcrop
         # # change vcrop from percentage to an actual row index

@@ -16,7 +16,7 @@ from source import infomax
 
 class Benchmark:
     def __init__(self, results_path, routes_path, grid_path=None,  filename='results.csv', 
-                 route_path_suffix=None, grid_dist=None, route_repeats=None):
+                 route_path_suffix=None, grid_dist=None, route_repeats=None, bench_data=None):
         self.results_path = results_path
         self.routes_path = routes_path
         self.route_path_suffix = route_path_suffix
@@ -30,6 +30,7 @@ class Benchmark:
         self.routes_data = []
         #self.dist = 0.2  # Distance between grid images and route images
         self.dist = grid_dist
+        self.bench_data = bench_data
         self.log = {'route_id': [], 'blur': [], 'edge': [], 'res': [], 'window': [],
                     'matcher': [], 'mean_error': [], 'errors': [], 'seconds': [],
                     'abs_index_diff': [], 'window_log': [], 'best_sims': [], 'dist_diff': [],
@@ -47,11 +48,25 @@ class Benchmark:
         return [lst[i::chunks] for i in range(chunks)]
 
     def remove_blur_edge(self, combo):
+        # removes a combination if it has both blurring and edges
         return not (combo['edge_range'] and combo['blur'])
 
     def remove_non_blur_edge(self, combo):
         return not combo.get('edge_range') and not combo.get('blur') and not combo.get('gauss_loc_norm') and not combo.get('loc_norm')
         #return not combo['edge_range'] and not combo['blur']
+
+    def remove_edge_loc_gloc_combos(self, combo):
+        return not (combo.get('edge_range') and combo.get('loc_norm') 
+                    and combo.get('gauss_loc_norm'))
+    
+    def remove_edge_gloc_combos(self, combo):
+        return not (combo.get('edge_range') and combo.get('gauss_loc_norm'))  
+    
+    def remove_edge_loc_combos(self, combo):
+        return not (combo.get('edge_range') and combo.get('loc_norm'))  
+
+    def remove_gloc_loc_combos(self, combo):
+        return not (combo.get('gauss_loc_norm') and combo.get('loc_norm')) 
 
     def get_grid_dict(self, params):
         grid = itertools.product(*[params[k] for k in params])
@@ -64,9 +79,13 @@ class Benchmark:
                 combo_dict[k] = combo[i]
             grid_dict.append(combo_dict)
 
-        if params.get('edge_range'):
-            grid_dict[:] = [x for x in grid_dict if self.remove_blur_edge(x)]
-            grid_dict[:] = [x for x in grid_dict if not self.remove_non_blur_edge(x)]
+        if params.get('edge_range') or params.get('loc_norm') or params.get('gauss_loc_norm'):
+            #grid_dict[:] = [x for x in grid_dict if self.remove_blur_edge(x)]
+            #grid_dict[:] = [x for x in grid_dict if not self.remove_non_blur_edge(x)]
+            grid_dict[:] = [x for x in grid_dict if self.remove_edge_loc_gloc_combos(x)]
+            grid_dict[:] = [x for x in grid_dict if self.remove_edge_gloc_combos(x)]
+            grid_dict[:] = [x for x in grid_dict if self.remove_edge_loc_combos(x)]
+            grid_dict[:] = [x for x in grid_dict if self.remove_gloc_loc_combos(x)]
         return grid_dict
 
     @staticmethod
@@ -115,7 +134,13 @@ class Benchmark:
                       'route_path_suffix':self.route_path_suffix,
                       'repeats':self.route_repeats, 'results_path':self.results_path}
         # Partial callable
-        worker = functools.partial(self.worker_bench, arg_params, shared)
+        #TODO: here i need to decide on a worked based on the dataset.
+        if self.bench_data == 'ftl':
+            worker = functools.partial(self.worker_bench_repeats, arg_params, shared)
+        elif self.bench_data == 'aw2':
+            worker = functools.partial(self.worker_bench, arg_params, shared)
+        else:
+            raise Exception("Provide database type")
 
         pool = multiprocessing.Pool(processes=no_of_chunks)
 
@@ -153,7 +178,6 @@ class Benchmark:
                 #     route_heading, route_imgs = load_route(route, self.dist)
                 route = Route(route_path, route_id, grid_path=self.grid_path)
                 
-                # TODO: here the query images need to be the othe repeat of the route!
                 tic = time.perf_counter()
                 # Preprocess images
                 test_imgs = pre_process(route.get_qimgs(), combo_dict)
@@ -190,7 +214,7 @@ class Benchmark:
                 self.log['best_sims'].append(nav.get_best_sims())
                 self.log['tx'].append(traj['x'].tolist())
                 self.log['ty'].append(traj['y'].tolist())
-                self.log['th'].append(traj['heading'])
+                self.log['th'].append(traj['heading'].tolist())
                 self.log['abs_index_diff'].append(abs_index_diffs.tolist())
                 self.log['dist_diff'].append(dist_diff.tolist())
                 self.log['errors'].append(errors)
@@ -239,7 +263,7 @@ class Benchmark:
         results_path = arg_params.get('results_path')
         chunk_id = multiprocessing.current_process()._identity
 
-        log = {'route_id': [], 'blur': [], 'edge': [], 'res': [], 'vrop':[], 
+        log = {'route_id': [], 'blur': [], 'edge': [], 'res': [],  'histeq':[], 'vcrop':[], 
                'window': [], 'matcher': [], 'deg_range':[], 'mean_error': [], 
                'seconds': [], 'errors': [], 'abs_index_diff': [], 'window_log': [], 
                'matched_index': [], 'dist_diff': [], 'tx': [], 'ty': [], 'th': [],
@@ -288,7 +312,7 @@ class Benchmark:
                 if matched_index:
                     abs_index_diffs = np.absolute(np.subtract(nav.get_index_log(), min_dist_index))
                     dist_diff = calc_dists(route.get_xycoords(), min_dist_index, matched_index)
-                    abs_index_diffs.tolist()
+                    abs_index_diffs = abs_index_diffs.tolist()
                     dist_diff = dist_diff.tolist()
                 else:
                     abs_index_diffs = None
@@ -307,6 +331,7 @@ class Benchmark:
                 log['nav-name'].append(nav.get_name())
                 log['route_id'].append(route.get_route_id())
                 log['blur'].append(combo.get('blur'))
+                log['histeq'].append(combo.get('histeq'))
                 log['edge'].append(combo.get('edge_range'))
                 log['res'].append(combo.get('shape'))
                 log['vcrop'].append(combo.get('vcrop'))
@@ -327,8 +352,8 @@ class Benchmark:
                 # This is the agent heading from the egocentric agent reference
                 log['ah'].append(rec_headings)
                 log['matched_index'].append(matched_index)
-                log['abs_index_diff'].append(abs_index_diffs.tolist())
-                log['dist_diff'].append(dist_diff.tolist())
+                log['abs_index_diff'].append(abs_index_diffs)
+                log['dist_diff'].append(dist_diff)
                 log['errors'].append(errors)
                 log['best_sims'].append(nav.get_best_sims())
                 # Increment the complete jobs shared variable
@@ -348,8 +373,8 @@ class Benchmark:
         repeats = arg_params.get('repeats')
         chunk_id = multiprocessing.current_process()._identity
 
-        log = {'route_id': [], 'rep_id': [], 'blur': [], 'edge': [], 'res': [], 
-               'vrop':[],'window': [], 'matcher': [],
+        log = {'route_id': [],'ref_route':[], 'rep_id': [], 'blur': [], 'histeq':[], 'edge': [], 'res': [], 
+               'vcrop':[],'window': [], 'matcher': [],
                'deg_range':[], 'mean_error': [], 'seconds': [], 'errors': [], 
                'abs_index_diff': [], 'window_log': [], 'matched_index': [], 'dist_diff': [], 
                'tx': [], 'ty': [], 'th': [],'ah': [] , 'rmfs_file':[], 'best_sims':[], 
@@ -400,7 +425,7 @@ class Benchmark:
                     if matched_index:
                         abs_index_diffs = np.absolute(np.subtract(nav.get_index_log(), min_dist_index))
                         dist_diff = calc_dists(route.get_xycoords(), min_dist_index, matched_index)
-                        abs_index_diffs.tolist()
+                        abs_index_diffs = abs_index_diffs.tolist()
                         dist_diff = dist_diff.tolist()
                     else:
                         abs_index_diffs = None
@@ -411,7 +436,7 @@ class Benchmark:
                     deg_range = nav.deg_range
 
                     rmf_logs = np.array(nav.get_rsims_log(), dtype=object)
-                    rmf_logs_file = 'rmfs' + str(chunk_id) + str(shared['jobs'] + str(rep_route.get_route_id()))
+                    rmf_logs_file = f"rmfs-{chunk_id}-{shared['jobs']}-{rep_route.get_route_id()}"
                     rmfs_path = os.path.join(results_path, rmf_logs_file)
                     np.save(rmfs_path, rmf_logs)
 
@@ -420,6 +445,7 @@ class Benchmark:
                     log['ref_route'].append(combo.get('ref_route'))
                     log['rep_id'].append(rep_route.get_route_id())
                     log['blur'].append(combo.get('blur'))
+                    log['histeq'].append(combo.get('histeq'))
                     log['edge'].append(combo.get('edge_range'))
                     log['res'].append(combo.get('shape'))
                     log['vcrop'].append(combo.get('vcrop'))

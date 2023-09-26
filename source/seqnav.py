@@ -1,4 +1,4 @@
-from source.utils import mae, rmse, cor_dist, rmf, seq2seqrmf, pair_rmf, cos_sim, mean_angle
+from source.utils import pick_im_matcher, mae, rmse, cor_dist, rmf, seq2seqrmf, pair_rmf, cos_sim, mean_angle
 from source.analysis import d2i_rmfs_eval
 import numpy as np
 import copy
@@ -32,10 +32,7 @@ class SequentialPerfectMemory:
         # initialisation values etc
         self.sma_qmet_log.append(0)
         # Matching variables
-        matchers = {'corr': cor_dist, 'rmse': rmse, 'mae': mae}
-        self.matcher = matchers.get(matching)
-        if not self.matcher:
-            raise Exception('Non valid matcher method name')
+        self.matcher = pick_im_matcher(matching)
         self.argminmax = np.argmin
         self.prev_match = 0.0
 
@@ -493,10 +490,7 @@ class Seq2SeqPerfectMemory:
         self.window_headings = []
         self.CMA = []
         # Matching variables
-        matchers = {'corr': cor_dist, 'rmse': rmse, 'mae': mae}
-        self.matcher = matchers.get(matching)
-        if not self.matcher:
-            raise Exception('Non valid matcher method name')
+        self.matcher = pick_im_matcher(matching)
         self.argminmax = np.argmin
         self.prev_match = 0.0
 
