@@ -565,11 +565,14 @@ class Seq2SeqPerfectMemory:
         # find best image match and heading
         # the index needs to be modulo the size of the window 
         # because now the window sims are the size of current queque * window 
-        idx = int(self.argminmax(wind_sims) % self.window)
+        idx = int(self.argminmax(wind_sims))
         self.best_sims.append(wind_sims[idx])
         heading = wind_headings[idx]
         self.recovered_heading.append(heading)
 
+        # the index needs to be modulo the size of the window 
+        # because now the window sims are the size of current queque * window 
+        idx = int(idx % self.window)
         # log the memory pointer before the update
         # mem_pointer - upper can cause the calc_dists() to go out of bounds
         matched_idx = self.mem_pointer + (idx - self.lower)
