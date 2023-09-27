@@ -35,7 +35,7 @@ routes = load_routes(routes_path, route_ids)
 total_jobs = len(chunk) * len(route_ids)
 jobs = 0
 
-log = {'route_id': [], 't':[], 'blur': [], 'edge': [], 'res': [], 'window': [],
+log = {'route_id': [], 't':[], 'blur': [], 'histeq':[], 'edge': [], 'res': [], 'window': [],
        'matcher': [], 'deg_range':[], 'segment_len': [], 'trial_fail_count':[], 'mean_error': [], 
        'seconds': [], 'errors': [], 'dist_diff': [], 'abs_index_diff': [], 'window_log': [], 
        'matched_index': [], 'tx': [], 'ty': [], 'th': [], 'ah': [], 'rmfs_file':[], 'best_sims':[],
@@ -63,13 +63,18 @@ for combo in chunk:
         # Run navigation algorithm
         #TODO: Need to select navigator instance based on 
         # information coming from the chunk combo
-        if window:
-            nav = spm.SequentialPerfectMemory(route_imgs, matcher, deg_range=(-180, 180), **combo)
-        elif window == 0:
-            nav = pm.PerfectMemory(route_imgs, matcher, deg_range=(-180, 180), **combo)
+        if isinstance(window, int):
+            if window:
+                nav = spm.SequentialPerfectMemory(route_imgs, matcher, **combo)
+            elif window == 0:
+                nav = pm.PerfectMemory(route_imgs, matcher, **combo)
+        elif isinstance(window, dict):
+            combo['window'] = window.get('window')
+            combo['queue_size'] = window.get('queue_size')
+            nav = spm.Seq2SeqPerfectMemory(route_imgs, matcher, **combo)
         else:
             infomaxParams = infomax.Params()
-            nav = infomax.InfomaxNetwork(infomaxParams, route_imgs, deg_range=(-180, 180), **combo)
+            nav = infomax.InfomaxNetwork(infomaxParams, route_imgs, **combo)
         # if segment_length:
         #     traj, nav = agent.segment_test(route, nav, segment_length=segment_length, t=t, r=r, sigma=None, preproc=combo)
         # else:
@@ -106,6 +111,7 @@ for combo in chunk:
         log['t'].append(t)
         log['num_of_repeat'].append(rpt)
         log['blur'].extend([combo.get('blur')])
+        log['histeq'].append(combo.get('histeq'))
         log['edge'].extend([combo.get('edge_range')])
         log['res'].append(combo.get('shape'))
         log['loc_norm'].append(combo.get('loc_norm'))

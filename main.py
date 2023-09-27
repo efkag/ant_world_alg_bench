@@ -1,4 +1,4 @@
-#from source import cbench
+from source import cbench
 from datetime import date
 today = date.today()
 string_date = today.strftime("%Y-%m-%d")
@@ -76,34 +76,35 @@ def static_bench_antworld():
 
 
 
-# def live_bench():
-#     #'segment_length':[3],
-#     results_path = f'/its/home/sk526/ant_world_alg_bench/Results/newant/{string_date}_infomax'
-#     routes_path = '/its/home/sk526/ant_world_alg_bench/new-antworld/curve-bins'
-#     parameters = {'repos_thresh':[.3], 
-#                   'r': [0.05], 
-#                   't': [300], 
-#                   'blur': [True],
-#                   'shape': [(180, 80)],
-#                 #  'wave' : [True, False], 
-#                 #  'edge_range': [(180, 200), False],
-#                 #  'loc_norm': [{'kernel_shape':(5, 5)}, False],
-#                   # 'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
-#                   'window': [None],
-#                   'matcher': [None],
-#                   }
+def live_bench():
+    #'segment_length':[3],
+    results_path = f'/its/home/sk526/ant_world_alg_bench/Results/newant/{string_date}_infomax'
+    routes_path = '/its/home/sk526/ant_world_alg_bench/new-antworld/curve-bins'
+    parameters = {'repos_thresh':[.3], 
+                  'r': [0.05], 
+                  't': [300], 
+                  'blur': [True],
+                  'shape': [(180, 40)],
+                  'histeq':[True, False],
+                #  'wave' : [True, False], 
+                 'edge_range': [(180, 200), False],
+                #  'loc_norm': [{'kernel_shape':(5, 5)}, False],
+                  # 'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
+                  'window': [{'queue_size':3, 'window':-15}],
+                  'matcher': ['mae', 'corr'],
+                  }
 
-#     routes = [*range(20)]
-#     num_of_repeats = 3
-#     parameters['repeat'] = [*range(num_of_repeats)]
-#     cbench.benchmark(results_path, routes_path, parameters, routes, 
-#                     parallel=True, num_of_repeats=num_of_repeats)
+    routes = [*range(10)]
+    num_of_repeats = 3
+    parameters['repeat'] = [*range(num_of_repeats)]
+    cbench.benchmark(results_path, routes_path, parameters, routes, 
+                    parallel=True, num_of_repeats=num_of_repeats, cores=1)
 
 
 def main():
     #static_bench()
-    static_bench_antworld()
-    #live_bench()
+    #static_bench_antworld()
+    live_bench()
 
 if __name__ == "__main__":
     main()

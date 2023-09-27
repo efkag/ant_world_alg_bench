@@ -780,12 +780,13 @@ def seq2seqrmf(query_imgs, ref_imgs, matcher=mae, d_range=(0, 360), d_step=1):
 
     degrees = range(*d_range, d_step)
     total_search_angle = round((d_range[1] - d_range[0]) / d_step)
-    sims = np.empty((len(query_imgs)*len(ref_imgs), total_search_angle), dtype=np.float)
+    ref_img_len = len(ref_imgs)
+    sims = np.zeros((len(query_imgs)*ref_img_len, total_search_angle), dtype=np.float)
     for i, query_img in enumerate(query_imgs):
         for j, rot in enumerate(degrees):
             # rotated query image
             rqimg = rotate(rot, query_img)
-            sims[:(i+1)*len(query_imgs), j] = matcher(rqimg, ref_imgs)
+            sims[i*ref_img_len:(i+1)*ref_img_len, j] = matcher(rqimg, ref_imgs)
 
     return sims
 
