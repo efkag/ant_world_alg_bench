@@ -77,17 +77,19 @@ plt.show()
 
 ############ show a violin plot
 if 'histeq' in data.columns:
-    grouped['pre processing'] = grouped['res'] +'-' + grouped['histeq'] +'-' + grouped['edge'] + '-' + grouped['gauss_loc_norm']
+    grouped['pre processing'] = grouped['res'] +'\n' + grouped['histeq'] +'\n' + grouped['edge'] + '\n' + grouped['gauss_loc_norm']
 else:
-    grouped['pre processing'] = grouped['res'] +'-' + grouped['edge'] + '-' + grouped['gauss_loc_norm']
+    grouped['pre processing'] = grouped['res'] +'\n' + grouped['edge'] + '\n' + grouped['gauss_loc_norm']
+df = grouped[grouped['res'] != '(90, 20)']
+
 
 y_max = 45
-grouped = grouped.explode('errors')
-grouped['errors'] = pd.to_numeric(grouped['errors'])
+df = df.explode('errors')
+df['errors'] = pd.to_numeric(df['errors'])
 #grouped.reset_index()
 figsize = (6, 4)
 fig, ax = plt.subplots(figsize=figsize)
-sns.violinplot(data=grouped, x='pre processing', y='errors', cut=0, ax=ax)
+sns.violinplot(data=df, x='pre processing', y='errors', cut=0, ax=ax)
 ax.set_xlabel('vertical cropping %')
 ax.set_ylabel('AAE')
 ax.set_ylim(0, ymax=y_max)
