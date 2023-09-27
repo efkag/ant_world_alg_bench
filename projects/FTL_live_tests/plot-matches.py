@@ -28,7 +28,7 @@ pm_logs = ['pm0', 'pm1', 'pm2', 'pm3', 'pm4']
 asmw_logs = ['asmw0', 'asmw1', 'asmw2', 'asmw3', 'asmw4'] 
 
 route_id=2
-trial_name = pm_logs[1]
+trial_name = asmw_logs[0]
 
 
 route_path = os.path.join(fwd,'2023-09-11', f'route{route_id}')
@@ -62,7 +62,7 @@ Here all the xy are flipped and rotated by 270 degreee to  plot aproaproiately
 '''
 
 
-fig = plt.figure(figsize=(5, 5))
+fig = plt.figure(figsize=(3, 3))
 #plt.title('C', loc='left')
 plt.plot(-route['y'], -route['x'], label='training', linewidth=2)
 
@@ -109,6 +109,6 @@ plt.annotate(f'{trial_name} ends', (-trial['y'][-1], -trial['x'][-1]))
 
 plt.legend()
 plt.tight_layout()
-
+fig.savefig(os.path.join(fig_save_path, f'matches-r({route_id})-{trial_name}.pdf'))
 fig.savefig(os.path.join(fig_save_path, f'matches-r({route_id})-{trial_name}.png'))
 plt.show()
