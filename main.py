@@ -16,16 +16,16 @@ def static_bench():
     #               'window': list(range(10, 12)), 'matcher': ['corr', 'rmse']}
     
     parameters = {'blur': [True], 
-                  'shape': [(360, 80), (180, 40), (90, 20)],
-                  'vcrop':[0., .4, .6],
+                  'shape': [(360, 80)],
+                  #'vcrop':[0., .4, .6],
                   'histeq':[True, False],
                   'edge_range': [(180, 200), False],
                   #'loc_norm': [{'kernel_shape':(3, 3)}, False],
                   'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
                   'deg_range':[(-180, 180)],
                   'window': [0], 
-                  'matcher': ['mae', 'corr'],
-                  'ref_route': [1, 2, 3, 4, 5]
+                  'matcher': ['mae','rmse', 'corr', 'entropy'],
+                  'ref_route': [1]
                   }
     
     routes = [1, 2, 3]
@@ -101,8 +101,8 @@ def static_bench_antworld():
 
 
 def main():
-    #static_bench()
-    static_bench_antworld()
+    static_bench()
+    #static_bench_antworld()
     #live_bench()
 
 if __name__ == "__main__":
