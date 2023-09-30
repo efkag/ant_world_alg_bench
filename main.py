@@ -80,7 +80,8 @@ def live_bench():
     #'segment_length':[3],
     results_path = f'/its/home/sk526/ant_world_alg_bench/Results/newant/{string_date}'
     routes_path = '/its/home/sk526/ant_world_alg_bench/new-antworld/curve-bins'
-    parameters = {'repos_thresh':[.3], 
+    parameters = {'deg_range':[(-180, 180)],
+                  'repos_thresh':[.3], 
                   'r': [0.05], 
                   't': [300], 
                   'blur': [True],
