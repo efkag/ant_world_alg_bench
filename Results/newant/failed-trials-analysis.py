@@ -20,6 +20,7 @@ data = pd.read_csv(os.path.join(results_path, 'results.csv'), index_col=False)
 # data['trial_fail_count'] = data['trial_fail_count'].apply(literal_eval)
 
 
+
 # Choose a specific pre. processing
 # route_id = 7
 matcher = 'corr'
@@ -30,8 +31,9 @@ g_loc_norm = "{'sig1': 2, 'sig2': 20}"
 # loc_norm = 'False'
 title = 'D'
 
-imax_df = data.loc[data['nav-name'] == 'InfoMax']
-data = pd.concat([data, imax_df])
+data = data.loc[data['nav-name'] != 'InfoMax']
+# imax_df = data.loc[data['nav-name'] == 'InfoMax']
+# data = pd.concat([data, imax_df])
 
 data = data.loc[(data['matcher'] == matcher) & (data['res'] == res) 
                 & (data['blur'] == blur) 
@@ -40,7 +42,7 @@ data = data.loc[(data['matcher'] == matcher) & (data['res'] == res)
                 #& (data['loc_norm'] == loc_norm)
                 #& (data['route_id'] == route_id ) 
                 # & (data['num_of_repeat'] == 0) 
-             & (data['route_id'] <= 4 ) #& (data['route_id'] < 10 )
+             #& (data['route_id'] <= 4 ) #& (data['route_id'] < 10 )
                 
 ]
 
@@ -54,11 +56,11 @@ method = np.mean
 data = data.groupby(['nav-name', 'route_id'])["trial_fail_count"].apply(method).to_frame("trial_fail_count").reset_index()
 
 
-figsize = (6.5, 4)
+figsize = (6., 3)
 fig, ax = plt.subplots(figsize=figsize)
 #ax.set_ylim(0, 20)
 #sns.barplot(x="window", y="trial_fail_count", data=data, ax=ax, estimator=method, capsize=.2, ci=None)
-sns.barplot(x="nav-name", y="trial_fail_count", data=data, ax=ax, estimator=method, capsize=.2, ci=None)
+sns.barplot(data=data, x="nav-name", y="trial_fail_count",  ax=ax, estimator=method, capsize=.2, ci=None)
 # window_labels = ['Adaptive SMW', 'PM', 'Fixed 15', 'Fixed 25']
 # ax.set_xticklabels(window_labels)
 ax.set_xlabel('Navigation Algorithm')
@@ -67,7 +69,9 @@ plt.tight_layout()
 # path = os.path.join(fig_save_path, f'route[{route_id}]-failed trials.png')
 temp_save_path = os.path.join(fig_save_path, 'failed-trials.png')
 fig.savefig(temp_save_path)
-#plt.show()
+temp_save_path = os.path.join(fig_save_path, 'failed-trials.pdf')
+fig.savefig(temp_save_path)
+plt.show()
 
 
 ################# joint plot
