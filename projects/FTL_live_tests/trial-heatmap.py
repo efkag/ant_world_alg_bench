@@ -50,7 +50,7 @@ asmw_logs = ['asmw0', 'asmw1', 'asmw2', 'asmw3', 'asmw4']
 route_id=2
 pm_best_match = True
 #or
-pm_simu_best_match = False
+pm_simu_best_match = True
 window_heatmap = False
 trial_name = asmw_logs[1]
 pm_trial_name = pm_logs[1]
@@ -62,6 +62,7 @@ pipe = Pipeline(**combo)
 
 
 route_path = os.path.join(fwd, '2023-09-11', f'route{route_id}')
+route_path = '/its/home/sk526/ftl-trials-temp/2023-09-18/demo'
 fig_save_path = os.path.join(route_path, 'analysis')
 check_for_dir_and_create(fig_save_path)
 
@@ -72,6 +73,7 @@ ref_imgs = pipe.apply(ref_imgs)
 
 #trial data
 logs_path = os.path.join(route_path, 'testing')
+logs_path = '/its/home/sk526/ftl-trials-temp/2023-09-18/demo/testing/20230918_170735'
 trial = load_testing_logs(logs_path, trial_name )
 trial_imgs = trial['imgs']
 trial_imgs = pipe.apply(trial_imgs)
@@ -96,7 +98,7 @@ heatmap = np.full((len(trial_imgs), len(ref_imgs)), max_heat_value)
 
 
 #file_path = os.path.join(fig_save_path,f'heatmap-route({route_id})-trial({trial_name}).npy')
-file_path =  os.path.join(fig_save_path, 'heatmap-route(2)-trial(asmw1)-asmwimgs.npy')
+file_path =  os.path.join(fig_save_path, 'heatmap.npy')
 if os.path.isfile(file_path):
     heatmap = np.load(file_path)
 else:
