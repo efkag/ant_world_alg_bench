@@ -142,5 +142,6 @@ ax.set_ylabel('query images')
 
 plt.legend()
 plt.tight_layout()
+fig.savefig(os.path.join(fig_save_path, f'heatmap-route({route_id})-trial({trial_name})-pmline({pm_best_match}).pdf'))
 fig.savefig(os.path.join(fig_save_path, f'heatmap-route({route_id})-trial({trial_name})-pmline({pm_best_match}).png'))
 plt.show()
