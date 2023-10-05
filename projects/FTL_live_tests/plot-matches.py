@@ -27,11 +27,12 @@ def load_testing_logs(route_path, dname):
 pm_logs = ['pm0', 'pm1', 'pm2', 'pm3', 'pm4'] 
 asmw_logs = ['asmw0', 'asmw1', 'asmw2', 'asmw3', 'asmw4'] 
 
-route_id=2
-trial_name = asmw_logs[0]
+directory = '2023-10-03'
+route_id=3
+trial_name = asmw_logs[1]
+title = 'A'
 
-
-route_path = os.path.join(fwd,'2023-09-11', f'route{route_id}')
+route_path = os.path.join(fwd, directory, f'route{route_id}')
 fig_save_path = os.path.join(route_path, 'analysis')
 check_for_dir_and_create(fig_save_path)
 route_data = os.path.join(route_path, 'database_entries.csv')
@@ -50,7 +51,7 @@ logs_path = os.path.join(route_path, 'testing')
 trial = load_testing_logs(logs_path, trial_name )
 
 
-background = cv2.imread(os.path.join(fwd, "top-down.png"))
+background = cv2.imread(os.path.join(fwd, "top-down-fliped.png"))
 background = cv2.cvtColor(background, cv2.COLOR_BGR2RGB)
 
 
@@ -63,11 +64,11 @@ Here all the xy are flipped and rotated by 270 degreee to  plot aproaproiately
 
 
 fig = plt.figure(figsize=(3, 3))
-#plt.title('C', loc='left')
-plt.plot(-route['y'], -route['x'], label='training', linewidth=2)
+plt.title(title, loc='left')
+plt.plot(route['x'], route['y'], label='training', linewidth=2)
 
-plt.scatter(-route['y'][0], -route['x'][0])
-plt.annotate('Start', (-route['y'][0], -route['x'][0]))
+plt.scatter(route['x'][0], route['y'][0])
+plt.annotate('Start', (route['x'][0], route['y'][0]))
 # Show background
 # **NOTE** the extents should correspond to EXPERIMENT_AREA_X and EXPERIMENT_AREA_Y in aligner.py
 plt.imshow(background, extent=(-3000.0, 3000.0, 3000.0, -3000.0))
@@ -87,11 +88,11 @@ Plot trial
 best_i = trial['matched_index']
 
 # here also flip the signs and y, x around
-ry = - route['x'][best_i]
-rx = - route['y'][best_i]
+rx = route['x'][best_i]
+ry = route['y'][best_i]
 
-ty = - trial['x']
-tx = - trial['y']
+tx = trial['x']
+ty = trial['y']
 
 xs = np.column_stack((rx, tx))
 ys = np.column_stack((ry, ty))
@@ -102,12 +103,12 @@ for x, y in zip(xs, ys):
     plt.plot(x, y, c='k', linewidth=0.8)
 
 
-plt.plot(-trial['y'],- trial['x'], '--', label=trial_name, linewidth=2)
-plt.annotate(f'{trial_name} ends', (-trial['y'][-1], -trial['x'][-1]))
+plt.plot(trial['x'], trial['y'], '--', label=trial_name, linewidth=2)
+plt.annotate(f'{trial_name} ends', (trial['x'][-1], trial['y'][-1]))
 
 
 
-plt.legend()
+plt.legend(loc=4)
 plt.tight_layout()
 fig.savefig(os.path.join(fig_save_path, f'matches-r({route_id})-{trial_name}.pdf'))
 fig.savefig(os.path.join(fig_save_path, f'matches-r({route_id})-{trial_name}.png'))

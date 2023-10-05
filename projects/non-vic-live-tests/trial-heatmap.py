@@ -14,6 +14,7 @@ from matplotlib import pyplot as plt
 import seaborn as sns
 from source.display import plot_ftl_route
 from source.utils import mae, rmf, cor_dist, check_for_dir_and_create
+sns.set_context("paper", font_scale=1)
 
 def read_img_gen(data_path, img_files):
     for i, fi in enumerate(img_files):
@@ -56,7 +57,7 @@ def load_testing_logs(data_path, dname='', pipe=None):
 # asmw_logs = ['asmw0', 'asmw1', 'asmw2', 'asmw3', 'asmw4'] 
 
 #Params
-route_id=2
+#route_id=2
 pm_best_match = True
 #or
 pm_simu_best_match = True
@@ -126,7 +127,6 @@ else:
             ridf_mins = np.min(rdff, axis=1)
             heatmap[i, ws:we] = ridf_mins
     else:
-        trial_imgs = [trial_imgs[2000]]
         for i, im in enumerate(trial_imgs):
             #get the RDF field
             rdff = rmf(im, ref_imgs, matcher=mae, d_range=(-90, 90))
@@ -141,19 +141,21 @@ if pm_best_match and pm_simu_best_match:
 
 
 
-fig_size = (7, 4)
+fig_size = (3, 5)
 fig, ax = plt.subplots(figsize=fig_size)
 #sns.heatmap(heatmap, ax=ax)
 ax.imshow(heatmap, cmap='hot')
-ax.plot(matched_i, range(len(matched_i)), label='ASMW match')
-if pm_best_match:
-    ax.plot(pm_matched_i, range(len(pm_matched_i)), c='k', label='PM match')
-ax.plot(ws, range(len(ws)), c='g', label='window limits')
-ax.plot(we, range(len(we)), c='g')
+# ax.plot(matched_i, range(len(matched_i)), label='ASMW match')
+# if pm_best_match:
+#     ax.plot(pm_matched_i, range(len(pm_matched_i)), c='k', label='PM match')
+# ax.plot(ws, range(len(ws)), c='g', label='window limits')
+# ax.plot(we, range(len(we)), c='g')
 ax.set_xlabel('route images')
 ax.set_ylabel('query images')
 
-#plt.legend()
-#plt.tight_layout()
-fig.savefig(os.path.join(fig_save_path, f'heatmap-route(-)-trial({trial_name})-pmline({pm_best_match}).png'))
+plt.legend()
+plt.tight_layout()
+fig.savefig(os.path.join(fig_save_path, f'plain-heatmap-route(-)-trial({trial_name})-pmline({pm_best_match}).png'))
+fig.savefig(os.path.join(fig_save_path, f'plain-heatmap-route(-)-trial({trial_name})-pmline({pm_best_match}).pdf'))
+
 plt.show()
