@@ -238,7 +238,11 @@ class BoBRoute:
         return route_data
     
     def calc_errors(self, trajectory):
-        return angular_error(self.route_dict, trajectory)
+        r_sample = {'x': self.route_dict['x'][::self.sample_step], 
+                'y': self.route_dict['y'][::self.sample_step],
+                'yaw': self.route_dict['yaw'][::self.sample_step]
+                }
+        return angular_error(r_sample, trajectory)
 
     def set_query_data(self, qx, qy, qyaw, qimgs):
         self.route_dict['qx'] = np.array(qx)
@@ -248,7 +252,7 @@ class BoBRoute:
 
     def get_xycoords(self):
         return {'x': self.route_dict['x'][::self.sample_step], 
-                'y': self.route_dict['y'][::self.sample_step]}
+                'y': self.route_dict['y'][::self.sample_step],}
     
     def get_qxycoords(self):
         return {'x': self.route_dict['qx'], 'y': self.route_dict['qy']}
