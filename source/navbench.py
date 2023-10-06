@@ -228,7 +228,7 @@ class Benchmark:
         print('Total number of jobs: {}'.format(self.total_jobs))
 
     def benchmark(self, params, route_ids, parallel=True, cores=None):
-
+        print(f'testing params: {params}')
         assert isinstance(params, dict)
         assert isinstance(route_ids, list)
 
