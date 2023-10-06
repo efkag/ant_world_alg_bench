@@ -373,8 +373,8 @@ class Benchmark:
         repeats = arg_params.get('repeats')
         chunk_id = multiprocessing.current_process()._identity
 
-        log = {'route_id': [],'ref_route':[], 'rep_id': [], 'blur': [], 'histeq':[], 'edge': [], 'res': [], 
-               'vcrop':[],'window': [], 'matcher': [],
+        log = {'route_id': [],'ref_route':[], 'rep_id': [], 'sample_rate':[], 'blur': [], 
+               'histeq':[], 'edge': [], 'res': [], 'vcrop':[],'window': [], 'matcher': [],
                'deg_range':[], 'mean_error': [], 'seconds': [], 'errors': [], 
                'abs_index_diff': [], 'window_log': [], 'matched_index': [], 'dist_diff': [], 
                'tx': [], 'ty': [], 'th': [],'ah': [] , 'rmfs_file':[], 'best_sims':[], 
@@ -386,8 +386,7 @@ class Benchmark:
 
         #  Go though all combinations in the chunk
         for combo in chunk:
-            routes, repeat_routes = load_bob_routes_repeats(routes_path, route_ids,
-                                                ref_route=combo.get('ref_route'), suffix=route_path_suffix, repeats=repeats)
+            routes, repeat_routes = load_bob_routes_repeats(routes_path, route_ids, suffix=route_path_suffix, repeats=repeats, **combo)
             matcher = combo.get('matcher')
             window = combo.get('window')
             window_log = None
@@ -444,6 +443,7 @@ class Benchmark:
                     log['route_id'].append(route.get_route_id())
                     log['ref_route'].append(combo.get('ref_route'))
                     log['rep_id'].append(rep_route.get_route_id())
+                    log['sample_rate'].append(combo.get('sample_step'))
                     log['blur'].append(combo.get('blur'))
                     log['histeq'].append(combo.get('histeq'))
                     log['edge'].append(combo.get('edge_range'))

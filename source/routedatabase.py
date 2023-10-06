@@ -181,7 +181,7 @@ def load_routes(path, ids, **kwargs):
 
 class BoBRoute:
 
-    def __init__(self, path, route_id=None, read_imgs=True, unwraper=Unwraper, **kwargs):
+    def __init__(self, path, route_id=None, read_imgs=True, unwraper=Unwraper, sample_step=1, **kwargs):
         self.path = path
         self.read_imgs = read_imgs
         self.proc_imgs = []
@@ -194,6 +194,7 @@ class BoBRoute:
         # self.vcrop = vcrop
         # # change vcrop from percentage to an actual row index
         # self.vcrop = int(round(self.img_shape[1] * self.vcrop))
+        self.sample_step = sample_step
 
         self.route_dict = self.load_route()
 
@@ -246,7 +247,8 @@ class BoBRoute:
         self.route_dict['qimgs'] = qimgs
 
     def get_xycoords(self):
-        return {'x': self.route_dict['x'], 'y': self.route_dict['y']}
+        return {'x': self.route_dict['x'][::self.sample_step], 
+                'y': self.route_dict['y'][::self.sample_step]}
     
     def get_qxycoords(self):
         return {'x': self.route_dict['qx'], 'y': self.route_dict['qy']}
@@ -254,16 +256,20 @@ class BoBRoute:
     def get_mean_curv(self):
         return meancurv2d(self.route_dict['x'], self.route_dict['y'])
 
-    def get_yaw(self): return self.route_dict['yaw']
+    def get_yaw(self): return self.route_dict['yaw'][::self.sample_step]
 
     def get_qyaw(self): return self.route_dict['qyaw']
 
-    def get_pitch(self): return self.route_dict['pitch']
+    def get_pitch(self): return self.route_dict['pitch'][::self.sample_step]
 
-    def get_roll(self): return self.route_dict['roll']
+    def get_roll(self): return self.route_dict['roll'][::self.sample_step]
     
     def get_imgs(self):
-        return self.route_dict['imgs']
+        ' this could be one line but for clarity i am showing the use of the variable sample_step'
+        if self.sample_step > 1:
+            return self.route_dict['imgs'][::self.sample_step]
+        else:
+            return self.route_dict['imgs']
 
     def get_qimgs(self):
         return self.route_dict['qimgs']
