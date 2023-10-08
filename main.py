@@ -10,22 +10,25 @@ def static_bench():
     results_path = f'/mnt/data0/sk526/Results/ftl/{string_date}'
     
     #routes_path = '/its/home/sk526/sussex-ftl-dataset/repeating-routes'
-    routes_path = '/mnt/data0/sk526/sussex-ftl-dataset/repeating-routes'
+    #routes_path = '/mnt/data0/sk526/sussex-ftl-dataset/repeating-routes'
+    #routes_path = '/its/home/sk526/ftl-trial-repeats'
+    routes_path = '/mnt/data0/sk526/ftl-trial-repeats'
     # grid_path = '/home/efkag/PycharmProjects/ant_world_alg_bench/new-antworld/grid70'
     # parameters = {'blur': [True], 'segment_l': [3], 'shape': [(180, 50), (90, 25)], 'edge_range': [(180, 200)],
     #               'window': list(range(10, 12)), 'matcher': ['corr', 'rmse']}
     
     parameters = {'blur': [True], 
-                  'shape': [(360, 80), (180, 40), (90, 20)],
-                  'vcrop':[0., .4, .6],
-                  'histeq':[True, False],
-                  'edge_range': [(180, 200), False],
+                  'shape': [(180, 50), (90, 25), (45, 12)],
+                  'vcrop':[.5],
+                  'histeq':[True],
+                  #'edge_range': [(180, 200), False],
                   #'loc_norm': [{'kernel_shape':(3, 3)}, False],
-                  'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
-                  'deg_range':[(-180, 180)],
-                  'window': [0], 
-                  'matcher': ['mae', 'corr'],
-                  'ref_route': [1, 2, 3, 4, 5]
+                  #'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
+                  'deg_range':[(-90, 90)],
+                  'window': [0, -15], 
+                  'matcher': ['mae'],
+                  'ref_route': [1],
+                  'sample_step':[1, 2, 4, 8]
                   }
     
     routes = [1, 2, 3]
@@ -33,10 +36,10 @@ def static_bench():
                                grid_path=None, 
                                filename='results.csv',
                                route_path_suffix='N-',
-                               route_repeats=5,
+                               route_repeats=3,
                                bench_data='ftl'
                                )
-    bench.benchmark(parameters, routes, parallel=True, cores=45)
+    bench.benchmark(parameters, routes, parallel=True, cores=40)
 
 
 
@@ -62,7 +65,7 @@ def static_bench_antworld():
                   #'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
                   'deg_range':[(-180, 180)],
                   'window': [0], 
-                  'matcher': ['entropy'],
+                  'matcher': ['mae', 'rmse', 'corr'],
                   'grid_dist':[0.2]
                   }
     
@@ -101,8 +104,8 @@ def static_bench_antworld():
 
 
 def main():
-    #static_bench()
-    static_bench_antworld()
+    static_bench()
+    #static_bench_antworld()
     #live_bench()
 
 if __name__ == "__main__":
