@@ -12,13 +12,13 @@ def static_bench():
     #routes_path = '/its/home/sk526/sussex-ftl-dataset/repeating-routes'
     #routes_path = '/mnt/data0/sk526/sussex-ftl-dataset/repeating-routes'
     #routes_path = '/its/home/sk526/ftl-trial-repeats'
-    routes_path = '/mnt/data0/sk526/ftl-trial-repeats'
+    routes_path = '/mnt/data0/sk526/ftl-trial-repeats/pm_repeat'
     # grid_path = '/home/efkag/PycharmProjects/ant_world_alg_bench/new-antworld/grid70'
     # parameters = {'blur': [True], 'segment_l': [3], 'shape': [(180, 50), (90, 25)], 'edge_range': [(180, 200)],
     #               'window': list(range(10, 12)), 'matcher': ['corr', 'rmse']}
     
-    parameters = {'blur': [True], 
-                  'shape': [(180, 50), (90, 25), (45, 12)],
+    parameters = {'blur': [False], 
+                  'shape': [(180, 50)],
                   'vcrop':[.5],
                   'histeq':[True],
                   #'edge_range': [(180, 200), False],
@@ -28,15 +28,15 @@ def static_bench():
                   'window': [0, -15], 
                   'matcher': ['mae'],
                   'ref_route': [1],
-                  'sample_step':[1, 2, 4, 8]
+                  'sample_step':[1]
                   }
     
-    routes = [1, 2, 3]
+    routes = [2]
     bench = navbench.Benchmark(results_path, routes_path, 
                                grid_path=None, 
                                filename='results.csv',
                                route_path_suffix='N-',
-                               route_repeats=3,
+                               route_repeats=2,
                                bench_data='ftl'
                                )
     bench.benchmark(parameters, routes, parallel=True, cores=40)
