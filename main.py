@@ -12,7 +12,7 @@ def static_bench():
     #routes_path = '/its/home/sk526/sussex-ftl-dataset/repeating-routes'
     #routes_path = '/mnt/data0/sk526/sussex-ftl-dataset/repeating-routes'
     #routes_path = '/its/home/sk526/ftl-trial-repeats'
-    routes_path = '/mnt/data0/sk526/ftl-trial-repeats/pm_repeat'
+    routes_path = '/mnt/data0/sk526/ftl-trial-repeats/pm-repeat'
     # grid_path = '/home/efkag/PycharmProjects/ant_world_alg_bench/new-antworld/grid70'
     # parameters = {'blur': [True], 'segment_l': [3], 'shape': [(180, 50), (90, 25)], 'edge_range': [(180, 200)],
     #               'window': list(range(10, 12)), 'matcher': ['corr', 'rmse']}
