@@ -7,7 +7,7 @@ from source import navbench
 
 def static_bench():
     # results_path = f'/its/home/sk526/ant_world_alg_bench/Results/ftl/{string_date}'
-    results_path = f'/mnt/data0/sk526/Results/ftl/asmw{string_date}'
+    results_path = f'/mnt/data0/sk526/Results/ftl/imax{string_date}'
     
     #routes_path = '/its/home/sk526/sussex-ftl-dataset/repeating-routes'
     #routes_path = '/mnt/data0/sk526/sussex-ftl-dataset/repeating-routes'
