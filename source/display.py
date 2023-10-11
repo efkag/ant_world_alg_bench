@@ -310,8 +310,8 @@ def plot_ftl_route(route, traj=None, scale=None, window=None, windex=None, save=
     fig, ax = plt.subplots(figsize=size)
     ax.set_title(title,  loc="left")
     
-    u, v = pol2cart_headings(90 + route['yaw'])
-    ax.scatter(route['x'], route['y'])
+    u, v = pol2cart_headings(route['yaw'])
+    ax.scatter(route['x'], route['y'], label='training')
     ax.quiver(route['x'], route['y'], u, v, scale=scale)
     if window is not None and windex:
         start = window[0]
@@ -321,20 +321,19 @@ def plot_ftl_route(route, traj=None, scale=None, window=None, windex=None, save=
             ax.scatter(route['qx'][:windex], route['qy'][:windex])
         else:
             ax.scatter(traj['x'][:windex], traj['y'][:windex])
-            u, v = pol2cart_headings(90 + traj['heading'])
+            u, v = pol2cart_headings(traj['heading'])
             ax.quiver(traj['x'][:windex], traj['y'][:windex], u[:windex], v[:windex], scale=scale)
     # Plot grid test points
     if 'qx' in route and window is None:
         ax.scatter(route['qx'], route['qy'])
     # Plot the trajectory of the agent when repeating the route
     if traj and not window:
-        # TODO: This re-correction (90 - headings) of the heading may not be necessary.
-        # TODO: I need to test if this will work as expected when the new results are in.
-        u, v = pol2cart_headings(90 + traj['heading'])
-        ax.scatter(traj['x'], traj['y'])
+        u, v = pol2cart_headings(traj['heading'])
+        ax.scatter(traj['x'], traj['y'], label='trial')
         # ax.plot(traj['x'], traj['y'])
         ax.quiver(traj['x'], traj['y'], u, v, scale=scale)
     plt.axis('equal')
+    plt.legend()
     plt.tight_layout()
     if save and windex:
         fig.savefig(path + '/' + str(windex) + '.png')
