@@ -232,7 +232,6 @@ class BoBRoute:
                 for i, im in enumerate(imgs):
                     im = self.unwraper.unwarp(im)
                     im = self.resizer(im)
-                    #im = im[self.vcrop:, :]
                     imgs[i] = im
             route_data['imgs'] = imgs
         return route_data
@@ -242,7 +241,7 @@ class BoBRoute:
                 'y': self.route_dict['y'][::self.sample_step],
                 'yaw': self.route_dict['yaw'][::self.sample_step]
                 }
-        return angular_error(r_sample, trajectory)
+        return seq_angular_error(r_sample, trajectory)
 
     def set_query_data(self, qx, qy, qyaw, qimgs):
         self.route_dict['qx'] = np.array(qx)
