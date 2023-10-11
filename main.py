@@ -6,13 +6,13 @@ from source import navbench
 
 
 def static_bench():
-    #results_path = f'/its/home/sk526/ant_world_alg_bench/Results/ftl/{string_date}'
-    results_path = f'/mnt/data0/sk526/Results/ftl/{string_date}'
+    # results_path = f'/its/home/sk526/ant_world_alg_bench/Results/ftl/{string_date}'
+    results_path = f'/mnt/data0/sk526/Results/ftl/asmw{string_date}'
     
     #routes_path = '/its/home/sk526/sussex-ftl-dataset/repeating-routes'
     #routes_path = '/mnt/data0/sk526/sussex-ftl-dataset/repeating-routes'
-    #routes_path = '/its/home/sk526/ftl-trial-repeats'
-    routes_path = '/mnt/data0/sk526/ftl-trial-repeats/pm-repeat'
+    # routes_path = '/its/home/sk526/ftl-trial-repeats/asmw-trials'
+    routes_path = '/mnt/data0/sk526/ftl-trial-repeats/asmw-trials'
     # grid_path = '/home/efkag/PycharmProjects/ant_world_alg_bench/new-antworld/grid70'
     # parameters = {'blur': [True], 'segment_l': [3], 'shape': [(180, 50), (90, 25)], 'edge_range': [(180, 200)],
     #               'window': list(range(10, 12)), 'matcher': ['corr', 'rmse']}
@@ -25,21 +25,21 @@ def static_bench():
                   #'loc_norm': [{'kernel_shape':(3, 3)}, False],
                   #'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
                   'deg_range':[(-90, 90)],
-                  'window': [0, -15], 
+                  'window': [-15], 
                   'matcher': ['mae'],
                   'ref_route': [1],
                   'sample_step':[1]
                   }
     
-    routes = [2]
+    routes = [3]
     bench = navbench.Benchmark(results_path, routes_path, 
                                grid_path=None, 
                                filename='results.csv',
                                route_path_suffix='N-',
-                               route_repeats=2,
+                               route_repeats=3,
                                bench_data='ftl'
                                )
-    bench.benchmark(parameters, routes, parallel=True, cores=40)
+    bench.benchmark(parameters, routes, parallel=True, cores=2)
 
 
 
