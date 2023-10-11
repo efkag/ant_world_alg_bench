@@ -25,8 +25,8 @@ def static_bench():
                   #'loc_norm': [{'kernel_shape':(3, 3)}, False],
                   #'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
                   'deg_range':[(-90, 90)],
-                  'window': [None], 
-                  'matcher': [None],
+                  'window': [-15], 
+                  'matcher': ['mae'],
                   'ref_route': [1],
                   'sample_step':[1]
                   }
