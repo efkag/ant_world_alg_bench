@@ -7,7 +7,7 @@ from source import navbench
 
 def static_bench():
     # results_path = f'/its/home/sk526/ant_world_alg_bench/Results/ftl/{string_date}'
-    results_path = f'/mnt/data0/sk526/Results/ftl/asmw{string_date}'
+    results_path = f'/mnt/data0/sk526/Results/ftl/imax{string_date}'
     
     #routes_path = '/its/home/sk526/sussex-ftl-dataset/repeating-routes'
     #routes_path = '/mnt/data0/sk526/sussex-ftl-dataset/repeating-routes'
@@ -25,8 +25,8 @@ def static_bench():
                   #'loc_norm': [{'kernel_shape':(3, 3)}, False],
                   #'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
                   'deg_range':[(-90, 90)],
-                  'window': [-15], 
-                  'matcher': ['mae'],
+                  'window': [None], 
+                  'matcher': [None],
                   'ref_route': [1],
                   'sample_step':[1]
                   }
