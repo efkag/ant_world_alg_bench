@@ -57,10 +57,6 @@ def load_testing_logs(data_path, dname='', pipe=None):
 
 #Params
 route_id=2
-pm_best_match = True
-#or
-pm_simu_best_match = True
-window_heatmap = False
 trial_name = '20230918_170735'
 #pm_trial_name = pm_logs[1]
 
@@ -72,36 +68,37 @@ pipe = Pipeline(**combo)
 
 #route_path = os.path.join(fwd, '2023-09-11', f'route{route_id}')
 route_path = os.path.join(fwd, '2023-09-18/demo')
+route_path = '/its/home/sk526/ftl-trials-temp/2023-10-06/training'
 sample_route_save_path = os.path.join(route_path, 'down-sampled')
 check_for_dir_and_create(sample_route_save_path)
 
 # route data
 print(f'reading route from{route_path}')
-# route = load_testing_logs(route_path, pipe=pipe)
-# ref_imgs = route['imgs']
+route = load_testing_logs(route_path, pipe=pipe)
+ref_imgs = route['imgs']
 
-# # plt.imshow(ref_imgs[1900], cmap='gray')
-# # plt.show()
+# plt.imshow(ref_imgs[1900], cmap='gray')
+# plt.show()
 
-# for im, fi in zip(ref_imgs, route['filename']):
-#     file_name = os.path.join(sample_route_save_path, fi.strip())
-#     cv.imwrite(file_name, im)
-
-
-
-#trial data
-logs_path = os.path.join(route_path, 'testing')
-print(f'reading logs from{logs_path}', trial_name)
-trial = load_testing_logs(logs_path, trial_name, pipe=pipe )
-trial_imgs = trial['imgs']
-
-
-sample_trial_save_path = os.path.join(route_path, 'down-sampled', 'testing', trial_name)
-check_for_dir_and_create(sample_trial_save_path)
-
-for im, fi in zip(trial_imgs, trial['filename']):
-    file_name = os.path.join(sample_trial_save_path, fi.strip())
+for im, fi in zip(ref_imgs, route['filename']):
+    file_name = os.path.join(sample_route_save_path, fi.strip())
     cv.imwrite(file_name, im)
+
+
+
+# #trial data
+# logs_path = os.path.join(route_path, 'testing')
+# print(f'reading logs from{logs_path}', trial_name)
+# trial = load_testing_logs(logs_path, trial_name, pipe=pipe )
+# trial_imgs = trial['imgs']
+
+
+# sample_trial_save_path = os.path.join(route_path, 'down-sampled', 'testing', trial_name)
+# check_for_dir_and_create(sample_trial_save_path)
+
+# for im, fi in zip(trial_imgs, trial['filename']):
+#     file_name = os.path.join(sample_trial_save_path, fi.strip())
+#     cv.imwrite(file_name, im)
 
 # plt.imshow(trial_imgs[3000], cmap='gray')
 # plt.show()

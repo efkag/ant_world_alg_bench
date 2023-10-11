@@ -14,7 +14,7 @@ from matplotlib import pyplot as plt
 import seaborn as sns
 from source.display import plot_ftl_route
 from source.utils import mae, rmf, cor_dist, check_for_dir_and_create
-
+sns.set_context("paper", font_scale=1)
 
 def load_testing_logs(route_path, dname):
     route_path = os.path.join(route_path, dname)
@@ -62,7 +62,6 @@ pipe = Pipeline(**combo)
 
 
 route_path = os.path.join(fwd, '2023-09-11', f'route{route_id}')
-route_path = '/its/home/sk526/ftl-trials-temp/2023-09-18/demo'
 fig_save_path = os.path.join(route_path, 'analysis')
 check_for_dir_and_create(fig_save_path)
 
@@ -73,7 +72,6 @@ ref_imgs = pipe.apply(ref_imgs)
 
 #trial data
 logs_path = os.path.join(route_path, 'testing')
-logs_path = '/its/home/sk526/ftl-trials-temp/2023-09-18/demo/testing/20230918_170735'
 trial = load_testing_logs(logs_path, trial_name )
 trial_imgs = trial['imgs']
 trial_imgs = pipe.apply(trial_imgs)
@@ -86,11 +84,11 @@ if pm_best_match and not pm_simu_best_match:
     pm_trial = load_testing_logs(logs_path, pm_trial_name )
     pm_matched_i = pm_trial['matched_index']
 
-# # use this for the HEAT map using the PM trial images
-# logs_path = os.path.join(route_path, 'testing')
-# pm_trial = load_testing_logs(logs_path, pm_trial_name )
-# trial_imgs = pm_trial['imgs']
-# trial_imgs = pipe.apply(trial_imgs)
+# use this for the HEAT map using the PM trial images
+logs_path = os.path.join(route_path, 'testing')
+pm_trial = load_testing_logs(logs_path, pm_trial_name )
+trial_imgs = pm_trial['imgs']
+trial_imgs = pipe.apply(trial_imgs)
 
 max_heat_value = 0
 heatmap = np.full((len(trial_imgs), len(ref_imgs)), max_heat_value)
@@ -128,7 +126,7 @@ matched_i = trial['matched_index']
 ws = trial['ws']
 we = trial['we']
 
-fig_size = (7, 4)
+fig_size = (4, 3)
 fig, ax = plt.subplots(figsize=fig_size)
 sns.heatmap(heatmap, ax=ax)
 #ax.imshow(heatmap)
@@ -137,11 +135,13 @@ if pm_best_match:
     ax.plot(pm_matched_i, range(len(pm_matched_i)), c='k', label='PM match')
 ax.plot(ws, range(len(ws)), c='g', label='window limits')
 ax.plot(we, range(len(we)), c='g')
+ax.set_xticks([])
+ax.set_yticks([])
 ax.set_xlabel('route images')
 ax.set_ylabel('query images')
 
 plt.legend()
 plt.tight_layout()
-fig.savefig(os.path.join(fig_save_path, f'heatmap-route({route_id})-trial({trial_name})-pmline({pm_best_match}).pdf'))
-fig.savefig(os.path.join(fig_save_path, f'heatmap-route({route_id})-trial({trial_name})-pmline({pm_best_match}).png'))
+fig.savefig(os.path.join(fig_save_path, f'heatmap-route({route_id})-trial({trial_name})-pmline({pm_best_match}).pdf'), dpi=200)
+fig.savefig(os.path.join(fig_save_path, f'heatmap-route({route_id})-trial({trial_name})-pmline({pm_best_match}).png'), dpi=200)
 plt.show()

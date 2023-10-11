@@ -38,17 +38,17 @@ def load_testing_logs(data_path, dname='', pipe=None):
         route['ws'] = route.pop('Window start')
         route['we'] = route.pop('Window end')
     imgs = []
-    imgs_gen = read_img_gen(data_path, route['filename'])
-    im0 = next(imgs_gen)
-    unwraper = Unwraper(im0)
-    im0 = unwraper.unwarp(im0)
-    im0 = pipe.apply(im0)
-    imgs.append(im0)
-    for im in imgs_gen:
-        im = unwraper.unwarp(im)
-        if pipe:
-            im = pipe.apply(im)
-        imgs.append(im)
+    # imgs_gen = read_img_gen(data_path, route['filename'])
+    # im0 = next(imgs_gen)
+    # unwraper = Unwraper(im0)
+    # im0 = unwraper.unwarp(im0)
+    # im0 = pipe.apply(im0)
+    # imgs.append(im0)
+    # for im in imgs_gen:
+    #     im = unwraper.unwarp(im)
+    #     if pipe:
+    #         im = pipe.apply(im)
+    #     imgs.append(im)
 
     route['imgs'] = imgs
     return route
@@ -141,21 +141,24 @@ if pm_best_match and pm_simu_best_match:
 
 
 
-fig_size = (3, 5)
+fig_size = (4, 3)
 fig, ax = plt.subplots(figsize=fig_size)
-#sns.heatmap(heatmap, ax=ax)
-ax.imshow(heatmap, cmap='hot')
-# ax.plot(matched_i, range(len(matched_i)), label='ASMW match')
-# if pm_best_match:
-#     ax.plot(pm_matched_i, range(len(pm_matched_i)), c='k', label='PM match')
-# ax.plot(ws, range(len(ws)), c='g', label='window limits')
-# ax.plot(we, range(len(we)), c='g')
+sns.heatmap(heatmap, ax=ax)
+#ax.imshow(heatmap, cmap='hot')
+ax.plot(matched_i, range(len(matched_i)), label='ASMW match')
+if pm_best_match:
+    ax.plot(pm_matched_i, range(len(pm_matched_i)), c='k', label='PM match')
+ax.plot(ws, range(len(ws)), c='g', label='window limits')
+ax.plot(we, range(len(we)), c='g')
+ax.set_xticks([])
+ax.set_yticks([])
 ax.set_xlabel('route images')
 ax.set_ylabel('query images')
 
+
 plt.legend()
 plt.tight_layout()
-fig.savefig(os.path.join(fig_save_path, f'plain-heatmap-route(-)-trial({trial_name})-pmline({pm_best_match}).png'))
-fig.savefig(os.path.join(fig_save_path, f'plain-heatmap-route(-)-trial({trial_name})-pmline({pm_best_match}).pdf'))
+fig.savefig(os.path.join(fig_save_path, f'heatmap-route(-)-trial({trial_name})-pmline({pm_best_match}).png'), dpi=200)
+#fig.savefig(os.path.join(fig_save_path, f'heatmap-route(-)-trial({trial_name})-pmline({pm_best_match}).pdf'), dpi=200, rasterize=True)
 
 plt.show()
