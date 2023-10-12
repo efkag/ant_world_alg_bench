@@ -40,19 +40,19 @@ route_id = 3
 fig_save_path = os.path.join(fig_save_path, f"route{route_id}")
 check_for_dir_and_create(fig_save_path)
 route_path = os.path.join(routes_path, f"route{route_id}")
-window = -15
-matcher = 'mae'
+window = None
+matcher = None
 edge = 'False' 
 res = '(180, 50)'
 #blur = True
 #g_loc_norm = "{'sig1': 2, 'sig2': 20}"
 #loc_norm = 'False'
-threshold = 40
+threshold = 30
 rep_id = 2
 
 angle_correction = 90
 
-figsize = (10,10)
+figsize = (5,5)
 title = None
 
 

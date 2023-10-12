@@ -26,7 +26,7 @@ def load_testing_logs(route_path, dname):
 route_id=3
 pm_logs = ['pm0', 'pm1', 'pm2', 'pm3', 'pm4'] 
 asmw_logs = ['asmw0', 'asmw1', 'asmw2', 'asmw3', 'asmw4'] 
-title = 'B'
+title = None
 trial_logs = asmw_logs
 
 route_path = os.path.join(fwd,'2023-10-03', f'route{route_id}')
@@ -53,7 +53,7 @@ Here all the xy are flipped and rotated by 270 degreee to  plot aproaproiately
 '''
 
 
-fig = plt.figure(figsize=(3, 3))
+fig = plt.figure(figsize=(7, 7))
 plt.title(title, loc='left')
 plt.plot(route['x'], route['y'], label='training')
 
