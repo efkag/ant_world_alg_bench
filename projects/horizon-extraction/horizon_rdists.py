@@ -32,14 +32,14 @@ lower = 220
 upper = 250
 
 params = {'blur': True,
-        'shape': (180, 80), 
+        'shape': (180, 50), 
         'edge_range': (lower, upper),
         #'gauss_loc_norm': {'sig1':2, 'sig2':20}
         }
 
 pipe = Pipeline(**params)
 edges = pipe.apply(img)
-
+e_shape = edges.shape
 # plt.imshow(edges, cmap='gray')
 # plt.show()
 
@@ -55,7 +55,7 @@ y = np.take(y, sort_ind)
 ### subtraction the max from y flips the edges points and oriantated them correctly
 # thisis because the top left corner of the image is considered the origin (0 ,0)
 # and adding the (no of vertical pixels - the max) pushe the pixes up to the corretc place
-y = (y.max() - y ) + (80 - y.max())
+y = (y.max() - y ) #+ (e_shape[0] - y.max())
 # the below is without readjusting the edge points.
 #y = (y.max() - y )
 plt.scatter(x, y, s=10)
