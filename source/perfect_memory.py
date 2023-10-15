@@ -4,7 +4,7 @@ import numpy as np
 
 class PerfectMemory:
 
-    def __init__(self, route_images, matching, deg_range=(0, 360), deg_step=1, **kwargs):
+    def __init__(self, route_images, matching, deg_range=(-180, 180), deg_step=1, **kwargs):
         self.route_images = route_images
         self.deg_step = deg_step
         self.deg_range = deg_range
