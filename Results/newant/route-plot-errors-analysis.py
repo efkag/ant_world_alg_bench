@@ -76,11 +76,10 @@ traj = {'x': np.array(traj['tx'].tolist()[0]),
 route = Route(path, route_id=route_id)
 route = route.get_route_dict()
 if threshold:
-    index = np.argwhere(errors > threshold)[0]
-    thres = {}
-    thres['x'] = traj['x'][index]
-    thres['y'] = traj['y'][index]
-    thres['heading'] = traj['heading'][index]
+    index = np.argwhere(errors >= threshold).ravel()
+    traj['x'] = traj['x'][index]
+    traj['y'] = traj['y'][index]
+    traj['heading'] = traj['heading'][index]
 
 temp_save_path = os.path.join(fig_save_path, f'route{route_id}.w{window}.m{matcher}.res{res}.edge{edge}.glocnorm{g_loc_norm}.thres{threshold}.png')
 

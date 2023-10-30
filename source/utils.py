@@ -852,14 +852,14 @@ def degree_error(x_cords, y_cords, x_route_cords, y_route_cords, route_heading, 
     return errors, k
 
 
-def seq_angular_error(route, trajectory, memory_pointer=0):
+def seq_angular_error(route, trajectory, memory_pointer=0, search_step=20):
     # TODO: Modify the function to calculate all the distances first (distance matrix)
     # TODO: and then calculate the minimum argument and extract the error.
     # Holds the angular error between the query position and the closest route position
     errors = []
     mindist_index = []
     route_end = len(route['x'])
-    search_step = 20
+    search_step = search_step
     memory_pointer = memory_pointer
     limit = memory_pointer + search_step
 
