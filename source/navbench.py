@@ -266,7 +266,7 @@ class Benchmark:
         log = {'route_id': [], 'blur': [], 'edge': [], 'res': [],  'histeq':[], 'vcrop':[], 
                'window': [], 'matcher': [], 'deg_range':[], 'mean_error': [], 
                'seconds': [], 'errors': [], 'abs_index_diff': [], 'window_log': [], 
-               'matched_index': [], 'dist_diff': [], 'tx': [], 'ty': [], 'th': [],
+               'matched_index': [], 'min_dist_index': [], 'dist_diff': [], 'tx': [], 'ty': [], 'th': [],
                'ah': [] , 'rmfs_file':[],'best_sims':[], 'loc_norm':[], 
                'gauss_loc_norm':[], 'wave':[], 'nav-name':[]}
         
@@ -352,6 +352,7 @@ class Benchmark:
                 # This is the agent heading from the egocentric agent reference
                 log['ah'].append(rec_headings)
                 log['matched_index'].append(matched_index)
+                log['min_dist_index'].append(min_dist_index)
                 log['abs_index_diff'].append(abs_index_diffs)
                 log['dist_diff'].append(dist_diff)
                 log['errors'].append(errors)
