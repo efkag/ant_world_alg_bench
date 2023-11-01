@@ -10,6 +10,22 @@ from source.utils import pol2cart_headings
 import seaborn as sns
 
 
+fig_records_keys = ['fig_path', 'script_path', 'date']
+def fig_record(records_filepath, fig_path='', script_path='', date='', **kwargs):
+    # if the records file already exists
+    if os.path.isfile(records_filepath):
+        df = pd.read_csv(records_filepath)
+        records = df.to_dict('list')
+        records['fig_path'].append(fig_path)
+        records['script_path'].append(script_path)
+        records['date'].append(date)
+    else:
+        #TODo: might need to handle that in the future with a creation of a file
+        # make disct ...
+        raise RuntimeError('Records file does not exist')
+
+
+
 def nans_imgshow(img):
     if np.nanmax(img) > 1.:
         img = img/np.nanmax(img)
