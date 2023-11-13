@@ -1,5 +1,11 @@
-from source2 import pre_process, load_route, check_for_dir_and_create, plot_map
-from source2 import seqnav as spm
+import sys
+import os
+# path = os.path.join(os.path.dirname(__file__), os.pardir)
+fwd = os.path.dirname(__file__)
+sys.path.append(os.getcwd())
+
+from source import pre_process, load_route, check_for_dir_and_create, plot_map
+from source import seqnav as spm
 
 directory = 'LoopRoutes/'
 matcher = 'mae'

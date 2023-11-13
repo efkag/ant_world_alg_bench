@@ -1,18 +1,14 @@
 from source.utils import pick_im_matcher, mae, rmse, cor_dist, rmf, nanmae
 import numpy as np
+from source.navs import Navigator
 
+class PerfectMemory(Navigator):
 
-class PerfectMemory:
-
-    def __init__(self, route_images, matching, deg_range=(0, 360), deg_step=1, **kwargs):
-        self.route_images = route_images
-        self.deg_step = deg_step
-        self.deg_range = deg_range
-        self.degrees = np.arange(*deg_range)
+    def __init__(self, route_images, **kwargs):
+        super().__init__(route_images, **kwargs)
         self.recovered_heading = []
         self.logs = []
         self.matched_index_log = []
-        self.matcher = pick_im_matcher(matching)
         self.argminmax = np.argmin
         self.best_sims = []
 
