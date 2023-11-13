@@ -12,4 +12,6 @@
 
 The perfect memory part of the benchmark is in "2023-04-28_test_pm_part".
 
-The Infomax part of the benchmark is in "2023-05-19_infomax"
+The Infomax part of the benchmark need to be redone!!!
+
+The benchmark for window size 30 is in "2023-11-10_w30"
