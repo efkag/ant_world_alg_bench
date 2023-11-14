@@ -69,7 +69,7 @@ def static_bench_antworld():
                   'grid_dist':[0.2]
                   }
     
-    routes = [*range(20)]
+    routes = [1, 2]
     bench = navbench.Benchmark(results_path, routes_path, 
                                grid_path=grid_path, grid_dist=0.2,
                                filename='results.csv',
