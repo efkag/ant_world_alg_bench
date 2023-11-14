@@ -44,14 +44,14 @@ def static_bench():
 
 
 def static_bench_antworld():
-    results_path = f'/its/home/sk526/ant_world_alg_bench/Results/newant/{string_date}'
-    #results_path = f'/mnt/data0/sk526/Results/aw/{string_date}'
+    #results_path = f'/its/home/sk526/ant_world_alg_bench/Results/newant/{string_date}'
+    results_path = f'/mnt/data0/sk526/Results/aw/{string_date}'
 
-    routes_path = '/its/home/sk526/ant_world_alg_bench/new-antworld/exp1'
-    #routes_path = '/mnt/data0/sk526/new-antworld/exp1'
+    #routes_path = '/its/home/sk526/ant_world_alg_bench/new-antworld/exp1'
+    routes_path = '/mnt/data0/sk526/new-antworld/exp1'
 
-    grid_path = '/its/home/sk526/ant_world_alg_bench/new-antworld/grid70'
-    #grid_path = '/mnt/data0/sk526/new-antworld/grid70'
+    #grid_path = '/its/home/sk526/ant_world_alg_bench/new-antworld/grid70'
+    grid_path = '/mnt/data0/sk526/new-antworld/grid70'
     # parameters = {'blur': [True], 'segment_l': [3], 'shape': [(180, 50), (90, 25)], 'edge_range': [(180, 200)],
     #               'window': list(range(10, 12)), 'matcher': ['corr', 'rmse']}
     
