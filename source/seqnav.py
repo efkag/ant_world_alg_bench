@@ -130,7 +130,7 @@ class SequentialPerfectMemory:
         if self.adaptive:
             best = wind_sims[idx]
             # TODO here I need to make the updating function modular
-            self.dynamic_window_log_rate(best)
+            self.dynamic_window_fixed(best)
             self.check_w_size()
 
         # Update memory pointer
@@ -590,7 +590,7 @@ class Seq2SeqPerfectMemory:
         '''
         self.recovered_heading.append(mean_angle(wind_heading))
 
-    def dynamic_window_sim(self, best):
+    def dynamic_window_fixed(self, best):
         '''
         Change the window size depending on the best img match gradient.
         If the last best img sim > the current best img sim the window grows
