@@ -8,11 +8,7 @@ from source.imgproc import Pipeline
 class SequentialPerfectMemory:
 
     def __init__(self, route_images, matching, deg_range=(-180, 180), degree_shift=1, 
-<<<<<<< HEAD
                 window=20, dynamic_range=0.1, w_thresh=None, mid_update=True, sma_size=3, 
-=======
-                window=20, dynamic_range=0.1, w_thresh=None, mid_update=True, 
->>>>>>> Update nav serach range
                 **kwargs):
         self.route_end = len(route_images)
         self.route_images = route_images
@@ -134,7 +130,7 @@ class SequentialPerfectMemory:
         if self.adaptive:
             best = wind_sims[idx]
             # TODO here I need to make the updating function modular
-            self.dynamic_window_log_rate(best)
+            self.dynamic_window_fixed(best)
             self.check_w_size()
 
         # Update memory pointer
