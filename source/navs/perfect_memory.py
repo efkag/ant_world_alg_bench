@@ -1,6 +1,6 @@
 from source.utils import pick_im_matcher, mae, rmse, cor_dist, rmf, nanmae
 import numpy as np
-from .navs import Navigator
+from .navigator import Navigator
 
 class PerfectMemory(Navigator):
 

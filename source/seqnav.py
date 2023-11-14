@@ -3,18 +3,13 @@ from source.analysis import d2i_rmfs_eval
 import numpy as np
 import copy
 from collections import deque
+from source.navs.navigator import Navigator
 
+class SequentialPerfectMemory():
 
-class SequentialPerfectMemory:
-
-    def __init__(self, route_images, matching, deg_range=(-180, 180), degree_shift=1, 
-                window=20, dynamic_range=0.1, w_thresh=None, mid_update=True, 
+    def __init__(self, route_images, window=20, dynamic_range=0.1, w_thresh=None, mid_update=True, 
                 **kwargs):
-        self.route_end = len(route_images)
-        self.route_images = route_images
-        self.deg_range = deg_range
-        self.deg_step = degree_shift
-        self.degrees = np.arange(*deg_range)
+        super().__init__(route_images, **kwargs)
 
         # Log Variables
         self.recovered_heading = []
@@ -32,8 +27,6 @@ class SequentialPerfectMemory:
         # initialisation values etc
         self.sma_qmet_log.append(0)
         # Matching variables
-        self.matcher = pick_im_matcher(matching)
-        self.argminmax = np.argmin
         self.prev_match = 0.0
 
         # Window parameters

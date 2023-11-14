@@ -272,7 +272,6 @@ class Benchmark:
         
         # Load all routes
         routes = load_routes(routes_path, route_ids, max_dist=dist, grid_path=grid_path)
-
         #  Go though all combinations in the chunk
         for combo in chunk:
 
@@ -288,10 +287,10 @@ class Benchmark:
                 test_imgs = pipe.apply(route.get_qimgs())
                 # Run navigation algorithm
                 if window:
-                    nav = spm.SequentialPerfectMemory(route_imgs, matcher, **combo)
+                    nav = spm.SequentialPerfectMemory(route_imgs, **combo)
                     recovered_heading, window_log = nav.navigate(test_imgs)
                 elif window == 0:
-                    nav = pm.PerfectMemory(route_imgs, matcher, **combo)
+                    nav = pm.PerfectMemory(route_imgs, **combo)
                     recovered_heading = nav.navigate(test_imgs)
                 else:
                     infomaxParams = infomax.Params()

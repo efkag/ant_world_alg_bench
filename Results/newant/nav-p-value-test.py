@@ -27,7 +27,7 @@ matcher = 'corr'
 blur = True
 # edge = 'False' 
 res = '(180, 80)'
-g_loc_norm = "{'sig1': 2, 'sig2': 20}"
+g_loc_norm = 'False' # "{'sig1': 2, 'sig2': 20}"
 # loc_norm = 'False'
 title = None
 

@@ -3,7 +3,7 @@ from source.analysis import d2i_rmfs_eval
 import numpy as np
 import copy
 from collections import deque
-from .navs import Navigator
+from .navigator import Navigator
 
 
 class SequentialPerfectMemory(Navigator):
