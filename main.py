@@ -75,7 +75,7 @@ def static_bench_antworld():
                                filename='results.csv',
                                bench_data='aw2'
                                )
-    bench.benchmark(parameters, routes, parallel=True, cores=1)
+    bench.benchmark(parameters, routes, parallel=True, cores=55)
 
 
 
