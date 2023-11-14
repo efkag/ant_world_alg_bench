@@ -8,7 +8,11 @@ from source.imgproc import Pipeline
 class SequentialPerfectMemory:
 
     def __init__(self, route_images, matching, deg_range=(-180, 180), degree_shift=1, 
+<<<<<<< HEAD
                 window=20, dynamic_range=0.1, w_thresh=None, mid_update=True, sma_size=3, 
+=======
+                window=20, dynamic_range=0.1, w_thresh=None, mid_update=True, 
+>>>>>>> Update nav serach range
                 **kwargs):
         self.route_end = len(route_images)
         self.route_images = route_images
