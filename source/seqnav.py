@@ -7,7 +7,7 @@ from collections import deque
 
 class SequentialPerfectMemory:
 
-    def __init__(self, route_images, matching, deg_range=(0, 360), degree_shift=1, 
+    def __init__(self, route_images, matching, deg_range=(-180, 180), degree_shift=1, 
                 window=20, dynamic_range=0.1, w_thresh=None, mid_update=True, 
                 **kwargs):
         self.route_end = len(route_images)
