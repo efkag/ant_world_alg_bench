@@ -12,7 +12,7 @@ from ast import literal_eval
 sns.set_context("paper", font_scale=1)
 
 
-directory = '2023-11-14/mid-const-update'
+directory = '2023-11-14/rear-log-update'
 results_path = os.path.join('Results', 'newant', 'static-bench', directory)
 fig_save_path = os.path.join(results_path, 'analysis')
 check_for_dir_and_create(fig_save_path)
@@ -24,7 +24,7 @@ data['errors'] = data['errors'].apply(literal_eval)
 data['dist_diff'] = data['dist_diff'].apply(literal_eval)
 data['abs_index_diff'] = data['abs_index_diff'].apply(literal_eval)
 
-route_id = 2
+route_id = 1
 # fig_save_path = fig_save_path + str(route_id)
 # check_for_dir_and_create(fig_save_path)
 matcher = 'corr'
@@ -35,11 +35,11 @@ figsize = (6, 3)
 res = '(180, 40)'
 route = data.loc[(data['matcher'] == matcher) 
                  & (data['route_id'] == route_id)
-                 & (data['edge'] == edge)
-                 & (data['gauss_loc_norm'] == g_loc_norm)
+                 #& (data['edge'] == edge)
+                # & (data['gauss_loc_norm'] == g_loc_norm)
                  & (data['res'] == res) 
                  & (data['blur'] == blur)]
-
+print(route)
 '''
 Plot for one specific matcher with one specific pre-proc
 '''
