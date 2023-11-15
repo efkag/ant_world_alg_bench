@@ -60,11 +60,11 @@ def static_bench_antworld():
                   #'shape':[(90, 20)],
                   #'vcrop':[0., .4, .6],
                   #'histeq':[True, False],
-                  'edge_range': [(180, 220), False],
+                  #'edge_range': [(180, 220), False],
                   #'loc_norm': [True, False],
-                  'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
+                  #'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
                   'deg_range':[(-180, 180)],
-                  'window': [0, 15, 20, 25, 30, -15], 
+                  'window': [15, 20, 25, 30, -15], 
                   'matcher': ['mae', 'corr'],
                   'grid_dist':[0.2]
                   }
