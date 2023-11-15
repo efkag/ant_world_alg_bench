@@ -137,6 +137,7 @@ class SequentialPerfectMemory:
 
         # log the memory pointer before the update
         # mem_pointer - upper can cause the calc_dists() to go out of bounds
+        #!!! For the mid update only
         matched_idx = self.mem_pointer + (idx - self.lower)
         self.matched_index_log.append(matched_idx)
 
@@ -190,8 +191,8 @@ class SequentialPerfectMemory:
         self.flimit = self.mem_pointer + self.upper
         self.blimit = self.mem_pointer
 
-        if self.flimit >= self.route_end:
-            self.mem_pointer = self.blimit + idx
+        if self.flimit > self.route_end:
+            self.mem_pointer = self.route_end - self.window
             self.flimit = self.route_end
             self.blimit = self.route_end - self.window
 
