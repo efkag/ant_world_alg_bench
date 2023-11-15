@@ -130,12 +130,12 @@ class SequentialPerfectMemory:
         if self.adaptive:
             best = wind_sims[idx]
             # TODO here I need to make the updating function modular
-            self.dynamic_window_fixed(best)
+            self.dynamic_window_log_rate(best)
             self.check_w_size()
 
         # Update memory pointer
         # if h_eval:
-        self.update_mid_pointer(idx)
+        self.update_pointer(idx)
         # else:
         #     self.set_mem_pointer(self.mem_pointer + 1)
 
