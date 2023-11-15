@@ -190,7 +190,7 @@ class SequentialPerfectMemory:
         self.flimit = self.mem_pointer + self.upper
         self.blimit = self.mem_pointer
 
-        if self.flimit > self.route_end:
+        if self.flimit >= self.route_end:
             self.mem_pointer = self.blimit + idx
             self.flimit = self.route_end
             self.blimit = self.route_end - self.window
