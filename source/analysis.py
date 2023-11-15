@@ -43,8 +43,10 @@ def log_error_points(route, traj, thresh=0.5, target_path=None, aw_agent=None):
     # the antworld agent or query images for static bench
     if not route.get('qimgs') and aw_agent:
         agent = aw_agent()
+    elif route.get('qimgs'):
+        aw_agent = None 
     else:
-        raise Exception('No query image and no agent')
+        raise Exception('No query images and no agent')
     # get xy coords
     traj_xy = np.column_stack((traj['x'], traj['y']))
     route_xy = np.column_stack((route['x'], route['y']))

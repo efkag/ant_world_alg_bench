@@ -12,23 +12,23 @@ from ast import literal_eval
 sns.set_context("paper", font_scale=1)
 
 
-directory = '2023-11-01'
+directory = '2023-11-14/mid-const-update'
 results_path = os.path.join('Results', 'newant', 'static-bench', directory)
 fig_save_path = os.path.join(results_path, 'analysis')
 check_for_dir_and_create(fig_save_path)
 data = pd.read_csv(os.path.join(results_path, 'results.csv'), index_col=False)
-print(data)
+#print(data)
 ######################################################################
 # Convert list of strings to actual list of lists
 data['errors'] = data['errors'].apply(literal_eval)
 data['dist_diff'] = data['dist_diff'].apply(literal_eval)
 data['abs_index_diff'] = data['abs_index_diff'].apply(literal_eval)
 
-route_id = 18
+route_id = 2
 # fig_save_path = fig_save_path + str(route_id)
 # check_for_dir_and_create(fig_save_path)
-matcher = 'mae'
-edge = 'False' # (180, 220)'  # 'False'
+matcher = 'corr'
+edge = 'False' #'(180, 220)'  # 'False'
 g_loc_norm = 'False' #"{'sig1': 2, 'sig2': 20}"
 blur = True
 figsize = (6, 3)
