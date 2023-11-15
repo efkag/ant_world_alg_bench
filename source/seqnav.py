@@ -176,7 +176,6 @@ class SequentialPerfectMemory:
         self.blimit = max(0, self.mem_pointer)
         self.flimit = min(self.route_end, self.mem_pointer + self.upper)
 
-
     def update_mid_pointer(self, idx):
         '''
         Update the mem pointer to the middle of the window
