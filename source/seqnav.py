@@ -135,7 +135,7 @@ class SequentialPerfectMemory:
 
         # Update memory pointer
         # if h_eval:
-        self.update_pointer(idx)
+        self.update_mid_pointer(idx)
         # else:
         #     self.set_mem_pointer(self.mem_pointer + 1)
 
@@ -530,6 +530,8 @@ class Seq2SeqPerfectMemory:
         '''
         # Update memory pointer
         change = idx - self.lower
+        #TODO: need to make this modular or remove in later versions
+        if change < 0: change = 0
         self.mem_pointer += change
 
         # update upper an lower margins
