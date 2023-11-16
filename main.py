@@ -62,7 +62,7 @@ def static_bench_antworld():
                   #'histeq':[True, False],
                   #'edge_range': [(180, 220), False],
                   #'loc_norm': [True, False],
-                  'gauss_loc_norm': [{'sig1':2, 'sig2':20}],
+                  #'gauss_loc_norm': [{'sig1':2, 'sig2':20}],
                   'deg_range':[(-180, 180)],
                   'window': [15, 20, 25, 30, -15], 
                   'matcher': ['mae', 'corr'],
