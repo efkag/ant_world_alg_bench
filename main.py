@@ -56,13 +56,13 @@ def static_bench_antworld():
     #               'window': list(range(10, 12)), 'matcher': ['corr', 'rmse']}
     
     parameters = {'blur': [True], 
-                  'shape': [(360, 80), (180, 40), (90, 20)],
+                  'shape': [(180, 40)],
                   #'shape':[(90, 20)],
                   #'vcrop':[0., .4, .6],
                   #'histeq':[True, False],
                   #'edge_range': [(180, 220), False],
                   #'loc_norm': [True, False],
-                  #'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
+                  'gauss_loc_norm': [{'sig1':2, 'sig2':20}],
                   'deg_range':[(-180, 180)],
                   'window': [15, 20, 25, 30, -15], 
                   'matcher': ['mae', 'corr'],
