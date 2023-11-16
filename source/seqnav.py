@@ -204,8 +204,6 @@ class SequentialPerfectMemory:
         '''
         # Update memory pointer
         change = idx - self.lower
-        #TODO: need to make this modular or remove in later versions
-        if change < 0: change = 0
         self.mem_pointer += change
 
         # update upper an lower margins
