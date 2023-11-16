@@ -66,7 +66,7 @@ for combo in chunk:
         if window:
             nav = spm.SequentialPerfectMemory(route_imgs, matcher, deg_range=(-180, 180), **combo)
         elif window == 0:
-            nav = pm.PerfectMemory(route_imgs, matcher, deg_range=(-180, 180), **combo)
+            nav = pm.PerfectMemory(route_imgs, **combo)
         else:
             infomaxParams = infomax.Params()
             nav = infomax.InfomaxNetwork(infomaxParams, route_imgs, deg_range=(-180, 180), **combo)

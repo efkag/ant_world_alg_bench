@@ -126,6 +126,10 @@ class Route:
         min_idx = np.argmin(dist)
         min_xy = (self.route_dict['x'][min_idx], self.route_dict['y'][min_idx])
         return min_idx, min_dist, min_xy
+
+    def dist_from_route_end(self, xy):
+        dist = cdist([xy], np.column_stack((self.route_dict['x'][-1], self.route_dict['y'][-1])), 'euclidean')
+        return dist.item()
     
     def dist_from_start(self, xy):
         dx = xy[0] - self.route_dict['x'][0]

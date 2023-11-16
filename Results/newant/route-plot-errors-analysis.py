@@ -13,7 +13,7 @@ from source.routedatabase import Route
 import yaml
 sns.set_context("paper", font_scale=1)
 
-directory = '2023-04-26/combined'
+directory = '2023-11-15_test'
 results_path = os.path.join('Results', 'newant', directory)
 fig_save_path = os.path.join('Results', 'newant', directory, 'analysis')
 data = pd.read_csv(os.path.join(results_path, 'results.csv'), index_col=False)
@@ -33,11 +33,11 @@ data['th'] = data['th'].apply(literal_eval)
 
 
 # Plot a specific route
-route_id = 9
+route_id = 12
 fig_save_path = os.path.join(fig_save_path, f"route{route_id}")
 check_for_dir_and_create(fig_save_path)
 path = os.path.join(routes_path, f"route{route_id}")
-window = 0
+window = -15
 matcher = 'corr'
 edge = 'False' 
 res = '(180, 80)'
@@ -45,9 +45,9 @@ blur = True
 g_loc_norm = "{'sig1': 2, 'sig2': 20}"
 loc_norm = 'False'
 threshold = 0
-repeat_no = 0
+repeat_no = 1
 
-figsize = (3, 3)
+figsize = (4, 4)
 title = None
 
 
@@ -56,7 +56,7 @@ traj = data.loc[(data['matcher'] == matcher)
                 #& (data['edge'] == edge) 
                 & (data['blur'] == blur) 
                 & (data['window'] == window) 
-                & (data['gauss_loc_norm'] == g_loc_norm) 
+                #& (data['gauss_loc_norm'] == g_loc_norm) 
                 # & (data['loc_norm'] == loc_norm) 
                 & (data['route_id'] == route_id)]
 
