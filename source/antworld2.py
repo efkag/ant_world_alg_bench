@@ -220,6 +220,8 @@ class Agent:
         Using the offset by default adds 5 to the index
         '''
         idx += idx_offset
+        # check you are not near the end of the route already
+        if idx >= self.route.route_end: idx = self.route.route_end - 1
         coords = self.route.get_xycoords()
         self.xy = (coords['x'][idx].item(), coords['y'][idx].item())
         self.h = self.route.get_yaw()[idx].item()

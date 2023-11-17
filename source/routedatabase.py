@@ -19,6 +19,7 @@ class Route:
         self.route_id = str(route_id)
         self.route_dict = self.load_route()
         self.points_on_route = len(self.route_dict['x'])
+        self.route_end = len(self.route_dict['x'])
         self.is_segmented = False
         self.segment_indices = None
         self.no_of_segments = None
