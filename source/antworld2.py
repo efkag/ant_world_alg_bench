@@ -36,6 +36,8 @@ class Agent:
             self.noise = lambda : 0
         # trial_fail_count (TFC) params
         self.repos_thresh = repos_thresh
+        # the size of the reposition window search for closest point
+        self.repos_w = 10
         self.trial_fail_count = None
         self.tfc_indices = []
 
@@ -171,8 +173,13 @@ class Agent:
     
     def check4reposition(self):
         if (self.i + 1) % 10 == 0:
+            
             # check distance from the closest point on the route
-            idx, dist, xy = self.route.min_dist_from_route(self.xy)
+            start = max(self.prev_idx - self.repos_w, 0)
+            stop = min(self.prev_idx+self.repos_w, self.route.route_end)
+            idx, dist, xy = self.route.min_dist_from_route(self.xy, start=start, stop=stop)
+            glob_idx, _, _ = self.route.min_dist_from_route(self.xy)
+            print('simul. i:', self.i, ' prev_idx:', self.prev_idx, ' current best i: ', idx, ' glob_idx: ', glob_idx)
             if dist >= self.repos_thresh:
                 # idx += 5
                 # coords = self.route.get_xycoords()
@@ -181,6 +188,7 @@ class Agent:
                 # self.nav.reset_window(idx)
                 # self.tfc_indices.append(self.i)]
                 self.reposition(idx=idx)
+                self.prev_idx = idx
                 return
             
             # check progress of the index closest to the query point
@@ -202,10 +210,10 @@ class Agent:
                 # self.trial_fail_count += 1
                 # self.nav.reset_window(idx)
                 # self.tfc_indices.append(self.i)
+                import pdb; pdb.set_trace()
                 self.reposition(idx=idx)
             else:
                 self.prev_idx = idx
-        
         # check distance form the start of the route
         # dist = self.route.dist_from_start(self.xy)
         # if (self.i + 1) % 10 == 0:

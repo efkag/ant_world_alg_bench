@@ -91,16 +91,16 @@ def live_bench():
                 #  'wave' : [True, False], 
                   #'edge_range': [(180, 200), False],
                 #  'loc_norm': [{'kernel_shape':(5, 5)}, False],
-                  'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
-                  'window': [15, 20, 25, 30, -15],
+                 # 'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
+                  'window': [15],
                   'matcher': ['corr'],
                   }
 
-    routes = [*range(0, 20, 4)]
+    routes = [8]
     num_of_repeats = 1
     parameters['repeat'] = [*range(num_of_repeats)]
     cbench.benchmark(results_path, routes_path, parameters, routes, 
-                    parallel=True, num_of_repeats=num_of_repeats)
+                    parallel=True, num_of_repeats=num_of_repeats, cores=1)
 
 
 def main():

@@ -24,7 +24,7 @@ data['errors'] = data['errors'].apply(literal_eval)
 data['dist_diff'] = data['dist_diff'].apply(literal_eval)
 data['abs_index_diff'] = data['abs_index_diff'].apply(literal_eval)
 
-route_id = 1
+route_id = 7
 # fig_save_path = fig_save_path + str(route_id)
 # check_for_dir_and_create(fig_save_path)
 matcher = 'mae'
