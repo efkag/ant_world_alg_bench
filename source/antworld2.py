@@ -178,8 +178,8 @@ class Agent:
             start = max(self.prev_idx - self.repos_w, 0)
             stop = min(self.prev_idx+self.repos_w, self.route.route_end)
             idx, dist, xy = self.route.min_dist_from_route(self.xy, start=start, stop=stop)
-            glob_idx, _, _ = self.route.min_dist_from_route(self.xy)
-            print('simul. i:', self.i, ' prev_idx:', self.prev_idx, ' current best i: ', idx, ' glob_idx: ', glob_idx)
+            #glob_idx, _, _ = self.route.min_dist_from_route(self.xy)
+            #print('simul. i:', self.i, ' prev_idx:', self.prev_idx, ' current best i: ', idx, ' glob_idx: ', glob_idx)
             if dist >= self.repos_thresh:
                 # idx += 5
                 # coords = self.route.get_xycoords()
@@ -210,7 +210,6 @@ class Agent:
                 # self.trial_fail_count += 1
                 # self.nav.reset_window(idx)
                 # self.tfc_indices.append(self.i)
-                import pdb; pdb.set_trace()
                 self.reposition(idx=idx)
             else:
                 self.prev_idx = idx
