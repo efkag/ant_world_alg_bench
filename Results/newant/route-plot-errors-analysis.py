@@ -13,7 +13,7 @@ from source.routedatabase import Route
 import yaml
 sns.set_context("paper", font_scale=1)
 
-directory = '2023-11-15_test'
+directory = '2023-11-22_test'
 results_path = os.path.join('Results', 'newant', directory)
 fig_save_path = os.path.join('Results', 'newant', directory, 'analysis')
 data = pd.read_csv(os.path.join(results_path, 'results.csv'), index_col=False)
@@ -33,21 +33,21 @@ data['th'] = data['th'].apply(literal_eval)
 
 
 # Plot a specific route
-route_id = 12
+route_id = 8
 fig_save_path = os.path.join(fig_save_path, f"route{route_id}")
 check_for_dir_and_create(fig_save_path)
 path = os.path.join(routes_path, f"route{route_id}")
-window = -15
+window = 15
 matcher = 'corr'
 edge = 'False' 
-res = '(180, 80)'
+res = '(180, 40)'
 blur = True
-g_loc_norm = "{'sig1': 2, 'sig2': 20}"
+g_loc_norm = 'False'#"{'sig1': 2, 'sig2': 20}"
 loc_norm = 'False'
 threshold = 0
-repeat_no = 1
+repeat_no = 0
 
-figsize = (4, 4)
+figsize = (10, 10)
 title = None
 
 
@@ -88,6 +88,6 @@ plot_route(route, traj, scale=None, size=figsize, save=True, path=temp_save_path
 
 
 
-# if window:
-#     temp_path = os.path.join(fig_save_path,'window-plots')
-#     animated_window(route, w_log, traj=traj, path=temp_path, size=figsize, title=None)
+if window:
+    temp_path = os.path.join(fig_save_path,'window-plots')
+    animated_window(route, w_log, traj=traj, path=temp_path, size=figsize, title=None)

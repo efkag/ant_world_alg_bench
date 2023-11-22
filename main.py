@@ -81,7 +81,7 @@ def static_bench_antworld():
 
 def live_bench():
     #'segment_length':[3],
-    results_path = f'/its/home/sk526/ant_world_alg_bench/Results/newant/{string_date}_all'
+    results_path = f'/its/home/sk526/ant_world_alg_bench/Results/newant/{string_date}_test'
     routes_path = '/its/home/sk526/ant_world_alg_bench/new-antworld/curve-bins'
     parameters = {'repos_thresh':[.3], 
                   'r': [0.05], 
@@ -97,10 +97,10 @@ def live_bench():
                   }
 
     routes = [*range(20)]
-    num_of_repeats = 1
+    num_of_repeats = 2
     parameters['repeat'] = [*range(num_of_repeats)]
     cbench.benchmark(results_path, routes_path, parameters, routes, 
-                    parallel=True, num_of_repeats=num_of_repeats)
+                    parallel=True, num_of_repeats=num_of_repeats, cores=3)
 
 
 def main():

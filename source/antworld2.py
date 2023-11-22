@@ -37,7 +37,7 @@ class Agent:
         # trial_fail_count (TFC) params
         self.repos_thresh = repos_thresh
         # the size of the reposition window search for closest point
-        self.repos_w = 10
+        self.repos_w = 30
         self.trial_fail_count = None
         self.tfc_indices = []
 
@@ -175,44 +175,23 @@ class Agent:
         if (self.i + 1) % 10 == 0:
             
             # check distance from the closest point on the route
-            start = max(self.prev_idx - self.repos_w, 0)
+            start = max(self.prev_idx, 0)
             stop = min(self.prev_idx+self.repos_w, self.route.route_end)
             idx, dist, xy = self.route.min_dist_from_route(self.xy, start=start, stop=stop)
-            #glob_idx, _, _ = self.route.min_dist_from_route(self.xy)
-            #print('simul. i:', self.i, ' prev_idx:', self.prev_idx, ' current best i: ', idx, ' glob_idx: ', glob_idx)
+            # glob_idx, _, _ = self.route.min_dist_from_route(self.xy)
+            # print(f'({start}, {stop})')
+            # print('simul. i:', self.i, ' prev_idx:', self.prev_idx, ' current best i: ', idx, ' glob_idx: ', glob_idx, ' dist: ', dist)
             if dist >= self.repos_thresh:
-                # idx += 5
-                # coords = self.route.get_xycoords()
-                # self.xy = (coords['x'][idx].item(), coords['y'][idx].item())
-                # self.trial_fail_count += 1
-                # self.nav.reset_window(idx)
-                # self.tfc_indices.append(self.i)]
+                #print('dist repos!')
                 self.reposition(idx=idx)
-                self.prev_idx = idx
                 return
             
             # check progress of the index closest to the query point
             if idx <= self.prev_idx:
-                # import pdb; pdb.set_trace()
-                # last_10_i = []
-                # last_10_xy = []
-                # xs = self.traj['x'][-10]
-                # ys = self.traj['y'][-10]
-                # for x, y in zip(xs, ys):
-                #     temp_idx, _, temp_xy = self.route.min_dist_from_route((x, y))
-                #     last_10_i.append(temp_idx)
-                #     last_10_xy.append(temp_xy)
-                # max_i_reached = np.max(last_10_i)
-                # xy = (self.route['x'][max_i_reached].item(), self.route['x'][max_i_reached].item() )
-                # idx += 5
-                # coords = self.route.get_xycoords()
-                # self.xy = (coords['x'][idx].item(), coords['y'][idx].item())
-                # self.trial_fail_count += 1
-                # self.nav.reset_window(idx)
-                # self.tfc_indices.append(self.i)
+                #print('index repos!')
                 self.reposition(idx=idx)
-            else:
-                self.prev_idx = idx
+                return
+            self.prev_idx = idx
         # check distance form the start of the route
         # dist = self.route.dist_from_start(self.xy)
         # if (self.i + 1) % 10 == 0:
@@ -226,7 +205,9 @@ class Agent:
         Reposition the agent by index.
         Using the offset by default adds 5 to the index
         '''
+        # import pdb; pdb.set_trace()
         idx += idx_offset
+        self.prev_idx = idx
         # check you are not near the end of the route already
         if idx >= self.route.route_end: idx = self.route.route_end - 1
         coords = self.route.get_xycoords()
