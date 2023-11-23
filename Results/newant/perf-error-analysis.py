@@ -60,6 +60,7 @@ fig, ax = plt.subplots(figsize=figsize)
 sns.violinplot(data=df, x='nav-name', y='errors', ax=ax, cut=0)
 #window_labels = ['Adaptive SMW', 'PM', 'Fixed 15', 'Fixed 25']
 # ax.set_xticklabels(window_labels)
+ax.set_ylim([-1, 180])
 ax.set_ylabel('AAE')
 ax.set_xlabel('navigation algorithm')
 plt.tight_layout()

@@ -36,6 +36,8 @@ class Agent:
             self.noise = lambda : 0
         # trial_fail_count (TFC) params
         self.repos_thresh = repos_thresh
+        # the size of the reposition window search for closest point
+        self.repos_w = 30
         self.trial_fail_count = None
         self.tfc_indices = []
 
@@ -48,6 +50,8 @@ class Agent:
         self.prev_dist = 0
         # keep track of the index 
         self.prev_idx = 0
+        # keeps track of the curretn trajectory
+        self.traj = {'x': [], 'y': [], 'heading': []}
 
     def set_seed(self, seed):
         np.random.seed(seed)
@@ -135,10 +139,8 @@ class Agent:
         img = self.get_img(self.xy, self.h)
 
         # initialise the log variables
-        headings = []
-        traj = np.empty((2, t))
-        # traj[0, 0] = xy[0]
-        # traj[1, 0] = xy[1]
+        self.traj = {'x': [], 'y': [], 'heading': []}
+
         # Navigation loop
         for i in range(0, t):
             self.i = i
@@ -150,35 +152,46 @@ class Agent:
             # reposition the agent and get the new image
             self.xy, img = self.update_position(self.xy, self.h, r)
             self.check4reposition()
+
             img = self.get_img(self.xy, self.h)
             # log the coordinates and attitude
-            traj[0, i] = self.xy[0]
-            traj[1, i] = self.xy[1]
-            headings.append(self.h)
+            self.traj['x'].append(self.xy[0])
+            self.traj['y'].append(self.xy[1])
+            self.traj['heading'].append(self.h)
 
-        headings = np.array(headings)
-        trajectory = {'x': traj[0], 'y': traj[1], 'heading': headings}
-        return trajectory, self.nav
+            # Check for termination conditions
+            if self.check4route_end():
+                break
+
+
+        for k in self.traj.keys():
+            self.traj[k] = np.array(self.traj[k])
+        return self.traj, self.nav
+
+    def check4route_end(self):
+        return self.route.dist_from_route_end(self.xy) <= self.repos_thresh
     
     def check4reposition(self):
         if (self.i + 1) % 10 == 0:
+            
             # check distance from the closest point on the route
-            idx, dist, xy = self.route.min_dist_from_route(self.xy)
+            start = max(self.prev_idx, 0)
+            stop = min(self.prev_idx+self.repos_w, self.route.route_end)
+            idx, dist, xy = self.route.min_dist_from_route(self.xy, start=start, stop=stop)
+            # glob_idx, _, _ = self.route.min_dist_from_route(self.xy)
+            # print(f'({start}, {stop})')
+            # print('simul. i:', self.i, ' prev_idx:', self.prev_idx, ' current best i: ', idx, ' glob_idx: ', glob_idx, ' dist: ', dist)
             if dist >= self.repos_thresh:
-                self.xy = xy
-                self.trial_fail_count += 1
-                self.nav.reset_window(idx)
-                self.tfc_indices.append(self.i)
+                #print('dist repos!')
+                self.reposition(idx=idx)
                 return
-
+            
             # check progress of the index closest to the query point
             if idx <= self.prev_idx:
-                self.xy = xy
-                self.trial_fail_count += 1
-                self.nav.reset_window(idx)
-                self.tfc_indices.append(self.i)
+                #print('index repos!')
+                self.reposition(idx=idx)
+                return
             self.prev_idx = idx
-        
         # check distance form the start of the route
         # dist = self.route.dist_from_start(self.xy)
         # if (self.i + 1) % 10 == 0:
@@ -187,6 +200,22 @@ class Agent:
         #         self.trial_fail_count += 1
         #         self.nav.reset_window(idx)
         #     self.prev_dist = dist
+    def reposition(self, idx: int, idx_offset=5):
+        '''
+        Reposition the agent by index.
+        Using the offset by default adds 5 to the index
+        '''
+        # import pdb; pdb.set_trace()
+        idx += idx_offset
+        self.prev_idx = idx
+        # check you are not near the end of the route already
+        if idx >= self.route.route_end: idx = self.route.route_end - 1
+        coords = self.route.get_xycoords()
+        self.xy = (coords['x'][idx].item(), coords['y'][idx].item())
+        self.h = self.route.get_yaw()[idx].item()
+        self.trial_fail_count += 1
+        self.nav.reset_window(idx)
+        self.tfc_indices.append(self.i)
 
 
     def segment_test(self, route, nav, segment_length=3, **kwargs):

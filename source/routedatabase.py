@@ -19,6 +19,7 @@ class Route:
         self.route_id = str(route_id)
         self.route_dict = self.load_route()
         self.points_on_route = len(self.route_dict['x'])
+        self.route_end = len(self.route_dict['x'])
         self.is_segmented = False
         self.segment_indices = None
         self.no_of_segments = None
@@ -120,12 +121,16 @@ class Route:
         else:
             return seq_angular_error(self.route_dict, trajectory)
 
-    def min_dist_from_route(self, xy):
-        dist = cdist([xy], np.column_stack((self.route_dict['x'], self.route_dict['y'])), 'euclidean')
+    def min_dist_from_route(self, xy, start=0, stop=None):
+        dist = cdist([xy], np.column_stack((self.route_dict['x'][start:stop], self.route_dict['y'][start:stop])), 'euclidean')
         min_dist = np.min(dist)
-        min_idx = np.argmin(dist)
+        min_idx = np.argmin(dist) + start
         min_xy = (self.route_dict['x'][min_idx], self.route_dict['y'][min_idx])
         return min_idx, min_dist, min_xy
+
+    def dist_from_route_end(self, xy):
+        dist = cdist([xy], np.column_stack((self.route_dict['x'][-1], self.route_dict['y'][-1])), 'euclidean')
+        return dist.item()
     
     def dist_from_start(self, xy):
         dx = xy[0] - self.route_dict['x'][0]

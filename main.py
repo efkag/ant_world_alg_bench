@@ -81,26 +81,26 @@ def static_bench_antworld():
 
 def live_bench():
     #'segment_length':[3],
-    results_path = f'/its/home/sk526/ant_world_alg_bench/Results/newant/{string_date}_w30'
+    results_path = f'/its/home/sk526/ant_world_alg_bench/Results/newant/{string_date}_newtfc'
     routes_path = '/its/home/sk526/ant_world_alg_bench/new-antworld/curve-bins'
     parameters = {'repos_thresh':[.3], 
                   'r': [0.05], 
-                  't': [300], 
+                  't': [1000], 
                   'blur': [True],
-                  'shape': [(180, 80)],
+                  'shape': [(180, 40)],
                 #  'wave' : [True, False], 
                   #'edge_range': [(180, 200), False],
                 #  'loc_norm': [{'kernel_shape':(5, 5)}, False],
-                'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
-                  'window': [30],
+                 # 'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
+                  'window': [15, 20, 25, 30, -15],
                   'matcher': ['corr'],
                   }
 
     routes = [*range(20)]
-    num_of_repeats = 3
+    num_of_repeats = 2
     parameters['repeat'] = [*range(num_of_repeats)]
     cbench.benchmark(results_path, routes_path, parameters, routes, 
-                    parallel=True, num_of_repeats=num_of_repeats)
+                    parallel=True, num_of_repeats=num_of_repeats, cores=5)
 
 
 def main():
