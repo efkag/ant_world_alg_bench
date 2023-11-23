@@ -60,7 +60,7 @@ def static_bench_antworld():
                   #'shape':[(90, 20)],
                   #'vcrop':[0., .4, .6],
                   #'histeq':[True, False],
-                  'edge_range': [(190, 230), False],
+                  'edge_range': [(190, 240), False],
                   #'loc_norm': [True, False],
                   #'gauss_loc_norm': [{'sig1':2, 'sig2':20}],
                   'deg_range':[(-180, 180)],
