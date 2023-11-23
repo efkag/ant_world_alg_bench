@@ -45,7 +45,7 @@ def static_bench():
 
 def static_bench_antworld():
     #results_path = f'/its/home/sk526/ant_world_alg_bench/Results/newant/{string_date}'
-    results_path = f'/mnt/data0/sk526/Results/aw/{string_date}'
+    results_path = f'/mnt/data0/sk526/Results/aw/{string_date}_pm'
 
     #routes_path = '/its/home/sk526/ant_world_alg_bench/new-antworld/exp1'
     routes_path = '/mnt/data0/sk526/new-antworld/exp1'
@@ -64,7 +64,7 @@ def static_bench_antworld():
                   #'loc_norm': [True, False],
                   #'gauss_loc_norm': [{'sig1':2, 'sig2':20}],
                   'deg_range':[(-180, 180)],
-                  'window': [15, 20, 25, 30, -15], 
+                  'window': [0], 
                   'matcher': ['mae', 'corr'],
                   'grid_dist':[0.2]
                   }
