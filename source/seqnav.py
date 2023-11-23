@@ -135,7 +135,7 @@ class SequentialPerfectMemory:
 
         # Update memory pointer
         # if h_eval:
-        self.update_mid_pointer(idx)
+        self.update_pointer(idx)
         # else:
         #     self.set_mem_pointer(self.mem_pointer + 1)
 
