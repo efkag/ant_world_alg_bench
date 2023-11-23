@@ -60,7 +60,7 @@ def static_bench_antworld():
                   #'shape':[(90, 20)],
                   #'vcrop':[0., .4, .6],
                   #'histeq':[True, False],
-                  #'edge_range': [(180, 220), False],
+                  'edge_range': [(190, 230), False],
                   #'loc_norm': [True, False],
                   #'gauss_loc_norm': [{'sig1':2, 'sig2':20}],
                   'deg_range':[(-180, 180)],
@@ -69,7 +69,7 @@ def static_bench_antworld():
                   'grid_dist':[0.2]
                   }
     
-    routes = [1, 2]
+    routes = [1, 2, 3, 4, 5, 6, 7]
     bench = navbench.Benchmark(results_path, routes_path, 
                                grid_path=grid_path, grid_dist=0.2,
                                filename='results.csv',

@@ -24,7 +24,7 @@ def canny(upper, lower):
     Return a function to perform Canny edge detection
     within the given thresholds
     '''
-    return lambda im: cv.Canny(cv.normalize(src=im, dst=im, aplha=0, ebta=255, norm_type=cv.NORM_MINMAX, dtype=cv.CV_8U), upper, lower)
+    return lambda im: cv.Canny(cv.normalize(src=im, dst=im, alpha=0, beta=255, norm_type=cv.NORM_MINMAX, dtype=cv.CV_8U), upper, lower)
 
 
 def standardize():
@@ -76,8 +76,7 @@ def glin(img, sig1=2, sig2=20):
     img = img - mu
     var = cv.GaussianBlur(img*img, (0, 0), sig2)
     sig = var**0.5 + np.finfo(float).eps
-    img = img / sig
-    return cv.normalize(src=img, dst=img, aplha=0, ebta=255, norm_type=cv.NORM_MINMAX)
+    return img / sig
 
 
 def gauss_loc_norm(sig1=2, sig2=20):
@@ -94,13 +93,6 @@ def imvcrop(shape=None, vcrop=None):
 
 def histeq():
     return lambda im: cv.equalizeHist(im)
-
-
-def _quant(im, k=3):
-    return np.floor(np.floor(im/(im.max()/k)) * (255/k)).astype(np.uint8)
-
-def quant(k=3):
-    return lambda im: _quant(im, k=k)
 
 
 def make_pipeline(sets):
@@ -125,23 +117,11 @@ def make_pipeline(sets):
         pipe.append(loc_norm(**sets.get('loc_norm')))
     if sets.get('gauss_loc_norm'):
         pipe.append(gauss_loc_norm(**sets.get('gauss_loc_norm')))
-    if sets.get('edge_range'):
-        lims = sets['edge_range']
-        pipe.append(canny(lims[0], lims[1])) 
-    # range and data type processing
-    if sets.get('normstd'):
-        pipe.append(standardize())
-    if sets.get('scale021'):
-        pipe.append(scale021())
-    if sets.get('type'):
-        pipe.append(mod_dtype(sets.get('type')))
-    else:
-        # Always change the datatype to float32 to avoid wrap-around!!
-        pipe.append(mod_dtype(np.float32))
-    # if sets.get('wave'):
-    #     im_size = sets.get('shape')
-    #     pipe.append(wavelet(im_size))
-
+    if sets.get('wave'):
+        im_size = sets.get('shape')
+        pipe.append(wavelet(im_size))
+    # Always change the datatype to int16 or float32 to avoid wrap-around!!
+    pipe.append(mod_dtype(np.float32))
     return pipe
 
 
