@@ -63,6 +63,31 @@ fig_save_path = fig_save_path + '/route{}.w{}.m{}.res{}.edge{}.thres{}.png'\
 
 fig, ax = plt.subplots(figsize=figsize)
 plot_route(route, thres, title=title, ax=ax)
+
+################################################
+route_id = 5
+window = 30
+matcher = 'corr'
+edge = '(220, 240)'
+res = '(180, 50)'
+threshold = 20
+figsize = (4, 4)
+title = None
+
+traj = data.loc[(data['matcher'] == matcher) & (data['res'] == res) & (data['edge'] == edge) &
+                (data['window'] == window) & (data['route_id'] == route_id)]
+traj = traj.to_dict(orient='records')[0]
+nav_name = traj["nav-name"]
+if window:
+    w_log = literal_eval(traj['window_log'])
+errors = np.array(traj['errors'])
+traj = {'x': np.array(traj['tx']), 'y': np.array(traj['ty']), 'heading': np.array(traj['th'])}
+
+ax.scatter(traj['x'], traj['y'], label=f'{nav_name}')
+###############################################
+
+
+plt.legend()
 fig.tight_layout()
 fig.savefig(fig_save_path)
 plt.show()
