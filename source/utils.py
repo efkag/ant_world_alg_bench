@@ -50,7 +50,8 @@ def save_image(path, img):
     cv.imwrite(path, img)# , cmap='gray')
 
 
-def plot_route(route, traj=None, scale=None, window=None, windex=None, save=False, size=(10, 10), path=None, title=None):
+def plot_route(route, traj=None, scale=None, window=None, windex=None, save=False, size=(10, 10), path=None, title=None,
+               ax=None):
     '''
     Plots the route and any given test points if available.
     Note the route headings are rotated 90 degrees as the 0 degree origin
@@ -66,7 +67,8 @@ def plot_route(route, traj=None, scale=None, window=None, windex=None, save=Fals
     :param title:
     :return:
     '''
-    fig, ax = plt.subplots(figsize=size)
+    if not ax:
+        fig, ax = plt.subplots(figsize=size)
     ax.set_title(title,  loc="left")
     
     u, v = pol2cart_headings(90 - route['yaw'])
@@ -93,18 +95,21 @@ def plot_route(route, traj=None, scale=None, window=None, windex=None, save=Fals
         ax.scatter(traj['x'], traj['y'])
         # ax.plot(traj['x'], traj['y'])
         ax.quiver(traj['x'], traj['y'], u, v, scale=scale)
-    plt.axis('equal')
-    plt.tight_layout()
+    ax.set_aspect('equal', 'datalim')
+    
+    
     if save and windex:
+        fig.tight_layout()
         fig.savefig(path + '/' + str(windex) + '.png')
         plt.close(fig)
     elif save:
+        fig.tight_layout()
         #path = os.path.join(path, 'routemap.png')
         print(f'fig saved at: {path}')
         fig.savefig(path)
-
-    if not save: plt.show()
-    plt.close(fig)
+        plt.close(fig)
+    return ax
+    
 
 
 def animated_window(route, window, traj=None, path=None, scale=70, save=False, size=(10, 10), title=None):

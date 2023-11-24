@@ -6,6 +6,7 @@ sys.path.append(os.getcwd())
 
 import pandas as pd
 import numpy as np
+from matplotlib import pyplot as plt
 import seaborn as sns
 from ast import literal_eval
 from source.utils import load_route_naw, plot_route, animated_window, check_for_dir_and_create
@@ -59,7 +60,13 @@ thres['y'] = traj['y'][index]
 thres['heading'] = traj['heading'][index]
 fig_save_path = fig_save_path + '/route{}.w{}.m{}.res{}.edge{}.thres{}.png'\
     .format(route_id, window, matcher, res, edge, threshold)
-plot_route(route, thres, size=figsize, save=True, path=fig_save_path, title=title)
+
+fig, ax = plt.subplots(figsize=figsize)
+plot_route(route, thres, title=title, ax=ax)
+fig.tight_layout()
+fig.savefig(fig_save_path)
+plt.show()
+plt.close(fig)
 
 # if window:
 #     path = '/home/efkag/Desktop/route' + str(route_id) + '/window-plots/'
