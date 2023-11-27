@@ -13,13 +13,13 @@ sns.set_context("paper", font_scale=1)
 
 
 
-directory = '2023-04-26/combined'
+directory = '2023-11-22/combined'
 results_path = os.path.join('Results',  'newant', directory)
 fig_save_path = os.path.join('Results', 'newant',  directory, 'analysis')
 data = pd.read_csv(os.path.join(results_path, 'results.csv'), index_col=False)
 
 #####
-data.drop(data[data['nav-name'] == 'InfoMax'].index, inplace=True)
+#data.drop(data[data['nav-name'] == 'InfoMax'].index, inplace=True)
 
 # Convert list of strings to actual list of lists
 data['errors'] = data['errors'].apply(literal_eval)
@@ -31,17 +31,16 @@ check_for_dir_and_create(fig_save_path)
 matcher = 'corr'
 edge = 'False'
 blur = True
-res = '(180, 80)'
+res = '(180, 40)'
 g_loc_norm = "False"
 # loc_norm = 'False'
 data = data.loc[(data['matcher'] == matcher) 
                 #& (data['edge'] == edge) 
                 & (data['res'] == res) 
                 & (data['blur'] == blur) 
-                & (data['gauss_loc_norm'] == g_loc_norm) 
+                #& (data['gauss_loc_norm'] == g_loc_norm) 
                 #& (data['loc_norm'] == loc_norm)]
                 ]
-# window_labels = ['Adaptive (20)', 'PM', 'w=15', 'w=20', 'w=25', 'w=30']
 
 
 '''
@@ -56,8 +55,8 @@ fig, ax = plt.subplots(figsize=figsize)
 # plt.title('m{}.res{}.b{}.e{}.gloc{}.png'.format(matcher, res, blur, edge, g_loc_norm))
 # Group then back to dataframe
 
-
 sns.violinplot(data=df, x='nav-name', y='errors', ax=ax, cut=0)
+#sns.boxplot(data=df, x='nav-name', y='errors', ax=ax,)
 #window_labels = ['Adaptive SMW', 'PM', 'Fixed 15', 'Fixed 25']
 # ax.set_xticklabels(window_labels)
 ax.set_ylim([-1, 180])
