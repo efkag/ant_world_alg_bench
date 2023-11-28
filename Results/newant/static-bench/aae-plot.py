@@ -33,7 +33,7 @@ g_loc_norm = "False"
 # loc_norm = 'False'
 
 figsize = (6, 3)
-res = '(90, 25)'
+res = '(180, 50)'
 route = data.loc[(data['matcher'] == matcher) 
                  & (data['edge'] == edge) 
                  & (data['res'] == res) 

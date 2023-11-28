@@ -73,7 +73,8 @@ def plot_route(route, traj=None, scale=None, window=None, windex=None, save=Fals
     
     u, v = pol2cart_headings(90 - route['yaw'])
     ax.scatter(route['x'], route['y'], label='training route')
-    ax.quiver(route['x'], route['y'], u, v, scale=scale)
+    ax.annotate('Start', (route['x'][0], route['y'][0]))
+    #ax.quiver(route['x'], route['y'], u, v, scale=scale)
     if window is not None and windex:
         start = window[0]
         end = window[1]
