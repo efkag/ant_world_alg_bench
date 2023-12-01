@@ -38,7 +38,7 @@ route = data.loc[(data['matcher'] == matcher)
                  & (data['edge'] == edge) 
                  & (data['res'] == res) 
                  & (data['blur'] == blur)]
-window_labels = ['Adaptive (20)', 'PM', 'w=15', 'w=20', 'w=25', 'w=30']
+
 
 '''
 Plot for one specific matcher with one specific pre-proc

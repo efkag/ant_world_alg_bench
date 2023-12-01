@@ -22,6 +22,7 @@ results_path = os.path.join('Results', 'newant', directory)
 fig_save_path = os.path.join('Results', 'newant', directory, 'analysis')
 data = pd.read_csv(os.path.join(results_path, 'results.csv'), index_col=False)
 
+
 # Convert list of strings to actual list of lists
 data['errors'] = data['errors'].apply(literal_eval)
 data['dist_diff'] = data['dist_diff'].apply(literal_eval)
@@ -40,16 +41,16 @@ check_for_dir_and_create(fig_save_path)
 window = -15
 matcher = 'corr'
 blur = True
-edge = None
-loc_norm = 'False' # {'kernel_shape':(5, 5)}
-gauss_loc_norm = 'False' #"{'sig1': 2, 'sig2': 20}"
+edge = '(190, 240)'
+#loc_norm = 'False' # {'kernel_shape':(5, 5)}
+#gauss_loc_norm = 'False' #"{'sig1': 2, 'sig2': 20}"
 res = '(180, 40)'
-figsize = (7, 4)
+figsize = (6, 2)
 
 traj = data.loc[(data['matcher'] == matcher)
                 & (data['blur'] == blur) 
                 & (data['res'] == res) 
-                #& (data['edge'] == edge)
+                & (data['edge'] == edge)
                 #& (data['loc_norm'] == loc_norm) 
                 #& (data['gauss_loc_norm'] == gauss_loc_norm)
                 & (data['window'] == window) 
@@ -57,7 +58,7 @@ traj = data.loc[(data['matcher'] == matcher)
                 ]
 # traj = data.loc[(data['gauss_loc_norm'] == gauss_loc_norm)
 #                 & (data['num_of_repeat'] == 0)]
-
+print(traj)
 traj = traj.to_dict(orient='records')[0]
 traj['window_log'] = literal_eval(traj['window_log'])
 traj['best_sims'] = literal_eval(traj['best_sims'])
@@ -112,12 +113,12 @@ ax1.plot(range(len(matched_index)), matched_index, label='matched index')
 # ax1.plot(ws, c='g', label='window limits')
 # ax1.plot(we, c='g')
 #ax1.set_ylim([0, 260])
-ax1.plot(range(len(w_size)), w_size, label='window size')
+# ax1.plot(range(len(w_size)), w_size, label='window size')
 ax1.set_ylabel('route index scale')
 ax1.set_xlabel('test points')
 
 ax2 = ax1.twinx()
-ax2.plot(range(len(traj['best_sims'])), traj['best_sims'], label='image diff.')
+ax2.plot(range(len(traj['best_sims'])), traj['best_sims'], label='image diff.', color='g')
 ax2.set_ylim([0.0, 1.0])
 ax2.set_ylabel(f'{matcher} image distance')
 ax1.legend(loc=2)
