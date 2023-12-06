@@ -58,7 +58,7 @@ loc_norm = 'False' # {'kernel_shape':(5, 5)}
 res = '(180, 40)'
 threshold = 30
 #repeat_no = 0
-figsize = (6, 6)
+figsize = (3, 3)
 title = None
 
 fig_save_path = os.path.join(fig_save_path, f"route{route_id}",  f'w={window}route{route_id}')

@@ -121,7 +121,7 @@ def log_error_points(route, traj, thresh=0.5, target_path=None, aw_agent=None):
             # plt.close(fig)
             
             path = os.path.join(point_path, 'map.pdf')
-            plot_route_errors(route, traj, route_i=route_match_i, error_i=i, path=path)
+            plot_route_errors(route, traj, route_i=route_match_i, error_i=i, path=path, size=(3, 3))
 
             
 
