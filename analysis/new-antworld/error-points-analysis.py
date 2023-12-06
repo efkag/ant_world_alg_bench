@@ -17,12 +17,14 @@ from source.antworld2 import Agent
 sns.set_context("paper", font_scale=1)
 
 
-directory = '2023-04-20_test'
+directory = 'static-bench/2023-11-23/2023-11-23_pm'
 results_path = os.path.join('Results', 'newant', directory)
 fig_save_path = os.path.join('Results', 'newant', directory, 'analysis')
 with open(os.path.join(results_path, 'params.yml')) as fp:
     params = yaml.load(fp)
-routes_path = params['routes_path']
+#routes_path = params['routes_path']
+
+
 data = pd.read_csv(os.path.join(results_path, 'results.csv'), index_col=False)
 # data = pd.read_csv('exp4.csv')
 # Convert list of strings to actual list of lists
@@ -34,34 +36,43 @@ data['ty'] = data['ty'].apply(literal_eval)
 data['th'] = data['th'].apply(literal_eval)
 data['matched_index'] = data['matched_index'].apply(literal_eval)
 
-# Plot a specific route
-route_id = 7
+# Set up params 
+# for a specific route
+route_id = 5
+routes_path = '/its/home/sk526/ant_world_alg_bench/datasets/new-antworld/exp1'
+antworld_agent = None
+if not antworld_agent:
+    grid_path = '/its/home/sk526/ant_world_alg_bench/datasets/new-antworld/grid70'
+else:
+    grid_path = None
 
 r_path = os.path.join(routes_path ,f'route{route_id}')
-window = -15
+
+# Bench params
+window = 0
 blur =  True
 matcher = 'corr'
-edge = 'False'# '(180, 200)'
+edge = '(190, 240)'
 loc_norm = 'False' # {'kernel_shape':(5, 5)}
-gauss_loc_norm = "{'sig1': 2, 'sig2': 20}"
-res = '(180, 80)'
-threshold = 0
-repeat_no = 0
-figsize = (10, 10)
-title = 'D'
+#gauss_loc_norm = "{'sig1': 2, 'sig2': 20}"
+res = '(180, 40)'
+threshold = 30
+#repeat_no = 0
+figsize = (3, 3)
+title = None
 
 fig_save_path = os.path.join(fig_save_path, f"route{route_id}",  f'w={window}route{route_id}')
 check_for_dir_and_create(fig_save_path)
 
 traj = data.loc[(data['matcher'] == matcher) & (data['res'] == res) 
-                #& (data['edge'] == edge) 
+                & (data['edge'] == edge) 
                 & (data['window'] == window) 
                 & (data['blur'] == blur)
                 #& (data['loc_norm'] == loc_norm) 
-                & (data['gauss_loc_norm'] == gauss_loc_norm)
+                #& (data['gauss_loc_norm'] == gauss_loc_norm)
                 & (data['route_id'] == route_id)
                 ##### with repeats
-                & (data['num_of_repeat'] == repeat_no)
+                #& (data['num_of_repeat'] == repeat_no)
                 ]
 
 traj = traj.to_dict(orient='records')[0]
@@ -77,8 +88,8 @@ else:
 
 
 #route = load_route_naw(path, imgs=True, route_id=route_id)
-route = Route(r_path, route_id=route_id).get_route_dict()
+route = Route(r_path, route_id=route_id, grid_path=grid_path).get_route_dict()
 plot_route(route, traj, scale=70, size=figsize, save=True, path=fig_save_path, title=title)
 
-log_error_points(route, traj, thresh=threshold, target_path=fig_save_path, aw=Agent)
+log_error_points(route, traj, thresh=threshold, target_path=fig_save_path, aw_agent=antworld_agent)
 

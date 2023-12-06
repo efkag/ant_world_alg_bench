@@ -145,7 +145,8 @@ def plot_route_errors(route, traj, route_i, error_i, size=(10, 10), scale=None, 
     fig, ax = plt.subplots(figsize=size)
     u, v = pol2cart_headings(90 - route['yaw'])
     ax.scatter(route['x'], route['y'])
-    ax.quiver(route['x'], route['y'], u, v, scale=scale)
+    ax.annotate('Start', (route['x'][0], route['y'][0]))
+    #ax.quiver(route['x'], route['y'], u, v, scale=scale)
 
     u, v = pol2cart_headings(90 - route['yaw'][route_i])
     ax.quiver(route['x'][route_i], route['y'][route_i], u, v, scale=scale, label='match', color='y')

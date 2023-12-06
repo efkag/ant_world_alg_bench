@@ -33,12 +33,12 @@ g_loc_norm = "False"
 # loc_norm = 'False'
 
 figsize = (6, 3)
-res = '(90, 25)'
+res = '(180, 50)'
 route = data.loc[(data['matcher'] == matcher) 
                  & (data['edge'] == edge) 
                  & (data['res'] == res) 
                  & (data['blur'] == blur)]
-window_labels = ['Adaptive (20)', 'PM', 'w=15', 'w=20', 'w=25', 'w=30']
+
 
 '''
 Plot for one specific matcher with one specific pre-proc

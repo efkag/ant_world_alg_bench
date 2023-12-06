@@ -43,8 +43,10 @@ def log_error_points(route, traj, thresh=0.5, target_path=None, aw_agent=None):
     # the antworld agent or query images for static bench
     if not route.get('qimgs') and aw_agent:
         agent = aw_agent()
+    elif route.get('qimgs'):
+        aw_agent = None 
     else:
-        raise Exception('No query image and no agent')
+        raise Exception('No query images and no agent')
     # get xy coords
     traj_xy = np.column_stack((traj['x'], traj['y']))
     route_xy = np.column_stack((route['x'], route['y']))
@@ -67,7 +69,7 @@ def log_error_points(route, traj, thresh=0.5, target_path=None, aw_agent=None):
         route_match_i = index_log[i]
         point_ang_error = traj['errors'][i]
         # Analysis only for points that have a distance more than the threshold awayfrom the route
-        if min_dist >= thresh:
+        if traj['errors'][i] >= thresh:
             point_path = os.path.join(logs_path, f'{i}-error={round(point_ang_error, 2)}')
             check_for_dir_and_create(point_path)
             # Save window images or 
@@ -118,8 +120,8 @@ def log_error_points(route, traj, thresh=0.5, target_path=None, aw_agent=None):
             # fig.savefig(os.path.join(point_path, 'heat.png'))
             # plt.close(fig)
             
-            path = os.path.join(point_path, 'map.png')
-            plot_route_errors(route, traj, route_i=route_match_i, error_i=i, path=path)
+            path = os.path.join(point_path, 'map.pdf')
+            plot_route_errors(route, traj, route_i=route_match_i, error_i=i, path=path, size=(3, 3))
 
             
 

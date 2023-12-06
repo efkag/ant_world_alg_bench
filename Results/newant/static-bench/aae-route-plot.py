@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from source.utils import check_for_dir_and_create
 import seaborn as sns
 from ast import literal_eval
-sns.set_context("paper", font_scale=1)
+sns.set_context("paper", font_scale=0.9)
 
 directory = 'static-bench/2021-04-06'
 results_path = os.path.join('Results', 'newant', directory)
@@ -26,10 +26,10 @@ data['abs_index_diff'] = data['abs_index_diff'].apply(literal_eval)
 route_id = 6
 # fig_save_path = fig_save_path + str(route_id)
 # check_for_dir_and_create(fig_save_path)
-matcher = 'mae'
-edge = 'False' #'(220, 240)'  # 'False'
-blur = True
-figsize = (6, 3)
+matcher = 'corr'
+edge = '(220, 240)'  # 'False'
+blur = False
+figsize = (4, 2)
 res = '(180, 50)'
 route = data.loc[(data['matcher'] == matcher) 
                  & (data['route_id'] == route_id)

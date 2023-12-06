@@ -14,8 +14,8 @@ from source.routedatabase import Route
 sns.set_context("paper", font_scale=1)
 
 routes_path = '/its/home/sk526/ant_world_alg_bench/datasets/new-antworld/exp1'
-routes_path = '/home/efkag/ant_world_alg_bench/datasets/new-antworld/exp1'
-directory = 'static-bench/2021-04-06'
+#routes_path = '/home/efkag/ant_world_alg_bench/datasets/new-antworld/exp1'
+directory = 'static-bench/2023-11-23/combined'
 results_path = os.path.join('Results', 'newant', directory)
 fig_save_path = os.path.join(results_path, 'analysis')
 check_for_dir_and_create(fig_save_path)
@@ -33,21 +33,26 @@ data['th'] = data['th'].apply(literal_eval)
 
 
 # Plot a specific route
-route_id = 6
+route_id = 5
 fig_save_path = os.path.join(fig_save_path, f'route{route_id}')
 check_for_dir_and_create(fig_save_path)
 
 route_path = os.path.join(routes_path, f'route{route_id}')
-window = 0
+window = 15
 matcher = 'corr'
-edge = '(220, 240)'
-res = '(180, 50)'
-threshold = 20
-figsize = (4, 4)
+edge = '(190, 240)'
+res = '(180, 40)'
+blur = True
+threshold = 30
+figsize = (2.5, 2.5)
 title = None
 
-traj = data.loc[(data['matcher'] == matcher) & (data['res'] == res) & (data['edge'] == edge) &
-                (data['window'] == window) & (data['route_id'] == route_id)]
+traj = data.loc[(data['matcher'] == matcher) 
+                & (data['blur'] == blur)
+                & (data['res'] == res) 
+                & (data['edge'] == edge) 
+                & (data['window'] == window) 
+                & (data['route_id'] == route_id)]
 traj = traj.to_dict(orient='records')[0]
 nav_name = traj["nav-name"]
 if window:
@@ -70,16 +75,14 @@ fig, ax = plt.subplots(figsize=figsize)
 plot_route(route, thres, title=title, ax=ax, label=nav_name)
 
 ################################################
-window = 20
-matcher = 'corr'
-edge = '(220, 240)'
-res = '(180, 50)'
-threshold = 20
-figsize = (4, 4)
-title = None
+window = -15
 
-traj = data.loc[(data['matcher'] == matcher) & (data['res'] == res) & (data['edge'] == edge) &
-                (data['window'] == window) & (data['route_id'] == route_id)]
+
+traj = data.loc[(data['matcher'] == matcher) 
+                & (data['res'] == res) 
+                & (data['edge'] == edge) 
+                & (data['window'] == window) 
+                & (data['route_id'] == route_id)]
 traj = traj.to_dict(orient='records')[0]
 nav_name = traj["nav-name"]
 
