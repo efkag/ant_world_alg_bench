@@ -194,7 +194,7 @@ class BoBRoute:
         self.route_id = str(route_id)
         self.unwraper = unwraper
         # mDefult resizing to the max size needed for the benchmarks
-        self.img_shape = (720, 150)
+        self.img_shape = (360, 90)
         self.resizer = resize(self.img_shape)
         # self.vcrop = vcrop
         # # change vcrop from percentage to an actual row index
@@ -226,18 +226,17 @@ class BoBRoute:
         # print(route_data.keys())
         if self.read_imgs:
             imgs = []
-            for i in route_data['filename']:
+            for i, file in enumerate(route_data['filename']):
                 #careful the filenames contain a leading space
-                im_path = os.path.join(self.path, i.strip())
+                im_path = os.path.join(self.path, file.strip())
                 img = cv.imread(im_path, cv.IMREAD_GRAYSCALE)
+                if self.unwraper and i==0:# unwrap the images
+                    self.unwraper = self.unwraper(img)
+                elif self.unwraper:
+                    img = self.unwraper.unwarp(img)
+                    img = self.resizer(img)
                 imgs.append(img)
-            # unwrap the images
-            if self.unwraper:
-                self.unwraper = self.unwraper(imgs[0])
-                for i, im in enumerate(imgs):
-                    im = self.unwraper.unwarp(im)
-                    im = self.resizer(im)
-                    imgs[i] = im
+            
             route_data['imgs'] = imgs
         return route_data
     

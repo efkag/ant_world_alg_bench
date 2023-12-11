@@ -82,9 +82,9 @@ class Benchmark:
         if params.get('edge_range') or params.get('loc_norm') or params.get('gauss_loc_norm'):
             #grid_dict[:] = [x for x in grid_dict if self.remove_blur_edge(x)]
             #grid_dict[:] = [x for x in grid_dict if not self.remove_non_blur_edge(x)]
-            grid_dict[:] = [x for x in grid_dict if self.remove_edge_loc_gloc_combos(x)]
-            grid_dict[:] = [x for x in grid_dict if self.remove_edge_gloc_combos(x)]
-            grid_dict[:] = [x for x in grid_dict if self.remove_edge_loc_combos(x)]
+            #grid_dict[:] = [x for x in grid_dict if self.remove_edge_loc_gloc_combos(x)]
+            #grid_dict[:] = [x for x in grid_dict if self.remove_edge_gloc_combos(x)]
+            #grid_dict[:] = [x for x in grid_dict if self.remove_edge_loc_combos(x)]
             grid_dict[:] = [x for x in grid_dict if self.remove_gloc_loc_combos(x)]
         return grid_dict
 
@@ -135,7 +135,7 @@ class Benchmark:
                       'repeats':self.route_repeats, 'results_path':self.results_path}
         # Partial callable
         #TODO: here i need to decide on a worked based on the dataset.
-        if self.bench_data == 'ftl':
+        if self.bench_data == 'bob':
             worker = functools.partial(self.worker_bench_repeats, arg_params, shared)
         elif self.bench_data == 'aw2':
             worker = functools.partial(self.worker_bench, arg_params, shared)
