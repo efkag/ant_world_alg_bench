@@ -24,11 +24,16 @@ def canny(upper, lower):
     Return a function to perform Canny edge detection
     within the given thresholds
     '''
-    return lambda im: cv.Canny(im, upper, lower)
+    return lambda im: cv.Canny(cv.normalize(src=im, dst=im, aplha=0, ebta=255, norm_type=cv.NORM_MINMAX, dtype=cv.CV_8U), upper, lower)
 
 
 def standardize():
     return lambda im: (im - np.mean(im)) / np.std(im)
+
+
+def scale021():
+    #return lambda im: cv.normalize(src=im, dst=im, alpha=0, beta=1, norm_type=cv.NORM_MINMAX)
+    return lambda im: im.astype(np.float32)/np.max(im)
 
 
 def wavelet(image_shape):
@@ -43,15 +48,16 @@ def mod_dtype(dtype):
 def lin(img, kernel_shape=(3, 3)):
     '''
     Local Image Normalisation
-    Normalises and standarises each pixel using 
-    the mean the std.dev of the neighboring pixels
+    Normalises and each pixel using 
+    the mean of the neighboring pixels
     '''
     img = img.astype(np.int16, copy=False)
     mu = cv.blur(img, kernel_shape)
     img = img - mu
-    var = cv.blur(img*img, kernel_shape)
-    sig = var**0.5 + np.finfo(float).eps
-    return img / sig
+    return cv.normalize(src=img, dst=img, aplha=0, ebta=255, norm_type=cv.NORM_MINMAX)
+    # var = cv.blur(img*img, kernel_shape)
+    # sig = var**0.5 + np.finfo(float).eps
+    # return img / sig
 
 
 def loc_norm(kernel_shape=(3, 3)):
@@ -70,7 +76,8 @@ def glin(img, sig1=2, sig2=20):
     img = img - mu
     var = cv.GaussianBlur(img*img, (0, 0), sig2)
     sig = var**0.5 + np.finfo(float).eps
-    return img / sig
+    img = img / sig
+    return cv.normalize(src=img, dst=img, aplha=0, ebta=255, norm_type=cv.NORM_MINMAX)
 
 
 def gauss_loc_norm(sig1=2, sig2=20):
@@ -89,6 +96,13 @@ def histeq():
     return lambda im: cv.equalizeHist(im)
 
 
+def _quant(im, k=3):
+    return np.floor(np.floor(im/(im.max()/k)) * (255/k)).astype(np.uint8)
+
+def quant(k=3):
+    return lambda im: _quant(im, k=k)
+
+
 def make_pipeline(sets):
     '''
     Create a pre-processing pipeline from a dictionary of settings
@@ -105,18 +119,29 @@ def make_pipeline(sets):
         pipe.append(histeq())
     if sets.get('blur'):
         pipe.append(gauss_blur(0))
-    if sets.get('edge_range'):
-        lims = sets['edge_range']
-        pipe.append(canny(lims[0], lims[1])) 
+    if sets.get('quant'):
+        pipe.append(quant(k=sets.get('quant')))
     if sets.get('loc_norm'):
         pipe.append(loc_norm(**sets.get('loc_norm')))
     if sets.get('gauss_loc_norm'):
         pipe.append(gauss_loc_norm(**sets.get('gauss_loc_norm')))
-    if sets.get('wave'):
-        im_size = sets.get('shape')
-        pipe.append(wavelet(im_size))
-    # Always change the datatype to int16 or float32 to avoid wrap-around!!
-    pipe.append(mod_dtype(np.float32))
+    if sets.get('edge_range'):
+        lims = sets['edge_range']
+        pipe.append(canny(lims[0], lims[1])) 
+    # range and data type processing
+    if sets.get('normstd'):
+        pipe.append(standardize())
+    if sets.get('scale021'):
+        pipe.append(scale021())
+    if sets.get('type'):
+        pipe.append(mod_dtype(sets.get('type')))
+    else:
+        # Always change the datatype to float32 to avoid wrap-around!!
+        pipe.append(mod_dtype(np.float32))
+    # if sets.get('wave'):
+    #     im_size = sets.get('shape')
+    #     pipe.append(wavelet(im_size))
+
     return pipe
 
 
