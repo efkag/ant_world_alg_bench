@@ -104,8 +104,8 @@ def live_bench():
 
 
 def main():
-    static_bench()
-    #static_bench_antworld()
+    #static_bench()
+    static_bench_antworld()
     #live_bench()
 
 if __name__ == "__main__":

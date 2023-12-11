@@ -56,7 +56,8 @@ def lin(img, kernel_shape=(3, 3)):
     img = img - mu
     var = cv.blur(img*img, kernel_shape)
     sig = var**0.5 + np.finfo(float).eps
-    return img / sig
+    img = img / sig
+    return cv.normalize(src=img, dst=img, alpha=0, beta=255, norm_type=cv.NORM_MINMAX)
 
 
 def loc_norm(kernel_shape=(3, 3)):
@@ -75,7 +76,10 @@ def glin(img, sig1=2, sig2=20):
     img = img - mu
     var = cv.GaussianBlur(img*img, (0, 0), sig2)
     sig = var**0.5 + np.finfo(float).eps
-    return img / sig
+    img =  img / sig
+    #return img
+    #return img.astype(np.uint8, copy=False)
+    return cv.normalize(src=img, dst=img, alpha=0, beta=255, norm_type=cv.NORM_MINMAX)
 
 
 def gauss_loc_norm(sig1=2, sig2=20):
@@ -92,6 +96,14 @@ def imvcrop(shape=None, vcrop=None):
 
 def histeq():
     return lambda im: cv.equalizeHist(im)
+
+
+def _quant(im, k=3):
+    return np.floor(np.floor(im/(im.max()/k)) * (255/k)).astype(np.uint8)
+
+
+def quant(k=3):
+    return lambda im: _quant(im, k=k)
 
 
 def make_pipeline(sets):
@@ -116,11 +128,18 @@ def make_pipeline(sets):
         pipe.append(loc_norm(**sets.get('loc_norm')))
     if sets.get('gauss_loc_norm'):
         pipe.append(gauss_loc_norm(**sets.get('gauss_loc_norm')))
-    if sets.get('wave'):
-        im_size = sets.get('shape')
-        pipe.append(wavelet(im_size))
-    # Always change the datatype to int16 or float32 to avoid wrap-around!!
-    pipe.append(mod_dtype(np.float32))
+    if sets.get('edge_range'):
+        lims = sets['edge_range']
+        pipe.append(canny(lims[0], lims[1])) 
+    if sets.get('type'):
+        pipe.append(mod_dtype(sets.get('type')))
+    else:
+        # Always change the datatype to float32 to avoid wrap-around!!
+        pipe.append(mod_dtype(np.float32))
+    # if sets.get('wave'):
+    #     im_size = sets.get('shape')
+    #     pipe.append(wavelet(im_size))
+
     return pipe
 
 

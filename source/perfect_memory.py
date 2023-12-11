@@ -2,6 +2,7 @@ from source.utils import pick_im_matcher, mae, rmse, cor_dist, rmf, nanmae
 import numpy as np
 from source.navs.navs import Navigator
 
+
 class PerfectMemory(Navigator):
 
     def __init__(self, route_images, **kwargs):
