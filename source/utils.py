@@ -840,7 +840,7 @@ def degree_error(x_cords, y_cords, x_route_cords, y_route_cords, route_heading, 
     k = []  # Holds the index of the memory with the shortest distance to the grid position
     errors = []  # Holds the error between the world grid image and the closest route image
     route_end = len(x_route_cords)
-    search_step = 10
+    search_step = 20
     memory_pointer = 0
     limit = memory_pointer + search_step
     # TODO: Need to iterate the total number of window comparisons instead of the total coord points
