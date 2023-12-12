@@ -18,7 +18,7 @@ def static_bench():
     #               'window': list(range(10, 12)), 'matcher': ['corr', 'rmse']}
     
     parameters = {'blur': [True], 
-                  'shape': [(360, 90)],
+                  'shape': [(180, 45)],
                   #'vcrop':[.5],
                   #'histeq':[True],
                   'edge_range': [(190, 230), False],
@@ -26,7 +26,7 @@ def static_bench():
                   'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
                   'deg_range':[(-90, 90)],
                   'window': [20, -15], 
-                  'matcher': ['mae'],
+                  'matcher': ['mae', 'corr'],
                   'ref_route': [1, 2, 3, 4],
                   #'sample_step':[1]
                   }
