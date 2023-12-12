@@ -135,7 +135,7 @@ class SequentialPerfectMemory:
 
         # Update memory pointer
         # if h_eval:
-        self.update_pointer(idx)
+        self.update_mid_pointer(idx)
         # else:
         #     self.set_mem_pointer(self.mem_pointer + 1)
 
@@ -161,7 +161,7 @@ class SequentialPerfectMemory:
         self.sma_qmet_log.append(sma)
         return True
 
-    def update_mid_pointer(self, idx):
+    def update_pointer(self, idx):
         '''
         Update the mem pointer to the back of the window
         mem_pointer = blimit
