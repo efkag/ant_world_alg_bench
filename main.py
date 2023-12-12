@@ -21,11 +21,11 @@ def static_bench():
                   'shape': [(360, 90)],
                   #'vcrop':[.5],
                   #'histeq':[True],
-                  'edge_range': [(190, 230), False],
+                  #'edge_range': [(190, 230), False],
                   #'loc_norm': [{'kernel_shape':(3, 3)}, False],
                   'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
                   'deg_range':[(-90, 90)],
-                  'window': [15, 20, -15], 
+                  'window': [15, -15], 
                   'matcher': ['mae'],
                   'ref_route': [1, 2, 3, 4],
                   #'sample_step':[1]
@@ -39,7 +39,7 @@ def static_bench():
                                route_repeats=4,
                                bench_data='bob'
                                )
-    bench.benchmark(parameters, routes, parallel=True, cores=36)
+    bench.benchmark(parameters, routes, parallel=True, cores=30)
 
 
 
