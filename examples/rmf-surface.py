@@ -10,6 +10,7 @@ from source.imgproc import Pipeline
 from source.display import plot_3d
 import seaborn as sns
 import matplotlib.pyplot as plt
+from time import perf_counter
 sns.set_context("paper", font_scale=1)
 
 route_path = 'new-antworld/exp1/route1/'
@@ -37,9 +38,12 @@ ref_imgs = pipe.apply(ref_imgs)
 # cv.imwrite(img_path, img)
 
 deg_range = (-180, 180)
+tic = perf_counter()
 #mae_dist_surf = rmf(q_img, ref_imgs, matcher=mae, d_range=deg_range)
 #entropy_dist_surf = (rmf(q_img, ref_imgs, matcher=entropy_dist, d_range=deg_range))
 corr_dist_surf = (rmf(q_img, ref_imgs, matcher=matcher, d_range=deg_range))
+
+print('time elapsed in sec. ', perf_counter()-tic)
 # degrees array
 degrees = np.arange(*deg_range)
 fig_path = os.path.join(save_path, 'cor_dist_surf.png')

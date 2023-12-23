@@ -590,11 +590,27 @@ def cor_dist(a, b):
     :param b: One or more reference images
     :return:
     """
-    a = a.flatten()
     if isinstance(b, list):
-        return [correlation(a, img.flatten()) for img in b]
+        return [_cc_dist(a, img) for img in b]
 
-    return correlation(a, b.flatten())
+    return _cc_dist(a, b)
+
+def _cc_dist(a, b):
+    """
+    Calculates the correlation coefficient distance
+    between two vectors.
+    :param a:
+    :param b:
+    :return:
+    """
+    amu = np.mean(a)
+    bmu = np.mean(b)
+    a = a - amu
+    b = b - bmu
+    ab = np.mean(a * b)
+    avar = np.mean(np.square(a))
+    bvar = np.mean(np.square(b))
+    return 1.0 - ab / np.sqrt(avar * bvar)
 
 
 def nan_correlation_dist(a, b):
@@ -626,11 +642,10 @@ def nan_cor_dist(a, b):
     :param b: One or more reference images
     :return:
     """
-    a = a.flatten()
     if isinstance(b, list):
-        return [nan_correlation_dist(a, img.flatten()) for img in b]
+        return [nan_correlation_dist(a, img) for img in b]
 
-    return nan_correlation_dist(a, b.flatten())
+    return nan_correlation_dist(a, b)
 
 
 # def cos_dist(a, b):
