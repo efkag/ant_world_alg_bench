@@ -666,7 +666,7 @@ def cos_sim(a, b):
     :param b:
     :return:
     """
-    return np.dot(a, b) / (norm(a) * norm(b))
+    return np.vdot(a, b) / (norm(a) * norm(b))
 
 
 def entropy_im(img, bins=256):
