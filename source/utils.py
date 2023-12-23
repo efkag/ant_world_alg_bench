@@ -633,18 +633,30 @@ def nan_cor_dist(a, b):
     return nan_correlation_dist(a, b.flatten())
 
 
+# def cos_dist(a, b):
+#     """
+#     Calculates cosine similarity
+#     between a (list of) vector(s) b and reference vector a
+#     :param a:
+#     :param b:
+#     :return:
+#     """
+#     if isinstance(b, list):
+#         return [cosine(a, img) for img in b]
+
+#     return cosine(a, b)
+
 def cos_dist(a, b):
     """
-    Calculates cosine similarity
-    between a (list of) vector(s) b and reference vector a
+    Cossine Distance
     :param a:
     :param b:
     :return:
     """
     if isinstance(b, list):
-        return [cosine(a, img) for img in b]
-
-    return cosine(a, b)
+        return [1.0 - (np.vdot(a, img) / (norm(a) * norm(img))) for img in b]
+    
+    return 1.0 - (np.vdot(a, b) / (norm(a) * norm(b)))
 
 
 def cos_sim(a, b):
