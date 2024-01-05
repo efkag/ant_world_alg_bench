@@ -676,7 +676,7 @@ def cos_dist(a, b):
 
 def cos_sim(a, b):
     """
-
+    Cossine similarity.
     :param a:
     :param b:
     :return:
@@ -685,6 +685,13 @@ def cos_sim(a, b):
 
 
 def dot_dist(a, b):
+    """
+    Returns the dot product distance.
+    This function assumes the vectors have zero means and unit variance.
+    :param a: numpy vector or matrix 
+    :param b: numpy vector or matrix 
+    :return: distance between [0, 2]
+    """
     if isinstance(b, list):
         return [1 - np.vdot(a, img) for img in b]
     
