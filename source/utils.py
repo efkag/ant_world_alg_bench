@@ -684,6 +684,13 @@ def cos_sim(a, b):
     return np.vdot(a, b) / (norm(a) * norm(b))
 
 
+def dot_dist(a, b):
+    if isinstance(b, list):
+        return [1 - np.vdot(a, img) for img in b]
+    
+    return 1 - np.vdot(a, b)
+
+
 def entropy_im(img, bins=256):
     #get the histogram
     amarg = np.histogramdd(np.ravel(img), bins = bins)[0]/img.size

@@ -4,7 +4,7 @@ fwd = os.path.dirname(__file__)
 sys.path.append(os.getcwd())
 
 import numpy as np
-from source.utils import mae, rmf, cor_dist, cos_dist, mutual_inf, entropy_dist, check_for_dir_and_create
+from source.utils import mae, rmf, cor_dist, cos_dist, dot_dist, mutual_inf, entropy_dist, check_for_dir_and_create
 from source.routedatabase import Route
 from source.imgproc import Pipeline
 from source.display import plot_3d
@@ -25,9 +25,10 @@ search_margin = 30
 q_img = route.get_imgs()[q_img_idx]
 ref_imgs = route.get_imgs()[q_img_idx - search_margin:q_img_idx + search_margin]
 
-matcher = cor_dist
+matcher = cos_dist
 params = {'blur': True,
-        'shape': (180, 40), 
+        'shape': (180, 40),
+        #'normstd': True, 
         }
 pipe = Pipeline(**params)
 q_img = pipe.apply(q_img)
