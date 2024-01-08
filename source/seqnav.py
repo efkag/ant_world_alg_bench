@@ -1,9 +1,9 @@
-from source.utils import pick_im_matcher, mae, rmse, cor_dist, rmf, seq2seqrmf, pair_rmf, cos_sim, mean_angle
+from source.utils import pick_im_matcher, dot_dist, mae, rmse, cor_dist, rmf, seq2seqrmf, pair_rmf, cos_sim, mean_angle
 from source.analysis import d2i_rmfs_eval
 import numpy as np
 import copy
 from collections import deque
-
+from source.imgproc import Pipeline
 
 class SequentialPerfectMemory:
 
@@ -15,6 +15,10 @@ class SequentialPerfectMemory:
         self.deg_range = deg_range
         self.deg_step = degree_shift
         self.degrees = np.arange(*deg_range)
+        # if the dot product distance is used we need to make sure the images are standardized
+        if self.matcher == dot_dist:
+            pipe = Pipeline(normstd=True)
+            self.route_images = pipe.apply(route_images)
 
         # Log Variables
         self.recovered_heading = []
@@ -478,6 +482,10 @@ class Seq2SeqPerfectMemory:
         self.degrees = np.arange(*deg_range)
         self.queue_size = queue_size
         self.queue = deque(maxlen=queue_size)
+        # if the dot product distance is used we need to make sure the images are standardized
+        if self.matcher == dot_dist:
+            pipe = Pipeline(normstd=True)
+            self.route_images = pipe.apply(route_images)
 
         # Log Variables
         self.recovered_heading = []

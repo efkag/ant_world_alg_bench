@@ -28,7 +28,7 @@ ref_imgs = route.get_imgs()[q_img_idx - search_margin:q_img_idx + search_margin]
 matcher = cos_dist
 params = {'blur': True,
         'shape': (180, 40),
-        #'normstd': True, 
+        'normstd': True, 
         }
 pipe = Pipeline(**params)
 q_img = pipe.apply(q_img)
