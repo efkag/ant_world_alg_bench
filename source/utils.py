@@ -590,11 +590,27 @@ def cor_dist(a, b):
     :param b: One or more reference images
     :return:
     """
-    a = a.flatten()
     if isinstance(b, list):
-        return [correlation(a, img.flatten()) for img in b]
+        return [_cc_dist(a, img) for img in b]
 
-    return correlation(a, b.flatten())
+    return _cc_dist(a, b)
+
+def _cc_dist(a, b):
+    """
+    Calculates the correlation coefficient distance
+    between two vectors.
+    :param a:
+    :param b:
+    :return:
+    """
+    amu = np.mean(a)
+    bmu = np.mean(b)
+    a = a - amu
+    b = b - bmu
+    ab = np.mean(a * b)
+    avar = np.mean(np.square(a))
+    bvar = np.mean(np.square(b))
+    return 1.0 - ab / np.sqrt(avar * bvar)
 
 
 def nan_correlation_dist(a, b):
@@ -626,35 +642,60 @@ def nan_cor_dist(a, b):
     :param b: One or more reference images
     :return:
     """
-    a = a.flatten()
     if isinstance(b, list):
-        return [nan_correlation_dist(a, img.flatten()) for img in b]
+        return [nan_correlation_dist(a, img) for img in b]
 
-    return nan_correlation_dist(a, b.flatten())
+    return nan_correlation_dist(a, b)
 
+
+# def cos_dist(a, b):
+#     """
+#     Calculates cosine similarity
+#     between a (list of) vector(s) b and reference vector a
+#     :param a:
+#     :param b:
+#     :return:
+#     """
+#     if isinstance(b, list):
+#         return [cosine(a, img) for img in b]
+
+#     return cosine(a, b)
 
 def cos_dist(a, b):
     """
-    Calculates cosine similarity
-    between a (list of) vector(s) b and reference vector a
+    Cossine Distance
     :param a:
     :param b:
     :return:
     """
     if isinstance(b, list):
-        return [cosine(a, img) for img in b]
-
-    return cosine(a, b)
+        return [1.0 - (np.vdot(a, img) / (norm(a) * norm(img))) for img in b]
+    
+    return 1.0 - (np.vdot(a, b) / (norm(a) * norm(b)))
 
 
 def cos_sim(a, b):
     """
-
+    Cossine similarity.
     :param a:
     :param b:
     :return:
     """
-    return np.dot(a, b) / (norm(a) * norm(b))
+    return np.vdot(a, b) / (norm(a) * norm(b))
+
+
+def dot_dist(a, b):
+    """
+    Returns the dot product distance.
+    This function assumes the vectors have zero means and unit variance.
+    :param a: numpy vector or matrix 
+    :param b: numpy vector or matrix 
+    :return: distance between [0, 2]
+    """
+    if isinstance(b, list):
+        return [1 - np.vdot(a, img) for img in b]
+    
+    return 1 - np.vdot(a, b)
 
 
 def entropy_im(img, bins=256):
@@ -711,7 +752,7 @@ def _entropy_dist(a, b, bins=256):
 
 
 def pick_im_matcher(im_matcher=None):
-    matchers = {'corr': cor_dist, 'rmse': rmse, 'mse':mse, 'mae': mae, 'rmse':rmse, 'entropy':entropy_dist}
+    matchers = {'corr': cor_dist, 'dot': dot_dist, 'rmse': rmse, 'mse':mse, 'mae': mae, 'entropy':entropy_dist}
     if not matchers.get(im_matcher):
         raise Exception('Non valid matcher method name')
     return matchers.get(im_matcher)

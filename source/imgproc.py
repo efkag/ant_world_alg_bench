@@ -11,12 +11,12 @@ def resize(shape):
     return lambda im: cv.resize(im, shape, interpolation=cv.INTER_NEAREST)
 
 
-def gauss_blur(mean, kernel_shape=(5, 5)):
+def gauss_blur(kernel_shape=(3, 3)):
     '''
     Return a function to blur image
     given the kernel size and the mean
     '''
-    return lambda im: cv.GaussianBlur(im, kernel_shape, mean)
+    return lambda im: cv.GaussianBlur(im, kernel_shape, 0)
 
 
 def canny(upper, lower):
@@ -45,7 +45,7 @@ def mod_dtype(dtype):
     return lambda im: im.astype(dtype)
 
 
-def lin(img, kernel_shape=(3, 3)):
+def lin(img, kernel_shape=(5, 5)):
     '''
     Local Image Normalisation
     Normalises and each pixel using 
@@ -54,7 +54,7 @@ def lin(img, kernel_shape=(3, 3)):
     img = img.astype(np.int16, copy=False)
     mu = cv.blur(img, kernel_shape)
     img = img - mu
-    return cv.normalize(src=img, dst=img, aplha=0, ebta=255, norm_type=cv.NORM_MINMAX)
+    return cv.normalize(src=img, dst=img, aplha=0, beta=255, norm_type=cv.NORM_MINMAX)
     # var = cv.blur(img*img, kernel_shape)
     # sig = var**0.5 + np.finfo(float).eps
     # return img / sig
@@ -118,7 +118,7 @@ def make_pipeline(sets):
     if sets.get('histeq'):
         pipe.append(histeq())
     if sets.get('blur'):
-        pipe.append(gauss_blur(0))
+        pipe.append(gauss_blur())
     if sets.get('quant'):
         pipe.append(quant(k=sets.get('quant')))
     if sets.get('loc_norm'):

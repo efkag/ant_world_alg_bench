@@ -1,6 +1,8 @@
 from source.utils import pick_im_matcher, mae, rmse, cor_dist, rmf, nanmae
 import numpy as np
 from source.navs.navs import Navigator
+from source.utils import dot_dist
+from source.imgproc import Pipeline
 
 class PerfectMemory(Navigator):
 
@@ -11,6 +13,10 @@ class PerfectMemory(Navigator):
         self.matched_index_log = []
         self.argminmax = np.argmin
         self.best_sims = []
+        # if the dot product distance is used we need to make sure the images are standardized
+        if self.matcher == dot_dist:
+            pipe = Pipeline(normstd=True)
+            self.route_images = pipe.apply(route_images)
 
     def get_heading(self, query_img):
         # get the rotational similarities between a query image and a window of route images
