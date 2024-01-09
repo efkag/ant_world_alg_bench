@@ -20,11 +20,13 @@ directory = '2023-11-23/2023-11-23_asmw'
 results_path = os.path.join('Results', 'newant', 'static-bench',  directory)
 fig_save_path = os.path.join(results_path, 'analysis')
 data = pd.read_csv(os.path.join(results_path, 'results.csv'), index_col=False)
+data['matched_index'] = data['matched_index'].apply(literal_eval)
+
 # with open(os.path.join(results_path, 'params.yml')) as fp:
 #     params = yaml.load(fp)
 # routes_path = params['routes_path']
-routes_path = '/its/home/sk526/ant_world_alg_bench/datasets/new-antworld/exp1'
-grid_path = '/its/home/sk526/ant_world_alg_bench/datasets/new-antworld/grid70'
+routes_path = 'datasets/new-antworld/exp1'
+grid_path = 'datasets/new-antworld/grid70'
 
 # Plot a specific route
 route_id = 5
@@ -43,6 +45,7 @@ title = None
 filters = {'route_id':route_id, 'res':'(180, 40)','blur':True, 
            'window':-15, 'matcher':'mae', 'edge':'False'}
 asmw_traj = filter_results(data, **filters)
+print(asmw_traj.shape[0], ' rows')
 asmw_traj = asmw_traj.to_dict(orient='records')[0]
 print(asmw_traj.keys())
 
@@ -52,12 +55,14 @@ directory = '2023-11-23/2023-11-23_pm'
 results_path = os.path.join('Results', 'newant', 'static-bench',  directory)
 fig_save_path = os.path.join(results_path, 'analysis')
 data = pd.read_csv(os.path.join(results_path, 'results.csv'), index_col=False)
-
+data['matched_index'] = data['matched_index'].apply(literal_eval)
 filters = {'route_id':route_id, 'res':'(180, 40)','blur':True, 
            'window':0, 'matcher':'mae', 'edge':'False'}
 pm_traj = filter_results(data, **filters)
+print(pm_traj.shape[0], ' rows')
 pm_traj = pm_traj.to_dict(orient='records')[0]
 print(pm_traj.keys())
+pm_matched_i = pm_traj['matched_index']
 
 
 #Read the pickled file
@@ -65,27 +70,37 @@ print(pm_traj['rmfs_file'])
 rmfs_path = os.path.join(results_path, f"{pm_traj['rmfs_file']}.npy")
 print(rmfs_path)
 rmfs = np.load(rmfs_path, allow_pickle=True)
-print(rmfs[0].shape)
+print(rmfs.shape)
 
 
+# test points, route points, theta (search angle)
+tp, rp, theta = rmfs.shape
+
+max_heat_value = 0
+heatmap = np.full((tp, rp), max_heat_value)
+#populate heatmap
+for i in range(tp):
+    #get the RIDF minima
+    ridf_mins = np.min(rmfs[i], axis=1)
+    heatmap[i,:] = ridf_mins
 
 
-# fig_size = (4, 3)
-# fig, ax = plt.subplots(figsize=fig_size)
-# sns.heatmap(heatmap, ax=ax)
-# #ax.imshow(heatmap)
-# ax.plot(matched_i, range(len(matched_i)), label='ASMW match')
+fig_size = (4, 3)
+fig, ax = plt.subplots(figsize=fig_size)
+sns.heatmap(heatmap, ax=ax)
+#ax.imshow(heatmap)
+ax.plot(pm_matched_i, range(len(pm_matched_i)), label='PM match')
 # if pm_best_match:
 #     ax.plot(pm_matched_i, range(len(pm_matched_i)), c='k', label='PM match')
 # ax.plot(ws, range(len(ws)), c='g', label='window limits')
 # ax.plot(we, range(len(we)), c='g')
-# ax.set_xticks([])
-# ax.set_yticks([])
-# ax.set_xlabel('route images')
-# ax.set_ylabel('query images')
+ax.set_xticks([])
+ax.set_yticks([])
+ax.set_xlabel('route images')
+ax.set_ylabel('query images')
 
-# plt.legend()
-# plt.tight_layout()
-# fig.savefig(os.path.join(fig_save_path, f'heatmap-route({route_id})-trial({trial_name})-pmline({pm_best_match}).pdf'), dpi=200)
-# fig.savefig(os.path.join(fig_save_path, f'heatmap-route({route_id})-trial({trial_name})-pmline({pm_best_match}).png'), dpi=200)
-# plt.show()
+plt.legend()
+plt.tight_layout()
+fig.savefig(os.path.join(fig_save_path, f'heatmap-route({route_id}).pdf'), dpi=200)
+fig.savefig(os.path.join(fig_save_path, f'heatmap-route({route_id}).png'), dpi=200)
+plt.show()
