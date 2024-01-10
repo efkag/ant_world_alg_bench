@@ -141,25 +141,33 @@ def plot_multiline(data, scatter=False, labels=None, xlabel=None, ylabel=None):
     plt.show()
 
     
-def plot_route_errors(route, traj, route_i, error_i, size=(10, 10), scale=None, path=None):
+def plot_route_errors(route, traj, route_i, error_i, min_dist_i, size=(10, 10), scale=None, path=None):
     fig, ax = plt.subplots(figsize=size)
     u, v = pol2cart_headings(90 - route['yaw'])
     ax.scatter(route['x'], route['y'])
     ax.annotate('Start', (route['x'][0], route['y'][0]))
     #ax.quiver(route['x'], route['y'], u, v, scale=scale)
-
+   
+    # route matched position
     u, v = pol2cart_headings(90 - route['yaw'][route_i])
     ax.quiver(route['x'][route_i], route['y'][route_i], u, v, scale=scale, label='match', color='y')
 
+    # test position
     u, v = pol2cart_headings(90 - traj['heading'][error_i])
     ax.quiver(traj['x'][error_i], traj['y'][error_i], u, v, scale=scale, label='test pos', color='r')
+    
+    # min dist position
+    #u, v = pol2cart_headings(90 - route['yaw'][min_dist_i])
+    #ax.quiver(route['x'][min_dist_i], route['y'][min_dist_i], u, v, scale=scale, label='min dist', color='g')
+    ax.scatter([route['x'][min_dist_i]], [route['y'][min_dist_i]], label='min dist', color='g')
+    
     # Plot the window memories
     if traj['window_log']:
         window = traj['window_log'][error_i]
         start = window[0]
         end = window[1]
         u, v = pol2cart_headings(90 - route['yaw'][start:end])
-        ax.quiver(route['x'][start:end], route['y'][start:end], u, v, color='r', scale=70)
+        ax.quiver(route['x'][start:end], route['y'][start:end], u, v, color='m', scale=70)
 
     plt.legend()
     plt.tight_layout()

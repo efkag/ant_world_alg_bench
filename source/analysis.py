@@ -35,7 +35,8 @@ def perc_outliers(data):
     return perc
 
 
-def log_error_points(route, traj, thresh=0.5, target_path=None, aw_agent=None):
+def log_error_points(route, traj, thresh=0.5, target_path=None, aw_agent=None,
+                     figsize=(5, 5)):
     if not target_path:
         logs_path = 'route'
     logs_path = target_path
@@ -61,10 +62,10 @@ def log_error_points(route, traj, thresh=0.5, target_path=None, aw_agent=None):
 
     # Loop through every test point
     for i in range(len(traj['heading'])):
-        #find the optimal/closest image match
-        dist = np.squeeze(cdist(np.expand_dims(traj_xy[i], axis=0), route_xy, 'euclidean'))
-        min_dist_i = np.argmin(dist)
-        min_dist = dist[min_dist_i]
+        #get the optimal/closest image match
+        #dist = np.squeeze(cdist(np.expand_dims(traj_xy[i], axis=0), route_xy, 'euclidean'))
+        min_dist_i = traj['min_dist_index'][i]
+        #min_dist = dist[min_dist_i]
         # the index from the route that the agent matched best (the best match for this query image)
         route_match_i = index_log[i]
         point_ang_error = traj['errors'][i]
@@ -120,8 +121,8 @@ def log_error_points(route, traj, thresh=0.5, target_path=None, aw_agent=None):
             # fig.savefig(os.path.join(point_path, 'heat.png'))
             # plt.close(fig)
             
-            path = os.path.join(point_path, 'map.pdf')
-            plot_route_errors(route, traj, route_i=route_match_i, error_i=i, path=path, size=(3, 3))
+            path = os.path.join(point_path, 'map.png')
+            plot_route_errors(route, traj, route_i=route_match_i, error_i=i, min_dist_i=min_dist_i, path=path, size=figsize)
 
             
 
