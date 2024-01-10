@@ -15,15 +15,12 @@ from source.tools.results import filter_results, read_results
 import yaml
 sns.set_context("paper", font_scale=1)
 
-
-directory = '2023-11-23/2023-11-23_asmw'
+# general paths
+directory = '2023-11-23'
 results_path = os.path.join('Results', 'newant', 'static-bench',  directory)
 fig_save_path = os.path.join(results_path, 'analysis')
 
-data = read_results(os.path.join(results_path, 'results.csv'))
-# with open(os.path.join(results_path, 'params.yml')) as fp:
-#     params = yaml.load(fp)
-# routes_path = params['routes_path']
+
 routes_path = 'datasets/new-antworld/exp1'
 grid_path = 'datasets/new-antworld/grid70'
 
@@ -34,12 +31,14 @@ check_for_dir_and_create(fig_save_path)
 route_path = os.path.join(routes_path, f'route{route_id}')
 route = Route(route_path, route_id=route_id, read_imgs=True, grid_path=grid_path, max_dist=0.2)
 
-g_loc_norm = 'False'#"{'sig1': 2, 'sig2': 20}"
-loc_norm = 'False'
 
 figsize = (4, 4)
 title = None
 
+# asmw data
+directory = '2023-11-23_asmw'
+results_path = os.path.join(results_path,  directory)
+data = read_results(os.path.join(results_path, 'results.csv'))
 
 filters = {'route_id':route_id, 'res':'(180, 40)','blur':True, 
            'window':-15, 'matcher':'mae', 'edge':'False'}
@@ -47,12 +46,12 @@ asmw_traj = filter_results(data, **filters)
 print(asmw_traj.shape[0], ' rows')
 asmw_traj = asmw_traj.to_dict(orient='records')[0]
 print(asmw_traj.keys())
+asmw_matched_i = asmw_traj['matched_index']
 
 
 # pm data 
 directory = '2023-11-23/2023-11-23_pm'
 results_path = os.path.join('Results', 'newant', 'static-bench',  directory)
-fig_save_path = os.path.join(results_path, 'analysis')
 
 data = read_results(os.path.join(results_path, 'results.csv'))
 filters = {'route_id':route_id, 'res':'(180, 40)','blur':True, 
@@ -63,7 +62,6 @@ pm_traj = pm_traj.to_dict(orient='records')[0]
 print(pm_traj.keys())
 pm_matched_i = pm_traj['matched_index']
 
-
 #Read the pickled file
 print(pm_traj['rmfs_file'])
 rmfs_path = os.path.join(results_path, f"{pm_traj['rmfs_file']}.npy")
@@ -71,11 +69,11 @@ print(rmfs_path)
 rmfs = np.load(rmfs_path, allow_pickle=True)
 print(rmfs.shape)
 
-
 # test points, route points, theta (search angle)
 tp, rp, theta = rmfs.shape
 
-max_heat_value = 0
+# create the heatmap
+max_heat_value = 255.
 heatmap = np.full((tp, rp), max_heat_value)
 #populate heatmap
 for i in range(tp):
@@ -89,8 +87,8 @@ fig, ax = plt.subplots(figsize=fig_size)
 sns.heatmap(heatmap, ax=ax)
 #ax.imshow(heatmap)
 ax.plot(pm_matched_i, range(len(pm_matched_i)), label='PM match')
-# if pm_best_match:
-#     ax.plot(pm_matched_i, range(len(pm_matched_i)), c='k', label='PM match')
+if asmw_matched_i:
+    ax.plot(asmw_matched_i, range(len(asmw_matched_i)), c='g', label='ASMW match')
 # ax.plot(ws, range(len(ws)), c='g', label='window limits')
 # ax.plot(we, range(len(we)), c='g')
 ax.set_xticks([])
