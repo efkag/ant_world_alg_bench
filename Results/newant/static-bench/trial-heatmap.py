@@ -11,7 +11,7 @@ import seaborn as sns
 from ast import literal_eval
 from source.utils import load_route_naw, plot_route, animated_window, check_for_dir_and_create
 from source.routedatabase import Route
-from source.tools.results import filter_results
+from source.tools.results import filter_results, read_results
 import yaml
 sns.set_context("paper", font_scale=1)
 
@@ -19,9 +19,8 @@ sns.set_context("paper", font_scale=1)
 directory = '2023-11-23/2023-11-23_asmw'
 results_path = os.path.join('Results', 'newant', 'static-bench',  directory)
 fig_save_path = os.path.join(results_path, 'analysis')
-data = pd.read_csv(os.path.join(results_path, 'results.csv'), index_col=False)
-data['matched_index'] = data['matched_index'].apply(literal_eval)
 
+data = read_results(os.path.join(results_path, 'results.csv'))
 # with open(os.path.join(results_path, 'params.yml')) as fp:
 #     params = yaml.load(fp)
 # routes_path = params['routes_path']
@@ -54,8 +53,8 @@ print(asmw_traj.keys())
 directory = '2023-11-23/2023-11-23_pm'
 results_path = os.path.join('Results', 'newant', 'static-bench',  directory)
 fig_save_path = os.path.join(results_path, 'analysis')
-data = pd.read_csv(os.path.join(results_path, 'results.csv'), index_col=False)
-data['matched_index'] = data['matched_index'].apply(literal_eval)
+
+data = read_results(os.path.join(results_path, 'results.csv'))
 filters = {'route_id':route_id, 'res':'(180, 40)','blur':True, 
            'window':0, 'matcher':'mae', 'edge':'False'}
 pm_traj = filter_results(data, **filters)
