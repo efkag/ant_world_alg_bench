@@ -73,7 +73,7 @@ def log_error_points(route, traj, thresh=0.5, target_path=None, aw_agent=None,
         if traj['errors'][i] >= thresh:
             point_path = os.path.join(logs_path, f'{i}-error={round(point_ang_error, 2)}')
             check_for_dir_and_create(point_path)
-            # Save window images or 
+            # Save window images or single image
             if traj.get('window_log'):
                 w = traj.get('window_log')[i]
                 for wi in range(w[0], w[1]):
@@ -106,6 +106,7 @@ def log_error_points(route, traj, thresh=0.5, target_path=None, aw_agent=None,
             # Save ridf
             if traj.get('window_log'):
                 w = traj.get('window_log')[i]
+                # TODO: what is this. 
                 window_index_of_route_match = route_match_i - w[0]
                 rsim = rsims_matrices[i][window_index_of_route_match]
             else:

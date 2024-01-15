@@ -91,8 +91,8 @@ if asmw_matched_i:
     ax.plot(asmw_matched_i, range(len(asmw_matched_i)), c='g', label='ASMW match')
 # ax.plot(ws, range(len(ws)), c='g', label='window limits')
 # ax.plot(we, range(len(we)), c='g')
-ax.set_xticks([])
-ax.set_yticks([])
+# ax.set_xticks([])
+# ax.set_yticks([])
 ax.set_xlabel('route images')
 ax.set_ylabel('query images')
 

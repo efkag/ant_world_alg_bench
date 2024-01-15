@@ -18,7 +18,7 @@ from source.routedatabase import Route
 sns.set_context("paper", font_scale=1)
 
 
-directory = 'static-bench/2023-11-23/2023-11-23_pm'
+directory = 'static-bench/2023-11-23/2023-11-23_asmw'
 results_path = os.path.join('Results', 'newant', directory)
 fig_save_path = os.path.join('Results', 'newant', directory, 'analysis')
 with open(os.path.join(results_path, 'params.yml')) as fp:
@@ -50,7 +50,7 @@ title = None
 
 
 filters = {'route_id':route_id, 'res':'(180, 40)','blur':True, 
-           'window':0, 'matcher':'mae', 'edge':'False'}
+           'window':-15, 'matcher':'mae', 'edge':'False'}
 traj = filter_results(data, **filters)
 
 traj = traj.to_dict(orient='records')[0]
