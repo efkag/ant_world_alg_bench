@@ -54,12 +54,7 @@ traj = data.loc[(data['matcher'] == matcher)
 method = np.mean
 grouped = traj.groupby(['window', 'route_id', 'nav-name'])["trial_fail_count"].apply(method).to_frame("trial_fail_count").reset_index()
 
-route_curvatures = []
-routes = load_routes(routes_path, route_ids)
-for route in routes:
-    xy = route.get_xycoords()
-    k = meancurv2d(xy['x'], xy['y'])
-    route_curvatures.append(k)
+
 # then i need to order by k and plot.
 
 # pm_data = grouped.loc[grouped['window'] == 0]
@@ -77,6 +72,7 @@ curvatures = np.array(curvatures)
 
 ind = np.argsort(curvatures)
 curvatures = curvatures[ind]
+print('route ids in increasing curvature: ', route_ids[ind])
 
 # Plot a line of the median or mean or sum tfc across the repeats for each window size
 w_size = pd.unique(data['window'])

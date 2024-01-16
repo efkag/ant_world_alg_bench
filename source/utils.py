@@ -113,11 +113,11 @@ def plot_route(route, traj=None, scale=None, window=None, windex=None, save=Fals
     
 
 
-def animated_window(route, window, traj=None, path=None, scale=70, save=False, size=(10, 10), title=None):
+def animated_window(route, traj=None, path=None, scale=70, save=False, size=(10, 10), title=None):
     check_for_dir_and_create(path)
     if path:
         save = True
-    for i, w in enumerate(window):
+    for i, w in enumerate(traj['window_log']):
         plot_route(route, traj=traj, window=w, windex=i, save=save, scale=scale, size=size, path=path, title=title)
 
 
