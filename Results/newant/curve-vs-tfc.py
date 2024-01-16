@@ -14,7 +14,7 @@ from ast import literal_eval
 import yaml
 
 
-directory = '2023-04-26/combined'
+directory = '2023-11-22/combined'
 results_path = os.path.join('Results', 'newant', directory)
 fig_save_path = os.path.join('Results', 'newant', directory, 'analysis')
 check_for_dir_and_create(fig_save_path)

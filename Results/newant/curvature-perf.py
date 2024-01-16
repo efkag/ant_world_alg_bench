@@ -13,7 +13,7 @@ import seaborn as sns
 import yaml
 sns.set_context("paper", font_scale=1)
 
-directory = '2023-04-26/combined'
+directory = '2023-11-22/combined'
 results_path = os.path.join('Results', 'newant', directory)
 fig_save_path = os.path.join('Results', 'newant', directory, 'analysis')
 check_for_dir_and_create(fig_save_path)
@@ -37,16 +37,18 @@ data['abs_index_diff'] = data['abs_index_diff'].apply(eval)
 matcher = 'corr'
 edge = 'False'
 blur =  True 
-res = '(180, 80)'
-g_loc_norm = "{'sig1': 2, 'sig2': 20}"
+res = '(180, 40)'
+g_loc_norm = False #"{'sig1': 2, 'sig2': 20}"
 # loc_norm = 'False'
 title = 'D'
 
 traj = data.loc[(data['matcher'] == matcher) 
-                & (data['res'] == res) & (data['blur'] == blur) 
+                & (data['res'] == res) 
+                & (data['blur'] == blur) 
                 #& (data['edge'] == edge) 
-                & (data['gauss_loc_norm'] == g_loc_norm) ]
-                #& (data['loc_norm'] == loc_norm)]
+                #& (data['gauss_loc_norm'] == g_loc_norm) ]
+                #& (data['loc_norm'] == loc_norm)
+                ]
 
 
 method = np.mean
@@ -86,7 +88,7 @@ for w in w_size:
     ax.plot(route_ids, tfc_sorted, label=lbl)
 ax.set_xlabel('routes in increasing curvature')
 ax.set_ylabel('mean TFC')
-ax.legend()
+ax.legend(loc=4)
 fig.savefig(os.path.join(fig_save_path, 'curv-per-nav'))
 plt.show()
 

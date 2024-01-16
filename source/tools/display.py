@@ -5,13 +5,21 @@ import seaborn as sns
 import numpy as np
 from source.utils import check_for_dir_and_create
 from source.utils import mae, rmf, rotate
+from source.imgproc import Pipeline
+from source.routedatabase import Route
 sns.set_context("paper", font_scale=1)
 
-def heading_res_and_rmfs(route, trial, rmf, matcher, trial_i_of_interest, deg_range=(-180, 180),
+def heading_res_and_rmfs(trial, route: Route, pipe: Pipeline, rmf: callable, matcher: callable, trial_i_of_interest: list, deg_range=(-180, 180),
                          save_path=None):
     
     degrees = np.arange(*deg_range)
     route_id = route.get_route_id()
+    # TODO: for stattic tets only.
+    # for live test I need to add the trial images ionto the trail dict (or object?) and get the image from that
+    ref_imgs = route.get_imgs()
+    ref_imgs = pipe.apply(ref_imgs)
+    trial_imgs = route.get_qimgs()
+    trial_imgs = pipe.apply(trial_imgs)
 
     for ti in trial_i_of_interest:
 
