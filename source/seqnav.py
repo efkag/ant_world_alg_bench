@@ -15,6 +15,7 @@ class SequentialPerfectMemory:
         self.deg_range = deg_range
         self.deg_step = degree_shift
         self.degrees = np.arange(*deg_range)
+        self.matcher = pick_im_matcher(matching)
         # if the dot product distance is used we need to make sure the images are standardized
         if self.matcher == dot_dist:
             pipe = Pipeline(normstd=True)
@@ -36,7 +37,7 @@ class SequentialPerfectMemory:
         # initialisation values etc
         self.sma_qmet_log.append(0)
         # Matching variables
-        self.matcher = pick_im_matcher(matching)
+
         self.argminmax = np.argmin
         self.prev_match = 0.0
 
