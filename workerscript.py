@@ -35,12 +35,13 @@ routes = load_routes(routes_path, route_ids)
 total_jobs = len(chunk) * len(route_ids)
 jobs = 0
 
-log = {'route_id': [], 't':[], 'blur': [], 'edge': [], 'res': [], 'window': [],
-       'matcher': [], 'deg_range':[], 'segment_len': [], 'trial_fail_count':[], 'mean_error': [], 
+log = {'route_id': [], 'num_of_repeat':[], 'nav-name':[], 't':[], 
+       'blur': [], 'edge': [], 'res': [], 'window': [], 'matcher': [], 'deg_range':[], 
+       'segment_len': [], 'trial_fail_count':[], 'mean_error': [], 
        'seconds': [], 'errors': [], 'dist_diff': [], 'abs_index_diff': [], 'window_log': [], 
-       'matched_index': [], 'tx': [], 'ty': [], 'th': [], 'ah': [], 'rmfs_file':[], 'best_sims':[],
-       'loc_norm':[], 'gauss_loc_norm':[], 'wave':[], 'num_of_repeat':[], 'tfc_idxs':[],
-       'nav-name':[]}
+       'matched_index': [], 'min_dist_index': [] ,  'tx': [], 'ty': [], 'th': [], 'ah': [], 'rmfs_file':[], 'best_sims':[],
+       'loc_norm':[], 'gauss_loc_norm':[], 'wave':[], 'tfc_idxs':[]
+       }
 
 agent = aw.Agent()
 
@@ -126,6 +127,7 @@ for combo in chunk:
         log['th'].append(traj['heading'].tolist())
         log['ah'].append(rec_headings)
         log['matched_index'].append(matched_index)
+        log['min_dist_index'].append(min_dist_index)
         log['abs_index_diff'].append(abs_index_diffs)
         log['dist_diff'].append(dist_diff)
         log['errors'].append(errors)

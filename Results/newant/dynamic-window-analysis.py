@@ -17,7 +17,7 @@ import numpy as np
 sns.set_context("paper", font_scale=1)
 
 
-directory = '2023-04-20_test'
+directory = '2023-11-22/2023-11-22_newtfc'
 results_path = os.path.join('Results', 'newant', directory)
 fig_save_path = os.path.join('Results', 'newant', directory, 'analysis')
 data = pd.read_csv(os.path.join(results_path, 'results.csv'), index_col=False)
@@ -42,7 +42,7 @@ blur = True
 edge = None
 loc_norm = 'False' # {'kernel_shape':(5, 5)}
 gauss_loc_norm = "{'sig1': 2, 'sig2': 20}"
-res = '(180, 80)'
+res = '(180, 40)'
 repeat_no = 0
 figsize = (7, 4)
 
@@ -51,7 +51,7 @@ traj = data.loc[(data['matcher'] == matcher)
                 & (data['res'] == res) 
                 #& (data['edge'] == edge)
                 #& (data['loc_norm'] == loc_norm) 
-                & (data['gauss_loc_norm'] == gauss_loc_norm)
+                #& (data['gauss_loc_norm'] == gauss_loc_norm)
                 & (data['window'] == window) 
                 & (data['route_id'] == route_id)
                 & (data['num_of_repeat'] == repeat_no) 
@@ -77,11 +77,14 @@ ax1.plot(range(len(traj['abs_index_diff'])), traj['abs_index_diff'], label='inde
 ax1.vlines(traj.get('tfc_idxs'), ymin=0, ymax=260, linestyles='dashed', colors='r', label='fail points')
 ax1.set_ylim([0, 260])
 ax1.plot(range(len(w_size)), w_size, label='window size')
+ax1.scatter(range(len(w_size)), w_size)
 ax1.set_ylabel('route index scale')
 ax1.set_xlabel('test points')
 
 ax2 = ax1.twinx()
 ax2.plot(range(len(traj['best_sims'])), traj['best_sims'], label='image diff.', color='g')
+ax2.scatter(range(len(traj['best_sims'])), traj['best_sims'], color='g')
+
 ax2.set_ylim([0.0, 1.0])
 ax2.set_ylabel(f'{matcher} image distance')
 ax1.legend(loc=2)
