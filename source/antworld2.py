@@ -1,11 +1,16 @@
 import os
-import antworld
 import cv2
 import numpy as np
 from scipy.spatial.distance import cdist
 from source.imgproc import Pipeline
 from source.utils import check_for_dir_and_create, write_route, squash_deg, travel_dist, pol2cart
 from source.gencoords import generate_from_points, generate_grid
+
+try:
+    import antworld
+except ModuleNotFoundError:
+    print('first attempt to antworld import failed')
+    import bob_robotics.antworld as antworld
 
 # Old Seville data (lower res, but loads faster)
 worldpath = antworld.bob_robotics_path + "/resources/antworld/world5000_gray.bin"

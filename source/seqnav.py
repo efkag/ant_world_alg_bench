@@ -214,6 +214,7 @@ class SequentialPerfectMemory:
         self.lower = self.window - self.upper
 
         # Update the bounds of the window
+        # the window limits bounce back near the ends of the route
         self.blimit = max(0, self.mem_pointer - self.lower)
         self.flimit = min(self.route_end, self.mem_pointer + self.upper)
         
