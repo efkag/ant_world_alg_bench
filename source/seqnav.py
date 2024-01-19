@@ -75,17 +75,15 @@ class SequentialPerfectMemory:
         Resets the pointer assuming the window size is the same
         '''
         self.mem_pointer = pointer
-        self.flimit = self.mem_pointer + self.upper
-        self.blimit = self.mem_pointer - self.lower
 
-        if self.flimit > self.route_end:
-            self.mem_pointer = (self.route_end - self.window) + self.lower
-            self.flimit = self.route_end
-            self.blimit = self.route_end - self.window
-        if self.blimit <= 0:
-            self.mem_pointer = self.lower
-            self.blimit = 0
-            self.flimit = self.mem_pointer + self.window
+        # update upper an lower margins
+        self.upper = int(round(self.window/2))
+        self.lower = self.window - self.upper
+
+        # Update the bounds of the window
+        # the window limits bounce back near the ends of the route
+        self.blimit = max(0, self.mem_pointer - self.lower)
+        self.flimit = min(self.route_end, self.mem_pointer + self.upper)
     
     def set_mem_pointer(self, i: int):
         '''
