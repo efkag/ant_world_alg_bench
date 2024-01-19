@@ -142,7 +142,7 @@ class SequentialPerfectMemory:
 
         # log the memory pointer before the update
         # mem_pointer - upper can cause the calc_dists() to go out of bounds
-        matched_idx = self.mem_pointer + (idx - self.lower)
+        matched_idx = self.blimit + idx
         self.matched_index_log.append(matched_idx)
 
         #evaluate ridf
@@ -207,25 +207,16 @@ class SequentialPerfectMemory:
         :return:
         '''
         # Update memory pointer
-        change = idx - self.lower
-        self.mem_pointer += change
+        self.mem_pointer = self.blimit + idx
 
         # update upper an lower margins
         self.upper = int(round(self.window/2))
         self.lower = self.window - self.upper
 
         # Update the bounds of the window
-        self.flimit = self.mem_pointer + self.upper
-        self.blimit = self.mem_pointer - self.lower
-        if self.flimit > self.route_end:
-            self.mem_pointer = (self.route_end - self.window) + self.lower
-            self.flimit = self.route_end
-            self.blimit = self.route_end - self.window
-        if self.blimit <= 0:
-            # the mem pointer should be in the midle of the window
-            self.mem_pointer = self.lower
-            self.blimit = 0
-            self.flimit = self.mem_pointer + self.window
+        self.blimit = max(0, self.mem_pointer - self.lower)
+        self.flimit = min(self.route_end, self.mem_pointer + self.upper)
+        
 
     def check_w_size(self):
         self.window = self.route_end if self.window > self.route_end else self.window
