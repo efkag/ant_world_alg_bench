@@ -62,12 +62,8 @@ def log_error_points(route, traj, thresh=0.5, target_path=None, aw_agent=None,
 
     # Loop through every test point
     for i in range(len(traj['heading'])):
-        # TODO:
         #get the optimal/closest image match
-        dist = np.squeeze(cdist(np.expand_dims(traj_xy[i], axis=0), route_xy, 'euclidean'))
-        min_dist_i = np.argmin(dist)
-        min_dist = dist[min_dist_i]
-        #min_dist_i = traj['min_dist_index'][i]
+        min_dist_i = traj['min_dist_index'][i]
         # the index from the route that the agent matched best (the best match for this query image)
         route_match_i = index_log[i]
         point_ang_error = traj['errors'][i]

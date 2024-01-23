@@ -36,11 +36,12 @@ total_jobs = len(chunk) * len(route_ids)
 jobs = 0
 
 log = {'route_id': [], 'num_of_repeat':[], 'nav-name':[], 't':[], 
-       'blur': [], 'edge': [], 'res': [], 'window': [], 'matcher': [], 'deg_range':[], 
+       'res': [], 'blur': [], 'loc_norm':[], 'gauss_loc_norm':[], 'edge': [],  
+       'window': [], 'matcher': [], 'deg_range':[], 
        'segment_len': [], 'trial_fail_count':[], 'mean_error': [], 
-       'seconds': [], 'errors': [], 'dist_diff': [], 'abs_index_diff': [], 'window_log': [], 
+       'seconds': [], 'errors': [], 'dist_diff': [], 'index_diff': [], 'window_log': [], 
        'matched_index': [], 'min_dist_index': [] ,  'tx': [], 'ty': [], 'th': [], 'ah': [], 'rmfs_file':[], 'best_sims':[],
-       'loc_norm':[], 'gauss_loc_norm':[], 'wave':[], 'tfc_idxs':[]
+       'wave':[], 'tfc_idxs':[]
        }
 
 agent = aw.Agent()
@@ -86,10 +87,10 @@ for combo in chunk:
         # Difference between matched index and minimum distance index and distance between points
         matched_index = nav.get_index_log()
         if matched_index:
-            abs_index_diffs = np.absolute(np.subtract(nav.get_index_log(), min_dist_index)).tolist()
+            index_diffs = np.subtract(min_dist_index, nav.get_index_log()).tolist()
             dist_diff = calc_dists(route.get_xycoords(), min_dist_index, matched_index).tolist()
         else:
-            abs_index_diffs = None
+            index_diffs = None
             dist_diff = None
         mean_route_error = np.mean(errors)
         window_log = nav.get_window_log()
@@ -128,7 +129,7 @@ for combo in chunk:
         log['ah'].append(rec_headings)
         log['matched_index'].append(matched_index)
         log['min_dist_index'].append(min_dist_index)
-        log['abs_index_diff'].append(abs_index_diffs)
+        log['index_diff'].append(index_diffs)
         log['dist_diff'].append(dist_diff)
         log['errors'].append(errors)
         log['best_sims'].append(nav.get_best_sims())
