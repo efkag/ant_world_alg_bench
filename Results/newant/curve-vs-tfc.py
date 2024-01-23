@@ -14,7 +14,7 @@ from ast import literal_eval
 import yaml
 
 
-directory = '2023-11-22/combined'
+directory = '2024-01-22'
 results_path = os.path.join('Results', 'newant', directory)
 fig_save_path = os.path.join('Results', 'newant', directory, 'analysis')
 check_for_dir_and_create(fig_save_path)
@@ -28,7 +28,6 @@ routes_path = params['routes_path']
 # Convert list of strings to actual list of lists
 data['errors'] = data['errors'].apply(literal_eval)
 data['dist_diff'] = data['dist_diff'].apply(literal_eval)
-data['abs_index_diff'] = data['abs_index_diff'].apply(literal_eval)
 
 #metric =  'mean_error'
 # metric = 'errors'
@@ -42,7 +41,7 @@ figsize= (7, 5)
 
 
 
-window = 0
+window = 15
 data = data.loc[data['window'] == window]
 data = data.groupby('route_id')[metric].apply(method).to_frame(metric).reset_index()
 
@@ -72,6 +71,7 @@ data = data.explode(metric)
 fig, ax = plt.subplots(figsize=figsize)
 ax.set_title(f'curv-perf-w{window}')
 sns.barplot(data=data, x="curvature", y=metric, ax=ax)
+#sns.boxplot(data=data, x="curvature", y=metric, ax=ax)
 ax.set_ylim(0, 60)
 ax.tick_params(axis='x', labelrotation=45)
 plt.tight_layout(pad=0)

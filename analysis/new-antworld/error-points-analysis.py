@@ -18,7 +18,7 @@ from source.antworld2 import Agent
 sns.set_context("paper", font_scale=1)
 
 
-directory = '2023-11-22/2023-11-22_newtfc'
+directory = '2024-01-22'
 results_path = os.path.join('Results', 'newant', directory)
 fig_save_path = os.path.join(results_path, 'analysis')
 with open(os.path.join(results_path, 'params.yml')) as fp:
@@ -30,7 +30,7 @@ data = read_results(os.path.join(results_path, 'results.csv'))
 
 # Set up params 
 # for a specific route
-route_id = 7
+route_id = 1
 fig_save_path = os.path.join(fig_save_path, f"route{route_id}", 'test-points')
 check_for_dir_and_create(fig_save_path)
 
@@ -46,13 +46,13 @@ r_path = os.path.join(routes_path ,f'route{route_id}')
 # Bench params
 
 threshold = 0
-repeat_no = 0
+repeat_no = 1
 figsize = (5, 5)
 title = None
 
 
 filters = {'route_id':route_id, 'res':'(180, 40)','blur':True, 
-           'window':-15, 'matcher':'corr', 'edge':'False',
+           'window':-15, 'matcher':'mae', 'edge':'False',
            'num_of_repeat':repeat_no}
 traj = filter_results(data, **filters)
 print(traj.shape[0], ' rows')
@@ -68,5 +68,6 @@ traj['rmfs'] = np.load(os.path.join(results_path, traj['rmfs_file']+'.npy'), all
 route = Route(r_path, route_id=route_id, grid_path=grid_path).get_route_dict()
 plot_route(route, traj, scale=70, size=figsize, save=True, path=fig_save_path, title=title)
 
+fig_save_path = os.path.join(fig_save_path, traj['nav-name'])
 log_error_points(route, traj, thresh=threshold, target_path=fig_save_path, aw_agent=antworld_agent)
 

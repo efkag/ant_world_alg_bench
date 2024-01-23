@@ -14,7 +14,7 @@ from source.tools.results import filter_results, read_results
 import yaml
 sns.set_context("paper", font_scale=1)
 
-directory = '2023-11-22/2023-11-22_newtfc'
+directory = '2024-01-22'
 results_path = os.path.join('Results', 'newant', directory)
 fig_save_path = os.path.join('Results', 'newant', directory, 'analysis')
 data = read_results(os.path.join(results_path, 'results.csv'))
@@ -26,17 +26,17 @@ data.drop(data[data['nav-name'] == 'InfoMax'].index, inplace=True)
 
 
 # Plot a specific route
-route_id = 7
+route_id = 1
 fig_save_path = os.path.join(fig_save_path, f"route{route_id}")
 check_for_dir_and_create(fig_save_path)
 path = os.path.join(routes_path, f"route{route_id}")
 
 # parameters.
 threshold = 0
-repeat_no = 0
+repeat_no = 1
 
 filters = {'route_id':route_id, 'res':'(180, 40)','blur':True, 
-           'window':-15, 'matcher':'corr', 'edge':'False',
+           'window':-15, 'matcher':'mae', 'edge':'False',
            'num_of_repeat': repeat_no}
 traj = filter_results(data, **filters)
 print(traj.shape[0], ' rows')
@@ -70,5 +70,5 @@ plot_route(route, traj, scale=None, size=figsize, save=True, path=temp_save_path
 
 
 if traj['window_log']:
-    temp_path = os.path.join(fig_save_path,'window-plots')
+    temp_path = os.path.join(fig_save_path,f'window-plots-{traj["nav-name"]}')
     animated_window(route, traj=traj, path=temp_path, size=figsize, title=None)

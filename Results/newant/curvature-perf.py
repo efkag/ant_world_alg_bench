@@ -13,7 +13,7 @@ import seaborn as sns
 import yaml
 sns.set_context("paper", font_scale=1)
 
-directory = '2023-11-22/combined'
+directory = '2024-01-22'
 results_path = os.path.join('Results', 'newant', directory)
 fig_save_path = os.path.join('Results', 'newant', directory, 'analysis')
 check_for_dir_and_create(fig_save_path)
@@ -29,12 +29,10 @@ route_ids = params['route_ids']
 # Convert list of strings to actual list of lists
 data['errors'] = data['errors'].apply(eval)
 data['dist_diff'] = data['dist_diff'].apply(eval)
-data['abs_index_diff'] = data['abs_index_diff'].apply(eval)
 #data["trial_fail_count"] = data["trial_fail_count"].apply(eval)
 
 # choose a specific pre-processing
-# Choose a specific pre. processing
-matcher = 'corr'
+matcher = 'mae'
 edge = 'False'
 blur =  True 
 res = '(180, 40)'

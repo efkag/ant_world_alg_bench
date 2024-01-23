@@ -82,8 +82,8 @@ def static_bench_antworld():
 def live_bench():
     from source import cbench
     #'segment_length':[3],
-    results_path = f'/its/home/sk526/ant_world_alg_bench/Results/newant/{string_date}_newtfc_pm'
-    routes_path = '/its/home/sk526/ant_world_alg_bench/new-antworld/curve-bins'
+    results_path = f'/its/home/sk526/ant_world_alg_bench/Results/newant/{string_date}'
+    routes_path = '/its/home/sk526/ant_world_alg_bench/datasets/new-antworld/curve-bins'
     parameters = {'repos_thresh':[.3], 
                   'r': [0.05], 
                   't': [1000], 
@@ -93,23 +93,23 @@ def live_bench():
                   #'edge_range': [(180, 200), False],
                 #  'loc_norm': [{'kernel_shape':(5, 5)}, False],
                  # 'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
-                  'window': [0],
-                  'matcher': ['corr'],
+                  'window': [-15, 15, 20, 25, 30],
+                  'matcher': ['mae'],
                   }
 
     routes = [*range(20)]
     num_of_repeats = 2
     parameters['repeat'] = [*range(num_of_repeats)]
     cbench.benchmark(results_path, routes_path, parameters, routes, 
-                    parallel=True, num_of_repeats=num_of_repeats, cores=5)
+                    parallel=True, num_of_repeats=num_of_repeats, cores=7)
 
 
 def main():
     start_dtime = datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y")
     print(start_dtime)
     #static_bench()
-    static_bench_antworld()
-    #live_bench()
+    #static_bench_antworld()
+    live_bench()
     
     end_dtime = datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y")
 

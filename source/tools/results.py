@@ -6,7 +6,7 @@ def read_results(path: str):
     # if columns have been left with Nan Values replace then with False
     data.fillna('False', inplace=True)
     # Coloumns that we want to have
-    keys = ['errors', 'dist_diff', 'abs_index_diff', 'tx', 'ty', 'th', 
+    keys = ['errors', 'dist_diff', 'abs_index_diff', 'index_diff',  'tx', 'ty', 'th', 
             'matched_index', 'min_dist_index', 'window_log', 'best_sims', 
             'tfc_idxs']
     # Convert list of strings to actual list of lists
