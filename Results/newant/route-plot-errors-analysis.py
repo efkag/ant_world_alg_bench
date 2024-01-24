@@ -26,17 +26,17 @@ data.drop(data[data['nav-name'] == 'InfoMax'].index, inplace=True)
 
 
 # Plot a specific route
-route_id = 1
+route_id = 0
 fig_save_path = os.path.join(fig_save_path, f"route{route_id}")
 check_for_dir_and_create(fig_save_path)
 path = os.path.join(routes_path, f"route{route_id}")
 
 # parameters.
 threshold = 0
-repeat_no = 1
+repeat_no = 0
 
 filters = {'route_id':route_id, 'res':'(180, 40)','blur':True, 
-           'window':-15, 'matcher':'mae', 'edge':'False',
+           'window':15, 'matcher':'mae', 'edge':'False',
            'num_of_repeat': repeat_no}
 traj = filter_results(data, **filters)
 print(traj.shape[0], ' rows')

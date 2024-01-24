@@ -34,7 +34,7 @@ fig_save_path = os.path.join(fig_save_path, f'route{route_id}')
 check_for_dir_and_create(fig_save_path)
 
 filters = {'route_id':route_id, 'res':'(180, 40)','blur':True, 
-           'window':15, 'matcher':'mae', 'edge':'False', 'num_of_repeat': repeat_no}
+           'window':-15, 'matcher':'mae', 'edge':'False', 'num_of_repeat': repeat_no}
 traj = filter_results(data, **filters)
 print(traj.shape[0], ' rows')
 
@@ -52,7 +52,7 @@ plt.title(title, loc="left")
 ax1.plot(range(len(traj['index_diff'])), traj['index_diff'], label='index missmatch')
 
 ax1.plot(range(len(w_size)), w_size, label='window size')
-ax1.scatter(range(len(w_size)), w_size)
+#ax1.scatter(range(len(w_size)), w_size)
 
 ymin, ymax = ax1.get_ylim()
 
@@ -63,7 +63,7 @@ ax1.set_xlabel('test points')
 
 ax2 = ax1.twinx()
 ax2.plot(range(len(traj['best_sims'])), traj['best_sims'], label='image diff.', color='g')
-ax2.scatter(range(len(traj['best_sims'])), traj['best_sims'], color='g')
+#ax2.scatter(range(len(traj['best_sims'])), traj['best_sims'], color='g')
 
 #ax2.set_ylim([0.0, 1.0])
 ax2.set_ylabel(f'{filters["matcher"]} image distance')

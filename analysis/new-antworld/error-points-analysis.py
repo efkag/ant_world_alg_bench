@@ -30,7 +30,9 @@ data = read_results(os.path.join(results_path, 'results.csv'))
 
 # Set up params 
 # for a specific route
-route_id = 1
+route_id = 12
+threshold = 0
+repeat_no = 1
 fig_save_path = os.path.join(fig_save_path, f"route{route_id}", 'test-points')
 check_for_dir_and_create(fig_save_path)
 
@@ -45,14 +47,13 @@ r_path = os.path.join(routes_path ,f'route{route_id}')
 
 # Bench params
 
-threshold = 0
-repeat_no = 1
+
 figsize = (5, 5)
 title = None
 
 
 filters = {'route_id':route_id, 'res':'(180, 40)','blur':True, 
-           'window':-15, 'matcher':'mae', 'edge':'False',
+           'window':15, 'matcher':'mae', 'edge':'False',
            'num_of_repeat':repeat_no}
 traj = filter_results(data, **filters)
 print(traj.shape[0], ' rows')
