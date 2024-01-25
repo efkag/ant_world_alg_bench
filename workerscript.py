@@ -8,6 +8,7 @@ from source import seqnav as spm, perfect_memory as pm
 from source import infomax
 import pandas as pd
 import time
+import uuid
 import numpy as np
 from source import antworld2 as aw
 from source.routedatabase import Route, load_routes
@@ -98,7 +99,7 @@ for combo in chunk:
         rmf_logs = np.array(nav.get_rsims_log(), dtype=object)
         deg_range = nav.deg_range
 
-        rmf_logs_file = 'rmfs' + str(chunk_id) + str(jobs)
+        rmf_logs_file = f'{chunk_id}{jobs}_{uuid.uuid4().hex}'
         rmfs_path = os.path.join(results_path, rmf_logs_file)
         np.save(rmfs_path, rmf_logs)
 
