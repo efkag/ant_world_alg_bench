@@ -48,6 +48,8 @@ print(traj.shape[0], ' rows')
 traj = traj.to_dict(orient='records')[0]
 print(traj.keys())
 matched_i = traj['matched_index']
+window_log = np.array(traj['window_log'])
+min_dist_index = traj['min_dist_index']
 
 #Read the pickled file
 print(traj['rmfs_file'])
@@ -57,49 +59,74 @@ rmfs = np.load(rmfs_path, allow_pickle=True)
 print(rmfs.shape)
 
 
-# # pm data 
-# directory = '2023-11-23/2023-11-23_pm'
-# results_path = os.path.join('Results', 'newant', 'static-bench',  directory)
-
-# data = read_results(os.path.join(results_path, 'results.csv'))
-# filters = {'route_id':route_id, 'res':'(180, 40)','blur':True, 
-#            'window':0, 'matcher':'mae', 'edge':'False'}
-# pm_traj = filter_results(data, **filters)
-# print(pm_traj.shape[0], ' rows')
-# pm_traj = pm_traj.to_dict(orient='records')[0]
-# print(pm_traj.keys())
-# pm_matched_i = pm_traj['matched_index']
-
-
-
 # test points, route points, theta (search angle)
-tp, rp, theta = rmfs[0].shape
+tp = len(rmfs)
+rp = window_log.max() - window_log.min()
+theta = rmfs[0].shape[1]
 
 # create the heatmap
 max_heat_value = 255.
 heatmap = np.full((tp, rp), max_heat_value)
-#populate heatmap
-# for i in range(tp):
-#     #get the RIDF minima
-#     ridf_mins = np.min(rmfs[i], axis=1)
-#     heatmap[i,:] = ridf_mins
+# populate heatmap
+for i in range(tp):
+    #get the window values
+    ridf_mins = np.min(rmfs[i], axis=1)
+    heatmap[i,window_log[i, 0]:window_log[i, 1]] = ridf_mins
 
 
-# fig_size = (4, 3)
-# fig, ax = plt.subplots(figsize=fig_size)
-# sns.heatmap(heatmap, ax=ax)
-# #ax.imshow(heatmap)
-# ax.plot(matched_i, range(len(matched_i)), label='best match')
+fig_size = (10, 5)
+fig, ax = plt.subplots(figsize=fig_size)
+sns.heatmap(heatmap, ax=ax)
+#ax.imshow(heatmap)
+ax.plot(matched_i, range(len(matched_i)), label='best match')
+ax.plot(min_dist_index, range(len(min_dist_index)), label='optimal match')
+# ax.plot(ws, range(len(ws)), c='g', label='window limits')
+# ax.plot(we, range(len(we)), c='g')
+# ax.set_xticks([])
+# ax.set_yticks([])
+xmin, xmax = ax.get_xlim()
+ax.hlines(traj.get('tfc_idxs'), xmin=xmin, xmax=xmax, linestyles='dashed', colors='r', label='fail points')
 
-# # ax.plot(ws, range(len(ws)), c='g', label='window limits')
-# # ax.plot(we, range(len(we)), c='g')
-# # ax.set_xticks([])
-# # ax.set_yticks([])
-# ax.set_xlabel('route images')
-# ax.set_ylabel('query images')
+ax.set_xlabel('route images')
+ax.set_ylabel('query images')
 
-# plt.legend()
-# plt.tight_layout()
-# fig.savefig(os.path.join(fig_save_path, f'heatmap-route({route_id}).pdf'), dpi=200)
-# fig.savefig(os.path.join(fig_save_path, f'heatmap-route({route_id}).png'), dpi=200)
-# plt.show()
+plt.legend()
+plt.tight_layout()
+fig.savefig(os.path.join(fig_save_path, f'heatmap-route({route_id})-{traj["nav-name"]}.pdf'), dpi=200)
+fig.savefig(os.path.join(fig_save_path, f'heatmap-route({route_id})-{traj["nav-name"]}.png'), dpi=200)
+plt.show()
+
+
+# Zooom into individual points
+ymargin = 50
+xmargin = 50
+for tfci in traj['tfc_idxs']:
+    fig_size = (10, 10)
+    fig, ax = plt.subplots(figsize=fig_size)
+    sns.heatmap(heatmap, ax=ax)
+    #ax.imshow(heatmap)
+    ax.plot(matched_i, range(len(matched_i)), label='best match')
+    ax.plot(min_dist_index, range(len(min_dist_index)), label='optimal match')
+    # ax.plot(ws, range(len(ws)), c='g', label='window limits')
+    # ax.plot(we, range(len(we)), c='g')
+    # ax.set_xticks([])
+    # ax.set_yticks([])
+    xmin, xmax = ax.get_xlim()
+    ax.hlines(traj.get('tfc_idxs'), xmin=xmin, xmax=xmax, linestyles='dashed', colors='r', label='fail points')
+
+    ax.set_xlabel('route images')
+    ax.set_ylabel('query images')
+
+    plt.legend()
+    plt.tight_layout()
+    
+    xmin = min_dist_index[max(0, tfci - xmargin)]
+    xmax = min_dist_index[min(rp,tfci + xmargin)]
+    ymin = max(0, tfci - ymargin)
+    ymax = min(tp, tfci + ymargin)
+    print([xmin, xmax, ymin, ymax])
+    plt.axis([xmin, xmax, ymax, ymin])
+
+    #fig.savefig(os.path.join(fig_save_path, f'heatmap-route({route_id})-{traj["nav-name"]}.pdf'), dpi=200)
+    fig.savefig(os.path.join(fig_save_path, f'heatmap-route({route_id})-{traj["nav-name"]}-({tfci}).png'), dpi=200)
+    plt.show()
