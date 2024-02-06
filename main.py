@@ -82,8 +82,8 @@ def static_bench_antworld():
 def live_bench():
     from source import cbench
     #'segment_length':[3],
-    results_path = f'/its/home/sk526/ant_world_alg_bench/Results/newant/{string_date}'
-    routes_path = '/its/home/sk526/ant_world_alg_bench/datasets/new-antworld/curve-bins'
+    results_path = f'Results/newant/{string_date}'
+    routes_path = 'datasets/new-antworld/curve-bins'
     parameters = {'repos_thresh':[.3], 
                   'r': [0.05], 
                   't': [1000], 
@@ -93,7 +93,7 @@ def live_bench():
                   #'edge_range': [(180, 200), False],
                 #  'loc_norm': [{'kernel_shape':(5, 5)}, False],
                  # 'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
-                  'window': [10, 50],
+                  'window': [-15],
                   'matcher': ['mae'],
                   }
 

@@ -12,7 +12,7 @@ from ast import literal_eval
 from source.utils import load_route_naw, plot_route, animated_window, check_for_dir_and_create
 sns.set_context("paper", font_scale=1)
 
-directory = '2023-11-22/combined'
+directory = '2024-01-22/combined'
 results_path = os.path.join('Results', 'newant', directory)
 fig_save_path = os.path.join('Results', 'newant', directory, 'analysis')
 check_for_dir_and_create(fig_save_path)
@@ -23,7 +23,7 @@ data = pd.read_csv(os.path.join(results_path, 'results.csv'), index_col=False)
 
 # Choose a specific pre. processing
 # route_id = 7
-matcher = 'corr'
+matcher = 'mae'
 blur = True
 # edge = 'False' 
 res = '(180, 40)'
@@ -35,7 +35,8 @@ data = data.loc[data['nav-name'] != 'InfoMax']
 # imax_df = data.loc[data['nav-name'] == 'InfoMax']
 # data = pd.concat([data, imax_df])
 
-data = data.loc[(data['matcher'] == matcher) & (data['res'] == res) 
+data = data.loc[(data['matcher'] == matcher) 
+                & (data['res'] == res) 
                 & (data['blur'] == blur) 
                 #& (data['edge'] == edge) 
                 #& (data['gauss_loc_norm'] == g_loc_norm)
