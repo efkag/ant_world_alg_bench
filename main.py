@@ -89,6 +89,8 @@ def live_bench():
                   't': [1000], 
                   'blur': [True],
                   'shape': [(180, 40)],
+                  'deg_range':[(-180, 180)],
+                  'w_thresh': [0.05],
                 #  'wave' : [True, False], 
                   #'edge_range': [(180, 200), False],
                 #  'loc_norm': [{'kernel_shape':(5, 5)}, False],

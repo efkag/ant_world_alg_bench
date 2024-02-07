@@ -16,7 +16,7 @@ import yaml
 sns.set_context("paper", font_scale=1)
 
 # general paths
-directory = '2024-01-22'
+directory = '2024-01-22/2024-01-22'
 results_path = os.path.join('Results', 'newant',  directory)
 fig_save_path = os.path.join(results_path, 'analysis')
 
@@ -29,7 +29,7 @@ routes_path = params['routes_path']
 
 
 # Plot a specific route
-route_id = 0
+route_id = 12
 repeat_no = 0
 fig_save_path = os.path.join(fig_save_path, f"route{route_id}")
 check_for_dir_and_create(fig_save_path)
@@ -41,7 +41,7 @@ title = None
 
 
 filters = {'route_id':route_id, 'res':'(180, 40)','blur':True, 
-           'window':-15, 'matcher':'mae', 'edge':'False',
+           'window':15, 'matcher':'mae', 'edge':'False',
            'num_of_repeat': repeat_no}
 traj = filter_results(data, **filters)
 print(traj.shape[0], ' rows')
@@ -65,7 +65,7 @@ rp = window_log.max() - window_log.min()
 theta = rmfs[0].shape[1]
 
 # create the heatmap
-max_heat_value = 255.
+max_heat_value = 100.
 heatmap = np.full((tp, rp), max_heat_value)
 # populate heatmap
 for i in range(tp):
