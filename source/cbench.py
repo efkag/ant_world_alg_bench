@@ -156,6 +156,7 @@ def bench_paral(results_path, params, routes_path, route_ids=None, cores=None, n
     # save the parmeters of the test in a json file
     check_for_dir_and_create(results_path)
     param_path = os.path.join(results_path, 'params.yml')
+    #params['route_ids'] = route_ids
     temp_params = copy.deepcopy(params)
     temp_params['routes_path'] = routes_path
     temp_params['route_ids'] = route_ids

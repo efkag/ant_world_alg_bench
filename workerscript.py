@@ -30,6 +30,13 @@ results_path = params['results_path']
 chunk_id = params['i']
 num_of_repeats = params['num_of_repeats']
 
+#TODO: filter out the duplicates
+# # get routes from the chunk
+# r_ids = {}
+# for combo in chunk:
+#     r_ids.append(combo['route_ids'])
+
+
 # Load all routes
 routes = load_routes(routes_path, route_ids)
 
@@ -56,8 +63,6 @@ for combo in chunk:
     segment_length = combo.get('segment_l')
     rpt = combo.get('repeat') # the repeat number
     for route in routes:  # for every route
-        # route_path = os.path.join(routes_path, '/route' + str(route_id))
-        # route = Route(route_path, route_id)
         agent.set_seed(rpt)
         tic = time.perf_counter()
         

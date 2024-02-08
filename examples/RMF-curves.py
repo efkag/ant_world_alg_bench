@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import cv2 as cv
 sns.set_context("paper", font_scale=1)
 
-route_path = 'new-antworld/exp1/route1/'
+route_path = 'datasets/new-antworld/exp1/route1/'
 route = Route(route_path, 1)
 
 save_path = os.path.join(fwd, 'rmf-curves')

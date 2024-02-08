@@ -50,7 +50,7 @@ data = data.loc[(data['matcher'] == matcher)
 
 #################
 # in case of repeats
-method = np.mean
+method = sum
 #data = data.groupby(['window', 'route_id'])["trial_fail_count"].apply(method).to_frame("trial_fail_count").reset_index()
 ##### if the dataset had nav-names
 data = data.groupby(['nav-name', 'route_id'])["trial_fail_count"].apply(method).to_frame("trial_fail_count").reset_index()

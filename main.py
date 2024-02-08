@@ -103,7 +103,7 @@ def live_bench():
     num_of_repeats = 2
     parameters['repeat'] = [*range(num_of_repeats)]
     cbench.benchmark(results_path, routes_path, parameters, routes, 
-                    parallel=True, num_of_repeats=num_of_repeats, cores=7)
+                    parallel=True, num_of_repeats=num_of_repeats, cores=1)
 
 
 def main():
