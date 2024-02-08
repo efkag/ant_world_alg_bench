@@ -56,6 +56,7 @@ we = window_log[:,1]
 min_dist_index = traj['min_dist_index']
 
 #pre-proc images
+traj['shape'] = eval(traj['res'])
 pipe = Pipeline(**traj)
 route_imgs = pipe.apply(route_imgs)
 
