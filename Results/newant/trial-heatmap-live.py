@@ -18,7 +18,7 @@ import yaml
 sns.set_context("paper", font_scale=1)
 
 # general paths
-directory = '2024-01-22/2024-01-22'
+directory = '2024-01-22'
 results_path = os.path.join('Results', 'newant',  directory)
 fig_save_path = os.path.join(results_path, 'analysis')
 
@@ -65,20 +65,25 @@ tp = len(matched_i)
 rp = len(route_imgs)
 theta = abs(traj['deg_range'][0] - traj['deg_range'][1])
 
-agent = Agent()
-matcher = pick_im_matcher(traj['matcher'])
-# create the heatmap
-heatmap = np.zeros((tp, rp))
-# populate heatmap
-for i in range(tp):
-    q_img = agent.get_img((traj['tx'][i], traj['ty'][i]), traj['th'][i])
-    q_img = pipe.apply(q_img)
-    ridf = rmf(q_img, route_imgs, matcher=matcher)
-    ridf_mins = np.min(ridf, axis=1)
-    heatmap[i,:] = ridf_mins
 
-heatmap_save_path = os.path.join(fig_save_path, f'heatmap-route({route_id})-{traj["nav-name"]}')
-np.save(heatmap_save_path, heatmap)
+heatmap_io_path = os.path.join(fig_save_path, f'heatmap-route({route_id})-{traj["nav-name"]}.npy')
+
+if os.path.isfile(heatmap_io_path):
+    heatmap = np.load(heatmap_io_path)
+else:
+    agent = Agent()
+    matcher = pick_im_matcher(traj['matcher'])
+    # create the heatmap
+    heatmap = np.zeros((tp, rp))
+    # populate heatmap
+    for i in range(tp):
+        q_img = agent.get_img((traj['tx'][i], traj['ty'][i]), traj['th'][i])
+        q_img = pipe.apply(q_img)
+        ridf = rmf(q_img, route_imgs, matcher=matcher)
+        ridf_mins = np.min(ridf, axis=1)
+        heatmap[i,:] = ridf_mins
+
+    np.save(heatmap_io_path, heatmap)
 
 fig_size = (10, 5)
 fig, ax = plt.subplots(figsize=fig_size)
@@ -100,7 +105,7 @@ plt.legend()
 plt.tight_layout()
 fig.savefig(os.path.join(fig_save_path, f'heatmap-route({route_id})-{traj["nav-name"]}.pdf'), dpi=200)
 fig.savefig(os.path.join(fig_save_path, f'heatmap-route({route_id})-{traj["nav-name"]}.png'), dpi=200)
-#plt.show()
+# plt.show()
 
 
 filters2 = {'route_id':route_id, 'res':'(180, 40)','blur':True, 
@@ -110,12 +115,12 @@ traj2 = filter_results(data, **filters2)
 print(traj2.shape[0], ' rows')
 traj2 = traj2.to_dict(orient='records')[0]
 print(traj2.keys())
-tfc_combined = traj2['tfc_idxs'].extend(traj2['tfc_idxs'])
+traj['tfc_idxs'].extend(traj2['tfc_idxs'])
 
 # Zooom into individual points
 ymargin = 50
 xmargin = 50
-for tfci in traj['tfc_idxs']:
+for tfci in traj2['tfc_idxs']:
     fig_size = (10, 10)
     fig, ax = plt.subplots(figsize=fig_size)
     sns.heatmap(heatmap, ax=ax)
@@ -136,10 +141,10 @@ for tfci in traj['tfc_idxs']:
     plt.tight_layout()
     
     xmin = min_dist_index[max(0, tfci - xmargin)]
-    xmax = min_dist_index[min(rp,tfci + xmargin)]
+    xmax = min_dist_index[min(tp-1,tfci + xmargin)]
     ymin = max(0, tfci - ymargin)
-    ymax = min(tp, tfci + ymargin)
-    print([xmin, xmax, ymin, ymax])
+    ymax = min(tp-1, tfci + ymargin)
+    #print([xmin, xmax, ymin, ymax])
     plt.axis([xmin, xmax, ymax, ymin])
 
     #fig.savefig(os.path.join(fig_save_path, f'heatmap-route({route_id})-{traj["nav-name"]}.pdf'), dpi=200)
