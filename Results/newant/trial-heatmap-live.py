@@ -18,7 +18,7 @@ import yaml
 sns.set_context("paper", font_scale=1)
 
 # general paths
-directory = '2024-01-22'
+directory = '2024-01-22/2024-01-22'
 results_path = os.path.join('Results', 'newant',  directory)
 fig_save_path = os.path.join(results_path, 'analysis')
 
@@ -43,7 +43,7 @@ title = None
 
 
 filters = {'route_id':route_id, 'res':'(180, 40)','blur':True, 
-           'window':15, 'matcher':'mae', 'edge':False,
+           'window':-15, 'matcher':'mae', 'edge':False,
            'num_of_repeat': repeat_no}
 traj = filter_results(data, **filters)
 print(traj.shape[0], ' rows')
@@ -71,13 +71,14 @@ matcher = pick_im_matcher(traj['matcher'])
 heatmap = np.zeros((tp, rp))
 # populate heatmap
 for i in range(tp):
-    #get the window values
     q_img = agent.get_img((traj['tx'][i], traj['ty'][i]), traj['th'][i])
+    q_img = pipe.apply(q_img)
     ridf = rmf(q_img, route_imgs, matcher=matcher)
     ridf_mins = np.min(ridf, axis=1)
     heatmap[i,:] = ridf_mins
 
-
+heatmap_save_path = os.path.join(fig_save_path, f'heatmap-route({route_id})-{traj["nav-name"]}')
+np.save(heatmap_save_path, heatmap)
 
 fig_size = (10, 5)
 fig, ax = plt.subplots(figsize=fig_size)
@@ -99,8 +100,17 @@ plt.legend()
 plt.tight_layout()
 fig.savefig(os.path.join(fig_save_path, f'heatmap-route({route_id})-{traj["nav-name"]}.pdf'), dpi=200)
 fig.savefig(os.path.join(fig_save_path, f'heatmap-route({route_id})-{traj["nav-name"]}.png'), dpi=200)
-plt.show()
+#plt.show()
 
+
+filters2 = {'route_id':route_id, 'res':'(180, 40)','blur':True, 
+           'window':15, 'matcher':'mae', 'edge':False,
+           'num_of_repeat': repeat_no}
+traj2 = filter_results(data, **filters2)
+print(traj2.shape[0], ' rows')
+traj2 = traj2.to_dict(orient='records')[0]
+print(traj2.keys())
+tfc_combined = traj2['tfc_idxs'].extend(traj2['tfc_idxs'])
 
 # Zooom into individual points
 ymargin = 50
@@ -134,4 +144,4 @@ for tfci in traj['tfc_idxs']:
 
     #fig.savefig(os.path.join(fig_save_path, f'heatmap-route({route_id})-{traj["nav-name"]}.pdf'), dpi=200)
     fig.savefig(os.path.join(fig_save_path, f'heatmap-route({route_id})-{traj["nav-name"]}-({tfci}).png'), dpi=200)
-    plt.show()
+plt.show()

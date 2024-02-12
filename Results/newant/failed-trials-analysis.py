@@ -12,7 +12,7 @@ from ast import literal_eval
 from source.utils import load_route_naw, plot_route, animated_window, check_for_dir_and_create
 sns.set_context("paper", font_scale=1)
 
-directory = '2024-02-06/combined'
+directory = '2024-02-07/combined'
 results_path = os.path.join('Results', 'newant', directory)
 fig_save_path = os.path.join('Results', 'newant', directory, 'analysis')
 check_for_dir_and_create(fig_save_path)
