@@ -18,7 +18,7 @@ import yaml
 sns.set_context("paper", font_scale=1)
 
 # general paths
-directory = '2024-01-22'
+directory = '2024-02-12'
 results_path = os.path.join('Results', 'newant',  directory)
 fig_save_path = os.path.join(results_path, 'analysis')
 

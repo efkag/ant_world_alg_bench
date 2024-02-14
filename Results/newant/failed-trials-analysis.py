@@ -12,7 +12,7 @@ from ast import literal_eval
 from source.utils import load_route_naw, plot_route, animated_window, check_for_dir_and_create
 sns.set_context("paper", font_scale=1)
 
-directory = '2024-02-07/combined'
+directory = '2024-02-12/combined'
 results_path = os.path.join('Results', 'newant', directory)
 fig_save_path = os.path.join('Results', 'newant', directory, 'analysis')
 check_for_dir_and_create(fig_save_path)
@@ -70,7 +70,7 @@ temp_save_path = os.path.join(fig_save_path, 'failed-trials.png')
 fig.savefig(temp_save_path)
 temp_save_path = os.path.join(fig_save_path, 'failed-trials.pdf')
 fig.savefig(temp_save_path)
-plt.show()
+#plt.show()
 
 
 ################# joint plot

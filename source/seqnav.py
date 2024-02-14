@@ -52,7 +52,7 @@ class SequentialPerfectMemory:
             self.w_thresh =  w_thresh
             if sma_size:
                 self.sma_size = sma_size
-                self.idf_sma = []
+                #self.idf_sma = []
         else:
             self.window = window
             self.adaptive = False
@@ -152,7 +152,7 @@ class SequentialPerfectMemory:
         if self.adaptive:
             best = wind_sims[idx]
             # TODO here I need to make the updating function modular
-            self.thresh_dynamic_window_log_rate(best)
+            self.dynamic_window_sma_log_rate(best)
             self.check_w_size()
 
         # Update memory pointer
@@ -321,12 +321,11 @@ class SequentialPerfectMemory:
         :return:
         '''
         # Dynamic window adaptation based on SMA match gradient.
-        oidf_sma = np.mean(self.best_sims[max(-self.sma_size, -len(self.best_sims)):])
-        if best > oidf_sma or self.window <= self.min_window:
+        idfmin_sma = np.mean(self.best_sims[max(-self.sma_size, -len(self.best_sims)):])
+        if best > idfmin_sma or self.window <= self.min_window:
             self.window += round(self.min_window/np.log(self.window))
         else:
             self.window -= round(np.log(self.window))
-        self.prev_match = best
     
     def thresh_dynamic_window_log_rate(self, best):
         '''

@@ -90,7 +90,8 @@ def live_bench():
                   'blur': [True],
                   'shape': [(180, 40)],
                   'deg_range':[(-180, 180)],
-                  'w_thresh': [0.05],
+                #   'w_thresh': [0.05],
+                  'sma_size': [5],
                 #  'wave' : [True, False], 
                   #'edge_range': [(180, 200), False],
                 #  'loc_norm': [{'kernel_shape':(5, 5)}, False],
@@ -100,10 +101,10 @@ def live_bench():
                   }
 
     routes = [*range(20)]
-    num_of_repeats = 2
+    num_of_repeats = 3
     parameters['repeat'] = [*range(num_of_repeats)]
     cbench.benchmark(results_path, routes_path, parameters, routes, 
-                    parallel=True, num_of_repeats=num_of_repeats, cores=1)
+                    parallel=True, num_of_repeats=num_of_repeats, cores=4)
 
 
 def main():
