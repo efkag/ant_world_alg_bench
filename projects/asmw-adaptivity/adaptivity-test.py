@@ -17,7 +17,7 @@ from source.tools.results import read_results, filter_results
 sns.set_context("paper", font_scale=1)
 
 
-directory = '2024-01-22'
+directory = '2024-01-22/2024-01-22'
 results_path = os.path.join('Results', 'newant', directory)
 fig_save_path = os.path.join('Results', 'newant', directory, 'analysis')
 data = read_results(os.path.join(results_path, 'results.csv'))
@@ -31,7 +31,7 @@ fig_save_path = os.path.join(fig_save_path, f'route{route_id}')
 check_for_dir_and_create(fig_save_path)
 
 filters = {'route_id':route_id, 'res':'(180, 40)','blur':True, 
-           'window':-15, 'matcher':'mae', 'edge':'False', 'num_of_repeat': repeat_no}
+           'window':-15, 'matcher':'mae', 'edge':False, 'num_of_repeat': repeat_no}
 traj = filter_results(data, **filters)
 print(traj.shape[0], ' rows')
 traj = traj.to_dict(orient='records')[0]
@@ -54,7 +54,7 @@ plt.show()
 
 
 def moving_average(x, w):
-    return np.convolve(x, np.ones(w), 'valid') / w
+    return np.convolve(x, np.ones(w), 'same') / w
 
 #some common window params
 min_window = 10
@@ -80,10 +80,9 @@ def sma_update(sma_val, curr_sim, window):
 
 
 # for an SMA update
+sma_window_size = 5
 best_sims = traj['best_sims']
-sma_sims = moving_average(best_sims, 3)
-sma_sims = np.insert(sma_sims, 0, np.mean(best_sims[:2]))
-sma_sims = np.append(sma_sims, np.mean(best_sims[-2:]))
+sma_sims = moving_average(best_sims, sma_window_size)
 
 
 # for a new update
@@ -95,8 +94,8 @@ for i in range(len(traj['best_sims'])-1):
     #latest sma val
     sma_val = sma_sims[i]
     # add here a new criterion for window update
-    window = thresh_log_update(prev_sim, curr_sim, window, thresh=w_thresh)
-    #window = sma_update(sma_val, curr_sim, window)
+    #window = thresh_log_update(prev_sim, curr_sim, window, thresh=w_thresh)
+    window = sma_update(sma_val, curr_sim, window)
     new_window_log.append(window)
 
 
@@ -110,8 +109,8 @@ ax1.plot(range(len(traj['index_diff'])), traj['index_diff'], label='index missma
 
 ax1.plot(range(len(w_size)), w_size, label='window size')
 #ax1.scatter(range(len(w_size)), w_size)
-ax1.plot(range(len(new_window_log)), new_window_log, label=f'thres = {w_thresh}')
-#ax1.plot(range(len(new_window_log)), new_window_log, label=f'sma update')
+#ax1.plot(range(len(new_window_log)), new_window_log, label=f'thres = {w_thresh}')
+ax1.plot(range(len(new_window_log)), new_window_log, label=f'sma update')
 
 ymin, ymax = ax1.get_ylim()
 
@@ -123,6 +122,7 @@ ax1.set_xlabel('test points')
 ax2 = ax1.twinx()
 ax2.plot(range(len(traj['best_sims'])), traj['best_sims'], label='image diff.', color='g')
 #ax2.scatter(range(len(traj['best_sims'])), traj['best_sims'], color='g')
+ax2.plot(range(len(sma_sims)), sma_sims)
 
 #ax2.set_ylim([0.0, 1.0])
 ax2.set_ylabel(f'{filters["matcher"]} image distance')
