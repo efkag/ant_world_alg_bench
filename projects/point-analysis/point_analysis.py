@@ -81,7 +81,7 @@ mem_i = traj['matched_index'][start_i]
 # pre-proc imgs
 route_imgs = pipe.apply(route.get_imgs())
 nav = SequentialPerfectMemory(route_imgs, matcher, deg_range=(-180, 180), window=window)
-nav.set_mem_pointer(mem_i)
+nav.reset_window(mem_i)
 agent = aw.Agent()
 headings = []
 # loop
