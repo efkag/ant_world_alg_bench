@@ -42,8 +42,8 @@ class SequentialPerfectMemory:
         self.prev_match = 0.0
 
         # Window parameters
+        self.starting_window = abs(window)
         if window < 0:
-            self.starting_window = abs(window)
             self.window = abs(window)
             self.adaptive = True
             self.upper = int(round(self.window/2))
@@ -75,9 +75,10 @@ class SequentialPerfectMemory:
     #TODO Need a better name for this function
     def reset_window(self, pointer):
         '''
-        Resets the pointer assuming the window size is the same
+        Resets the memory pointer assuming and the window size
         '''
         self.mem_pointer = pointer
+        self.window =self.starting_window
 
         # update upper an lower margins
         self.upper = int(round(self.window/2))
@@ -87,29 +88,6 @@ class SequentialPerfectMemory:
         # the window limits bounce back near the ends of the route
         self.blimit = max(0, self.mem_pointer - self.lower)
         self.flimit = min(self.route_end, self.mem_pointer + self.upper)
-    
-    def set_mem_pointer(self, i: int):
-        '''
-        Resets the pointer assuming the window size may have changed
-        Recalculates the upper and lower margins
-        '''
-        self.mem_pointer = i
-        # update upper an lower margins
-        self.upper = int(round(self.window/2))
-        self.lower = self.window - self.upper
-
-        # Update the bounds of the window
-        self.flimit = self.mem_pointer + self.upper
-        self.blimit = self.mem_pointer - self.lower
-        if self.flimit > self.route_end:
-            self.mem_pointer = (self.route_end - self.window) + self.lower
-            self.flimit = self.route_end
-            self.blimit = self.route_end - self.window
-        if self.blimit <= 0:
-            # the mem pointer should be in the midle of the window
-            self.mem_pointer = self.lower
-            self.blimit = 0
-            self.flimit = self.mem_pointer + self.window
 
     def get_heading(self, query_img):
         '''
@@ -152,7 +130,7 @@ class SequentialPerfectMemory:
         if self.adaptive:
             best = wind_sims[idx]
             # TODO here I need to make the updating function modular
-            self.dynamic_window_sma_log_rate(best)
+            self.dynamic_window_log_rate(best)
             self.check_w_size()
 
         # Update memory pointer
@@ -193,13 +171,11 @@ class SequentialPerfectMemory:
         self.mem_pointer += idx
         # in this case the upperpart is equal to the upper margin
         self.upper = self.window
-        self.flimit = self.mem_pointer + self.upper
-        self.blimit = self.mem_pointer
+        # Update the bounds of the window
+        # the window limits bounce back near the ends of the route
+        self.blimit = max(0, self.mem_pointer)
+        self.flimit = min(self.route_end, self.mem_pointer + self.upper)
 
-        if self.flimit > self.route_end:
-            self.mem_pointer = self.blimit + idx
-            self.flimit = self.route_end
-            self.blimit = self.route_end - self.window
 
     def update_mid_pointer(self, idx):
         '''
