@@ -8,6 +8,7 @@ from source import seqnav as spm, perfect_memory as pm
 from source import infomax
 import pandas as pd
 import time
+import uuid
 import numpy as np
 from source import antworld2 as aw
 from source.routedatabase import Route, load_routes
@@ -29,18 +30,27 @@ results_path = params['results_path']
 chunk_id = params['i']
 num_of_repeats = params['num_of_repeats']
 
+#TODO: filter out the duplicates
+# # get routes from the chunk
+# r_ids = {}
+# for combo in chunk:
+#     r_ids.append(combo['route_ids'])
+
+
 # Load all routes
 routes = load_routes(routes_path, route_ids)
 
 total_jobs = len(chunk) * len(route_ids)
 jobs = 0
 
-log = {'route_id': [], 't':[], 'blur': [], 'edge': [], 'res': [], 'window': [],
-       'matcher': [], 'deg_range':[], 'segment_len': [], 'trial_fail_count':[], 'mean_error': [], 
-       'seconds': [], 'errors': [], 'dist_diff': [], 'abs_index_diff': [], 'window_log': [], 
-       'matched_index': [], 'tx': [], 'ty': [], 'th': [], 'ah': [], 'rmfs_file':[], 'best_sims':[],
-       'loc_norm':[], 'gauss_loc_norm':[], 'wave':[], 'num_of_repeat':[], 'tfc_idxs':[],
-       'nav-name':[]}
+log = {'route_id': [], 'num_of_repeat':[], 'nav-name':[], 't':[], 
+       'res': [], 'blur': [], 'loc_norm':[], 'gauss_loc_norm':[], 'edge': [],  
+       'window': [], 'matcher': [], 'deg_range':[], 
+       'segment_len': [], 'trial_fail_count':[], 'mean_error': [], 
+       'seconds': [], 'errors': [], 'dist_diff': [], 'index_diff': [], 'window_log': [], 
+       'matched_index': [], 'min_dist_index': [] ,  'tx': [], 'ty': [], 'th': [], 'ah': [], 'rmfs_file':[], 'best_sims':[],
+       'wave':[], 'tfc_idxs':[]
+       }
 
 agent = aw.Agent()
 
@@ -53,8 +63,6 @@ for combo in chunk:
     segment_length = combo.get('segment_l')
     rpt = combo.get('repeat') # the repeat number
     for route in routes:  # for every route
-        # route_path = os.path.join(routes_path, '/route' + str(route_id))
-        # route = Route(route_path, route_id)
         agent.set_seed(rpt)
         tic = time.perf_counter()
         
@@ -64,12 +72,12 @@ for combo in chunk:
         #TODO: Need to select navigator instance based on 
         # information coming from the chunk combo
         if window:
-            nav = spm.SequentialPerfectMemory(route_imgs, matcher, deg_range=(-180, 180), **combo)
+            nav = spm.SequentialPerfectMemory(route_imgs, matcher, **combo)
         elif window == 0:
             nav = pm.PerfectMemory(route_imgs, **combo)
         else:
             infomaxParams = infomax.Params()
-            nav = infomax.InfomaxNetwork(infomaxParams, route_imgs, deg_range=(-180, 180), **combo)
+            nav = infomax.InfomaxNetwork(infomaxParams, route_imgs, **combo)
         # if segment_length:
         #     traj, nav = agent.segment_test(route, nav, segment_length=segment_length, t=t, r=r, sigma=None, preproc=combo)
         # else:
@@ -85,10 +93,10 @@ for combo in chunk:
         # Difference between matched index and minimum distance index and distance between points
         matched_index = nav.get_index_log()
         if matched_index:
-            abs_index_diffs = np.absolute(np.subtract(nav.get_index_log(), min_dist_index)).tolist()
+            index_diffs = np.subtract(min_dist_index, nav.get_index_log()).tolist()
             dist_diff = calc_dists(route.get_xycoords(), min_dist_index, matched_index).tolist()
         else:
-            abs_index_diffs = None
+            index_diffs = None
             dist_diff = None
         mean_route_error = np.mean(errors)
         window_log = nav.get_window_log()
@@ -96,7 +104,7 @@ for combo in chunk:
         rmf_logs = np.array(nav.get_rsims_log(), dtype=object)
         deg_range = nav.deg_range
 
-        rmf_logs_file = 'rmfs' + str(chunk_id) + str(jobs)
+        rmf_logs_file = f'{chunk_id}{jobs}_{uuid.uuid4().hex}'
         rmfs_path = os.path.join(results_path, rmf_logs_file)
         np.save(rmfs_path, rmf_logs)
 
@@ -126,7 +134,8 @@ for combo in chunk:
         log['th'].append(traj['heading'].tolist())
         log['ah'].append(rec_headings)
         log['matched_index'].append(matched_index)
-        log['abs_index_diff'].append(abs_index_diffs)
+        log['min_dist_index'].append(min_dist_index)
+        log['index_diff'].append(index_diffs)
         log['dist_diff'].append(dist_diff)
         log['errors'].append(errors)
         log['best_sims'].append(nav.get_best_sims())

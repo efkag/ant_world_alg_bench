@@ -13,7 +13,7 @@ import seaborn as sns
 import yaml
 sns.set_context("paper", font_scale=1)
 
-directory = '2023-04-26/combined'
+directory = '2024-01-22'
 results_path = os.path.join('Results', 'newant', directory)
 fig_save_path = os.path.join('Results', 'newant', directory, 'analysis')
 check_for_dir_and_create(fig_save_path)
@@ -29,35 +29,30 @@ route_ids = params['route_ids']
 # Convert list of strings to actual list of lists
 data['errors'] = data['errors'].apply(eval)
 data['dist_diff'] = data['dist_diff'].apply(eval)
-data['abs_index_diff'] = data['abs_index_diff'].apply(eval)
 #data["trial_fail_count"] = data["trial_fail_count"].apply(eval)
 
 # choose a specific pre-processing
-# Choose a specific pre. processing
-matcher = 'corr'
+matcher = 'mae'
 edge = 'False'
 blur =  True 
-res = '(180, 80)'
-g_loc_norm = "{'sig1': 2, 'sig2': 20}"
+res = '(180, 40)'
+g_loc_norm = False #"{'sig1': 2, 'sig2': 20}"
 # loc_norm = 'False'
 title = 'D'
 
 traj = data.loc[(data['matcher'] == matcher) 
-                & (data['res'] == res) & (data['blur'] == blur) 
+                & (data['res'] == res) 
+                & (data['blur'] == blur) 
                 #& (data['edge'] == edge) 
-                & (data['gauss_loc_norm'] == g_loc_norm) ]
-                #& (data['loc_norm'] == loc_norm)]
+                #& (data['gauss_loc_norm'] == g_loc_norm) ]
+                #& (data['loc_norm'] == loc_norm)
+                ]
 
 
 method = np.mean
 grouped = traj.groupby(['window', 'route_id', 'nav-name'])["trial_fail_count"].apply(method).to_frame("trial_fail_count").reset_index()
 
-route_curvatures = []
-routes = load_routes(routes_path, route_ids)
-for route in routes:
-    xy = route.get_xycoords()
-    k = meancurv2d(xy['x'], xy['y'])
-    route_curvatures.append(k)
+
 # then i need to order by k and plot.
 
 # pm_data = grouped.loc[grouped['window'] == 0]
@@ -75,6 +70,7 @@ curvatures = np.array(curvatures)
 
 ind = np.argsort(curvatures)
 curvatures = curvatures[ind]
+print('route ids in increasing curvature: ', route_ids[ind])
 
 # Plot a line of the median or mean or sum tfc across the repeats for each window size
 w_size = pd.unique(data['window'])
@@ -86,7 +82,7 @@ for w in w_size:
     ax.plot(route_ids, tfc_sorted, label=lbl)
 ax.set_xlabel('routes in increasing curvature')
 ax.set_ylabel('mean TFC')
-ax.legend()
+ax.legend(loc=4)
 fig.savefig(os.path.join(fig_save_path, 'curv-per-nav'))
 plt.show()
 

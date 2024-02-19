@@ -53,8 +53,8 @@ Here all the xy are flipped and rotated by 270 degreee to  plot aproaproiately
 '''
 
 
-fig = plt.figure(figsize=(7, 7))
-plt.title(title, loc='left')
+fig = plt.figure(figsize=(2.5, 2.5))
+#plt.title(title, loc='left')
 plt.plot(route['x'], route['y'], label='training')
 
 plt.scatter(route['x'][0], route['y'][0])
@@ -62,8 +62,7 @@ plt.annotate('Start', (route['x'][0], route['y'][0]))
 # Show background
 # **NOTE** the extents should correspond to EXPERIMENT_AREA_X and EXPERIMENT_AREA_Y in aligner.py
 plt.imshow(background, extent=(-3000.0, 3000.0, 3000.0, -3000.0))
-plt.xticks([])
-plt.yticks([])
+
 # plt.xlabel("X [mm]")
 # plt.ylabel("Y [mm]")
 
@@ -102,7 +101,13 @@ for i, log in enumerate(trial_logs):
     #plt.annotate('asmw{} ends'.format(i), (r['x'][-1], r['y'][-1]))
 
 
-
+plt.xticks([])
+plt.yticks([])
+ax = plt.gca()
+ax.spines['top'].set_visible(False)
+ax.spines['right'].set_visible(False)
+ax.spines['bottom'].set_visible(False)
+ax.spines['left'].set_visible(False)
 
 
 plt.legend()

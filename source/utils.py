@@ -113,11 +113,11 @@ def plot_route(route, traj=None, scale=None, window=None, windex=None, save=Fals
     
 
 
-def animated_window(route, window, traj=None, path=None, scale=70, save=False, size=(10, 10), title=None):
+def animated_window(route, traj=None, path=None, scale=70, save=False, size=(10, 10), title=None):
     check_for_dir_and_create(path)
     if path:
         save = True
-    for i, w in enumerate(window):
+    for i, w in enumerate(traj['window_log']):
         plot_route(route, traj=traj, window=w, windex=i, save=save, scale=scale, size=size, path=path, title=title)
 
 
@@ -899,7 +899,7 @@ def degree_error(x_cords, y_cords, x_route_cords, y_route_cords, route_heading, 
     return errors, k
 
 
-def seq_angular_error(route, trajectory, memory_pointer=0, search_step=20):
+def seq_angular_error(route, trajectory, memory_pointer=0, search_step=10):
     # TODO: Modify the function to calculate all the distances first (distance matrix)
     # TODO: and then calculate the minimum argument and extract the error.
     # Holds the angular error between the query position and the closest route position
@@ -908,7 +908,9 @@ def seq_angular_error(route, trajectory, memory_pointer=0, search_step=20):
     route_end = len(route['x'])
     search_step = search_step
     memory_pointer = memory_pointer
-    limit = memory_pointer + search_step
+    #initial limits at start of the route
+    flimit = memory_pointer + 2*search_step
+    blimit = 0
 
     grid_xy = np.column_stack([trajectory['x'], trajectory['y']])
     route_xy = np.column_stack([route['x'], route['y']])
@@ -918,15 +920,15 @@ def seq_angular_error(route, trajectory, memory_pointer=0, search_step=20):
     # For every query position
     for i in range(len(trajectory['heading'])):
         # get distance between route point and all grid points
-        xy = route_xy[memory_pointer:limit]
+        xy = route_xy[blimit:flimit]
         dist = np.squeeze(cdist(np.expand_dims(grid_xy[i], axis=0), xy, 'euclidean'))
         idx = np.argmin(dist)
-        mindist_index.append(idx + memory_pointer)
+        mindist_index.append(idx + blimit)
         errors.append(180 - abs(abs(recovered_headings[i] - route_heading[mindist_index[-1]]) - 180))
         memory_pointer = mindist_index[-1]
-        # update the limit
-        limit = memory_pointer + search_step
-        if limit > route_end: limit = route_end
+        # update the limits
+        blimit = max(0, memory_pointer - search_step)
+        flimit = min(route_end, memory_pointer + search_step)
     return errors, mindist_index
 
 
