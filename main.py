@@ -96,7 +96,7 @@ def live_bench():
                   #'edge_range': [(180, 200), False],
                 #  'loc_norm': [{'kernel_shape':(5, 5)}, False],
                  # 'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
-                  'window': [-15, 35, 40, 45],
+                  'window': [-15],
                   'matcher': ['mae'],
                   }
 

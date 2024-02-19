@@ -12,7 +12,7 @@ from ast import literal_eval
 from source.utils import load_route_naw, plot_route, animated_window, check_for_dir_and_create
 sns.set_context("paper", font_scale=1)
 
-directory = '2024-01-2/combined'
+directory = '2024-02-15/combined'
 results_path = os.path.join('Results', 'newant', directory)
 fig_save_path = os.path.join('Results', 'newant', directory, 'analysis')
 check_for_dir_and_create(fig_save_path)
@@ -50,7 +50,7 @@ data = data.loc[(data['matcher'] == matcher)
 
 #################
 # in case of repeats
-method = np.mean
+method = sum
 #data = data.groupby(['window', 'route_id'])["trial_fail_count"].apply(method).to_frame("trial_fail_count").reset_index()
 ##### if the dataset had nav-names
 data = data.groupby(['nav-name', 'route_id'])["trial_fail_count"].apply(method).to_frame("trial_fail_count").reset_index()
@@ -63,7 +63,7 @@ sns.boxplot(data=data, x="nav-name", y="trial_fail_count",  ax=ax)
 # window_labels = ['Adaptive SMW', 'PM', 'Fixed 15', 'Fixed 25']
 # ax.set_xticklabels(window_labels)
 ax.set_xlabel('Navigation Algorithm')
-ax.set_ylabel('Mean TFC')
+ax.set_ylabel('Sum TFC')
 plt.tight_layout()
 # path = os.path.join(fig_save_path, f'route[{route_id}]-failed trials.png')
 temp_save_path = os.path.join(fig_save_path, 'failed-trials.png')
