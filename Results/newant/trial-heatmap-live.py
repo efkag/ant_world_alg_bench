@@ -13,7 +13,7 @@ from source.antworld2 import Agent
 from source.utils import load_route_naw, plot_route, animated_window, check_for_dir_and_create
 from source.imgproc import Pipeline
 from source.routedatabase import Route
-from source.tools.results import filter_results, read_results
+from source.tools.results import filter_results, read_results, save_to_mat
 import yaml
 sns.set_context("paper", font_scale=1)
 
@@ -67,6 +67,7 @@ theta = abs(traj['deg_range'][0] - traj['deg_range'][1])
 
 
 heatmap_io_path = os.path.join(fig_save_path, f'heatmap-route({route_id})-{traj["nav-name"]}.npy')
+mat_heatmap_io_path = os.path.join(fig_save_path, f'heatmap-route({route_id})-{traj["nav-name"]}.mat')
 
 if os.path.isfile(heatmap_io_path):
     heatmap = np.load(heatmap_io_path)
@@ -82,7 +83,8 @@ else:
         ridf = rmf(q_img, route_imgs, matcher=matcher)
         ridf_mins = np.min(ridf, axis=1)
         heatmap[i,:] = ridf_mins
-
+    
+    save_to_mat(mat_heatmap_io_path, heatmap)
     np.save(heatmap_io_path, heatmap)
 
 fig_size = (10, 5)

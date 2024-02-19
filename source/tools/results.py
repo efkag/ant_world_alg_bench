@@ -1,5 +1,7 @@
 import pandas as pd
 from ast import literal_eval
+import scipy.io
+import numpy as np
 
 def read_results(path: str):
     data = pd.read_csv(path, index_col=False)
@@ -24,3 +26,6 @@ def filter_results(df: pd.DataFrame, **filters):
         df = df.loc[df[fil] == filters[fil]]
     return df
 
+
+def save_to_mat(path: str, array: np.ndarray):
+    scipy.io.savemat(path, mdict={'data': array})
