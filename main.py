@@ -90,7 +90,7 @@ def live_bench():
                   'blur': [True],
                   'shape': [(180, 40)],
                   'deg_range':[(-180, 180)],
-                #   'w_thresh': [0.05],
+                  'w_thresh': [0.05],
                  # 'sma_size': [5],
                 #  'wave' : [True, False], 
                   #'edge_range': [(180, 200), False],

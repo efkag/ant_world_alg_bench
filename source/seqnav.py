@@ -78,7 +78,7 @@ class SequentialPerfectMemory:
         Resets the memory pointer assuming and the window size
         '''
         self.mem_pointer = pointer
-        self.window =self.starting_window
+        #self.window =self.starting_window
 
         # update upper an lower margins
         self.upper = int(round(self.window/2))
@@ -130,7 +130,7 @@ class SequentialPerfectMemory:
         if self.adaptive:
             best = wind_sims[idx]
             # TODO here I need to make the updating function modular
-            self.dynamic_window_log_rate(best)
+            self.thresh_dynamic_window_log_rate(best)
             self.check_w_size()
 
         # Update memory pointer
@@ -313,8 +313,9 @@ class SequentialPerfectMemory:
         perc_cng = (best - self.prev_match + np.finfo(np.float).eps)/(self.prev_match + np.finfo(np.float).eps)
         if perc_cng > self.w_thresh or self.window <= self.min_window:
             self.window += round(self.min_window/np.log(self.window))
-        else:
+        elif perc_cng < -self.w_thresh:
             self.window -= round(np.log(self.window))
+        else: pass
         self.prev_match = best
 
     def dynamic_window_h2(self, h):
