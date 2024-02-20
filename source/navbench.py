@@ -265,7 +265,7 @@ class Benchmark:
 
         log = {'route_id': [], 'blur': [], 'edge': [], 'res': [],  'histeq':[], 'vcrop':[], 
                'window': [], 'matcher': [], 'deg_range':[], 'mean_error': [], 
-               'seconds': [], 'errors': [], 'abs_index_diff': [], 'window_log': [], 
+               'seconds': [], 'errors': [], 'index_diff': [], 'window_log': [], 
                'matched_index': [], 'min_dist_index': [], 'dist_diff': [], 'tx': [], 'ty': [], 'th': [],
                'ah': [] , 'rmfs_file':[],'best_sims':[], 'loc_norm':[], 
                'gauss_loc_norm':[], 'wave':[], 'nav-name':[]}
@@ -310,12 +310,12 @@ class Benchmark:
                 # Difference between matched index and minimum distance index and distance between points
                 matched_index = nav.get_index_log()
                 if matched_index:
-                    abs_index_diffs = np.absolute(np.subtract(nav.get_index_log(), min_dist_index))
+                    index_diffs = np.subtract(min_dist_index, nav.get_index_log())
                     dist_diff = calc_dists(route.get_xycoords(), min_dist_index, matched_index)
                     abs_index_diffs = abs_index_diffs.tolist()
                     dist_diff = dist_diff.tolist()
                 else:
-                    abs_index_diffs = None
+                    index_diffs = None
                     dist_diff = None
                 
                 mean_route_error = np.mean(errors)
@@ -353,7 +353,7 @@ class Benchmark:
                 log['ah'].append(rec_headings)
                 log['matched_index'].append(matched_index)
                 log['min_dist_index'].append(min_dist_index)
-                log['abs_index_diff'].append(abs_index_diffs)
+                log['index_diff'].append(index_diffs)
                 log['dist_diff'].append(dist_diff)
                 log['errors'].append(errors)
                 log['best_sims'].append(nav.get_best_sims())
@@ -377,7 +377,7 @@ class Benchmark:
         log = {'route_id': [],'ref_route':[], 'rep_id': [], 'sample_rate':[], 'blur': [], 
                'histeq':[], 'edge': [], 'res': [], 'vcrop':[],'window': [], 'matcher': [],
                'deg_range':[], 'mean_error': [], 'seconds': [], 'errors': [], 
-               'abs_index_diff': [], 'window_log': [], 'matched_index': [], 'dist_diff': [], 
+               'index_diff': [], 'window_log': [], 'matched_index': [], 'dist_diff': [], 
                'tx': [], 'ty': [], 'th': [],'ah': [] , 'rmfs_file':[], 'best_sims':[], 
                'loc_norm':[], 'gauss_loc_norm':[], 'wave':[], 'nav-name':[]}
 
@@ -423,12 +423,12 @@ class Benchmark:
                     # Difference between matched index and minimum distance index and distance between points
                     matched_index = nav.get_index_log()
                     if matched_index:
-                        abs_index_diffs = np.absolute(np.subtract(nav.get_index_log(), min_dist_index))
+                        index_diffs = np.subtract(min_dist_index, nav.get_index_log())
                         dist_diff = calc_dists(route.get_xycoords(), min_dist_index, matched_index)
                         abs_index_diffs = abs_index_diffs.tolist()
                         dist_diff = dist_diff.tolist()
                     else:
-                        abs_index_diffs = None
+                        index_diffs = None
                         dist_diff = None
                     mean_route_error = np.mean(errors)
                     window_log = nav.get_window_log()
@@ -467,7 +467,7 @@ class Benchmark:
                     log['ah'].append(rec_headings)
                     log['rmfs_file'].append(rmf_logs_file)
                     log['matched_index'].append(matched_index)
-                    log['abs_index_diff'].append(abs_index_diffs)
+                    log['index_diff'].append(index_diffs)
                     log['dist_diff'].append(dist_diff)
                     log['errors'].append(errors)
                     log['best_sims'].append(nav.get_best_sims())
