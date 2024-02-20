@@ -56,20 +56,20 @@ def static_bench_antworld():
     #               'window': list(range(10, 12)), 'matcher': ['corr', 'rmse']}
     
     parameters = {'blur': [True], 
-                  'shape': [(180, 40)],
+                  'shape': [(360, 80), (180, 40), (90, 20)],
                   #'shape':[(90, 20)],
                   #'vcrop':[0., .4, .6],
                   #'histeq':[True, False],
-                  #'edge_range': [(180, 200), False],
+                  'edge_range': [(180, 220), False],
                   #'loc_norm': [True, False],
-                  #'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
+                  'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
                   'deg_range':[(-180, 180)],
-                  'window': [15], 
-                  'matcher': ['mae'],
+                  'window': [0, 15, 20, 25, 30, -15], 
+                  'matcher': ['mae', 'corr'],
                   'grid_dist':[0.2]
                   }
     
-    routes = [1]
+    routes = [*range(20)]
     bench = navbench.Benchmark(results_path, routes_path, 
                                grid_path=grid_path, grid_dist=0.2,
                                filename='results.csv',
