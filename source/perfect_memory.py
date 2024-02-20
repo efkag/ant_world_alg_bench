@@ -4,6 +4,7 @@ from source.navs.navs import Navigator
 from source.utils import dot_dist
 from source.imgproc import Pipeline
 
+
 class PerfectMemory(Navigator):
 
 <<<<<<< HEAD
