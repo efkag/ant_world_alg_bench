@@ -54,17 +54,10 @@ def lin(img, kernel_shape=(5, 5)):
     img = img.astype(np.int16, copy=False)
     mu = cv.blur(img, kernel_shape)
     img = img - mu
-<<<<<<< HEAD
     return cv.normalize(src=img, dst=img, aplha=0, beta=255, norm_type=cv.NORM_MINMAX)
     # var = cv.blur(img*img, kernel_shape)
     # sig = var**0.5 + np.finfo(float).eps
     # return img / sig
-=======
-    var = cv.blur(img*img, kernel_shape)
-    sig = var**0.5 + np.finfo(float).eps
-    img = img / sig
-    return cv.normalize(src=img, dst=img, alpha=0, beta=255, norm_type=cv.NORM_MINMAX)
->>>>>>> Update image pre-processing
 
 
 def loc_norm(kernel_shape=(3, 3)):
@@ -128,11 +121,7 @@ def make_pipeline(sets):
     if sets.get('histeq'):
         pipe.append(histeq())
     if sets.get('blur'):
-<<<<<<< HEAD
         pipe.append(gauss_blur())
-=======
-        pipe.append(gauss_blur(0))
->>>>>>> Update image pre-processing
     if sets.get('quant'):
         pipe.append(quant(k=sets.get('quant')))
     if sets.get('loc_norm'):
