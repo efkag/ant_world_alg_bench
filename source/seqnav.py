@@ -176,7 +176,6 @@ class SequentialPerfectMemory:
         self.blimit = max(0, self.mem_pointer)
         self.flimit = min(self.route_end, self.mem_pointer + self.upper)
 
-
     def update_mid_pointer(self, idx):
         '''
         Update the mem pointer to the middle of the window
@@ -490,6 +489,7 @@ class Seq2SeqPerfectMemory:
 
         # log the memory pointer before the update
         # mem_pointer - upper can cause the calc_dists() to go out of bounds
+        #!!! For the mid update only
         matched_idx = self.mem_pointer + (idx - self.lower)
         self.matched_index_log.append(matched_idx)
 
@@ -517,7 +517,7 @@ class Seq2SeqPerfectMemory:
         self.blimit = self.mem_pointer
 
         if self.flimit > self.route_end:
-            self.mem_pointer = self.blimit + idx
+            self.mem_pointer = self.route_end - self.window
             self.flimit = self.route_end
             self.blimit = self.route_end - self.window
 
@@ -590,7 +590,7 @@ class Seq2SeqPerfectMemory:
         '''
         self.recovered_heading.append(mean_angle(wind_heading))
 
-    def dynamic_window_sim(self, best):
+    def dynamic_window_fixed(self, best):
         '''
         Change the window size depending on the best img match gradient.
         If the last best img sim > the current best img sim the window grows

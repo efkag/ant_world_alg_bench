@@ -24,7 +24,7 @@ def canny(upper, lower):
     Return a function to perform Canny edge detection
     within the given thresholds
     '''
-    return lambda im: cv.Canny(cv.normalize(src=im, dst=im, aplha=0, ebta=255, norm_type=cv.NORM_MINMAX, dtype=cv.CV_8U), upper, lower)
+    return lambda im: cv.Canny(cv.normalize(src=im, dst=im, alpha=0, beta=255, norm_type=cv.NORM_MINMAX, dtype=cv.CV_8U), upper, lower)
 
 
 def standardize():
@@ -76,8 +76,10 @@ def glin(img, sig1=2, sig2=20):
     img = img - mu
     var = cv.GaussianBlur(img*img, (0, 0), sig2)
     sig = var**0.5 + np.finfo(float).eps
-    img = img / sig
-    return cv.normalize(src=img, dst=img, aplha=0, ebta=255, norm_type=cv.NORM_MINMAX)
+    img =  img / sig
+    #return img
+    #return img.astype(np.uint8, copy=False)
+    return cv.normalize(src=img, dst=img, alpha=0, beta=255, norm_type=cv.NORM_MINMAX)
 
 
 def gauss_loc_norm(sig1=2, sig2=20):
@@ -98,6 +100,7 @@ def histeq():
 
 def _quant(im, k=3):
     return np.floor(np.floor(im/(im.max()/k)) * (255/k)).astype(np.uint8)
+
 
 def quant(k=3):
     return lambda im: _quant(im, k=k)
@@ -128,11 +131,6 @@ def make_pipeline(sets):
     if sets.get('edge_range'):
         lims = sets['edge_range']
         pipe.append(canny(lims[0], lims[1])) 
-    # range and data type processing
-    if sets.get('normstd'):
-        pipe.append(standardize())
-    if sets.get('scale021'):
-        pipe.append(scale021())
     if sets.get('type'):
         pipe.append(mod_dtype(sets.get('type')))
     else:

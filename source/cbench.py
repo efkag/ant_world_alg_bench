@@ -8,7 +8,6 @@ import os
 import copy
 import pandas as pd
 import numpy as np
-from source import antworld2 as aw
 import pickle
 from subprocess import Popen
 from queue import Queue, Empty
@@ -43,78 +42,78 @@ def remove_non_blur_edge(combo):
     return not combo.get('edge_range') and not combo.get('blur') and not combo.get('gauss_loc_norm') and not combo.get('loc_norm')
 
 
-def bench(params, routes_path, route_ids):
-    log = {'route_id': [], 'blur': [], 'edge': [], 'res': [], 'window': [],
-           'matcher': [], 'mean_error': [], 'seconds': [], 'errors': [],
-           'dist_diff': [], 'abs_index_diff': [], 'window_log': [],
-           'tx': [], 'ty': [], 'th': []}
-    agent = aw.Agent()
+# def bench(params, routes_path, route_ids):
+#     log = {'route_id': [], 'blur': [], 'edge': [], 'res': [], 'window': [],
+#            'matcher': [], 'mean_error': [], 'seconds': [], 'errors': [],
+#            'dist_diff': [], 'abs_index_diff': [], 'window_log': [],
+#            'tx': [], 'ty': [], 'th': []}
+#     agent = aw.Agent()
 
-    grid = get_grid_dict(params)
-    total_jobs = len(grid) * len(route_ids)
-    jobs = 0
-    #  Go though all combinations in the chunk
-    for combo in grid:
+#     grid = get_grid_dict(params)
+#     total_jobs = len(grid) * len(route_ids)
+#     jobs = 0
+#     #  Go though all combinations in the chunk
+#     for combo in grid:
 
-        matcher = combo['matcher']
-        window = combo['window']
-        t = combo['t']
-        r = combo['r']
-        segment_length = combo.get('segment_l')
-        window_log = None
-        for route_id in route_ids:  # for every route
-            route_path = routes_path + '/route' + str(route_id) + '/'
-            route = Route(route_path, route_id)
+#         matcher = combo['matcher']
+#         window = combo['window']
+#         t = combo['t']
+#         r = combo['r']
+#         segment_length = combo.get('segment_l')
+#         window_log = None
+#         for route_id in route_ids:  # for every route
+#             route_path = routes_path + '/route' + str(route_id) + '/'
+#             route = Route(route_path, route_id)
 
-            tic = time.perf_counter()
-            # Preprocess images
-            route_imgs = pre_process(route.get_imgs(), combo)
-            # Run navigation algorithm
-            if window:
-                nav = spm.SequentialPerfectMemory(route_imgs, matcher, deg_range=(-180, 180), window=window)
-            else:
-                nav = pm.PerfectMemory(route_imgs, matcher, deg_range=(-180, 180))
+#             tic = time.perf_counter()
+#             # Preprocess images
+#             route_imgs = pre_process(route.get_imgs(), combo)
+#             # Run navigation algorithm
+#             if window:
+#                 nav = spm.SequentialPerfectMemory(route_imgs, matcher, deg_range=(-180, 180), window=window)
+#             else:
+#                 nav = pm.PerfectMemory(route_imgs, matcher, deg_range=(-180, 180))
 
-            if segment_length:
-                traj, nav = agent.segment_test(route, nav, segment_length=segment_length, t=t, r=r, sigma=None, preproc=combo)
-            else:
-                start = route.get_starting_coords()
-                traj, nav = agent.test_nav(start, nav, t=t, r=r, preproc=combo)
+#             if segment_length:
+#                 traj, nav = agent.segment_test(route, nav, segment_length=segment_length, t=t, r=r, sigma=None, preproc=combo)
+#             else:
+#                 start = route.get_starting_coords()
+#                 traj, nav = agent.test_nav(start, nav, t=t, r=r, preproc=combo)
 
-            # agent.run_agent(route, nav, t=t, r=r, preproc=combo)
+#             # agent.run_agent(route, nav, t=t, r=r, preproc=combo)
 
-            toc = time.perf_counter()
-            time_compl = toc - tic
-            # Get the errors and the minimum distant index of the route memory
-            errors, min_dist_index = route.calc_errors(traj)
-            # Difference between matched index and minimum distance index and distance between points
-            matched_index = nav.get_index_log()
-            abs_index_diffs = np.absolute(np.subtract(nav.get_index_log(), min_dist_index))
-            dist_diff = calc_dists(route.get_xycoords(), min_dist_index, matched_index)
-            mean_route_error = np.mean(errors)
-            log['route_id'].extend([route_id])
-            log['blur'].extend([combo.get('blur')])
-            log['edge'].extend([combo.get('edge_range')])
-            log['res'].append(combo.get('shape'))
-            log['window'].extend([window])
-            log['matcher'].extend([matcher])
-            log['mean_error'].append(mean_route_error)
-            log['seconds'].append(time_compl)
-            log['window_log'].append(window_log)
-            log['tx'].append(traj['x'].tolist())
-            log['ty'].append(traj['y'].tolist())
-            log['th'].append(traj['heading'].tolist())
-            log['abs_index_diff'].append(abs_index_diffs.tolist())
-            log['dist_diff'].append(dist_diff.tolist())
-            log['errors'].append(errors)
+#             toc = time.perf_counter()
+#             time_compl = toc - tic
+#             # Get the errors and the minimum distant index of the route memory
+#             errors, min_dist_index = route.calc_errors(traj)
+#             # Difference between matched index and minimum distance index and distance between points
+#             matched_index = nav.get_index_log()
+#             abs_index_diffs = np.absolute(np.subtract(nav.get_index_log(), min_dist_index))
+#             dist_diff = calc_dists(route.get_xycoords(), min_dist_index, matched_index)
+#             mean_route_error = np.mean(errors)
+#             log['route_id'].extend([route_id])
+#             log['blur'].extend([combo.get('blur')])
+#             log['edge'].extend([combo.get('edge_range')])
+#             log['res'].append(combo.get('shape'))
+#             log['window'].extend([window])
+#             log['matcher'].extend([matcher])
+#             log['mean_error'].append(mean_route_error)
+#             log['seconds'].append(time_compl)
+#             log['window_log'].append(window_log)
+#             log['tx'].append(traj['x'].tolist())
+#             log['ty'].append(traj['y'].tolist())
+#             log['th'].append(traj['heading'].tolist())
+#             log['abs_index_diff'].append(abs_index_diffs.tolist())
+#             log['dist_diff'].append(dist_diff.tolist())
+#             log['errors'].append(errors)
 
-            # Increment the complete jobs shared variable
-            jobs += 1
-            print('jobs completed: {}/{}'.format(jobs, total_jobs))
-    return log
+#             # Increment the complete jobs shared variable
+#             jobs += 1
+#             print('jobs completed: {}/{}'.format(jobs, total_jobs))
+#     return log
 
 
-def benchmark(results_path, routes_path, params, route_ids,  parallel=False, cores=None, num_of_repeats=None):
+def benchmark(results_path, routes_path, params, route_ids,  parallel=False, cores=1, num_of_repeats=None):
 
     assert isinstance(params, dict)
     assert isinstance(route_ids, list)
@@ -124,9 +123,11 @@ def benchmark(results_path, routes_path, params, route_ids,  parallel=False, cor
                     num_of_repeats=num_of_repeats)
         # log = unpack_results(log)
     else:
-        log = bench(params, routes_path, route_ids)
-        bench_results = pd.DataFrame(log)
-        bench_results.to_csv(results_path, index=False)
+        bench_paral(results_path, params, routes_path, route_ids, cores=1, 
+                    num_of_repeats=num_of_repeats)
+    #     log = bench(params, routes_path, route_ids)
+    #     bench_results = pd.DataFrame(log)
+    #     bench_results.to_csv(results_path, index=False)
 
 
 def _total_jobs(params):
