@@ -329,7 +329,7 @@ def make_query_repeat_routes(route, route_ref_id, rep_path, repeats, suffix=None
 def load_bob_routes_repeats(path, ids, suffix=None, ref_route=1, repeats=None, **kwargs):
     routes = []
     repeat_routes = []
-    # Thiis the the reference route choosen from the repeats. Usualy the first one.
+    # This the the reference route choosen from the repeats
     ref_route_id = ref_route
     for rid in ids:
         route_path =  os.path.join(path, 'route{}'.format(rid))
@@ -337,7 +337,7 @@ def load_bob_routes_repeats(path, ids, suffix=None, ref_route=1, repeats=None, *
             route_path = os.path.join(route_path, suffix)
             #this is the preat routes path with the suffix
             repeats_path = route_path
-        # the referencee route is always 0, i.e the first route recorded
+        # the referencee route
         route_path = route_path + str(ref_route_id)
         r = BoBRoute(route_path, route_id=rid, **kwargs)
         routes.append(r)

@@ -22,7 +22,7 @@ def static_bench():
                   'shape': [(180, 45)],
                   #'vcrop':[.5],
                   #'histeq':[True],
-                  'edge_range': [(190, 230), False],
+                  'edge_range': [(50, 255), False],
                   #'loc_norm': [{'kernel_shape':(3, 3)}, False],
                   'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
                   'deg_range':[(-90, 90)],
@@ -40,7 +40,7 @@ def static_bench():
                                route_repeats=4,
                                bench_data='bob'
                                )
-    bench.benchmark(parameters, routes, parallel=True, cores=15)
+    bench.benchmark(parameters, routes, parallel=True, cores=20)
 
 
 

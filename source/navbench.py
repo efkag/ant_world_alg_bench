@@ -134,7 +134,7 @@ class Benchmark:
                       'route_path_suffix':self.route_path_suffix,
                       'repeats':self.route_repeats, 'results_path':self.results_path}
         # Partial callable
-        #TODO: here i need to decide on a worked based on the dataset.
+
         if self.bench_data == 'bob':
             worker = functools.partial(self.worker_bench_repeats, arg_params, shared)
         elif self.bench_data == 'aw2':
