@@ -404,7 +404,7 @@ class Benchmark:
                         nav = spm.SequentialPerfectMemory(route_imgs, matcher, **combo)
                         recovered_heading, window_log = nav.navigate(test_imgs)
                     elif window == 0:
-                        nav = pm.PerfectMemory(route_imgs, matcher, **combo)
+                        nav = pm.PerfectMemory(route_imgs, **combo)
                         recovered_heading = nav.navigate(test_imgs)
                     else:
                         infomaxParams = infomax.Params()
