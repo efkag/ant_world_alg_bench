@@ -425,7 +425,7 @@ class Benchmark:
                     if matched_index:
                         index_diffs = np.subtract(min_dist_index, nav.get_index_log())
                         dist_diff = calc_dists(route.get_xycoords(), min_dist_index, matched_index)
-                        abs_index_diffs = abs_index_diffs.tolist()
+                        index_diffs = index_diffs.tolist()
                         dist_diff = dist_diff.tolist()
                     else:
                         index_diffs = None
