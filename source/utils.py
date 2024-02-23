@@ -775,7 +775,7 @@ def rmf(query_img, ref_imgs, matcher=mae, d_range=(0, 360), d_step=1):
 
     degrees = range(*d_range, d_step)
     total_search_angle = round((d_range[1] - d_range[0]) / d_step)
-    sims = np.empty((len(ref_imgs), total_search_angle), dtype=np.float)
+    sims = np.empty((len(ref_imgs), total_search_angle), dtype=np.float32)
 
     for i, rot in enumerate(degrees):
         # rotated query image
@@ -802,7 +802,7 @@ def pair_rmf(query_imgs, ref_imgs, matcher=mae, d_range=(0, 360), d_step=1):
 
     degrees = range(*d_range, d_step)
     total_search_angle = round((d_range[1] - d_range[0]) / d_step)
-    sims = np.empty((len(ref_imgs), total_search_angle), dtype=np.float)
+    sims = np.empty((len(ref_imgs), total_search_angle), dtype=np.float32)
 
     for i, (q_img, r_img) in enumerate(zip(query_imgs, ref_imgs)):
         sims[i] = [matcher(rotate(rot, q_img), r_img) for rot in degrees]
@@ -827,7 +827,7 @@ def seq2seqrmf(query_imgs, ref_imgs, matcher=mae, d_range=(0, 360), d_step=1):
 
     degrees = range(*d_range, d_step)
     total_search_angle = round((d_range[1] - d_range[0]) / d_step)
-    sims = np.empty((len(query_imgs)*len(ref_imgs), total_search_angle), dtype=np.float)
+    sims = np.empty((len(query_imgs)*len(ref_imgs), total_search_angle), dtype=np.float32)
     for i, query_img in enumerate(query_imgs):
         for j, rot in enumerate(degrees):
             # rotated query image
