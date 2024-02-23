@@ -6,6 +6,7 @@ from scipy.spatial.distance import cdist
 from source.utils import calc_dists, squash_deg, travel_dist, pre_process, angular_error, seq_angular_error, travel_dist, meancurv2d
 from source.unwraper import Unwraper
 from source.imgproc import resize
+import copy
 
 
 class Route:
@@ -346,7 +347,10 @@ def load_bob_routes_repeats(path, ids, suffix=None, ref_route=1, repeats=None, *
             rep_routes_temp_l = []
             for rep in repeat_ids:
                 route_path = repeats_path + str(rep)
-                r = BoBRoute(route_path, route_id=rep, **kwargs)
+                #TODO: make this modular and remove later
+                tempkwargs = copy.deepcopy(kwargs)
+                tempkwargs['sample_step'] = 10
+                r = BoBRoute(route_path, route_id=rep, **tempkwargs)
                 rep_routes_temp_l.append(r)
             repeat_routes.append(rep_routes_temp_l)
     return routes, repeat_routes
