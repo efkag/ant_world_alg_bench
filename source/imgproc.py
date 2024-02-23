@@ -51,7 +51,7 @@ def lin(img, kernel_shape=(5, 5)):
     Normalises and each pixel using 
     the mean of the neighboring pixels
     '''
-    img = img.astype(np.int16, copy=False)
+    img = img.astype(np.float32, copy=False)
     mu = cv.blur(img, kernel_shape)
     img = img - mu
     return cv.normalize(src=img, dst=img, aplha=0, beta=255, norm_type=cv.NORM_MINMAX)
@@ -71,7 +71,7 @@ def glin(img, sig1=2, sig2=20):
     the weighted mean the std.dev of the neighboring pixels
     The weighted mean is calculated using the gaussian kernel
     '''
-    img = img.astype(np.int16, copy=False)
+    img = img.astype(np.float32, copy=False)
     mu = cv.GaussianBlur(img, (0, 0), sig1)
     img = img - mu
     var = cv.GaussianBlur(img*img, (0, 0), sig2)
