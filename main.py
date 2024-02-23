@@ -111,9 +111,9 @@ def live_bench():
 def main():
     start_dtime = datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y")
     print(start_dtime)
-    #static_bench()
+    static_bench()
     #static_bench_antworld()
-    live_bench()
+    #live_bench()
     
     end_dtime = datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y")
 
