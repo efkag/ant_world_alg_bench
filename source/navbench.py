@@ -427,10 +427,11 @@ class Benchmark:
                     # Get time complexity
                     time_compl = toc - tic
                     # Get the errors and the minimum distant index of the route memory
-                    qxy = ref_rep.get_xycoords()
+                    qxy = test_rep.get_xycoords()
                     traj = {'x': qxy['x'], 'y': qxy['y'], 'heading': recovered_heading}
+
                     #################!!!!!! Important step to get the heading in the global coord system
-                    traj['heading'] = squash_deg(ref_rep.get_yaw() + recovered_heading)
+                    traj['heading'] = squash_deg(test_rep.get_yaw() + recovered_heading)
                     errors, min_dist_index = ref_rep.calc_errors(traj)
                     # Difference between matched index and minimum distance index and distance between points
                     matched_index = nav.get_index_log()
