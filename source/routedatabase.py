@@ -240,6 +240,9 @@ class BoBRoute:
             
             route_data['imgs'] = imgs
         return route_data
+
+    def set_sample_step(self, step: int):
+        self.sample_step = step
     
     def calc_errors(self, trajectory):
         r_sample = {'x': self.route_dict['x'][::self.sample_step], 
@@ -354,3 +357,22 @@ def load_bob_routes_repeats(path, ids, suffix=None, ref_route=1, repeats=None, *
                 rep_routes_temp_l.append(r)
             repeat_routes.append(rep_routes_temp_l)
     return routes, repeat_routes
+
+
+def load_all_bob_routes(path, ids, suffix=None, repeats=None, **kwargs):
+    routes_l = []
+    for rid in ids:
+        route_path =  os.path.join(path, 'route{}'.format(rid))
+        if suffix:
+            repeats_path = os.path.join(route_path, suffix)
+        # each route has repeats
+        #TODO: need to update this so that the functions 
+        # receives a list of ids instead of an int
+        repeat_ids = [*range(1, repeats+1)]
+        route = {} # dict for a route and the reps
+        for rep_id in repeat_ids:
+            r = BoBRoute(repeats_path + str(rep_id), route_id=rid, read_imgs=False)
+            route[rep_id] = r
+        routes_l.append(route)
+    return routes_l
+
