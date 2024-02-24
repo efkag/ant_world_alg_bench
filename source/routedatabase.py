@@ -371,7 +371,7 @@ def load_all_bob_routes(path, ids, suffix=None, repeats=None, **kwargs):
         repeat_ids = [*range(1, repeats+1)]
         route = {} # dict for a route and the reps
         for rep_id in repeat_ids:
-            r = BoBRoute(repeats_path + str(rep_id), route_id=rid, read_imgs=False)
+            r = BoBRoute(repeats_path + str(rep_id), route_id=rid)
             route[rep_id] = r
         routes_l.append(route)
     return routes_l
