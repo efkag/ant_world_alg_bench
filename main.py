@@ -27,7 +27,7 @@ def static_bench():
                   'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
                   'deg_range':[(-90, 90)],
                   'window': [0], 
-                  'matcher': ['mae', 'corr'],
+                  'matcher': ['mae'],
                   'ref_route': [1, 2, 3, 4],
                   'sample_step':[2]
                   }
