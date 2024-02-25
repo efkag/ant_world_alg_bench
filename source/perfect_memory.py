@@ -16,10 +16,13 @@ class PerfectMemory(Navigator):
         self.best_sims = []
         # if the dot product distance is used we need to make sure the images are standardized
         if self.matcher == dot_dist:
-            pipe = Pipeline(normstd=True)
-            self.route_images = pipe.apply(route_images)
+            self.pipe = Pipeline(normstd=True)
+            self.route_images = self.pipe.apply(route_images)
+        else: 
+            self.pipe = Pipeline()
 
     def get_heading(self, query_img):
+        query_img = self.pipe.apply(query_img)
         # get the rotational similarities between a query image and a window of route images
         rsims = rmf(query_img, self.route_images, self.matcher, self.deg_range, self.deg_step)
 
