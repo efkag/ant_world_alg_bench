@@ -83,15 +83,15 @@ def plot_route(route, traj=None, scale=None, window=None, windex=None, save=Fals
             ax.scatter(route['qx'][:windex], route['qy'][:windex])
         else:
             ax.scatter(traj['x'][:windex], traj['y'][:windex])
-            u, v = pol2cart_headings(90 - traj['heading'])
-            ax.quiver(traj['x'][:windex], traj['y'][:windex], u[:windex], v[:windex], scale=scale)
+            #u, v = pol2cart_headings(90 - traj['heading'])
+            #ax.quiver(traj['x'][:windex], traj['y'][:windex], u[:windex], v[:windex], scale=scale)
+            ax.plot([traj['x'][:windex], route['x'][traj['min_dist_index'][:windex]]],
+                    [traj['y'][:windex], route['y'][traj['min_dist_index'][:windex]]], color='k')
     # Plot grid test points
     if 'qx' in route and window is None and not traj:
         ax.scatter(route['qx'], route['qy'])
     # Plot the trajectory of the agent when repeating the route
     if traj and not window:
-        # TODO: This re-correction (90 - headings) of the heading may not be necessary.
-        # TODO: I need to test if this will work as expected when the new results are in.
         u, v = pol2cart_headings(90 - traj['heading'])
         ax.scatter(traj['x'], traj['y'], label=label)
         # ax.plot(traj['x'], traj['y'])
@@ -899,7 +899,7 @@ def degree_error(x_cords, y_cords, x_route_cords, y_route_cords, route_heading, 
     return errors, k
 
 
-def seq_angular_error(route, trajectory, memory_pointer=0, search_step=10):
+def seq_angular_error(route, trajectory, memory_pointer=0, search_step=20):
     # TODO: Modify the function to calculate all the distances first (distance matrix)
     # TODO: and then calculate the minimum argument and extract the error.
     # Holds the angular error between the query position and the closest route position
@@ -927,8 +927,8 @@ def seq_angular_error(route, trajectory, memory_pointer=0, search_step=10):
         errors.append(180 - abs(abs(recovered_headings[i] - route_heading[mindist_index[-1]]) - 180))
         memory_pointer = mindist_index[-1]
         # update the limits
-        blimit = max(0, memory_pointer - search_step)
-        flimit = min(route_end, memory_pointer + search_step)
+        blimit = max(memory_pointer - search_step, 0)
+        flimit = min(memory_pointer + search_step, route_end)
     return errors, mindist_index
 
 
