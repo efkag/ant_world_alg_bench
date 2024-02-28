@@ -752,7 +752,7 @@ def _entropy_dist(a, b, bins=256):
 
 
 def pick_im_matcher(im_matcher=None):
-    matchers = {'corr': cor_dist, 'dot': dot_dist, 'rmse': rmse, 'mse':mse, 'mae': mae, 'entropy':entropy_dist}
+    matchers = {'ccd': cor_dist, 'dot': dot_dist, 'rmse': rmse, 'mse':mse, 'mae': mae, 'entropy':entropy_dist}
     if not matchers.get(im_matcher):
         raise Exception('Non valid matcher method name')
     return matchers.get(im_matcher)
