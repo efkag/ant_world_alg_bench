@@ -8,7 +8,9 @@ import pandas as pd
 import numpy as np
 import seaborn as sns
 from ast import literal_eval
-from source.utils import load_route_naw, animated_window
+from source.utils import animated_window
+from source.routedatabase import Route
+from source.tools.results import filter_results, read_results
 sns.set_context("paper", font_scale=1)
 
 directory = '2022-06-13'
@@ -28,7 +30,7 @@ data['th'] = data['th'].apply(literal_eval)
 # Plot a specific route
 route_id = 1
 fig_save_path = os.path.join(fig_save_path, str(route_id))
-path = 'new-antworld/exp1/route' + str(route_id) + '/'
+route_path = 'new-antworld/exp1/route' + str(route_id) + '/'
 window = 20
 matcher = 'corr'
 edge = '(180, 200)'
@@ -44,7 +46,7 @@ errors = np.array(traj['errors'])
 window_log = literal_eval(traj['window_log'])
 traj = {'x': np.array(traj['tx']), 'y': np.array(traj['ty']), 'heading': np.array(traj['th'])}
 
-route = load_route_naw(path, route_id=route_id)
+route = Route(route_path, route_id=route_id)
 route['qx'] = traj['x']
 route['qy'] = traj['y']
 
