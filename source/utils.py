@@ -122,7 +122,7 @@ def animated_window(route, traj=None, path=None, scale=70, save=False, size=(10,
 
 
 def plot_map(world, route_cords=None, grid_cords=None, size=(10, 10), save=False, zoom=(), zoom_factor=1500,
-             route_headings=None, grid_headings=None, error_indexes=None, marker_size=5, scale=40, route_zoom=False, save_id=None, window=None,
+             route_headings=None, grid_headings=None, error_indexes=None, marker_size=5, scale=40, save_id=None, window=None,
              path='', show=True, title=None):
     '''
     Plots a top down view of the grid world, with markers or quivers of route and grid positions
@@ -137,7 +137,6 @@ def plot_map(world, route_cords=None, grid_cords=None, size=(10, 10), save=False
     :param grid_headings: Heading in degrees of grid positions
     :param marker_size: Size of route of grid marker
     :param scale: Size of quiver scale. (relative to image size)
-    :param route_zoom: Rectangle zoom around the route
     :param save_id: A file id to save the plot and avoid override of the saved file
     :param window: The pointer to the memory window
     :return: -
@@ -182,9 +181,6 @@ def plot_map(world, route_cords=None, grid_cords=None, size=(10, 10), save=False
     if zoom:
         plt.xlim([zoom[0] - zoom_factor, zoom[0] + zoom_factor])
         plt.ylim([zoom[1] - zoom_factor, zoom[1] + zoom_factor])
-    if route_zoom:
-        # plt.ylim([])
-        plt.xlim([4700, 6500])
     plt.xticks([]), plt.yticks([])
     # plt.title("A", loc="left", fontsize=20)
     plt.tight_layout(pad=0)
@@ -757,7 +753,7 @@ def pick_im_matcher(im_matcher=None):
         raise Exception('Non valid matcher method name')
     return matchers.get(im_matcher)
 
-def rmf(query_img, ref_imgs, matcher=mae, d_range=(0, 360), d_step=1):
+def rmf(query_img, ref_imgs, matcher=mae, d_range=(-180, 180), d_step=1):
     """
     Rotational Matching Function.
     Rotates a query image and compares it with one or more reference images
@@ -809,7 +805,7 @@ def pair_rmf(query_imgs, ref_imgs, matcher=mae, d_range=(0, 360), d_step=1):
 
     return sims
 
-def seq2seqrmf(query_imgs, ref_imgs, matcher=mae, d_range=(0, 360), d_step=1):
+def seq2seqrmf(query_imgs, ref_imgs, matcher=mae, d_range=(-180, 180), d_step=1):
     """
     Rotational Matching Function.
     Rotates multiple query images and compares then with one or more reference images
@@ -900,8 +896,6 @@ def degree_error(x_cords, y_cords, x_route_cords, y_route_cords, route_heading, 
 
 
 def seq_angular_error(route, trajectory, memory_pointer=0, search_step=20):
-    # TODO: Modify the function to calculate all the distances first (distance matrix)
-    # TODO: and then calculate the minimum argument and extract the error.
     # Holds the angular error between the query position and the closest route position
     errors = []
     mindist_index = []

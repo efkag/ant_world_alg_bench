@@ -49,7 +49,7 @@ class SequentialPerfectMemory:
             self.upper = int(round(self.window/2))
             self.lower = self.window - self.upper
             self.mem_pointer = self.window - self.upper
-            self.w_thresh =  w_thresh
+            self.w_thresh = w_thresh
             if sma_size:
                 self.sma_size = sma_size
                 #self.idf_sma = []
@@ -71,6 +71,9 @@ class SequentialPerfectMemory:
 
         # heading parameters
         self.qmet_q = deque(maxlen=3)
+
+        # choose poiter update function/criterion
+        # TODO:
     
     #TODO Need a better name for this function
     def reset_window(self, pointer):
@@ -130,19 +133,11 @@ class SequentialPerfectMemory:
         if self.adaptive:
             best = wind_sims[idx]
             # TODO here I need to make the updating function modular
-            self.thresh_dynamic_window_log_rate(best)
+            self.dynamic_window_log_rate(best)
             self.check_w_size()
 
         # Update memory pointer
-        # if h_eval:
         self.update_mid_pointer(idx)
-        # else:
-        #     self.set_mem_pointer(self.mem_pointer + 1)
-
-        # the heading changes if the rmf quality is low
-
-        #heading = self.evaluated_heading(h_eval)
-        
         return heading
 
     def eval_ridf(self, ridf):
