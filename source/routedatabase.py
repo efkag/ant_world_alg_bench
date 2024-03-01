@@ -114,7 +114,10 @@ class Route:
         self.segment_indices = indices
         return indices, staring_coords
 
-    def calc_errors(self, trajectory):
+    def calc_aae(self, trajectory):
+        '''
+        Calculate the Absolute Angular Error (AAE)
+        '''
         if self.is_segmented:
             # TODO: for sgement we need to calculate the seq. error but starting 
             # the search at the start of each segment 

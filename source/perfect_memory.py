@@ -10,7 +10,8 @@ class PerfectMemory(Navigator):
     def __init__(self, route_images, **kwargs):
         super().__init__(route_images, **kwargs)
         self.recovered_heading = []
-        self.logs = []
+        #ridf field logs
+        self.ridff_logs = []
         self.matched_index_log = []
         self.argminmax = np.argmin
         self.best_sims = []
@@ -37,7 +38,7 @@ class PerfectMemory(Navigator):
             mem_headings.append(self.degrees[idx])
 
         # append the rsims of all window route images for that query image
-        self.logs.append(rsims)
+        #self.ridff_logs.append(rsims)
         # find best image match and heading
         index = int(self.argminmax(mem_sims))
         self.best_sims.append(mem_sims[index])
@@ -57,7 +58,7 @@ class PerfectMemory(Navigator):
 
     def get_index_log(self): return self.matched_index_log
 
-    def get_rsims_log(self): return self.logs
+    def get_rsims_log(self): return self.ridff_logs
 
     def get_window_log(self): return None
 

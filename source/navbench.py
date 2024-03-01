@@ -7,6 +7,7 @@ import multiprocessing
 import functools
 import numpy as np
 import yaml
+import uuid
 from source.utils import pre_process, load_route_naw, check_for_dir_and_create, calc_dists, squash_deg
 from source import seqnav as spm, perfect_memory as pm
 from source.routedatabase import Route, load_all_bob_routes, load_routes, load_bob_routes, load_bob_routes_repeats
@@ -306,7 +307,7 @@ class Benchmark:
                 traj = {'x': qxy['x'], 'y': qxy['y'], 'heading': recovered_heading}
                 #!!!!!! Important step to get the heading in the global coord system
                 traj['heading'] = squash_deg(route.get_qyaw() + recovered_heading)
-                errors, min_dist_index = route.calc_errors(traj)
+                errors, min_dist_index = route.calc_aae(traj)
                 # Difference between matched index and minimum distance index and distance between points
                 matched_index = nav.get_index_log()
                 if matched_index:
@@ -432,7 +433,7 @@ class Benchmark:
 
                     #################!!!!!! Important step to get the heading in the global coord system
                     traj['heading'] = squash_deg(test_rep.get_yaw() + recovered_heading)
-                    errors, min_dist_index = ref_rep.calc_errors(traj)
+                    errors, min_dist_index = ref_rep.calc_aae(traj)
                     # Difference between matched index and minimum distance index and distance between points
                     matched_index = nav.get_index_log()
                     if matched_index:

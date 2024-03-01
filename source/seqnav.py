@@ -18,8 +18,10 @@ class SequentialPerfectMemory:
         self.matcher = pick_im_matcher(matching)
         # if the dot product distance is used we need to make sure the images are standardized
         if self.matcher == dot_dist:
-            pipe = Pipeline(normstd=True)
-            self.route_images = pipe.apply(route_images)
+            self.pipe = Pipeline(normstd=True)
+            self.route_images = self.pipe.apply(route_images)
+        else: 
+            self.pipe = Pipeline()
 
         # Log Variables
         self.recovered_heading = []
@@ -98,6 +100,7 @@ class SequentialPerfectMemory:
         :param query_img:
         :return:
         '''
+        query_img = self.pipe.apply(query_img)
         # get the rotational similarities between a query image and a window of route images
         wrsims = rmf(query_img, self.route_images[self.blimit:self.flimit], self.matcher, self.deg_range, self.deg_step)
         self.window_log.append([self.blimit, self.flimit])
@@ -392,8 +395,11 @@ class Seq2SeqPerfectMemory:
         self.queue = deque(maxlen=queue_size)
         # if the dot product distance is used we need to make sure the images are standardized
         if self.matcher == dot_dist:
-            pipe = Pipeline(normstd=True)
-            self.route_images = pipe.apply(route_images)
+            self.pipe = Pipeline(normstd=True)
+            self.route_images = self.pipe.apply(route_images)
+        else: 
+            self.pipe = Pipeline()
+
 
         # Log Variables
         self.recovered_heading = []

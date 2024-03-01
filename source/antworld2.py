@@ -119,10 +119,9 @@ class Agent:
         return (xx, yy), img
 
     def test_nav(self, coords, r=0.05, t=100, sigma=0.1, **kwargs):
-        #TODO: Here we need to initialise the progrees tracking variables. 
-        # It is not clear how that would work with the route segmentation
         # keep track of the index progress
-        #TODO: prev index should be initialised as the first index
+        # prev index is be initialised as the first index
+        # Asusmes you start the experiment near the begining of the route.
         self.prev_idx = 0
 
         self.repos_thresh = kwargs.get('repos_thresh')
@@ -204,7 +203,6 @@ class Agent:
         Reposition the agent by index.
         Using the offset by default adds 5 to the index
         '''
-        # import pdb; pdb.set_trace()
         idx += idx_offset
         self.prev_idx = idx
         # check you are not near the end of the route already

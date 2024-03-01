@@ -3,14 +3,15 @@
 import sys
 import pickle
 import os
-from source.utils import pre_process, calc_dists
-from source import seqnav as spm, perfect_memory as pm
-from source import infomax
 import pandas as pd
 import time
 import uuid
 import numpy as np
 import copy
+from source.utils import calc_dists
+from source import seqnav as spm
+from source.navs import perfect_memory as pm
+from source import infomax
 from source import antworld2 as aw
 from source.routedatabase import Route, load_routes
 from source.imgproc import Pipeline
@@ -48,7 +49,7 @@ log = {'route_id': [], 'num_of_repeat':[], 'nav-name':[], 't':[],
        'res': [], 'blur': [], 'loc_norm':[], 'gauss_loc_norm':[], 'edge': [],  
        'window': [], 'matcher': [], 'deg_range':[], 
        'segment_len': [], 'trial_fail_count':[], 'mean_error': [], 
-       'seconds': [], 'errors': [], 'dist_diff': [], 'index_diff': [], 'window_log': [], 
+       'seconds': [], 'aae': [], 'dist_diff': [], 'index_diff': [], 'window_log': [], 
        'matched_index': [], 'min_dist_index': [] ,  'tx': [], 'ty': [], 'th': [], 'ah': [], 'rmfs_file':[], 'best_sims':[],
        'wave':[], 'tfc_idxs':[]
        }
@@ -89,10 +90,10 @@ for combo in chunk:
 
         toc = time.perf_counter()
         time_compl = toc - tic
-        # Get the errors and the minimum distant index of the route memory
+        # Get the aae and the minimum distant index of the route memory
         eval_traj = copy.deepcopy(traj)
         eval_traj['heading'][0] = eval_traj['heading'][1]
-        errors, min_dist_index = route.calc_errors(eval_traj)
+        aae, min_dist_index = route.calc_aae(eval_traj)
         # Difference between matched index and minimum distance index and distance between points
         matched_index = nav.get_index_log()
         if matched_index:
@@ -101,7 +102,7 @@ for combo in chunk:
         else:
             index_diffs = None
             dist_diff = None
-        mean_route_error = np.mean(errors)
+        mean_route_error = np.mean(aae)
         window_log = nav.get_window_log()
         rec_headings = nav.get_rec_headings()
         rmf_logs = np.array(nav.get_rsims_log(), dtype=object)
@@ -140,7 +141,7 @@ for combo in chunk:
         log['min_dist_index'].append(min_dist_index)
         log['index_diff'].append(index_diffs)
         log['dist_diff'].append(dist_diff)
-        log['errors'].append(errors)
+        log['aae'].append(aae)
         log['best_sims'].append(nav.get_best_sims())
         jobs += 1
         print('{} worker, jobs completed {}/{}'.format(chunk_id, jobs, total_jobs))
