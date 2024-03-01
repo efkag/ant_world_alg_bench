@@ -72,7 +72,7 @@ class SequentialPerfectMemory:
         # heading parameters
         self.qmet_q = deque(maxlen=3)
 
-        # choose poiter update function/criterion
+        # choose pointer update function/criterion
         # TODO:
     
     #TODO Need a better name for this function

@@ -83,8 +83,8 @@ def plot_route(route, traj=None, scale=None, window=None, windex=None, save=Fals
             ax.scatter(route['qx'][:windex], route['qy'][:windex])
         else:
             ax.scatter(traj['x'][:windex], traj['y'][:windex])
-            #u, v = pol2cart_headings(90 - traj['heading'])
-            #ax.quiver(traj['x'][:windex], traj['y'][:windex], u[:windex], v[:windex], scale=scale)
+            u, v = pol2cart_headings(90 - traj['heading'])
+            ax.quiver(traj['x'][:windex], traj['y'][:windex], u[:windex], v[:windex], scale=scale)
             ax.plot([traj['x'][:windex], route['x'][traj['min_dist_index'][:windex]]],
                     [traj['y'][:windex], route['y'][traj['min_dist_index'][:windex]]], color='k')
     # Plot grid test points
