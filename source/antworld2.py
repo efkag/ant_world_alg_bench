@@ -149,6 +149,19 @@ class Agent:
         # Navigation loop
         for i in range(0, t):
             self.i = i
+
+            # Check for termination conditions
+            if self.check4route_end():
+                break
+
+            self.check4reposition()
+            img = self.get_img(self.xy, self.h)
+
+            # log the coordinates and attitude
+            self.traj['x'].append(self.xy[0])
+            self.traj['y'].append(self.xy[1])
+            self.traj['heading'].append(self.h)
+
             # get the new heading from teh navigator and format it properly
             new_h = self.nav.get_heading(img)
             self.h = self.h + new_h
@@ -156,18 +169,6 @@ class Agent:
 
             # reposition the agent and get the new image
             self.xy, img = self.update_position(self.xy, self.h, r)
-            self.check4reposition()
-
-            img = self.get_img(self.xy, self.h)
-            # log the coordinates and attitude
-            self.traj['x'].append(self.xy[0])
-            self.traj['y'].append(self.xy[1])
-            self.traj['heading'].append(self.h)
-
-            # Check for termination conditions
-            if self.check4route_end():
-                break
-
 
         for k in self.traj.keys():
             self.traj[k] = np.array(self.traj[k])
@@ -197,14 +198,7 @@ class Agent:
                 self.reposition(idx=idx)
                 return
             self.prev_idx = idx
-        # check distance form the start of the route
-        # dist = self.route.dist_from_start(self.xy)
-        # if (self.i + 1) % 10 == 0:
-        #     if dist <= self.prev_dist:
-        #         self.xy = xy
-        #         self.trial_fail_count += 1
-        #         self.nav.reset_window(idx)
-        #     self.prev_dist = dist
+
     def reposition(self, idx: int, idx_offset=5):
         '''
         Reposition the agent by index.

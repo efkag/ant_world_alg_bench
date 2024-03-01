@@ -10,6 +10,7 @@ import pandas as pd
 import time
 import uuid
 import numpy as np
+import copy
 from source import antworld2 as aw
 from source.routedatabase import Route, load_routes
 from source.imgproc import Pipeline
@@ -89,7 +90,9 @@ for combo in chunk:
         toc = time.perf_counter()
         time_compl = toc - tic
         # Get the errors and the minimum distant index of the route memory
-        errors, min_dist_index = route.calc_errors(traj)
+        eval_traj = copy.deepcopy(traj)
+        eval_traj['heading'][0] = eval_traj['heading'][1]
+        errors, min_dist_index = route.calc_errors(eval_traj)
         # Difference between matched index and minimum distance index and distance between points
         matched_index = nav.get_index_log()
         if matched_index:
