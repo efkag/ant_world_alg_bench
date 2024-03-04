@@ -8,5 +8,5 @@ def pick_nav(nav_name=None):
             's2s': spm.Seq2SeqPerfectMemory,
             'imax': infomax}
     if not navs.get(nav_name):
-        raise Exception('Non valid matcher method name')
+        raise Exception('Non valid navigator class name')
     return navs.get(nav_name)

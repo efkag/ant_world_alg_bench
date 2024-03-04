@@ -73,9 +73,10 @@ for combo in chunk:
 
 
         # select navigator instance
-        nav_class = pick_nav(combo['nav'])
+        nav_class = pick_nav(combo['nav-class'])
         nav = nav_class(route_imgs, **combo)
-
+        
+        
         # else:
         #     infomaxParams = infomax.Params()
         #     nav = infomax.InfomaxNetwork(infomaxParams, route_imgs, **combo)

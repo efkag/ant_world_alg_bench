@@ -828,7 +828,7 @@ def seq2seqrmf(query_imgs, ref_imgs, matcher=mae, d_range=(-180, 180), d_step=1)
         for j, rot in enumerate(degrees):
             # rotated query image
             rqimg = rotate(rot, query_img)
-            sims[:(i+1)*len(query_imgs), j] = matcher(rqimg, ref_imgs)
+            sims[(i)*len(ref_imgs):(i+1)*len(ref_imgs), j] = matcher(rqimg, ref_imgs)
 
     return sims
 

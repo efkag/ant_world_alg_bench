@@ -21,7 +21,7 @@ def get_grid_dict(params, nav_name=None):
     grid_dict = []
     for combo in grid:
         combo_dict = {}
-        if nav_name: combo_dict['nav'] = nav_name
+        if nav_name: combo_dict['nav-class'] = nav_name
         for i, k in enumerate(params):
             combo_dict[k] = combo[i]
         grid_dict.append(combo_dict)
