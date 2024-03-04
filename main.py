@@ -87,7 +87,7 @@ def live_bench():
     routes_path = 'datasets/new-antworld/curve-bins'
     parameters = {'repos_thresh':[.3], 
                   'r': [0.05], 
-                  't': [1000], 
+                  't': [100], 
                   'blur': [True],
                   'shape': [(180, 40)],
                   'deg_range':[(-180, 180)],
@@ -97,15 +97,18 @@ def live_bench():
                   #'edge_range': [(180, 200), False],
                 #  'loc_norm': [{'kernel_shape':(5, 5)}, False],
                  # 'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
-                  'window': [-15, 10, 15, 20, 25, 30, 40, 50],
-                  'matcher': ['mae'],
                   }
+    
+    nav_params = {'smw':{'window':[10, 20], 'macther':['mae', 'ccd']},
+                  'asmw':{'window':[-15], 'macther':['mae', 'ccd']},
+                  's2s':{'window':[-15], 'queue_size':[3], 'macther':['mae', 'ccd']}
+    }
 
-    routes = [*range(20)]
+    routes = [19]
     num_of_repeats = 3
     parameters['repeat'] = [*range(num_of_repeats)]
-    cbench.benchmark(results_path, routes_path, parameters, routes, 
-                    parallel=True, num_of_repeats=num_of_repeats, cores=6)
+    cbench.benchmark(results_path, routes_path, params=parameters, nav_params=nav_params,
+                    route_ids=routes, parallel=True, num_of_repeats=num_of_repeats, cores=1)
 
 
 def main():

@@ -9,6 +9,7 @@ import uuid
 import numpy as np
 import copy
 from source.utils import calc_dists
+from source.navs.utils import pick_nav
 from source import seqnav as spm
 from source.navs import perfect_memory as pm
 from source import infomax
@@ -59,7 +60,6 @@ agent = aw.Agent()
 #  Go though all combinations in the chunk
 for combo in chunk:
 
-    matcher = combo['matcher']
     window = combo.get('window')
     t = combo['t']
     segment_length = combo.get('segment_l')
@@ -70,21 +70,18 @@ for combo in chunk:
         
         pipe = Pipeline(**combo)
         route_imgs = pipe.apply(route.get_imgs())
-        # Run navigation algorithm
-        #TODO: Need to select navigator instance based on 
-        # information coming from the chunk combo
-        if window:
-            nav = spm.SequentialPerfectMemory(route_imgs, matcher, **combo)
-        elif window == 0:
-            nav = pm.PerfectMemory(route_imgs, **combo)
-        else:
-            infomaxParams = infomax.Params()
-            nav = infomax.InfomaxNetwork(infomaxParams, route_imgs, **combo)
+
+
+        # select navigator instance
+        nav_class = pick_nav(combo['nav'])
+        nav = nav_class(route_imgs, **combo)
+
+        # else:
+        #     infomaxParams = infomax.Params()
+        #     nav = infomax.InfomaxNetwork(infomaxParams, route_imgs, **combo)
         # if segment_length:
         #     traj, nav = agent.segment_test(route, nav, segment_length=segment_length, t=t, r=r, sigma=None, preproc=combo)
-        # else:
-        #     coords = route.get_starting_coords()
-        #     traj, nav = agent.test_nav(coords, nav, t=t, r=r, preproc=combo, sigma=None)
+
         
         traj, nav = agent.run_agent(route, nav, **combo)
 
@@ -124,7 +121,7 @@ for combo in chunk:
         log['gauss_loc_norm'].append(combo.get('gauss_loc_norm'))
         log['wave'].append(combo.get('wave'))
         log['window'].append(combo.get('window'))
-        log['matcher'].extend([matcher])
+        log['matcher'].extend(combo.get('matcher'))
         log['deg_range'].append(deg_range)
         log['segment_len'].append(segment_length)
         log['trial_fail_count'].append(agent.get_trial_fail_count())
