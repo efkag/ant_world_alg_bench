@@ -8,12 +8,13 @@ from source import navbench
 def static_bench():
     #results_path = f'/its/home/sk526/ant_world_alg_bench/Results/stanmer/{string_date}'
     results_path = f'/mnt/data0/sk526/results/stanmer/{string_date}'
+    #results_path = f'Results/stanmer/{string_date}'
     
     #routes_path = '/its/home/sk526/sussex-ftl-dataset/repeating-routes'
     #routes_path = '/mnt/data0/sk526/sussex-ftl-dataset/repeating-routes'
     #routes_path = '/its/home/sk526/navlib/data/outdoors/clean/stanmer'
+    #routes_path = 'datasets/stanmer'
     routes_path = '/mnt/data0/sk526/stanmer'
-    # grid_path = '/home/efkag/PycharmProjects/ant_world_alg_bench/new-antworld/grid70'
     # parameters = {'blur': [True], 'segment_l': [3], 'shape': [(180, 50), (90, 25)], 'edge_range': [(180, 200)],
     #               'window': list(range(10, 12)), 'matcher': ['corr', 'rmse']}
     
@@ -21,14 +22,14 @@ def static_bench():
                   'shape': [(180, 45)],
                   #'vcrop':[.5],
                   #'histeq':[True],
-                  'edge_range': [(190, 230), False],
+                  'edge_range': [(50, 255), False],
                   #'loc_norm': [{'kernel_shape':(3, 3)}, False],
                   'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
                   'deg_range':[(-90, 90)],
-                  'window': [20, -15], 
-                  'matcher': ['mae', 'corr'],
+                  'window': [0], 
+                  'matcher': ['mae'],
                   'ref_route': [1, 2, 3, 4],
-                  #'sample_step':[1]
+                  'sample_step':[2]
                   }
     
     routes = [1]
@@ -39,7 +40,7 @@ def static_bench():
                                route_repeats=4,
                                bench_data='bob'
                                )
-    bench.benchmark(parameters, routes, parallel=True, cores=30)
+    bench.benchmark(parameters, routes, parallel=True, cores=1)
 
 
 
@@ -65,7 +66,7 @@ def static_bench_antworld():
                   #'gauss_loc_norm': [{'sig1':2, 'sig2':20}],
                   'deg_range':[(-180, 180)],
                   'window': [0], 
-                  'matcher': ['mae', 'corr'],
+                  'matcher': ['mae', 'ccd'],
                   'grid_dist':[0.2]
                   }
     
@@ -75,7 +76,7 @@ def static_bench_antworld():
                                filename='results.csv',
                                bench_data='aw2'
                                )
-    bench.benchmark(parameters, routes, parallel=True, cores=55)
+    bench.benchmark(parameters, routes, parallel=True, cores=1)
 
 
 
@@ -86,25 +87,28 @@ def live_bench():
     routes_path = 'datasets/new-antworld/curve-bins'
     parameters = {'repos_thresh':[.3], 
                   'r': [0.05], 
-                  't': [1000], 
+                  't': [100], 
                   'blur': [True],
                   'shape': [(180, 40)],
                   'deg_range':[(-180, 180)],
-                  'w_thresh': [0.05],
+                  #'w_thresh': [0.05],
                  # 'sma_size': [5],
                 #  'wave' : [True, False], 
                   #'edge_range': [(180, 200), False],
                 #  'loc_norm': [{'kernel_shape':(5, 5)}, False],
                  # 'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
-                  'window': [-15],
-                  'matcher': ['mae'],
                   }
+    
+    nav_params = {#'smw':{'window':[10, 20], 'matcher':['mae', 'ccd']},
+                  #'asmw':{'window':[-15], 'matcher':['mae', 'ccd']},
+                  's2s':{'window':[-15], 'queue_size':[3], 'matcher':['mae']}
+    }
 
-    routes = [*range(20)]
-    num_of_repeats = 3
+    routes = [0, 19]
+    num_of_repeats = 1
     parameters['repeat'] = [*range(num_of_repeats)]
-    cbench.benchmark(results_path, routes_path, parameters, routes, 
-                    parallel=True, num_of_repeats=num_of_repeats, cores=6)
+    cbench.benchmark(results_path, routes_path, params=parameters, nav_params=nav_params,
+                    route_ids=routes, parallel=True, num_of_repeats=num_of_repeats, cores=1)
 
 
 def main():

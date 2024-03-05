@@ -18,8 +18,10 @@ class SequentialPerfectMemory:
         self.matcher = pick_im_matcher(matching)
         # if the dot product distance is used we need to make sure the images are standardized
         if self.matcher == dot_dist:
-            pipe = Pipeline(normstd=True)
-            self.route_images = pipe.apply(route_images)
+            self.pipe = Pipeline(normstd=True)
+            self.route_images = self.pipe.apply(route_images)
+        else: 
+            self.pipe = Pipeline()
 
         # Log Variables
         self.recovered_heading = []
@@ -49,7 +51,7 @@ class SequentialPerfectMemory:
             self.upper = int(round(self.window/2))
             self.lower = self.window - self.upper
             self.mem_pointer = self.window - self.upper
-            self.w_thresh =  w_thresh
+            self.w_thresh = w_thresh
             if sma_size:
                 self.sma_size = sma_size
                 #self.idf_sma = []
@@ -71,6 +73,9 @@ class SequentialPerfectMemory:
 
         # heading parameters
         self.qmet_q = deque(maxlen=3)
+
+        # choose pointer update function/criterion
+        # TODO:
     
     #TODO Need a better name for this function
     def reset_window(self, pointer):
@@ -95,6 +100,7 @@ class SequentialPerfectMemory:
         :param query_img:
         :return:
         '''
+        query_img = self.pipe.apply(query_img)
         # get the rotational similarities between a query image and a window of route images
         wrsims = rmf(query_img, self.route_images[self.blimit:self.flimit], self.matcher, self.deg_range, self.deg_step)
         self.window_log.append([self.blimit, self.flimit])
@@ -130,19 +136,11 @@ class SequentialPerfectMemory:
         if self.adaptive:
             best = wind_sims[idx]
             # TODO here I need to make the updating function modular
-            self.thresh_dynamic_window_log_rate(best)
+            self.dynamic_window_log_rate(best)
             self.check_w_size()
 
         # Update memory pointer
-        # if h_eval:
         self.update_mid_pointer(idx)
-        # else:
-        #     self.set_mem_pointer(self.mem_pointer + 1)
-
-        # the heading changes if the rmf quality is low
-
-        #heading = self.evaluated_heading(h_eval)
-        
         return heading
 
     def eval_ridf(self, ridf):
@@ -397,8 +395,11 @@ class Seq2SeqPerfectMemory:
         self.queue = deque(maxlen=queue_size)
         # if the dot product distance is used we need to make sure the images are standardized
         if self.matcher == dot_dist:
-            pipe = Pipeline(normstd=True)
-            self.route_images = pipe.apply(route_images)
+            self.pipe = Pipeline(normstd=True)
+            self.route_images = self.pipe.apply(route_images)
+        else: 
+            self.pipe = Pipeline()
+
 
         # Log Variables
         self.recovered_heading = []

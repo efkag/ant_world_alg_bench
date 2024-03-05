@@ -14,7 +14,7 @@ from source.tools.results import filter_results, read_results
 import yaml
 sns.set_context("paper", font_scale=1)
 
-directory = '2024-01-22'
+directory = '2024-03-01'
 results_path = os.path.join('Results', 'newant', directory)
 fig_save_path = os.path.join('Results', 'newant', directory, 'analysis')
 data = read_results(os.path.join(results_path, 'results.csv'))
@@ -26,17 +26,17 @@ data.drop(data[data['nav-name'] == 'InfoMax'].index, inplace=True)
 
 
 # Plot a specific route
-route_id = 0
+route_id = 19
 fig_save_path = os.path.join(fig_save_path, f"route{route_id}")
 check_for_dir_and_create(fig_save_path)
 path = os.path.join(routes_path, f"route{route_id}")
 
 # parameters.
 threshold = 0
-repeat_no = 0
+repeat_no = 2
 
 filters = {'route_id':route_id, 'res':'(180, 40)','blur':True, 
-           'window':15, 'matcher':'mae', 'edge':'False',
+           'window':50, 'matcher':'mae', 'edge':False,
            'num_of_repeat': repeat_no}
 traj = filter_results(data, **filters)
 print(traj.shape[0], ' rows')
@@ -53,6 +53,7 @@ errors = traj['errors']
 traj['x'] = np.array(traj['tx'])
 traj['y'] = np.array(traj['ty'])
 traj['heading'] = np.array(traj['th'])
+traj['min_dist_index'] = np.array(traj['min_dist_index'])
 
 route = Route(path, route_id=route_id)
 route = route.get_route_dict()
@@ -61,6 +62,7 @@ if threshold:
     traj['x'] = traj['x'][index]
     traj['y'] = traj['y'][index]
     traj['heading'] = traj['heading'][index]
+    traj['min_dist_index'] = traj['min_dist_index'][index]
 
 print(traj.keys())
 temp_save_path = os.path.join(fig_save_path, f'route{route_id}.{traj["nav-name"]}.png')

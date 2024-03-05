@@ -7,9 +7,10 @@ import multiprocessing
 import functools
 import numpy as np
 import yaml
+import uuid
 from source.utils import pre_process, load_route_naw, check_for_dir_and_create, calc_dists, squash_deg
 from source import seqnav as spm, perfect_memory as pm
-from source.routedatabase import Route, load_routes, load_bob_routes, load_bob_routes_repeats
+from source.routedatabase import Route, load_all_bob_routes, load_routes, load_bob_routes, load_bob_routes_repeats
 from source.imgproc import Pipeline
 from source import infomax
 
@@ -134,7 +135,7 @@ class Benchmark:
                       'route_path_suffix':self.route_path_suffix,
                       'repeats':self.route_repeats, 'results_path':self.results_path}
         # Partial callable
-        #TODO: here i need to decide on a worked based on the dataset.
+
         if self.bench_data == 'bob':
             worker = functools.partial(self.worker_bench_repeats, arg_params, shared)
         elif self.bench_data == 'aw2':
@@ -306,7 +307,7 @@ class Benchmark:
                 traj = {'x': qxy['x'], 'y': qxy['y'], 'heading': recovered_heading}
                 #!!!!!! Important step to get the heading in the global coord system
                 traj['heading'] = squash_deg(route.get_qyaw() + recovered_heading)
-                errors, min_dist_index = route.calc_errors(traj)
+                errors, min_dist_index = route.calc_aae(traj)
                 # Difference between matched index and minimum distance index and distance between points
                 matched_index = nav.get_index_log()
                 if matched_index:
@@ -383,28 +384,40 @@ class Benchmark:
 
         
         # Load all routes
+        routes = load_all_bob_routes(routes_path, route_ids, suffix=route_path_suffix, repeats=repeats)
         # routes = load_routes(routes_path, route_ids, max_dist=dist, grid_path=grid_path)
-
+        #print('routes ->', routes)
+        #print('routes dict -> ', routes[0])
         #  Go though all combinations in the chunk
         for combo in chunk:
-            routes, repeat_routes = load_bob_routes_repeats(routes_path, route_ids, suffix=route_path_suffix, repeats=repeats, **combo)
+
             matcher = combo.get('matcher')
             window = combo.get('window')
             window_log = None
             for ri, route in enumerate(routes):  # for every route
-                
-                for rep_route in repeat_routes[ri]: # for every repeat route
+                #print('ref route -> ', combo['ref_route'])
+                ref_rep = route[combo['ref_route']]
+                ref_rep.set_sample_step(combo['sample_step'])
+                repeat_ids = [*range(1, repeats+1)]
+                #print(repeat_ids)
+                repeat_ids.remove(combo['ref_route'])
+                #print(repeat_ids)
+
+                for rep_id in repeat_ids: # for every repeat route
+                    test_rep = route[rep_id]
+                    test_rep.set_sample_step(10)
+
                     tic = time.perf_counter()
                     # Preprocess images
                     pipe = Pipeline(**combo)
-                    route_imgs = pipe.apply(route.get_imgs())
-                    test_imgs = pipe.apply(rep_route.get_imgs())
+                    route_imgs = pipe.apply(ref_rep.get_imgs())
+                    test_imgs = pipe.apply(test_rep.get_imgs())
                     # Run navigation algorithm
                     if window:
                         nav = spm.SequentialPerfectMemory(route_imgs, matcher, **combo)
                         recovered_heading, window_log = nav.navigate(test_imgs)
                     elif window == 0:
-                        nav = pm.PerfectMemory(route_imgs, matcher, **combo)
+                        nav = pm.PerfectMemory(route_imgs, **combo)
                         recovered_heading = nav.navigate(test_imgs)
                     else:
                         infomaxParams = infomax.Params()
@@ -415,17 +428,18 @@ class Benchmark:
                     # Get time complexity
                     time_compl = toc - tic
                     # Get the errors and the minimum distant index of the route memory
-                    qxy = rep_route.get_xycoords()
+                    qxy = test_rep.get_xycoords()
                     traj = {'x': qxy['x'], 'y': qxy['y'], 'heading': recovered_heading}
+
                     #################!!!!!! Important step to get the heading in the global coord system
-                    traj['heading'] = squash_deg(rep_route.get_yaw() + recovered_heading)
-                    errors, min_dist_index = route.calc_errors(traj)
+                    traj['heading'] = squash_deg(test_rep.get_yaw() + recovered_heading)
+                    errors, min_dist_index = ref_rep.calc_aae(traj)
                     # Difference between matched index and minimum distance index and distance between points
                     matched_index = nav.get_index_log()
                     if matched_index:
                         index_diffs = np.subtract(min_dist_index, nav.get_index_log())
-                        dist_diff = calc_dists(route.get_xycoords(), min_dist_index, matched_index)
-                        abs_index_diffs = abs_index_diffs.tolist()
+                        dist_diff = calc_dists(ref_rep.get_xycoords(), min_dist_index, matched_index)
+                        index_diffs = index_diffs.tolist()
                         dist_diff = dist_diff.tolist()
                     else:
                         index_diffs = None
@@ -435,15 +449,15 @@ class Benchmark:
                     rec_headings = nav.get_rec_headings()
                     deg_range = nav.deg_range
 
-                    rmf_logs = np.array(nav.get_rsims_log(), dtype=object)
-                    rmf_logs_file = f"rmfs-{chunk_id}-{shared['jobs']}-{rep_route.get_route_id()}"
-                    rmfs_path = os.path.join(results_path, rmf_logs_file)
-                    np.save(rmfs_path, rmf_logs)
+                    #rmf_logs = np.array(nav.get_rsims_log(), dtype=object)
+                    rmf_logs_file = f"rmfs-{chunk_id}-{shared['jobs']}-{test_rep.get_route_id()}"
+                    # rmfs_path = os.path.join(results_path, rmf_logs_file)
+                    # np.save(rmfs_path, rmf_logs)
 
                     log['nav-name'].append(nav.get_name())
-                    log['route_id'].append(route.get_route_id())
+                    log['route_id'].append(ri)
                     log['ref_route'].append(combo.get('ref_route'))
-                    log['rep_id'].append(rep_route.get_route_id())
+                    log['rep_id'].append(test_rep.get_route_id())
                     log['sample_rate'].append(combo.get('sample_step'))
                     log['blur'].append(combo.get('blur'))
                     log['histeq'].append(combo.get('histeq'))

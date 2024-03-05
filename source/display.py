@@ -410,7 +410,7 @@ def plot_multiroute(routes: list, **kwargs):
     plt.show()
 
 
-def heat_with_marginals(data, ax=None):
+def heat_with_marginals(data, figsize=(7, 4), ax=None):
     '''
     Plot a 2D Heatmap with marginal distibutions.
     '''
@@ -447,7 +447,7 @@ def heat_with_marginals(data, ax=None):
     g.ax_marg_x.tick_params(axis='y', left=False, labelleft=False)
     g.ax_marg_y.tick_params(axis='x', bottom=False, labelbottom=False)
 
-    g.fig.set_size_inches(17, 8)  # jointplot creates its own figure, the size can only be changed afterwards
+    g.figure.set_size_inches(figsize, forward=True)  # jointplot creates its own figure, the size can only be changed afterwards
     # g.fig.subplots_adjust(hspace=0.3) # optionally more space for the tick labels
-    g.fig.subplots_adjust(hspace=0.05, wspace=0.02)  # less spaced needed when there are no tick labels
+    g.figure.subplots_adjust(hspace=0.05, wspace=0.02)  # less spaced needed when there are no tick labels
     return g

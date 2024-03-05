@@ -6,6 +6,7 @@ from scipy.spatial.distance import cdist
 from source.utils import calc_dists, squash_deg, travel_dist, pre_process, angular_error, seq_angular_error, travel_dist, meancurv2d
 from source.unwraper import Unwraper
 from source.imgproc import resize
+import copy
 
 
 class Route:
@@ -53,7 +54,7 @@ class Route:
             qimg = []
             # Fetch images from the grid that are located nearby route images.
             # for each route position
-            for i, (x, y) in enumerate(zip(route_data['x'], route_data['y'])):
+            for x, y in zip(route_data['x'], route_data['y']):
                 # get distance between route point and all grid points
                 dist = np.squeeze(cdist([(x, y)], grid_xy, 'euclidean'))
                 # indexes of distances within the limit
@@ -113,7 +114,10 @@ class Route:
         self.segment_indices = indices
         return indices, staring_coords
 
-    def calc_errors(self, trajectory):
+    def calc_aae(self, trajectory):
+        '''
+        Calculate the Absolute Angular Error (AAE)
+        '''
         if self.is_segmented:
             # TODO: for sgement we need to calculate the seq. error but starting 
             # the search at the start of each segment 
@@ -239,6 +243,9 @@ class BoBRoute:
             
             route_data['imgs'] = imgs
         return route_data
+
+    def set_sample_step(self, step: int):
+        self.sample_step = step
     
     def calc_errors(self, trajectory):
         r_sample = {'x': self.route_dict['x'][::self.sample_step], 
@@ -328,7 +335,7 @@ def make_query_repeat_routes(route, route_ref_id, rep_path, repeats, suffix=None
 def load_bob_routes_repeats(path, ids, suffix=None, ref_route=1, repeats=None, **kwargs):
     routes = []
     repeat_routes = []
-    # Thiis the the reference route choosen from the repeats. Usualy the first one.
+    # This the the reference route choosen from the repeats
     ref_route_id = ref_route
     for rid in ids:
         route_path =  os.path.join(path, 'route{}'.format(rid))
@@ -336,7 +343,7 @@ def load_bob_routes_repeats(path, ids, suffix=None, ref_route=1, repeats=None, *
             route_path = os.path.join(route_path, suffix)
             #this is the preat routes path with the suffix
             repeats_path = route_path
-        # the referencee route is always 0, i.e the first route recorded
+        # the referencee route
         route_path = route_path + str(ref_route_id)
         r = BoBRoute(route_path, route_id=rid, **kwargs)
         routes.append(r)
@@ -346,7 +353,29 @@ def load_bob_routes_repeats(path, ids, suffix=None, ref_route=1, repeats=None, *
             rep_routes_temp_l = []
             for rep in repeat_ids:
                 route_path = repeats_path + str(rep)
-                r = BoBRoute(route_path, route_id=rep, **kwargs)
+                #TODO: make this modular and remove later
+                tempkwargs = copy.deepcopy(kwargs)
+                tempkwargs['sample_step'] = 10
+                r = BoBRoute(route_path, route_id=rep, **tempkwargs)
                 rep_routes_temp_l.append(r)
             repeat_routes.append(rep_routes_temp_l)
     return routes, repeat_routes
+
+
+def load_all_bob_routes(path, ids, suffix=None, repeats=None, **kwargs):
+    routes_l = []
+    for rid in ids:
+        route_path =  os.path.join(path, 'route{}'.format(rid))
+        if suffix:
+            repeats_path = os.path.join(route_path, suffix)
+        # each route has repeats
+        #TODO: need to update this so that the functions 
+        # receives a list of ids instead of an int
+        repeat_ids = [*range(1, repeats+1)]
+        route = {} # dict for a route and the reps
+        for rep_id in repeat_ids:
+            r = BoBRoute(repeats_path + str(rep_id), route_id=rep_id)
+            route[rep_id] = r
+        routes_l.append(route)
+    return routes_l
+

@@ -16,20 +16,15 @@ import sys
 import yaml
 
 
-def get_grid_dict(params):
+def get_grid_dict(params, nav_name=None):
     grid = itertools.product(*[params[k] for k in params])
     grid_dict = []
     for combo in grid:
         combo_dict = {}
+        if nav_name: combo_dict['nav-class'] = nav_name
         for i, k in enumerate(params):
             combo_dict[k] = combo[i]
         grid_dict.append(combo_dict)
-    
-    # remove the combination where we have both blur and adge detection
-    grid_dict[:] = [x for x in grid_dict if remove_blur_edge(x)]
-    # Remove combinations where we have neither blur nor edge detection nor gauss_loc_norm
-    # generally if all the main pre-proc functions are not being used then we don't want to test those combinations
-    grid_dict[:] = [x for x in grid_dict if not remove_non_blur_edge(x)]
 
     return grid_dict
 
@@ -113,17 +108,18 @@ def remove_non_blur_edge(combo):
 #     return log
 
 
-def benchmark(results_path, routes_path, params, route_ids,  parallel=False, cores=1, num_of_repeats=None):
+def benchmark(results_path: str, routes_path: str, params: dict, nav_params:dict,
+              route_ids: list,  parallel:bool =False, cores: int=1, num_of_repeats:int =None):
 
     assert isinstance(params, dict)
     assert isinstance(route_ids, list)
 
     if parallel:
-        bench_paral(results_path, params, routes_path, route_ids, cores, 
+        bench_paral(results_path, params, nav_params, routes_path, route_ids, cores, 
                     num_of_repeats=num_of_repeats)
         # log = unpack_results(log)
     else:
-        bench_paral(results_path, params, routes_path, route_ids, cores=1, 
+        bench_paral(results_path, params, nav_params, routes_path, route_ids, cores=1, 
                     num_of_repeats=num_of_repeats)
     #     log = bench(params, routes_path, route_ids)
     #     bench_results = pd.DataFrame(log)
@@ -143,17 +139,7 @@ def get_grid_chunks(grid_gen, chunks=1):
     return [lst[i::chunks] for i in range(chunks)]
 
 
-def unpack_results(results):
-    results = results.get()
-    print(len(results), 'Results produced')
-    log = results[0]
-    for dictionary in results[1:]:
-        for k in dictionary:
-            log[k].extend(dictionary[k])
-    return log
-
-
-def bench_paral(results_path, params, routes_path, route_ids=None, cores=None, num_of_repeats=None):
+def bench_paral(results_path, params, nav_params, routes_path, route_ids=None, cores=None, num_of_repeats=None):
     # save the parmeters of the test in a json file
     check_for_dir_and_create(results_path)
     param_path = os.path.join(results_path, 'params.yml')
@@ -178,7 +164,20 @@ def bench_paral(results_path, params, routes_path, route_ids=None, cores=None, n
         cores = existing_cores - 1
     print(existing_cores, ' CPU cores found. Using ', cores, ' cores')
 
-    grid = get_grid_dict(params)
+    # global grid for pre-proc
+    params_grid_list = get_grid_dict(params)
+    nav_grid_list = []
+    for nav_k in nav_params:
+        nav_grid = get_grid_dict(nav_params[nav_k], nav_name=nav_k)
+        nav_grid_list.extend(nav_grid)
+    grid = []
+    # for each navigator
+    for combo_nav in nav_grid_list:
+        # for each pre-proc 
+        for combo_pp in params_grid_list:
+            interim_dict = dict(combo_nav)
+            interim_dict.update(combo_pp)
+            grid.append(interim_dict)
     total_jobs = len(grid)
 
     if total_jobs < cores:
