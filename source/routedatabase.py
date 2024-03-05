@@ -66,10 +66,10 @@ class Route:
                 # save the indexes
                 query_indexes = np.append(query_indexes, indexes)
 
-                for i in indexes:
-                    qx.append(grid_xy[i, 0])
-                    qy.append(grid_xy[i, 1])
-                    imgfile = os.path.join(self.grid_path, grid['filename'][i])
+                for j in indexes:
+                    qx.append(grid_xy[j, 0])
+                    qy.append(grid_xy[j, 1])
+                    imgfile = os.path.join(self.grid_path, grid['filename'][j])
                     qimg.append(cv.imread(imgfile, cv.IMREAD_GRAYSCALE))
 
             route_data['qx'] = np.array(qx)

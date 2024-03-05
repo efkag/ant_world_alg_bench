@@ -40,7 +40,7 @@ def static_bench():
                                route_repeats=4,
                                bench_data='bob'
                                )
-    bench.benchmark(parameters, routes, parallel=True, cores=20)
+    bench.benchmark(parameters, routes, parallel=True, cores=1)
 
 
 
@@ -76,7 +76,7 @@ def static_bench_antworld():
                                filename='results.csv',
                                bench_data='aw2'
                                )
-    bench.benchmark(parameters, routes, parallel=True, cores=55)
+    bench.benchmark(parameters, routes, parallel=True, cores=1)
 
 
 
