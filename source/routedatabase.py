@@ -54,7 +54,7 @@ class Route:
             qimg = []
             # Fetch images from the grid that are located nearby route images.
             # for each route position
-            for i, (x, y) in enumerate(zip(route_data['x'], route_data['y'])):
+            for x, y in zip(route_data['x'], route_data['y']):
                 # get distance between route point and all grid points
                 dist = np.squeeze(cdist([(x, y)], grid_xy, 'euclidean'))
                 # indexes of distances within the limit
@@ -66,10 +66,10 @@ class Route:
                 # save the indexes
                 query_indexes = np.append(query_indexes, indexes)
 
-                for j in indexes:
-                    qx.append(grid_xy[j, 0])
-                    qy.append(grid_xy[j, 1])
-                    imgfile = os.path.join(self.grid_path, grid['filename'][j])
+                for i in indexes:
+                    qx.append(grid_xy[i, 0])
+                    qy.append(grid_xy[i, 1])
+                    imgfile = os.path.join(self.grid_path, grid['filename'][i])
                     qimg.append(cv.imread(imgfile, cv.IMREAD_GRAYSCALE))
 
             route_data['qx'] = np.array(qx)
