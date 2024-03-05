@@ -76,7 +76,7 @@ for combo in chunk:
         nav_class = pick_nav(combo['nav-class'])
         nav = nav_class(route_imgs, **combo)
         
-        
+
         # else:
         #     infomaxParams = infomax.Params()
         #     nav = infomax.InfomaxNetwork(infomaxParams, route_imgs, **combo)
@@ -112,17 +112,17 @@ for combo in chunk:
 
 
         log['nav-name'].append(nav.get_name())
-        log['route_id'].extend([route.get_route_id()])
-        log['t'].append(agent.get_total_sim_time)
+        log['route_id'].append(route.get_route_id())
+        log['t'].append(agent.get_total_sim_time())
         log['num_of_repeat'].append(rpt)
-        log['blur'].extend([combo.get('blur')])
-        log['edge'].extend([combo.get('edge_range')])
+        log['blur'].append(combo.get('blur'))
+        log['edge'].append(combo.get('edge_range'))
         log['res'].append(combo.get('shape'))
         log['loc_norm'].append(combo.get('loc_norm'))
         log['gauss_loc_norm'].append(combo.get('gauss_loc_norm'))
         log['wave'].append(combo.get('wave'))
         log['window'].append(combo.get('window'))
-        log['matcher'].extend(combo.get('matcher'))
+        log['matcher'].append(combo.get('matcher'))
         log['deg_range'].append(deg_range)
         log['segment_len'].append(segment_length)
         log['trial_fail_count'].append(agent.get_trial_fail_count())
