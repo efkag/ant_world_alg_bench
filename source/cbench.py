@@ -139,16 +139,6 @@ def get_grid_chunks(grid_gen, chunks=1):
     return [lst[i::chunks] for i in range(chunks)]
 
 
-def unpack_results(results):
-    results = results.get()
-    print(len(results), 'Results produced')
-    log = results[0]
-    for dictionary in results[1:]:
-        for k in dictionary:
-            log[k].extend(dictionary[k])
-    return log
-
-
 def bench_paral(results_path, params, nav_params, routes_path, route_ids=None, cores=None, num_of_repeats=None):
     # save the parmeters of the test in a json file
     check_for_dir_and_create(results_path)

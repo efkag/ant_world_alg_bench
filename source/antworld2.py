@@ -251,6 +251,9 @@ class Agent:
     
     def get_tfc_indices(self):
         return self.tfc_indices
+    
+    def get_total_sim_time(self):
+        return self.i
 
 
 """

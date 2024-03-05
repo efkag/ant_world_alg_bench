@@ -113,7 +113,7 @@ for combo in chunk:
 
         log['nav-name'].append(nav.get_name())
         log['route_id'].extend([route.get_route_id()])
-        log['t'].append(t)
+        log['t'].append(agent.get_total_sim_time)
         log['num_of_repeat'].append(rpt)
         log['blur'].extend([combo.get('blur')])
         log['edge'].extend([combo.get('edge_range')])

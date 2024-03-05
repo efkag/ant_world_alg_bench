@@ -87,7 +87,7 @@ def live_bench():
     routes_path = 'datasets/new-antworld/curve-bins'
     parameters = {'repos_thresh':[.3], 
                   'r': [0.05], 
-                  't': [1000], 
+                  't': [100], 
                   'blur': [True],
                   'shape': [(180, 40)],
                   'deg_range':[(-180, 180)],
@@ -101,7 +101,7 @@ def live_bench():
     
     nav_params = {#'smw':{'window':[10, 20], 'matcher':['mae', 'ccd']},
                   #'asmw':{'window':[-15], 'matcher':['mae', 'ccd']},
-                  's2s':{'window':[-15], 'queue_size':[3], 'matcher':['mae', 'ccd']}
+                  's2s':{'window':[-15], 'queue_size':[3], 'matcher':['mae']}
     }
 
     routes = [0, 19]
