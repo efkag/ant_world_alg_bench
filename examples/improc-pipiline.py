@@ -17,7 +17,7 @@ route_path = '/its/home/sk526/sussex-ftl-dataset/repeating-routes/route1/N-1'
 #route = BoBRoute(path=route_path, read_imgs=True)
 
 
-route_path = 'new-antworld/exp1/route1/'
+route_path = 'datasets/new-antworld/exp1/route1/'
 route = Route(route_path, 1)
 fig_save_path = os.path.join(fwd, 'figures')
 check_for_dir_and_create(fig_save_path)
