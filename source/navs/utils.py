@@ -3,7 +3,8 @@ from source.navs import perfect_memory as pm
 from source.navs import infomax
 
 def pick_nav(nav_name=None):
-    navs = {'smw': spm.SequentialPerfectMemory, 
+    navs = {'pm':pm.PerfectMemory,
+            'smw': spm.SequentialPerfectMemory, 
             'asmw': spm.SequentialPerfectMemory, 
             's2s': spm.Seq2SeqPerfectMemory,
             'imax': infomax}

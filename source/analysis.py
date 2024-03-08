@@ -3,7 +3,7 @@ from scipy.spatial.distance import cdist
 import os
 import cv2 as cv
 import matplotlib.pyplot as plt
-from source.utils import rotate, pair_rmf, mae, mse, rmf, check_for_dir_and_create, weighted_mse
+from source.utils import squash_deg, rotate, pair_rmf, mae, mse, rmf, check_for_dir_and_create, weighted_mse
 from source.display import plot_route_errors
 
 
@@ -58,7 +58,7 @@ def log_error_points(route, traj, thresh=0.5, target_path=None, aw_agent=None,
     # dim1-> window rmfs
     # dim2-> the actual RMF (usualy 360 degrees of search angle)
     index_log = traj['matched_index']
-    degrees = np.arange(*eval(traj['deg_range']))
+    degrees = np.arange(*traj['deg_range'])
 
     # Loop through every test point
     for i in range(len(traj['heading'])):
@@ -66,9 +66,10 @@ def log_error_points(route, traj, thresh=0.5, target_path=None, aw_agent=None,
         min_dist_i = traj['min_dist_index'][i]
         # the index from the route that the agent matched best (the best match for this query image)
         route_match_i = index_log[i]
-        point_ang_error = traj['errors'][i]
+
+        point_ang_error = traj['aae'][i]
         # Analysis only for points that have a distance more than the threshold awayfrom the route
-        if traj['errors'][i] >= thresh:
+        if traj['aae'][i] >= thresh:
             point_path = os.path.join(logs_path, f'{i}-error={round(point_ang_error, 2)}')
             check_for_dir_and_create(point_path)
             # Save window images or single image
@@ -98,6 +99,12 @@ def log_error_points(route, traj, thresh=0.5, target_path=None, aw_agent=None,
                 imgfname = 'test-grid.png'
                 cv.imwrite(os.path.join(point_path, imgfname), route['qimgs'][i])
             else:
+                # unrotated qimg
+                prev_h = h - traj['ah'][i]
+                img = agent.get_img(traj_xy[i], squash_deg(prev_h))
+                imgfname = f'queryimg-({prev_h}).png'
+                cv.imwrite(os.path.join(point_path, imgfname), img)
+                #rotated qimg
                 img = agent.get_img(traj_xy[i], h)
                 imgfname = 'queryimg-matched-heading' + str(h) + '.png'
                 cv.imwrite(os.path.join(point_path, imgfname), img)
