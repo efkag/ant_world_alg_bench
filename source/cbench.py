@@ -28,85 +28,11 @@ def get_grid_dict(params, nav_name=None):
 
     return grid_dict
 
-
 def remove_blur_edge(combo):
     return not (combo.get('edge_range') and combo.get('blur'))
 
-
 def remove_non_blur_edge(combo):
     return not combo.get('edge_range') and not combo.get('blur') and not combo.get('gauss_loc_norm') and not combo.get('loc_norm')
-
-
-# def bench(params, routes_path, route_ids):
-#     log = {'route_id': [], 'blur': [], 'edge': [], 'res': [], 'window': [],
-#            'matcher': [], 'mean_error': [], 'seconds': [], 'errors': [],
-#            'dist_diff': [], 'abs_index_diff': [], 'window_log': [],
-#            'tx': [], 'ty': [], 'th': []}
-#     agent = aw.Agent()
-
-#     grid = get_grid_dict(params)
-#     total_jobs = len(grid) * len(route_ids)
-#     jobs = 0
-#     #  Go though all combinations in the chunk
-#     for combo in grid:
-
-#         matcher = combo['matcher']
-#         window = combo['window']
-#         t = combo['t']
-#         r = combo['r']
-#         segment_length = combo.get('segment_l')
-#         window_log = None
-#         for route_id in route_ids:  # for every route
-#             route_path = routes_path + '/route' + str(route_id) + '/'
-#             route = Route(route_path, route_id)
-
-#             tic = time.perf_counter()
-#             # Preprocess images
-#             route_imgs = pre_process(route.get_imgs(), combo)
-#             # Run navigation algorithm
-#             if window:
-#                 nav = spm.SequentialPerfectMemory(route_imgs, matcher, deg_range=(-180, 180), window=window)
-#             else:
-#                 nav = pm.PerfectMemory(route_imgs, matcher, deg_range=(-180, 180))
-
-#             if segment_length:
-#                 traj, nav = agent.segment_test(route, nav, segment_length=segment_length, t=t, r=r, sigma=None, preproc=combo)
-#             else:
-#                 start = route.get_starting_coords()
-#                 traj, nav = agent.test_nav(start, nav, t=t, r=r, preproc=combo)
-
-#             # agent.run_agent(route, nav, t=t, r=r, preproc=combo)
-
-#             toc = time.perf_counter()
-#             time_compl = toc - tic
-#             # Get the errors and the minimum distant index of the route memory
-#             errors, min_dist_index = route.calc_errors(traj)
-#             # Difference between matched index and minimum distance index and distance between points
-#             matched_index = nav.get_index_log()
-#             abs_index_diffs = np.absolute(np.subtract(nav.get_index_log(), min_dist_index))
-#             dist_diff = calc_dists(route.get_xycoords(), min_dist_index, matched_index)
-#             mean_route_error = np.mean(errors)
-#             log['route_id'].extend([route_id])
-#             log['blur'].extend([combo.get('blur')])
-#             log['edge'].extend([combo.get('edge_range')])
-#             log['res'].append(combo.get('shape'))
-#             log['window'].extend([window])
-#             log['matcher'].extend([matcher])
-#             log['mean_error'].append(mean_route_error)
-#             log['seconds'].append(time_compl)
-#             log['window_log'].append(window_log)
-#             log['tx'].append(traj['x'].tolist())
-#             log['ty'].append(traj['y'].tolist())
-#             log['th'].append(traj['heading'].tolist())
-#             log['abs_index_diff'].append(abs_index_diffs.tolist())
-#             log['dist_diff'].append(dist_diff.tolist())
-#             log['errors'].append(errors)
-
-#             # Increment the complete jobs shared variable
-#             jobs += 1
-#             print('jobs completed: {}/{}'.format(jobs, total_jobs))
-#     return log
-
 
 def benchmark(results_path: str, routes_path: str, params: dict, nav_params:dict,
               route_ids: list,  parallel:bool =False, cores: int=1, num_of_repeats:int =None):
@@ -140,13 +66,15 @@ def get_grid_chunks(grid_gen, chunks=1):
 
 
 def bench_paral(results_path, params, nav_params, routes_path, route_ids=None, cores=None, num_of_repeats=None):
-    # save the parmeters of the test in a json file
+    # save the parameters of the test in a json file
     check_for_dir_and_create(results_path)
+    check_for_dir_and_create(os.path.join(results_path, 'metadata'))
     param_path = os.path.join(results_path, 'params.yml')
     #params['route_ids'] = route_ids
     temp_params = copy.deepcopy(params)
     temp_params['routes_path'] = routes_path
     temp_params['route_ids'] = route_ids
+    temp_params.update(nav_params)
     # if there are no repeats then only one repeat per route
     if not num_of_repeats:  
         num_of_repeats = 1
