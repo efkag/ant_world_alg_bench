@@ -2,12 +2,13 @@
 workspace.xml
 ftl
 new-antworld
-ODK_office/office
-ODK_office/robot_spin
 chunks
+ODK_office/
 ODK_office/office.zip
 ODK_office/robot_spin.tar.gz
 **/__pycache__
 **.npy
-Results/newant
+Results/
 projects/
+venv/
+.vscode/
