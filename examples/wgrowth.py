@@ -5,7 +5,7 @@ gamma = 10
 c_update = 5
 r=0.1
 
-upperw = 200
+upperw = 400
 lowerw = 15
 
 w_log_growth = [lowerw]
