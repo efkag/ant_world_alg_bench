@@ -1,4 +1,4 @@
-from source.utils import pick_im_matcher, mae, rmse, dot_dist, cor_dist, rmf, seq2seqrmf, pair_rmf, cos_sim, mean_angle
+from source.utils import rotate, mae, rmse, dot_dist, cor_dist, rmf, seq2seqrmf, pair_rmf, cos_sim, mean_angle
 from source.analysis import d2i_rmfs_eval
 import numpy as np
 import copy
@@ -481,6 +481,8 @@ class Seq2SeqPerfectMemory(Navigator):
         self.best_sims.append(wind_sims[idx])
         heading = wind_headings[idx]
         self.recovered_heading.append(heading)
+        #rotate the query image to the recoverd heading
+        self.queue[-1] = rotate(heading, self.queue[-1])
 
         # log the memory pointer before the update
         # mem_pointer - upper can cause the calc_dists() to go out of bounds

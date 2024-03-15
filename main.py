@@ -99,8 +99,8 @@ def live_bench():
                  # 'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
                   }
     
-    nav_params = {'pm':{'matcher':['mae']},
-                  #'smw':{'window':[75, 100], 'matcher':['mae']},
+    nav_params = {#'pm':{'matcher':['mae']},
+                  'smw':{'window':[150, 200, 250 ], 'matcher':['mae']},
                   #'asmw':{'window':[-15], 'matcher':['mae']},
                   #'s2s':{'window':[-15], 'queue_size':[3], 'matcher':['mae']}
     }
