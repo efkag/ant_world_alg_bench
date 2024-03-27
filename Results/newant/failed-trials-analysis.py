@@ -55,7 +55,7 @@ method = np.mean
 ##### if the dataset had nav-names
 data = data.groupby(['nav-name', 'route_id'])["trial_fail_count"].apply(method).to_frame("trial_fail_count").reset_index()
 print(data['nav-name'].unique())
-order = ['A-SMW(15)', 'SMW(10)', 'SMW(15)', 'SMW(20)', 'SMW(25)', 
+order = ['A-SMW(15)', 'PM', 'SMW(10)', 'SMW(15)', 'SMW(20)', 'SMW(25)', 
          'SMW(30)', 'SMW(40)', 'SMW(50)', 'SMW(75)', 'SMW(100)']
 
 figsize = (8., 4)
