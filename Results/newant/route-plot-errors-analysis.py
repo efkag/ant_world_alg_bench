@@ -14,7 +14,7 @@ from source.tools.results import filter_results, read_results
 import yaml
 sns.set_context("paper", font_scale=1)
 
-directory = '2024-03-07'
+directory = '2024-03-09'
 results_path = os.path.join('Results', 'newant', directory)
 fig_save_path = os.path.join('Results', 'newant', directory, 'analysis')
 data = read_results(os.path.join(results_path, 'results.csv'))
@@ -33,7 +33,7 @@ path = os.path.join(routes_path, f"route{route_id}")
 
 # parameters
 threshold = 0
-repeat_no = 2
+repeat_no = 0
 
 filters = {'route_id':route_id, 'res':'(180, 40)','blur':True, 
            'window':-15, 'matcher':'mae', 'edge':False,

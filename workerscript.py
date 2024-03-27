@@ -9,7 +9,7 @@ import uuid
 import numpy as np
 import copy
 from source.utils import calc_dists
-from source.navs.utils import pick_nav
+from source.tools.benchutils import pick_nav
 from source import infomax
 from source import antworld2 as aw
 from source.routedatabase import Route, load_routes
