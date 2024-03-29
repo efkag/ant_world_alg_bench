@@ -112,14 +112,19 @@ class SequentialPerfectMemory(Navigator):
         self.window_headings.append(wind_headings)
         # append the rsims of all window route images for that query image
         self.logs.append(wrsims)
+
+        # weight the window ridf minima by a pdf
+        # TODO: here sample some weights roma distibution.
+        # use the weights by mutiplying with wind_sims
+        # then use the weightes wind_sims to idn the best index 
+        # and move the memory pointer
         # find best image match and heading
         idx = int(round(self.argminmax(wind_sims)))
         self.best_sims.append(wind_sims[idx])
         heading = wind_headings[idx]
         self.recovered_heading.append(heading)
 
-        # log the memory pointer before the update
-        # mem_pointer - upper can cause the calc_dists() to go out of bounds
+        # log the memory pointer/matched index before the update
         matched_idx = self.blimit + idx
         self.matched_index_log.append(matched_idx)
 
