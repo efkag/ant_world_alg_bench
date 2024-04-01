@@ -382,11 +382,12 @@ class Seq2SeqPerfectMemory(Navigator):
     
     def __init__(self, route_images, matcher='mae', deg_range=(-180, 180), degree_shift=1, 
                  w_thresh=None, mid_update=True, sma_size=3,
-                 window=20, dynamic_range=0.1, queue_size=3, **kwargs):
+                 window=20, dynamic_range=0.1, queue_size=3, sub_window=0, **kwargs):
         super().__init__(route_images, matcher=matcher, deg_range=deg_range, degree_shift=degree_shift, **kwargs)
         # current sequence params
         self.queue_size = queue_size
         self.queue = deque(maxlen=queue_size)
+        self.sub_window = sub_window
 
         # if the dot product distance is used we need to make sure the images are standardized
         if self.matcher == dot_dist:
@@ -451,6 +452,26 @@ class Seq2SeqPerfectMemory(Navigator):
         self.blimit = max(0, self.mem_pointer - self.lower)
         self.flimit = min(self.route_end, self.mem_pointer + self.upper)
 
+    # defines a reduced mem window from temp contrast
+    def mk_sub_window(self, query_seq):
+        # get temp contrasts difs (intensity wise)
+        # non abs so is independent from rotation
+        subw_ids, qr_sums = [], []
+        for wi in range(self.blimit,self.flimit-self.queue_size):
+            qr_dif = np.array(self.route_images[wi:wi+self.queue_size]) - np.array(query_seq)
+            subw_ids.append((wi,wi+self.queue_size))
+            # Take the sum of diffs
+            qr_sums.append(np.sum(qr_dif))
+        # more similar changing coef
+        qr_min = np.min(np.abs(qr_sums))
+        qr_id = np.argmin(np.abs(qr_sums))
+        subw_blim, subw_flim = subw_ids[qr_id]
+        # update pointer and (sub-) window
+        #self.mem_pointer = subw_flim - 2     # just centred mp, for speed
+        self.mem_pointer = self.blimit + qr_id + round(self.queue_size/2) - 1
+        self.blimit = max(0,subw_blim-self.queue_size)
+        self.flimit = min(subw_flim+self.queue_size, self.route_end)
+
     def get_heading(self, query_img):
         '''
         Recover the heading given a query image
@@ -461,6 +482,11 @@ class Seq2SeqPerfectMemory(Navigator):
         #If the query images queue is full then remove the oldest element 
         # and add the new image (removal happes automaticaly when using the maxlen argument for the deque)
         self.queue.append(query_img)
+
+        if len(self.queue) == self.queue_size and self.sub_window:
+            #TODO use the param from the class
+            self.mk_sub_window(self.queue)
+
         # get the rotational similarities between the query images and a window of route images
         wrsims = seq2seqrmf(self.queue, self.route_images[self.blimit:self.flimit], self.matcher, self.deg_range, self.deg_step)
         
@@ -483,7 +509,8 @@ class Seq2SeqPerfectMemory(Navigator):
         # find best image match and heading
         # the index needs to be modulo the size of the window 
         # because now the window sims are the size of current queque * window 
-        idx = int(self.argminmax(wind_sims) % self.window)
+
+        idx = int(self.argminmax(wind_sims))
         self.best_sims.append(wind_sims[idx])
         heading = wind_headings[idx]
         self.recovered_heading.append(heading)
@@ -492,6 +519,7 @@ class Seq2SeqPerfectMemory(Navigator):
 
         # log the memory pointer before the update
         # mem_pointer - upper can cause the calc_dists() to go out of bounds
+        idx = idx % (self.flimit - self.blimit)
         matched_idx = self.blimit + idx
         self.matched_index_log.append(matched_idx)
 
@@ -500,10 +528,14 @@ class Seq2SeqPerfectMemory(Navigator):
             # TODO here I need to make the updating function modular
             self.dynamic_window_log_rate(best)
             self.check_w_size()
+        
 
+        if self.sub_window  and len(self.queue) == self.queue_size:
+            self.reset_window(self.mem_pointer)
+            # self.reset_window(matched_idx)
+        else:
+            self.update_mid_pointer(idx)
 
-        # Update memory pointer
-        self.update_mid_pointer(idx)
         return heading
 
     def update_pointer(self, idx):
