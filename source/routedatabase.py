@@ -132,6 +132,21 @@ class Route:
         min_xy = (self.route_dict['x'][min_idx], self.route_dict['y'][min_idx])
         return min_idx, min_dist, min_xy
 
+    def seq_min_dist_from_route(self, xy_vec, start=0, search_step=20):
+        memory_pointer = start
+        flimit = memory_pointer + 2*search_step
+        blimit = start
+        min_idx_l = []
+        min_dist_l = []
+        for xy in xy_vec:
+            min_idx, min_dist, _ = self.min_dist_from_route(xy, start=blimit, stop=flimit)
+            memory_pointer = min_idx
+            min_idx_l.append(min_idx)
+            min_dist_l.append(min_dist)
+            blimit = max(memory_pointer - search_step, 0)
+            flimit = min(memory_pointer + search_step, self.route_end)
+        return min_idx_l, min_dist_l
+
     def dist_from_route_end(self, xy):
         dist = cdist([xy], np.column_stack((self.route_dict['x'][-1], self.route_dict['y'][-1])), 'euclidean')
         return dist.item()

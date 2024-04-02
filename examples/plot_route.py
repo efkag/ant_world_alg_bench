@@ -16,14 +16,19 @@ from source.display import plot_route, plot_ftl_route
 sns.set_context("paper", font_scale=1)
 
 ## Antworld routes
-# path = 'temp_routes'
-# route_id = 6
-# path = os.path.join(path, f"route{route_id}")
+path = 'temp_routes'
+path = 'datasets/new-antworld/curve-bins'
+route_id = 0
+path = os.path.join(path, f"route{route_id}")
+grid_path = 'datasets/new-antworld/grid70'
 
-# route = Route(path=path, route_id=route_id, read_imgs=False)
-# route = route.get_route_dict()
+route = Route(path=path, grid_path=grid_path, route_id=route_id, read_imgs=False)
+route = route.get_route_dict()
 
-# plot_route(route)
+plot_route(route)
+
+plt.show()
+
 
 # Plot FTL route
 route_path = '/its/home/sk526/sussex-ftl-dataset/repeating-routes'

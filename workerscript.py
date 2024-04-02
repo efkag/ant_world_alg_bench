@@ -9,9 +9,7 @@ import uuid
 import numpy as np
 import copy
 from source.utils import calc_dists
-from source.navs.utils import pick_nav
-from source import seqnav as spm
-from source.navs import perfect_memory as pm
+from source.tools.benchutils import pick_nav
 from source import infomax
 from source import antworld2 as aw
 from source.routedatabase import Route, load_routes
@@ -107,7 +105,7 @@ for combo in chunk:
         deg_range = nav.deg_range
 
         rmf_logs_file = f'{chunk_id}{jobs}_{uuid.uuid4().hex}'
-        rmfs_path = os.path.join(results_path, rmf_logs_file)
+        rmfs_path = os.path.join(results_path, 'metadata', rmf_logs_file)
         np.save(rmfs_path, rmf_logs)
 
 

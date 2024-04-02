@@ -18,7 +18,7 @@ from source.antworld2 import Agent
 sns.set_context("paper", font_scale=1)
 
 
-directory = '2024-01-22'
+directory = '2024-03-01'
 results_path = os.path.join('Results', 'newant', directory)
 fig_save_path = os.path.join(results_path, 'analysis')
 with open(os.path.join(results_path, 'params.yml')) as fp:
@@ -30,9 +30,9 @@ data = read_results(os.path.join(results_path, 'results.csv'))
 
 # Set up params 
 # for a specific route
-route_id = 12
+route_id = 19
 threshold = 0
-repeat_no = 1
+repeat_no = 2
 fig_save_path = os.path.join(fig_save_path, f"route{route_id}", 'test-points')
 check_for_dir_and_create(fig_save_path)
 
@@ -53,7 +53,7 @@ title = None
 
 
 filters = {'route_id':route_id, 'res':'(180, 40)','blur':True, 
-           'window':15, 'matcher':'mae', 'edge':'False',
+           'window':50, 'matcher':'mae', 'edge':False,
            'num_of_repeat':repeat_no}
 traj = filter_results(data, **filters)
 print(traj.shape[0], ' rows')
@@ -62,7 +62,7 @@ traj = traj.to_dict(orient='records')[0]
 traj['x'] = traj.pop('tx')
 traj['y'] = traj.pop('ty')
 traj['heading'] = np.array(traj.pop('th'))
-traj['rmfs'] = np.load(os.path.join(results_path, traj['rmfs_file']+'.npy'), allow_pickle=True)
+traj['rmfs'] = np.load(os.path.join(results_path, 'metadata', traj['rmfs_file']+'.npy'), allow_pickle=True)
 
 
 #route = load_route_naw(path, imgs=True, route_id=route_id)

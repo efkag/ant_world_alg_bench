@@ -12,7 +12,7 @@ from ast import literal_eval
 from source.utils import load_route_naw, plot_route, animated_window, check_for_dir_and_create
 sns.set_context("paper", font_scale=1)
 
-directory = '2024-02-15/combined'
+directory = '2024-03-07'
 results_path = os.path.join('Results', 'newant', directory)
 fig_save_path = os.path.join('Results', 'newant', directory, 'analysis')
 check_for_dir_and_create(fig_save_path)
@@ -50,27 +50,30 @@ data = data.loc[(data['matcher'] == matcher)
 
 #################
 # in case of repeats
-method = sum
+method = np.mean
 #data = data.groupby(['window', 'route_id'])["trial_fail_count"].apply(method).to_frame("trial_fail_count").reset_index()
 ##### if the dataset had nav-names
 data = data.groupby(['nav-name', 'route_id'])["trial_fail_count"].apply(method).to_frame("trial_fail_count").reset_index()
+print(data['nav-name'].unique())
+order = ['A-SMW(15)', 'PM', 'SMW(10)', 'SMW(15)', 'SMW(20)', 'SMW(25)', 
+         'SMW(30)', 'SMW(40)', 'SMW(50)', 'SMW(75)', 'SMW(100)']
 
-figsize = (6., 3)
+figsize = (8., 4)
 fig, ax = plt.subplots(figsize=figsize)
 #ax.set_ylim(0, 20)
 #sns.barplot(x="window", y="trial_fail_count", data=data, ax=ax, estimator=method, capsize=.2, ci=None)
-sns.boxplot(data=data, x="nav-name", y="trial_fail_count",  ax=ax)
+sns.boxplot(data=data, x="nav-name", y="trial_fail_count",  ax=ax, order=order)
 # window_labels = ['Adaptive SMW', 'PM', 'Fixed 15', 'Fixed 25']
 # ax.set_xticklabels(window_labels)
 ax.set_xlabel('Navigation Algorithm')
-ax.set_ylabel('Sum TFC')
+ax.set_ylabel('Mean TFC')
 plt.tight_layout()
 # path = os.path.join(fig_save_path, f'route[{route_id}]-failed trials.png')
 temp_save_path = os.path.join(fig_save_path, 'failed-trials.png')
 fig.savefig(temp_save_path)
 temp_save_path = os.path.join(fig_save_path, 'failed-trials.pdf')
 fig.savefig(temp_save_path)
-#plt.show()
+plt.show()
 
 
 ################# joint plot

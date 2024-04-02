@@ -250,18 +250,19 @@ def plot_route(route, traj=None, scale=None, window=None, windex=None, save=Fals
         ax.scatter(traj['x'], traj['y'])
         # ax.plot(traj['x'], traj['y'])
         ax.quiver(traj['x'], traj['y'], u, v, scale=scale)
-    #plt.axis('equal')
+    #ax.set_aspect('equal', 'datalim')
     plt.xlim([-15, 15])
     plt.ylim([-15, 15])
-    plt.tight_layout()
+    fig.tight_layout()
     if save and windex:
         fig.savefig(path + '/' + str(windex) + '.png')
         plt.close(fig)
     elif save:
+        print(f'fig saved at: {path}')
         fig.savefig(path)
-
+        plt.close(fig)
     if not save: plt.show()
-    plt.close(fig)
+    return ax
 
 def plot_ftl_route(route, traj=None, scale=None, window=None, windex=None, save=False, size=(10, 10), path=None, title=None):
     '''
