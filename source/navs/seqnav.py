@@ -739,6 +739,6 @@ class Seq2SeqPerfectMemory(Navigator):
 
     def get_name(self):
         if self.adaptive:
-            return f's2sA-SMW({self.starting_window})'
+            return f's2sA-SMW({self.starting_window}, {self.sub_window})'
         else:
-            return f's2sSMW({self.window})'
+            return f's2sSMW({self.window}, {self.sub_window})'
