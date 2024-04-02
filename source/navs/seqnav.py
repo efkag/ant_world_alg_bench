@@ -1,7 +1,7 @@
 from source.utils import rotate, mae, rmse, dot_dist, cor_dist, rmf, seq2seqrmf, pair_rmf, cos_sim, mean_angle
 from source.analysis import d2i_rmfs_eval
 import numpy as np
-import copy
+from scipy.stats import norm
 from collections import deque
 from .navs import Navigator
 from .utils import p_heading
@@ -59,6 +59,9 @@ class SequentialPerfectMemory(Navigator):
             self.lower = 0
         self.blimit = 0
         self.flimit = self.window
+        # mu = 0
+        # sig = 1
+        # self.gauss_rv = norm(loc=mu, scale=sig)
 
         # Adaptive window parameters
         self.dynamic_range = dynamic_range
@@ -114,10 +117,9 @@ class SequentialPerfectMemory(Navigator):
         self.logs.append(wrsims)
 
         # weight the window ridf minima by a pdf
-        # TODO: here sample some weights roma distibution.
-        # use the weights by mutiplying with wind_sims
-        # then use the weightes wind_sims to idn the best index 
-        # and move the memory pointer
+        # x = np.linspace(norm.ppf(0.01),norm.ppf(0.99), len(wind_sims))
+        # weights = 1 - self.gauss_rv.pdf(x)
+        # wind_sims = weights * wind_sims
         # find best image match and heading
         idx = int(round(self.argminmax(wind_sims)))
         self.best_sims.append(wind_sims[idx])

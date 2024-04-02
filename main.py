@@ -83,7 +83,7 @@ def static_bench_antworld():
 def live_bench():
     from source import cbench
     #'segment_length':[3],
-    results_path = f'Results/newant/seq2seq/{string_date}'
+    results_path = f'Results/newant/{string_date}'
     routes_path = 'datasets/new-antworld/curve-bins'
     parameters = {'repos_thresh':[.3], 
                   'r': [0.05], 
@@ -100,12 +100,12 @@ def live_bench():
                   }
     
     nav_params = {#'pm':{'matcher':['mae']},
-                  #'smw':{'window':[75, 100], 'matcher':['mae']},
+                  'smw':{'window':[20], 'matcher':['mae']},
                   #'asmw':{'window':[-15], 'matcher':['mae']},
-                  's2s':{'window':[20], 'queue_size':[3], 'matcher':['mae'], 'sub_window':[0, 3]}
+                  #'s2s':{'window':[15], 'queue_size':[3], 'matcher':['mae'], 'sub_window':[3]}
     }
 
-    routes = [0, 1]
+    routes = [0, 19]
     num_of_repeats = 1
     parameters['repeat'] = [*range(num_of_repeats)]
     cbench.benchmark(results_path, routes_path, params=parameters, nav_params=nav_params,
