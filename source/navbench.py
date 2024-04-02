@@ -99,6 +99,7 @@ class Benchmark:
     def bench_paral(self, params, route_ids=None, cores=None):
         # save the parmeters of the test in a json file
         check_for_dir_and_create(self.results_path)
+        check_for_dir_and_create(os.path.join(self.results_path, 'metadata'))
         param_path = os.path.join(self.results_path, 'params.yml')
         temp_params = copy.deepcopy(params)
         temp_params['routes_path'] = self.routes_path
@@ -325,8 +326,8 @@ class Benchmark:
                 deg_range = nav.deg_range
 
                 rmf_logs = np.array(nav.get_rsims_log(), dtype=object)
-                rmf_logs_file = 'rmfs' + str(chunk_id) + str(shared['jobs'])
-                rmfs_path = os.path.join(results_path, rmf_logs_file)
+                rmf_logs_file = f"rmfs-{chunk_id}{shared['jobs']}_{uuid.uuid4().hex}"
+                rmfs_path = os.path.join(results_path, 'metadata', rmf_logs_file)
                 np.save(rmfs_path, rmf_logs)
 
                 log['nav-name'].append(nav.get_name())
@@ -405,7 +406,7 @@ class Benchmark:
 
                 for rep_id in repeat_ids: # for every repeat route
                     test_rep = route[rep_id]
-                    test_rep.set_sample_step(10)
+                    test_rep.set_sample_step(combo['sample_step'])
 
                     tic = time.perf_counter()
                     # Preprocess images
@@ -449,10 +450,10 @@ class Benchmark:
                     rec_headings = nav.get_rec_headings()
                     deg_range = nav.deg_range
 
-                    #rmf_logs = np.array(nav.get_rsims_log(), dtype=object)
-                    rmf_logs_file = f"rmfs-{chunk_id}-{shared['jobs']}-{test_rep.get_route_id()}"
-                    # rmfs_path = os.path.join(results_path, rmf_logs_file)
-                    # np.save(rmfs_path, rmf_logs)
+                    rmf_logs = np.array(nav.get_rsims_log(), dtype=object)
+                    rmf_logs_file = f"rmfs-{chunk_id}{shared['jobs']}_{uuid.uuid4().hex}"
+                    rmfs_path = os.path.join(results_path, 'metadata', rmf_logs_file)
+                    np.save(rmfs_path, rmf_logs)
 
                     log['nav-name'].append(nav.get_name())
                     log['route_id'].append(ri)
