@@ -465,14 +465,13 @@ class Seq2SeqPerfectMemory(Navigator):
             # Take the sum of diffs
             qr_sums.append(np.sum(qr_dif))
         # more similar changing coef
-        qr_min = np.min(np.abs(qr_sums))
+        #qr_min = np.min(np.abs(qr_sums))
         qr_id = np.argmin(np.abs(qr_sums))
         subw_blim, subw_flim = subw_ids[qr_id]
         # update pointer and (sub-) window
-        #self.mem_pointer = subw_flim - 2     # just centred mp, for speed
-        self.mem_pointer = self.blimit + qr_id + round(self.queue_size/2) - 1
-        self.blimit = max(0,subw_blim-self.queue_size)
-        self.flimit = min(subw_flim+self.queue_size, self.route_end)
+        self.mem_pointer = subw_blim + qr_id
+        self.blimit = max(0,self.mem_pointer - round(1.5*self.queue_size))
+        self.flimit = min(self.mem_pointer + round(1.5*self.queue_size, self.route_end))
 
     def get_heading(self, query_img):
         '''

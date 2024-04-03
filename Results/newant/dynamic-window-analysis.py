@@ -18,7 +18,7 @@ import numpy as np
 sns.set_context("paper", font_scale=1)
 
 
-directory = '2024-03-01'
+directory = 'seq2seq/2024-04-02'
 results_path = os.path.join('Results', 'newant', directory)
 fig_save_path = os.path.join('Results', 'newant', directory, 'analysis')
 data = read_results(os.path.join(results_path, 'results.csv'))
@@ -28,14 +28,14 @@ data = read_results(os.path.join(results_path, 'results.csv'))
 # Plot a specific route
 title = None
 figsize = (10, 6)
-route_id = 19
-repeat_no = 2
+route_id = 0
+repeat_no = 0
 fig_save_path = os.path.join(fig_save_path, f'route{route_id}')
 check_for_dir_and_create(fig_save_path)
 
 filters = {'route_id':route_id, 'res':'(180, 40)','blur':True, 
-           'window':-15, 'matcher':'mae', 'edge':False, 
-           'num_of_repeat': repeat_no}
+           'window':20, 'matcher':'mae', 'edge':False, 
+           'num_of_repeat': repeat_no, 'nav-name':'s2sSMW(20, 3)'}
 traj = filter_results(data, **filters)
 print(traj.shape[0], ' rows')
 

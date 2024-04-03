@@ -18,7 +18,7 @@ from source.antworld2 import Agent
 sns.set_context("paper", font_scale=1)
 
 
-directory = '2024-03-01'
+directory = 'seq2seq/2024-04-02'
 results_path = os.path.join('Results', 'newant', directory)
 fig_save_path = os.path.join(results_path, 'analysis')
 with open(os.path.join(results_path, 'params.yml')) as fp:
@@ -30,9 +30,9 @@ data = read_results(os.path.join(results_path, 'results.csv'))
 
 # Set up params 
 # for a specific route
-route_id = 19
+route_id = 0
 threshold = 0
-repeat_no = 2
+repeat_no = 0
 fig_save_path = os.path.join(fig_save_path, f"route{route_id}", 'test-points')
 check_for_dir_and_create(fig_save_path)
 
@@ -48,13 +48,13 @@ r_path = os.path.join(routes_path ,f'route{route_id}')
 # Bench params
 
 
-figsize = (5, 5)
+figsize = (8,8)
 title = None
 
 
 filters = {'route_id':route_id, 'res':'(180, 40)','blur':True, 
-           'window':50, 'matcher':'mae', 'edge':False,
-           'num_of_repeat':repeat_no}
+           'window':20, 'matcher':'mae', 'edge':False,
+           'num_of_repeat':repeat_no, 'nav-name':'s2sSMW(20, 3)'}
 traj = filter_results(data, **filters)
 print(traj.shape[0], ' rows')
 traj = traj.to_dict(orient='records')[0]

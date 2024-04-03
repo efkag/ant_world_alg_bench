@@ -100,16 +100,16 @@ def live_bench():
                   }
     
     nav_params = {#'pm':{'matcher':['mae']},
-                  'smw':{'window':[20], 'matcher':['mae']},
+                  #'smw':{'window':[20], 'matcher':['mae']},
                   #'asmw':{'window':[-15], 'matcher':['mae']},
-                  #'s2s':{'window':[15], 'queue_size':[3], 'matcher':['mae'], 'sub_window':[3]}
+                  's2s':{'window':[15], 'queue_size':[3], 'matcher':['mae'], 'sub_window':[3]}
     }
 
     routes = [0, 19]
     num_of_repeats = 1
     parameters['repeat'] = [*range(num_of_repeats)]
     cbench.benchmark(results_path, routes_path, params=parameters, nav_params=nav_params,
-                    route_ids=routes, parallel=True, num_of_repeats=num_of_repeats, cores=5)
+                    route_ids=routes, parallel=True, num_of_repeats=num_of_repeats, cores=1)
 
 
 def main():
