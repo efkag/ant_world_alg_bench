@@ -1,7 +1,7 @@
 from source.utils import rotate, mae, rmse, dot_dist, cor_dist, rmf, seq2seqrmf, pair_rmf, cos_sim, mean_angle
 from source.analysis import d2i_rmfs_eval
 import numpy as np
-import copy
+from scipy.stats import norm
 from collections import deque
 from .navs import Navigator
 from .utils import p_heading
@@ -59,6 +59,9 @@ class SequentialPerfectMemory(Navigator):
             self.lower = 0
         self.blimit = 0
         self.flimit = self.window
+        # mu = 0
+        # sig = 1
+        # self.gauss_rv = norm(loc=mu, scale=sig)
 
         # Adaptive window parameters
         self.dynamic_range = dynamic_range
@@ -114,10 +117,9 @@ class SequentialPerfectMemory(Navigator):
         self.logs.append(wrsims)
 
         # weight the window ridf minima by a pdf
-        # TODO: here sample some weights roma distibution.
-        # use the weights by mutiplying with wind_sims
-        # then use the weightes wind_sims to idn the best index 
-        # and move the memory pointer
+        # x = np.linspace(norm.ppf(0.01),norm.ppf(0.99), len(wind_sims))
+        # weights = 1 - self.gauss_rv.pdf(x)
+        # wind_sims = weights * wind_sims
         # find best image match and heading
         idx = int(round(self.argminmax(wind_sims)))
         self.best_sims.append(wind_sims[idx])
@@ -463,14 +465,13 @@ class Seq2SeqPerfectMemory(Navigator):
             # Take the sum of diffs
             qr_sums.append(np.sum(qr_dif))
         # more similar changing coef
-        qr_min = np.min(np.abs(qr_sums))
+        #qr_min = np.min(np.abs(qr_sums))
         qr_id = np.argmin(np.abs(qr_sums))
         subw_blim, subw_flim = subw_ids[qr_id]
         # update pointer and (sub-) window
-        #self.mem_pointer = subw_flim - 2     # just centred mp, for speed
-        self.mem_pointer = self.blimit + qr_id + round(self.queue_size/2) - 1
-        self.blimit = max(0,subw_blim-self.queue_size)
-        self.flimit = min(subw_flim+self.queue_size, self.route_end)
+        self.mem_pointer = subw_blim + qr_id
+        self.blimit = max(0,self.mem_pointer - round(1.5*self.queue_size))
+        self.flimit = min(self.mem_pointer + round(1.5*self.queue_size, self.route_end))
 
     def get_heading(self, query_img):
         '''

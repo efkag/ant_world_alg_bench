@@ -6,7 +6,7 @@ chunks
 ODK_office/
 ODK_office/office.zip
 ODK_office/robot_spin.tar.gz
-**/__pycache__
+**/__pycache__/
 **.npy
 Results/
 projects/
