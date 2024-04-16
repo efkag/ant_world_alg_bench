@@ -262,7 +262,7 @@ class BoBRoute:
     def set_sample_step(self, step: int):
         self.sample_step = step
     
-    def calc_errors(self, trajectory):
+    def calc_aae(self, trajectory):
         r_sample = {'x': self.route_dict['x'][::self.sample_step], 
                 'y': self.route_dict['y'][::self.sample_step],
                 'yaw': self.route_dict['yaw'][::self.sample_step]
