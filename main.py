@@ -102,7 +102,7 @@ def live_bench():
     nav_params = {#'pm':{'matcher':['mae']},
                   #'smw':{'window':[20], 'matcher':['mae']},
                   #'asmw':{'window':[-15], 'matcher':['mae']},
-                  's2s':{'window':[15], 'queue_size':[3], 'matcher':['mae'], 'sub_window':[3]}
+                  's2s':{'window':[20], 'queue_size':[3], 'matcher':['mae'], 'sub_window':[3]}
     }
 
     routes = [0, 19]
