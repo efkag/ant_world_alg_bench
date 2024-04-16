@@ -368,10 +368,7 @@ def load_bob_routes_repeats(path, ids, suffix=None, ref_route=1, repeats=None, *
             rep_routes_temp_l = []
             for rep in repeat_ids:
                 route_path = repeats_path + str(rep)
-                #TODO: make this modular and remove later
-                tempkwargs = copy.deepcopy(kwargs)
-                tempkwargs['sample_step'] = 10
-                r = BoBRoute(route_path, route_id=rep, **tempkwargs)
+                r = BoBRoute(route_path, route_id=rep, **kwargs)
                 rep_routes_temp_l.append(r)
             repeat_routes.append(rep_routes_temp_l)
     return routes, repeat_routes
