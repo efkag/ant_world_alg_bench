@@ -8,6 +8,8 @@ import functools
 import numpy as np
 import yaml
 import uuid
+import datetime
+from source.tools.benchutils import pick_nav
 from source.utils import pre_process, load_route_naw, check_for_dir_and_create, calc_dists, squash_deg
 from source import seqnav as spm, perfect_memory as pm
 from source.routedatabase import Route, load_all_bob_routes, load_routes, load_bob_routes, load_bob_routes_repeats
@@ -361,7 +363,9 @@ class Benchmark:
                 log['best_sims'].append(nav.get_best_sims())
                 # Increment the complete jobs shared variable
                 shared['jobs'] = shared['jobs'] + 1
-                print(multiprocessing.current_process(), ' jobs completed: {}/{}'.format(shared['jobs'], shared['total_jobs']))
+                print(datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y"),
+                      multiprocessing.current_process(), 
+                      ' jobs completed: {}/{}'.format(shared['jobs'], shared['total_jobs']))
         return log
     
     @staticmethod
@@ -488,5 +492,7 @@ class Benchmark:
                     log['best_sims'].append(nav.get_best_sims())
                 # Increment the complete jobs shared variable
                 shared['jobs'] = shared['jobs'] + 1
-                print(multiprocessing.current_process(), ' jobs completed: {}/{}'.format(shared['jobs'], shared['total_jobs']))
+                print(datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y"), 
+                      multiprocessing.current_process(), 
+                      ' jobs completed: {}/{}'.format(shared['jobs'], shared['total_jobs']))
         return log

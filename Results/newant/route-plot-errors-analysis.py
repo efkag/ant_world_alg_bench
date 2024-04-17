@@ -14,7 +14,7 @@ from source.tools.results import filter_results, read_results
 import yaml
 sns.set_context("paper", font_scale=1)
 
-directory = 'seq2seq/2024-04-02'
+directory = 'seq2seq/2024-04-15'
 results_path = os.path.join('Results', 'newant', directory)
 fig_save_path = os.path.join('Results', 'newant', directory, 'analysis')
 data = read_results(os.path.join(results_path, 'results.csv'))

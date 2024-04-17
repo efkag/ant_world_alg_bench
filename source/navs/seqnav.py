@@ -515,8 +515,9 @@ class Seq2SeqPerfectMemory(Navigator):
         self.best_sims.append(wind_sims[idx])
         heading = wind_headings[idx]
         self.recovered_heading.append(heading)
-        #rotate the query image to the recoverd heading
-        self.queue[-1] = rotate(heading, self.queue[-1])
+        #rotate all the query images to the recoverd heading
+        for i, im in enumerate(self.queue):
+            self.queue[i] = rotate(heading, im)
 
         # log the memory pointer before the update
         # mem_pointer - upper can cause the calc_dists() to go out of bounds
