@@ -417,18 +417,22 @@ class Benchmark:
                     pipe = Pipeline(**combo)
                     route_imgs = pipe.apply(ref_rep.get_imgs())
                     test_imgs = pipe.apply(test_rep.get_imgs())
+                    # select navigator instance
+                    nav_class = pick_nav(combo['nav-class'])
+                    nav = nav_class(route_imgs, **combo)
+                    recovered_heading = nav.navigate(test_imgs)
                     # Run navigation algorithm
-                    if window:
-                        nav = spm.SequentialPerfectMemory(route_imgs, matcher, **combo)
-                        recovered_heading, window_log = nav.navigate(test_imgs)
-                    elif window == 0:
-                        nav = pm.PerfectMemory(route_imgs, **combo)
-                        recovered_heading = nav.navigate(test_imgs)
-                    else:
-                        infomaxParams = infomax.Params()
-                        nav = infomax.InfomaxNetwork(infomaxParams, route_imgs, **combo)
-                        recovered_heading = nav.navigate(test_imgs)
-                    # here i need a navigate method for infomax.
+                    # if window:
+                    #     nav = spm.SequentialPerfectMemory(route_imgs, matcher, **combo)
+                    #     recovered_heading, window_log = nav.navigate(test_imgs)
+                    # elif window == 0:
+                    #     nav = pm.PerfectMemory(route_imgs, **combo)
+                    #     recovered_heading = nav.navigate(test_imgs)
+                    # else:
+                    #     infomaxParams = infomax.Params()
+                    #     nav = infomax.InfomaxNetwork(infomaxParams, route_imgs, **combo)
+                    #     recovered_heading = nav.navigate(test_imgs)
+
                     toc = time.perf_counter()
                     # Get time complexity
                     time_compl = toc - tic
