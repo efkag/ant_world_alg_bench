@@ -154,78 +154,6 @@ class Benchmark:
 
         return logs
 
-    def bench_singe_core(self, params, route_ids=None):
-        self._total_jobs(params)
-
-        # Get list of parameter keys
-        keys = [*params]
-
-        grid = itertools.product(*[params[k] for k in params])
-
-        #  Go though all combinations in the grid
-        for combo in grid:
-
-            # create combo dictionary
-            combo_dict = {}
-            for i, k in enumerate(keys):
-                combo_dict[k] = combo[i]
-
-            matcher = combo_dict['matcher']
-            window = combo_dict['window']
-            window_log = None
-            path = '../new-antworld/'
-            for route_id in route_ids:  # for every route
-                # TODO: In the future the code below (inside the loop) should all be moved inside the navigator class
-                route_path = '../new-antworld/route' + str(route_id) + '/'
-                # route = load_route_naw(route_path, route_id=route_id, imgs=True, query=True, max_dist=0.2)
-                # _, test_x, test_y, test_imgs, route_x, route_y, \
-                #     route_heading, route_imgs = load_route(route, self.dist)
-                route = Route(route_path, route_id, grid_path=self.grid_path)
-                
-                tic = time.perf_counter()
-                # Preprocess images
-                test_imgs = pre_process(route.get_qimgs(), combo_dict)
-                route_imgs = pre_process(route.get_imgs(), combo_dict)
-                # Run navigation algorithm
-                if window:
-                    nav = spm.SequentialPerfectMemory(route_imgs, matcher, window=window)
-                    recovered_heading, window_log = nav.navigate(test_imgs)
-                else:
-                    nav = pm.PerfectMemory(route_imgs, matcher)
-                    recovered_heading = nav.navigate(test_imgs)
-
-                toc = time.perf_counter()
-                # Get time complexity
-                time_compl = toc-tic
-                # Get the errors and the minimum distant index of the route memory
-                # errors, min_dist_index = degree_error(test_x, test_y, route_x, route_y, route_heading, recovered_heading)
-                traj = {'x': route['qx'], 'y': route['qy'], 'heading': recovered_heading}
-                errors, min_dist_index = route.calc_errors(traj)
-                # Difference between matched index and minimum distance index and distance between points
-                matched_index = nav.get_index_log()
-                abs_index_diffs = np.absolute(np.subtract(nav.get_index_log(), min_dist_index))
-                dist_diff = calc_dists(route.get_xycoords(), min_dist_index, matched_index)
-                mean_route_error = np.mean(errors)
-                self.log['route_id'].extend([route_id])
-                self.log['blur'].extend([combo_dict.get('blur')])
-                self.log['edge'].extend([combo_dict.get('edge_range')])
-                self.log['res'].append(combo_dict.get('shape'))
-                self.log['window'].extend([window])
-                self.log['matcher'].extend([matcher])
-                self.log['mean_error'].append(mean_route_error)
-                self.log['seconds'].append(time_compl)
-                self.log['window_log'].append(window_log)
-                self.log['best_sims'].append(nav.get_best_sims())
-                self.log['tx'].append(traj['x'].tolist())
-                self.log['ty'].append(traj['y'].tolist())
-                self.log['th'].append(traj['heading'].tolist())
-                self.log['abs_index_diff'].append(abs_index_diffs.tolist())
-                self.log['dist_diff'].append(dist_diff.tolist())
-                self.log['errors'].append(errors)
-            self.jobs += 1
-            print('Jobs completed: {}/{}'.format(self.jobs, self.total_jobs))
-        return self.log
-
     def _total_jobs(self, params):
         for k in params:
             self.total_jobs = self.total_jobs * len(params[k])
@@ -241,7 +169,9 @@ class Benchmark:
             self.log = self.bench_paral(params, route_ids, cores=cores)
             self.unpack_results()
         else:
-            self.log = self.bench_singe_core(params, route_ids)
+            self.log = None
+            self.log = self.bench_paral(params, route_ids, cores=cores)
+            self.unpack_results()
 
         bench_results = pd.DataFrame(self.log)
         write_path = os.path.join(self.results_path, 'results.csv')

@@ -26,11 +26,17 @@ def static_bench():
                   #'loc_norm': [{'kernel_shape':(3, 3)}, False],
                   'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
                   'deg_range':[(-90, 90)],
-                  'window': [0], 
-                  'matcher': ['mae'],
+                  #'matcher': ['mae'],
                   'ref_route': [1, 2, 3, 4],
                   'sample_step':[2]
                   }
+    
+    nav_params = {'pm':{'matcher':['mae']},
+                  #'smw':{'window':[300, 500], 'matcher':['mae']},
+                  #'asmw':{'window':[-15], 'matcher':['mae']},
+                  #'s2s':{'window':[20], 'queue_size':[3], 'matcher':['mae'], 'sub_window':[3]
+                  }
+    #TODO modify navbench to use nav params
     
     routes = [1]
     bench = navbench.Benchmark(results_path, routes_path, 
