@@ -453,11 +453,13 @@ class Benchmark:
                     window_log = nav.get_window_log()
                     rec_headings = nav.get_rec_headings()
                     deg_range = nav.deg_range
-
-                    rmf_logs = np.array(nav.get_rsims_log(), dtype=object)
+                    
+                    #TODO check if we have empty logs from PM and omit saving those arrays
+                    # check if empty arrays cause saving problems.
+                    #rmf_logs = np.array(nav.get_rsims_log(), dtype=object)
                     rmf_logs_file = f"rmfs-{chunk_id}{shared['jobs']}_{uuid.uuid4().hex}"
-                    rmfs_path = os.path.join(results_path, 'metadata', rmf_logs_file)
-                    np.save(rmfs_path, rmf_logs)
+                    #rmfs_path = os.path.join(results_path, 'metadata', rmf_logs_file)
+                    #np.save(rmfs_path, rmf_logs)
 
                     log['nav-name'].append(nav.get_name())
                     log['route_id'].append(ri)
