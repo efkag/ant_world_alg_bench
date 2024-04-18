@@ -131,7 +131,8 @@ class Benchmark:
         chunks = self.get_grid_chunks(grid, no_of_chunks)
 
         print('{} combinations, testing on {} routes, running on {} cores'.format(self.total_jobs, len(route_ids), no_of_chunks))
-        
+        print('data path: ', self.routes_path)
+        print('save path: ', self.results_path)
         #Make a dict of parameter arguments
         arg_params = {'route_ids': route_ids, 'grid_dist':self.dist,
                       'routes_path':self.routes_path, 'grid_path':self.grid_path,

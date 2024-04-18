@@ -11,7 +11,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from source.utils import check_for_dir_and_create
-sns.set_context('paper')
+sns.set_context('talk')
 
 def load_testing_logs(route_path, dname):
     data_path = os.path.join(route_path, dname, 'database_entries.csv')
@@ -23,7 +23,7 @@ def load_testing_logs(route_path, dname):
     route['yaw'] = np.array(route.pop(' Heading [degrees]'))
     return route
 
-route_id=3
+route_id=2
 pm_logs = ['pm0', 'pm1', 'pm2', 'pm3', 'pm4'] 
 asmw_logs = ['asmw0', 'asmw1', 'asmw2', 'asmw3', 'asmw4'] 
 title = None
@@ -53,7 +53,7 @@ Here all the xy are flipped and rotated by 270 degreee to  plot aproaproiately
 '''
 
 
-fig = plt.figure(figsize=(2.5, 2.5))
+fig = plt.figure(figsize=(5, 5))
 #plt.title(title, loc='left')
 plt.plot(route['x'], route['y'], label='training')
 

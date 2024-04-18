@@ -28,7 +28,7 @@ def static_bench():
                   'deg_range':[(-90, 90)],
                   'window': [0], 
                   'matcher': ['mae'],
-                  'ref_route': [1, 2, 3, 4],
+                  'ref_route': [1],
                   'sample_step':[2]
                   }
     
@@ -94,9 +94,9 @@ def live_bench():
                   #'w_thresh': [0.05],
                  # 'sma_size': [5],
                 #  'wave' : [True, False], 
-                  #'edge_range': [(50, 255), False],
-                #  'loc_norm': [{'kernel_shape':(5, 5)}, False],
-                 # 'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
+                  'edge_range': [(50, 255), False],
+                  #'loc_norm': [{'kernel_shape':(5, 5)}, False],
+                  'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
                   }
     
     nav_params = {#'pm':{'matcher':['mae']},
