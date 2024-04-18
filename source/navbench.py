@@ -412,7 +412,8 @@ class Benchmark:
                 for rep_id in repeat_ids: # for every repeat route
                     test_rep = route[rep_id]
                     test_rep.set_sample_step(combo['sample_step'])
-
+                    print(datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y"),
+                          ' testting: ', combo)
                     tic = time.perf_counter()
                     # Preprocess images
                     pipe = Pipeline(**combo)
