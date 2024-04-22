@@ -27,7 +27,7 @@ route_id=2
 pm_logs = ['pm0', 'pm1', 'pm2', 'pm3', 'pm4'] 
 asmw_logs = ['asmw0', 'asmw1', 'asmw2', 'asmw3', 'asmw4'] 
 title = None
-trial_logs = asmw_logs
+trial_logs = pm_logs
 
 route_path = os.path.join(fwd,'2023-10-03', f'route{route_id}')
 fig_save_path = os.path.join(route_path, 'analysis')

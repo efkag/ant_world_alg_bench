@@ -268,12 +268,12 @@ class Benchmark:
         results_path = arg_params.get('results_path')
         chunk_id = multiprocessing.current_process()._identity
 
-        log = {'route_id': [], 'blur': [], 'edge': [], 'res': [],  'histeq':[], 'vcrop':[], 
+        log = {'route_id': [],'nav-name':[], 'blur': [], 'edge': [], 'res': [],  'histeq':[], 'vcrop':[], 
                'window': [], 'matcher': [], 'deg_range':[], 'mean_error': [], 
                'seconds': [], 'errors': [], 'index_diff': [], 'window_log': [], 
                'matched_index': [], 'min_dist_index': [], 'dist_diff': [], 'tx': [], 'ty': [], 'th': [],
                'ah': [] , 'rmfs_file':[],'best_sims':[], 'loc_norm':[], 
-               'gauss_loc_norm':[], 'wave':[], 'nav-name':[]}
+               'gauss_loc_norm':[], 'wave':[]}
         
         # Load all routes
         routes = load_routes(routes_path, route_ids, max_dist=dist, grid_path=grid_path)
@@ -381,12 +381,12 @@ class Benchmark:
         repeats = arg_params.get('repeats')
         chunk_id = multiprocessing.current_process()._identity
 
-        log = {'route_id': [],'ref_route':[], 'rep_id': [], 'sample_rate':[], 'blur': [], 
+        log = {'route_id': [],'ref_route':[], 'rep_id': [], 'nav-name':[], 'sample_rate':[], 'blur': [], 
                'histeq':[], 'edge': [], 'res': [], 'vcrop':[],'window': [], 'matcher': [],
                'deg_range':[], 'mean_error': [], 'seconds': [], 'errors': [], 
-               'index_diff': [], 'window_log': [], 'matched_index': [], 'dist_diff': [], 
-               'tx': [], 'ty': [], 'th': [],'ah': [] , 'rmfs_file':[], 'best_sims':[], 
-               'loc_norm':[], 'gauss_loc_norm':[], 'wave':[], 'nav-name':[]}
+               'index_diff': [], 'window_log': [], 'matched_index': [], 'min_dist_index': [],
+               'dist_diff': [], 'tx': [], 'ty': [], 'th': [],'ah': [] , 'rmfs_file':[], 'best_sims':[], 
+               'loc_norm':[], 'gauss_loc_norm':[], 'wave':[]}
 
         
         # Load all routes
@@ -490,13 +490,13 @@ class Benchmark:
                     log['ah'].append(rec_headings)
                     log['rmfs_file'].append(rmf_logs_file)
                     log['matched_index'].append(matched_index)
+                    log['min_dist_index'].append(min_dist_index)
                     log['index_diff'].append(index_diffs)
                     log['dist_diff'].append(dist_diff)
                     log['errors'].append(errors)
                     log['best_sims'].append(nav.get_best_sims())
                 # Increment the complete jobs shared variable
                 shared['jobs'] = shared['jobs'] + 1
-                print(datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y"), 
-                      multiprocessing.current_process(), 
-                      ' jobs completed: {}/{}'.format(shared['jobs'], shared['total_jobs']))
+                print(datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y"))
+                print(multiprocessing.current_process(), ' jobs completed: {}/{}'.format(shared['jobs'], shared['total_jobs']))
         return log
