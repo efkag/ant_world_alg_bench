@@ -54,10 +54,10 @@ def lin(img, kernel_shape=(5, 5)):
     img = img.astype(np.float32, copy=False)
     mu = cv.blur(img, kernel_shape)
     img = img - mu
-    return cv.normalize(src=img, dst=img, aplha=0, beta=255, norm_type=cv.NORM_MINMAX)
-    # var = cv.blur(img*img, kernel_shape)
-    # sig = var**0.5 + np.finfo(float).eps
-    # return img / sig
+    var = cv.blur(img*img, kernel_shape)
+    sig = var**0.5 + np.finfo(float).eps
+    img = img / sig
+    return img
 
 
 def loc_norm(kernel_shape=(3, 3)):
@@ -77,9 +77,9 @@ def glin(img, sig1=2, sig2=20):
     var = cv.GaussianBlur(img*img, (0, 0), sig2)
     sig = var**0.5 + np.finfo(float).eps
     img =  img / sig
-    #return img
+    return img
     #return img.astype(np.uint8, copy=False)
-    return cv.normalize(src=img, dst=img, alpha=0, beta=255, norm_type=cv.NORM_MINMAX)
+    #return cv.normalize(src=img, dst=img, alpha=0, beta=255, norm_type=cv.NORM_MINMAX)
 
 
 def gauss_loc_norm(sig1=2, sig2=20):
