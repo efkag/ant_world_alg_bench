@@ -9,9 +9,12 @@ import numpy as np
 import yaml
 import uuid
 import datetime
+#TODO: Update to use the pick nav function 
 from source.tools.benchutils import pick_nav
+from source.navs import perfect_memory as pm
 from source.utils import pre_process, load_route_naw, check_for_dir_and_create, calc_dists, squash_deg
-from source import seqnav as spm, perfect_memory as pm
+#TODO Get rid of this import
+from source import seqnav as spm
 from source.routedatabase import Route, load_all_bob_routes, load_routes, load_bob_routes, load_bob_routes_repeats
 from source.imgproc import Pipeline
 from source import infomax
