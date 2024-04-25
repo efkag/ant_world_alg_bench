@@ -13,7 +13,6 @@ import seaborn as sns
 from ast import literal_eval
 sns.set_context("paper", font_scale=1)
 
-# fig_save_path = '/home/efkag/Desktop/perf'
 fig_save_path = 'Results/newant/2022-01-27'
 data = pd.read_csv('Results/newant/2022-01-27/results.csv')
 # Convert list of strings to actual list of lists

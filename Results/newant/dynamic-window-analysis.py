@@ -18,7 +18,7 @@ import numpy as np
 sns.set_context("paper", font_scale=1)
 
 
-directory = 'seq2seq/2024-04-02'
+directory = '2024-03-07'
 results_path = os.path.join('Results', 'newant', directory)
 fig_save_path = os.path.join('Results', 'newant', directory, 'analysis')
 data = read_results(os.path.join(results_path, 'results.csv'))
@@ -34,8 +34,10 @@ fig_save_path = os.path.join(fig_save_path, f'route{route_id}')
 check_for_dir_and_create(fig_save_path)
 
 filters = {'route_id':route_id, 'res':'(180, 40)','blur':True, 
-           'window':20, 'matcher':'mae', 'edge':False, 
-           'num_of_repeat': repeat_no, 'nav-name':'s2sSMW(20, 3)'}
+           'window':-15, 'matcher':'mae', 'edge':False, 
+           'num_of_repeat': repeat_no, 
+           #'nav-name':'s2sSMW(20, 3)'
+           }
 traj = filter_results(data, **filters)
 print(traj.shape[0], ' rows')
 
@@ -60,6 +62,10 @@ ax1.set_ylabel('route index scale')
 ax1.set_xlabel('test points')
 
 ax2 = ax1.twinx()
+# idfg = np.gradient(traj['best_sims'])
+# idfg_csum = np.cumsum(idfg)
+# ax2.plot(range(len(idfg_csum)), idfg_csum, label='IDF grad. sum', color='k')
+
 ax2.plot(range(len(traj['best_sims'])), traj['best_sims'], label='image diff.', color='g')
 #ax2.scatter(range(len(traj['best_sims'])), traj['best_sims'], color='g')
 

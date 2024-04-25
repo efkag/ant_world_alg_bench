@@ -16,7 +16,7 @@ import yaml
 sns.set_context("paper", font_scale=1)
 
 # general paths
-directory = '2024-01-22/2024-01-22'
+directory = '2024-03-07'
 results_path = os.path.join('Results', 'newant',  directory)
 fig_save_path = os.path.join(results_path, 'analysis')
 
@@ -29,7 +29,7 @@ routes_path = params['routes_path']
 
 
 # Plot a specific route
-route_id = 12
+route_id = 7
 repeat_no = 0
 fig_save_path = os.path.join(fig_save_path, f"route{route_id}")
 check_for_dir_and_create(fig_save_path)
@@ -41,7 +41,7 @@ title = None
 
 
 filters = {'route_id':route_id, 'res':'(180, 40)','blur':True, 
-           'window':15, 'matcher':'mae', 'edge':'False',
+           'window':-15, 'matcher':'mae', 'edge':False,
            'num_of_repeat': repeat_no}
 traj = filter_results(data, **filters)
 print(traj.shape[0], ' rows')
@@ -53,7 +53,7 @@ min_dist_index = traj['min_dist_index']
 
 #Read the pickled file
 print(traj['rmfs_file'])
-rmfs_path = os.path.join(results_path, f"{traj['rmfs_file']}.npy")
+rmfs_path = os.path.join(results_path, 'metadata', f"{traj['rmfs_file']}.npy")
 print(rmfs_path)
 rmfs = np.load(rmfs_path, allow_pickle=True)
 print(rmfs.shape)

@@ -83,41 +83,41 @@ def static_bench_antworld():
 def live_bench():
     from source import cbench
     #'segment_length':[3],
-    results_path = f'Results/newant/seq2seq/{string_date}'
+    results_path = f'Results/newant/{string_date}'
     routes_path = 'datasets/new-antworld/curve-bins'
     parameters = {'repos_thresh':[.3], 
                   'r': [0.05], 
                   't': [1000], 
                   'blur': [True],
                   'shape': [(180, 40)],
-                  'deg_range':[(-90, 90)],
+                  'deg_range':[(-180, 180)],
                   #'w_thresh': [0.05],
                  # 'sma_size': [5],
                 #  'wave' : [True, False], 
-                  'edge_range': [(50, 255), False],
+                  #'edge_range': [(50, 255), False],
                   #'loc_norm': [{'kernel_shape':(5, 5)}, False],
-                  'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
+                  #'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
                   }
     
     nav_params = {#'pm':{'matcher':['mae']},
                   #'smw':{'window':[300, 500], 'matcher':['mae']},
-                  #'asmw':{'window':[-15], 'matcher':['mae']},
-                  's2s':{'window':[20], 'queue_size':[3], 'matcher':['mae'], 'sub_window':[3]}
+                  'asmw':{'window':[-20], 'matcher':['mae']},
+                  #'s2s':{'window':[20], 'queue_size':[3], 'matcher':['mae'], 'sub_window':[3]}
     }
 
-    routes = [0, 1]
-    num_of_repeats = 1
+    routes = [*range(20)]
+    num_of_repeats = 3
     parameters['repeat'] = [*range(num_of_repeats)]
     cbench.benchmark(results_path, routes_path, params=parameters, nav_params=nav_params,
-                    route_ids=routes, parallel=True, num_of_repeats=num_of_repeats, cores=1)
+                    route_ids=routes, parallel=True, num_of_repeats=num_of_repeats, cores=3)
 
 
 def main():
     start_dtime = datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y")
     print(start_dtime)
-    static_bench()
+    #static_bench()
     #static_bench_antworld()
-    #live_bench()
+    live_bench()
     
     end_dtime = datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y")
 

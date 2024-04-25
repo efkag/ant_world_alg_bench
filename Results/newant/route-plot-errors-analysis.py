@@ -14,7 +14,7 @@ from source.tools.results import filter_results, read_results
 import yaml
 sns.set_context("paper", font_scale=1)
 
-directory = 'seq2seq/2024-04-15'
+directory = '2024-03-07'
 results_path = os.path.join('Results', 'newant', directory)
 fig_save_path = os.path.join('Results', 'newant', directory, 'analysis')
 data = read_results(os.path.join(results_path, 'results.csv'))
@@ -36,8 +36,8 @@ threshold = 0
 repeat_no = 0
 
 filters = {'route_id':route_id, 'res':'(180, 40)','blur':True, 
-           'window':20, 'matcher':'mae', 'edge':False,
-           'num_of_repeat': repeat_no, 'nav-name':'s2sSMW(20, 3)'}
+           'window':-15, 'matcher':'mae', 'edge':False,
+           'num_of_repeat': repeat_no, 'nav-name':'SMW(10)'}
 traj = filter_results(data, **filters)
 print(traj.shape[0], ' rows')
 traj = traj.to_dict(orient='records')[0]

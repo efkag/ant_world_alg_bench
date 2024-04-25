@@ -1,3 +1,9 @@
+import sys
+import os
+# path = os.path.join(os.path.dirname(__file__), os.pardir)
+fwd = os.path.dirname(__file__)
+sys.path.append(os.getcwd())
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -7,11 +13,13 @@ from source.analysis import perc_outliers
 sns.set_context("paper", font_scale=1)
 
 
-fig_save_path = '/home/efkag/Desktop/ASMW'
-data = pd.read_csv('combined-results2.csv')
-# data = pd.read_csv('combined-results-cont.csv')
+directory = '2024-03-07'
+results_path = os.path.join('Results', 'newant', directory)
+fig_save_path = os.path.join('Results', 'newant', directory, 'analysis')
+data = pd.read_csv(os.path.join(results_path, 'results.csv'), index_col=False)
+
 # Convert list of strings to actual list of lists
-data['errors'] = data['errors'].apply(literal_eval)
+#data['errors'] = data['errors'].apply(literal_eval)
 data['dist_diff'] = data['dist_diff'].apply(literal_eval)
 data['seconds'] = data['seconds'].astype(float)
 
@@ -19,9 +27,9 @@ data['seconds'] = data['seconds'].astype(float)
 ####### Box plot
 figsize = (5, 3)
 fig, ax = plt.subplots(figsize=figsize)
-ax = sns.boxplot(x="window", y="seconds", data=data, ax=ax)
-window_labels = ['Adaptive (20)', 'PM', 'w=15', 'w=20', 'w=25', 'w=30']
-ax.set_xticklabels(window_labels)
+ax = sns.boxplot(x="nav-name", y="seconds", data=data, ax=ax)
+# window_labels = ['Adaptive (20)', 'PM', 'w=15', 'w=20', 'w=25', 'w=30']
+# ax.set_xticklabels(window_labels)
 ax.set_xlabel('Window size')
 ax.set_ylabel('Runtime (s)')
 ax.set_title("B", loc="left")

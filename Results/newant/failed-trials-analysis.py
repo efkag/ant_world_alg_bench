@@ -55,17 +55,19 @@ method = np.mean
 ##### if the dataset had nav-names
 data = data.groupby(['nav-name', 'route_id'])["trial_fail_count"].apply(method).to_frame("trial_fail_count").reset_index()
 print(data['nav-name'].unique())
-order = ['A-SMW(15)', 'PM', 'SMW(10)', 'SMW(15)', 'SMW(20)', 'SMW(25)', 
+order = ['A-SMW(15)', 'A-SMW(20)', 'PM', 'SMW(10)', 'SMW(15)', 'SMW(20)', 'SMW(25)', 
          'SMW(30)', 'SMW(40)', 'SMW(50)', 'SMW(75)', 'SMW(100)', 'SMW(150)',
-         'SMW(200)']
+         'SMW(200)', 'SMW(300)', 'SMW(500)']
+
+data = data.explode("trial_fail_count")
 
 figsize = (8., 4)
 fig, ax = plt.subplots(figsize=figsize)
 #ax.set_ylim(0, 20)
 #sns.barplot(x="window", y="trial_fail_count", data=data, ax=ax, estimator=method, capsize=.2, ci=None)
 sns.boxplot(data=data, x="nav-name", y="trial_fail_count",  ax=ax, order=order)
-# window_labels = ['Adaptive SMW', 'PM', 'Fixed 15', 'Fixed 25']
-# ax.set_xticklabels(window_labels)
+
+ax.tick_params(axis='x', labelrotation=90)
 ax.set_xlabel('Navigation Algorithm')
 ax.set_ylabel('Mean TFC')
 plt.tight_layout()

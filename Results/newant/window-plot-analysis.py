@@ -28,7 +28,7 @@ data['th'] = data['th'].apply(literal_eval)
 
 
 # Plot a specific route
-route_id = 1
+route_id = 12
 fig_save_path = os.path.join(fig_save_path, str(route_id))
 route_path = 'new-antworld/exp1/route' + str(route_id) + '/'
 window = 20
