@@ -1,5 +1,3 @@
-from source.utils import pick_im_matcher, mae, rmse, cor_dist, rmf, nanmae
-import numpy as np
 from .navs import Navigator
 
 class PerfectMemory(Navigator):
@@ -13,7 +11,7 @@ class PerfectMemory(Navigator):
 
     def get_heading(self, query_img):
         # get the rotational similarities between a query image and a window of route images
-        rsims = rmf(query_img, self.route_images, self.matcher, self.deg_range, self.deg_step)
+        rsims = self.rmf(query_img, self.route_images, self.matcher, self.deg_range, self.deg_step)
 
         # Holds the best rot. match between the query image and route images
         mem_sims = []
@@ -48,7 +46,7 @@ class PerfectMemory(Navigator):
 
     def get_rsims_log(self): return self.logs
 
-    def get_window_log(self): return None
+    def get_window_log(self): return []
 
     def reset_window(self, pointer):
         pass

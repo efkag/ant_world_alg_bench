@@ -1,8 +1,10 @@
 import numpy as np
 from abc import ABC, abstractmethod
 from source.utils import pick_im_matcher
+from source.utils import rmf
+from source.tools import torchmatchers
 import torch
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 class Navigator():
     
@@ -14,13 +16,16 @@ class Navigator():
         self.degrees = np.arange(*deg_range)
         self.matcher = pick_im_matcher(matcher)
         self.argminmax = np.argmin
+        self.rmf = rmf
         self.using_torch = False
 
         if torch.cuda.is_available():
             self.using_torch = True
-            import pdb;  pdb.set_trace()
             self.route_images = np.array(self.route_images)
             self.route_images = torch.Tensor(self.route_images)
+            self.route_images.cuda()
+            self.matcher = torchmatchers.pick_im_matcher(matcher)
+            self.rmf = torchmatchers.rmf
     
     @abstractmethod
     def get_heading():

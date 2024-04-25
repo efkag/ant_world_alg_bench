@@ -41,6 +41,12 @@ def dot_dist(a, b):
     res = 1 - torch.matmul(b, a)
     return res.detach().cpu().numpy()
 
+def pick_im_matcher(im_matcher=None):
+    matchers = {'dot': dot_dist, 'mae': mae}
+    if not matchers.get(im_matcher):
+        raise Exception('Non valid matcher method name')
+    return matchers.get(im_matcher)
+
 def rmf(query_img, ref_imgs, matcher=mae, d_range=(-180, 180), d_step=1):
     """
     Rotational Matching Function.
@@ -52,7 +58,8 @@ def rmf(query_img, ref_imgs, matcher=mae, d_range=(-180, 180), d_step=1):
     :param d_step:
     :return:
     """
-    #query_img = query_img.cuda()
+    query_img = torch.Tensor(query_img)
+    query_img = query_img.cuda()
     if ref_imgs.ndim < 3:
       torch.unsqueeze(ref_imgs, 0)
 
