@@ -8,6 +8,7 @@ class PerfectMemory(Navigator):
         self.logs = []
         self.matched_index_log = []
         self.best_sims = []
+        self.best_ridfs = []
 
     def get_heading(self, query_img):
         # get the rotational similarities between a query image and a window of route images
@@ -26,12 +27,13 @@ class PerfectMemory(Navigator):
         # append the rsims of all window route images for that query image
         #self.logs.append(rsims)
         # find best image match and heading
-        index = int(self.argminmax(mem_sims))
-        self.best_sims.append(mem_sims[index])
-        heading = mem_headings[index]
+        idx = int(self.argminmax(mem_sims))
+        self.best_ridfs.append(rsims[idx])
+        self.best_sims.append(mem_sims[idx])
+        heading = mem_headings[idx]
         self.recovered_heading.append(heading)
         # Update memory pointer
-        self.matched_index_log.append(index)
+        self.matched_index_log.append(idx)
         return heading
     
     def navigate(self, query_imgs):
@@ -53,6 +55,8 @@ class PerfectMemory(Navigator):
 
     def get_best_sims(self):
         return self.best_sims
+    
+    def get_best_ridfs(self):return self.best_ridfs
     
     def get_name(self):
         return 'PM'

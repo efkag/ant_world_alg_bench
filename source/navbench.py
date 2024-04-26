@@ -177,11 +177,12 @@ class Benchmark:
         print('save path: ', self.results_path)
 
         log = {'route_id': [],'ref_route':[], 'rep_id': [], 'nav-name':[], 'sample_rate':[], 'blur': [], 
-            'histeq':[], 'edge': [], 'res': [], 'vcrop':[],'window': [], 'matcher': [],
-            'deg_range':[], 'mean_error': [], 'seconds': [], 'errors': [], 
+            'histeq':[], 'edge': [], 'res': [], 'vcrop':[], 'loc_norm':[], 'gauss_loc_norm':[],
+            'window': [], 'matcher': [], 'deg_range':[], 'mean_error': [], 'seconds': [], 'errors': [], 
             'index_diff': [], 'window_log': [], 'matched_index': [], 'min_dist_index': [],
-            'dist_diff': [], 'tx': [], 'ty': [], 'th': [],'ah': [] , 'rmfs_file':[], 'best_sims':[], 
-            'loc_norm':[], 'gauss_loc_norm':[], 'wave':[]}
+            'dist_diff': [], 'tx': [], 'ty': [], 'th': [],'ah': [] , 
+            'rmfs_file':[], 'best_ridfs_file': [],
+            'best_sims':[], 'wave':[]}
 
         routes = load_all_bob_routes(self.routes_path, route_ids, suffix=self.route_path_suffix, repeats=self.route_repeats)
 
@@ -258,6 +259,12 @@ class Benchmark:
                     #rmfs_path = os.path.join(results_path, 'metadata', rmf_logs_file)
                     #np.save(rmfs_path, rmf_logs)
 
+                    best_ridfs = nav.get_best_ridfs()
+                    best_ridfs = np.array(best_ridfs)
+                    ridfs_file = f"ridfs-{self.jobs}_{uuid.uuid4().hex}"
+                    ridfs_file = os.path.join(self.results_path, 'metadata', ridfs_file)
+                    np.save(ridfs_file, best_ridfs)
+
                     log['nav-name'].append(nav.get_name())
                     log['route_id'].append(ri)
                     log['ref_route'].append(combo.get('ref_route'))
@@ -284,6 +291,7 @@ class Benchmark:
                     # This is the agent heading from the egocentric agent reference
                     log['ah'].append(rec_headings)
                     log['rmfs_file'].append(rmf_logs_file)
+                    log['best_ridfs_file'].append(ridfs_file)
                     log['matched_index'].append(matched_index)
                     log['min_dist_index'].append(min_dist_index)
                     log['index_diff'].append(index_diffs)

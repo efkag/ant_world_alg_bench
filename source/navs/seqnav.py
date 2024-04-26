@@ -32,6 +32,7 @@ class SequentialPerfectMemory(Navigator):
         self.window_headings = []
         self.CMA = []
         self.sma_qmet_log = []
+        self.best_ridfs = []
         # append a starting value for the d2i qiality metric log
         # TODO: the metrics shouls proapblly be classes that each have their own
         # initialisation values etc
@@ -122,6 +123,7 @@ class SequentialPerfectMemory(Navigator):
         # wind_sims = weights * wind_sims
         # find best image match and heading
         idx = int(round(self.argminmax(wind_sims)))
+        self.best_ridfs.append(wrsims[idx])
         self.best_sims.append(wind_sims[idx])
         heading = wind_headings[idx]
         self.recovered_heading.append(heading)
@@ -366,6 +368,9 @@ class SequentialPerfectMemory(Navigator):
 
     def get_best_sims(self):
         return self.best_sims
+    
+    def get_best_ridfs(self):
+        return self.best_ridfs
 
     def get_window_headings(self):
         return self.window_headings
