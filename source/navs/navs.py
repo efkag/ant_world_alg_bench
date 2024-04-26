@@ -1,4 +1,6 @@
 import numpy as np
+from source.utils import dot_dist
+from source.imgproc import Pipeline
 from abc import ABC, abstractmethod
 from source.utils import pick_im_matcher
 from source.utils import rmf
@@ -15,6 +17,12 @@ class Navigator():
         self.deg_step = degree_shift
         self.degrees = np.arange(*deg_range)
         self.matcher = pick_im_matcher(matcher)
+        # if the dot product distance is used we need to make sure the images are standardized
+        if self.matcher == dot_dist:
+            self.pipe = Pipeline(normstd=True)
+            self.route_images = self.pipe.apply(route_images)
+        else: 
+            self.pipe = Pipeline()
         self.argminmax = np.argmin
         self.rmf = rmf
         self.using_torch = False
