@@ -4,6 +4,7 @@ from source.utils import pick_im_matcher
 from source.utils import rmf
 from source.tools import torchmatchers
 import torch
+torch.multiprocessing.set_start_method('spawn')
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 class Navigator():

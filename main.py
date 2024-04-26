@@ -12,8 +12,8 @@ def static_bench():
     
     #routes_path = '/its/home/sk526/sussex-ftl-dataset/repeating-routes'
     #routes_path = '/mnt/data0/sk526/sussex-ftl-dataset/repeating-routes'
-    routes_path = '/its/home/sk526/navlib/data/outdoors/clean/for_bench/campus'
-    #routes_path = 'datasets/stanmer'
+    #routes_path = '/its/home/sk526/navlib/data/outdoors/clean/for_bench/campus'
+    routes_path = 'datasets/campus'
     #routes_path = '/mnt/data0/sk526/stanmer'
     # parameters = {'blur': [True], 'segment_l': [3], 'shape': [(180, 50), (90, 25)], 'edge_range': [(180, 200)],
     #               'window': list(range(10, 12)), 'matcher': ['corr', 'rmse']}
