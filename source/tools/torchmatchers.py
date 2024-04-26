@@ -1,6 +1,5 @@
 import torch
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-torch.multiprocessing.set_start_method('spawn')
 import numpy as np
 
 
