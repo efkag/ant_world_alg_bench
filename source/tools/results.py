@@ -25,6 +25,8 @@ def filter_results(df: pd.DataFrame, **filters):
             print(fil, ' is not a valid column name')
             return
         df = df.loc[df[fil] == filters[fil]]
+    if df.empty:
+        raise Exception('Empty dataframe!')
     return df
 
 

@@ -63,3 +63,8 @@ class Navigator():
     def get_name(self):
         pass
 
+    def clear_route_mem(self):
+        del self.route_imgs
+        if self.using_torch:
+            torch.cuda.empty_cache()
+
