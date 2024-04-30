@@ -31,7 +31,7 @@ routes_path = 'datasets/new-antworld/curve-bins'
 
 
 # Plot a specific route
-route_id = 12
+route_id = 14
 repeat_no = 0
 fig_save_path = os.path.join(fig_save_path, f"route{route_id}", 'full_heatmaps')
 check_for_dir_and_create(fig_save_path)
@@ -144,8 +144,8 @@ for tfci in traj2['tfc_idxs']:
     plt.legend()
     plt.tight_layout()
     
-    xmin = min_dist_index[max(0, tfci - xmargin)]
-    xmax = min_dist_index[min(tp-1,tfci + xmargin)]
+    xmin = max(0,min_dist_index[tfci] - xmargin)
+    xmax = min(rp, min_dist_index[tfci] + xmargin)
     ymin = max(0, tfci - ymargin)
     ymax = min(tp-1, tfci + ymargin)
     #print([xmin, xmax, ymin, ymax])
