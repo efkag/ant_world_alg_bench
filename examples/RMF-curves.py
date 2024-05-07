@@ -5,6 +5,8 @@ sys.path.append(os.getcwd())
 
 import numpy as np
 from source.utils import mae, rmf, cor_dist, save_image, rotate, check_for_dir_and_create
+from source.tools import torchmatchers
+import torch
 from source.routedatabase import Route
 from source.imgproc import Pipeline
 import seaborn as sns
@@ -42,7 +44,26 @@ plt.plot(degrees, rmf_curve)
 plt.xlabel('Degrees')
 plt.ylabel('IDF AbsDiff')
 plt.tight_layout()
-fig_save_path = os.path.join(save_path, 'rmf-mae.png')
-fig.savefig(fig_save_path)
+
+# fig_save_path = os.path.join(save_path, 'rmf-mae.png')
+# fig.savefig(fig_save_path)
+
+ref_img = torch.Tensor(img)
+q_img = img.copy()
+rmf_curve = torchmatchers.rmf(q_img, ref_img, matcher=torchmatchers.mae, d_range=deg_range)
+degrees = np.arange(*deg_range)
+
+figsize = (6, 4)
+fig = plt.figure(figsize=figsize)
+plt.scatter(degrees, rmf_curve, s=8)
+plt.plot(degrees, rmf_curve)
+plt.xlabel('Degrees')
+plt.ylabel('IDF AbsDiff')
+plt.tight_layout()
+# fig_save_path = os.path.join(save_path, 'rmf-mae.png')
+# fig.savefig(fig_save_path)
+
+
+plt.show()
 
 
