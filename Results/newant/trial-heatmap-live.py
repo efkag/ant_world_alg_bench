@@ -31,8 +31,8 @@ routes_path = 'datasets/new-antworld/curve-bins'
 
 
 # Plot a specific route
-route_id = 14
-repeat_no = 0
+route_id = 18
+repeat_no = 2
 fig_save_path = os.path.join(fig_save_path, f"route{route_id}", 'full_heatmaps')
 check_for_dir_and_create(fig_save_path)
 route_path = os.path.join(routes_path, f'route{route_id}')
@@ -43,7 +43,7 @@ title = None
 
 
 filters = {'route_id':route_id, 'res':'(180, 40)','blur':True, 
-           'window':10, 'matcher':'mae', 'edge':False,
+           'window':300, 'matcher':'mae', 'edge':False,
            'num_of_repeat': repeat_no}
 traj = filter_results(data, **filters)
 print(traj.shape[0], ' rows')
@@ -66,8 +66,8 @@ rp = len(route_imgs)
 theta = abs(traj['deg_range'][0] - traj['deg_range'][1])
 
 
-heatmap_io_path = os.path.join(fig_save_path, f'heatmap-route({route_id})-{traj["nav-name"]}.npy')
-mat_heatmap_io_path = os.path.join(fig_save_path, f'heatmap-route({route_id})-{traj["nav-name"]}.mat')
+heatmap_io_path = os.path.join(fig_save_path, f'heatmap-route({route_id})-rep({repeat_no})-{traj["nav-name"]}.npy')
+mat_heatmap_io_path = os.path.join(fig_save_path, f'heatmap-route({route_id})-rep({repeat_no})-{traj["nav-name"]}.mat')
 
 if os.path.isfile(heatmap_io_path):
     heatmap = np.load(heatmap_io_path)
@@ -105,8 +105,8 @@ ax.set_ylabel('query images')
 
 plt.legend()
 plt.tight_layout()
-#fig.savefig(os.path.join(fig_save_path, f'heatmap-route({route_id})-{traj["nav-name"]}.pdf'), dpi=200)
-fig.savefig(os.path.join(fig_save_path, f'heatmap-route({route_id})-{traj["nav-name"]}.png'), dpi=200)
+#fig.savefig(os.path.join(fig_save_path, f'heatmap-route({route_id})-rep({repeat_no})-{traj["nav-name"]}.pdf'), dpi=200)
+fig.savefig(os.path.join(fig_save_path, f'heatmap-route({route_id})-rep({repeat_no})-{traj["nav-name"]}.png'), dpi=200)
 # plt.show()
 
 
@@ -151,6 +151,7 @@ for tfci in traj2['tfc_idxs']:
     #print([xmin, xmax, ymin, ymax])
     plt.axis([xmin, xmax, ymax, ymin])
 
-    #fig.savefig(os.path.join(fig_save_path, f'heatmap-route({route_id})-{traj["nav-name"]}.pdf'), dpi=200)
-    fig.savefig(os.path.join(fig_save_path, f'heatmap-route({route_id})-{traj["nav-name"]}-({tfci}).png'), dpi=200)
-plt.show()
+    #fig.savefig(os.path.join(fig_save_path, f'heatmap-route({route_id})-rep({repeat_no})-{traj["nav-name"]}.pdf'), dpi=200)
+    fig.savefig(os.path.join(fig_save_path, f'heatmap-route({route_id})-rep({repeat_no})-{traj["nav-name"]}-({tfci}).png'), dpi=200)
+    plt.close(fig)
+#plt.show()

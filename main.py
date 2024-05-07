@@ -20,7 +20,7 @@ def static_bench():
     
     parameters = {'blur': [True], 
                   'shape': [(180, 45)],
-                  'vcrop':[.5],
+                  'vcrop':[0],
                   #'histeq':[True],
                   'edge_range': [(50, 255), False],
                   #'loc_norm': [{'kernel_shape':(3, 3)}, False],
@@ -45,11 +45,11 @@ def static_bench():
 
 
 def static_bench_antworld():
-    results_path = f'Results/newant/{string_date}_temp'
+    results_path = f'Results/newant/static-bench/{string_date}'
     #results_path = f'/mnt/data0/sk526/Results/aw/{string_date}'
 
-    routes_path = 'datasets/new-antworld/exp1'
-    #routes_path = '/mnt/data0/sk526/new-antworld/curve-bins'
+    #routes_path = 'datasets/new-antworld/exp1'
+    routes_path = '/mnt/data0/sk526/new-antworld/curve-bins'
 
     grid_path = 'datasets/new-antworld/grid70'
     #grid_path = '/mnt/data0/sk526/new-antworld/grid70'
@@ -61,22 +61,22 @@ def static_bench_antworld():
                   #'shape':[(90, 20)],
                   #'vcrop':[0., .4, .6],
                   #'histeq':[True, False],
-                  'edge_range': [(190, 240), False],
+                  #'edge_range': [(100, 255), False],
                   #'loc_norm': [True, False],
-                  #'gauss_loc_norm': [{'sig1':2, 'sig2':20}],
+                  #'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
                   'deg_range':[(-180, 180)],
-                  'window': [0], 
-                  'matcher': ['mae', 'ccd'],
+                  'window': [10, 15, 20, 25, 30, 40, 50, 75, 100, 150, 200, 300, 500], 
+                  'matcher': ['mae'],
                   'grid_dist':[0.2]
                   }
     
-    routes = [1, 2, 3, 4, 5, 6, 7]
+    routes = [*range(20)]
     bench = navbench.Benchmark(results_path, routes_path, 
                                grid_path=grid_path, grid_dist=0.2,
                                filename='results.csv',
                                bench_data='aw2'
                                )
-    bench.benchmark(parameters, routes, parallel=True, cores=1)
+    bench.benchmark(parameters, routes, parallel=True, cores=30)
 
 
 

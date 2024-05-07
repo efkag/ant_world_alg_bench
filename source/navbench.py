@@ -14,10 +14,10 @@ from source.tools.benchutils import pick_nav
 from source.navs import perfect_memory as pm
 from source.utils import pre_process, load_route_naw, check_for_dir_and_create, calc_dists, squash_deg
 #TODO Get rid of this import
-from source import seqnav as spm
+from source.navs import seqnav as spm
 from source.routedatabase import Route, load_all_bob_routes, load_routes, load_bob_routes, load_bob_routes_repeats
 from source.imgproc import Pipeline
-from source import infomax
+from source.navs import infomax
 
 
 class Benchmark:
@@ -369,10 +369,10 @@ class Benchmark:
                 test_imgs = pipe.apply(route.get_qimgs())
                 # Run navigation algorithm
                 if window:
-                    nav = spm.SequentialPerfectMemory(route_imgs, matcher, **combo)
+                    nav = spm.SequentialPerfectMemory(route_imgs, **combo)
                     recovered_heading, window_log = nav.navigate(test_imgs)
                 elif window == 0:
-                    nav = pm.PerfectMemory(route_imgs, matcher, **combo)
+                    nav = pm.PerfectMemory(route_imgs, **combo)
                     recovered_heading = nav.navigate(test_imgs)
                 else:
                     infomaxParams = infomax.Params()
@@ -497,7 +497,7 @@ class Benchmark:
                     test_imgs = pipe.apply(test_rep.get_imgs())
                     # Run navigation algorithm
                     if window:
-                        nav = spm.SequentialPerfectMemory(route_imgs, matcher, **combo)
+                        nav = spm.SequentialPerfectMemory(route_imgs, **combo)
                         recovered_heading, window_log = nav.navigate(test_imgs)
                     elif window == 0:
                         nav = pm.PerfectMemory(route_imgs, **combo)

@@ -42,7 +42,7 @@ title = None
 
 filters = {'route_id':route_id, 'num_of_repeat': repeat_no,
            'res':'(180, 40)','blur':True, 
-           'window':-15, 'matcher':'mae', 'edge':False,
+           'window':300, 'matcher':'mae', 'edge':False,
            }
 traj = filter_results(data, **filters)
 print(traj.shape[0], ' rows')
