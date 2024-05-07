@@ -400,6 +400,7 @@ class Seq2SeqPerfectMemory(Navigator):
         if self.matcher == dot_dist:
             self.pipe = Pipeline(normstd=True)
             self.route_images = self.pipe.apply(route_images)
+
         else: 
             self.pipe = Pipeline()
 

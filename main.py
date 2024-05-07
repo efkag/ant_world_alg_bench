@@ -48,8 +48,8 @@ def static_bench_antworld():
     results_path = f'Results/newant/static-bench/{string_date}'
     #results_path = f'/mnt/data0/sk526/Results/aw/{string_date}'
 
-    #routes_path = 'datasets/new-antworld/exp1'
-    routes_path = '/mnt/data0/sk526/new-antworld/curve-bins'
+    routes_path = 'datasets/new-antworld/curve-bins'
+    #routes_path = '/mnt/data0/sk526/new-antworld/curve-bins'
 
     grid_path = 'datasets/new-antworld/grid70'
     #grid_path = '/mnt/data0/sk526/new-antworld/grid70'
@@ -76,7 +76,7 @@ def static_bench_antworld():
                                filename='results.csv',
                                bench_data='aw2'
                                )
-    bench.benchmark(parameters, routes, parallel=True, cores=30)
+    bench.benchmark(parameters, routes, parallel=True, cores=15)
 
 
 
@@ -115,8 +115,8 @@ def live_bench():
 def main():
     start_dtime = datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y")
     print(start_dtime)
-    static_bench()
-    #static_bench_antworld()
+    #static_bench()
+    static_bench_antworld()
     #live_bench()
     
     end_dtime = datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y")
