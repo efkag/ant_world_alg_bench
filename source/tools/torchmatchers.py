@@ -60,9 +60,9 @@ def rmf(query_img, ref_imgs, matcher=mae, d_range=(-180, 180), d_step=1):
     :return:
     """
     query_img = torch.Tensor(query_img)
-    query_img = query_img.cuda()
+    query_img = query_img.to(device)
     if ref_imgs.ndim < 3:
-      torch.unsqueeze(ref_imgs, 0)
+      ref_imgs = torch.unsqueeze(ref_imgs, 0)
 
     degrees = range(*d_range, d_step)
     total_search_angle = round((d_range[1] - d_range[0]) / d_step)
