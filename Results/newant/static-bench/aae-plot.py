@@ -8,36 +8,25 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from source.utils import check_for_dir_and_create
 import seaborn as sns
-from ast import literal_eval
+from source.tools.results import filter_results, read_results
 sns.set_context("paper", font_scale=1)
 
 
-directory = 'static-bench/2021-04-06'
+directory = 'static-bench/2024-05-07'
 results_path = os.path.join('Results', 'newant', directory)
 fig_save_path = os.path.join(results_path, 'analysis')
 check_for_dir_and_create(fig_save_path)
 
-data = pd.read_csv(os.path.join(results_path, 'results.csv'), index_col=False)
+data = read_results(os.path.join(results_path, 'results.csv'))
 # data = pd.read_csv('exp4.csv')
-# Convert list of strings to actual list of lists
-data['errors'] = data['errors'].apply(literal_eval)
-data['dist_diff'] = data['dist_diff'].apply(literal_eval)
-data['abs_index_diff'] = data['abs_index_diff'].apply(literal_eval)
 
-
-check_for_dir_and_create(fig_save_path)
-matcher = 'corr'
-edge = '(220, 240)'  # 'False'
-blur = False
-g_loc_norm = "False"
-# loc_norm = 'False'
 
 figsize = (6, 3)
-res = '(180, 50)'
-route = data.loc[(data['matcher'] == matcher) 
-                 & (data['edge'] == edge) 
-                 & (data['res'] == res) 
-                 & (data['blur'] == blur)]
+metric = 'errors'
+filters = {'res':'(180, 40)','blur':True, 'matcher':'mae', 
+           #'edge':False,
+        }
+df = filter_results(data, **filters)
 
 
 '''
@@ -46,18 +35,22 @@ Plot for one specific matcher with one specific pre-proc
 fig, ax = plt.subplots(figsize=figsize)
 #plt.title(matcher + ', route:' + str(route_id))
 # Group then back to dataframe
-df = route.groupby(['nav-name'])['errors'].apply(sum).to_frame('errors').reset_index()
-df = df.explode('errors')
-df['errors'] = pd.to_numeric(df['errors'])
+df = df.groupby(['nav-name'])[metric].apply(sum).to_frame(metric).reset_index()
+print(df['nav-name'].unique())
+order = ['SMW(10)', 'SMW(15)', 'SMW(20)', 'SMW(25)', 
+        'SMW(30)', 'SMW(40)', 'SMW(50)', 'SMW(75)', 'SMW(100)', 'SMW(150)',
+        'SMW(200)', 'SMW(300)', 'SMW(500)']
+df = df.explode(metric)
+df['errors'] = pd.to_numeric(df[metric])
 
-sns.violinplot(data=df, x='nav-name', y='errors', cut=0, ax=ax)
+sns.violinplot(data=df, x='nav-name', y=metric, order=order, cut=0, ax=ax)
 
 ax.set_ylim([-1, 180])
 ax.set_ylabel('AAE')
 ax.set_xlabel('navigation algorithm')
 plt.tight_layout()
-fig_path = os.path.join(fig_save_path, f'm{matcher}.res{res}.b{blur}.e{edge}.png')
+fig_path = os.path.join(fig_save_path, f'{metric}_{filters}.png')
 fig.savefig(fig_path)
-fig_path = os.path.join(fig_save_path, f'm{matcher}.res{res}.b{blur}.e{edge}.pdf')
+fig_path = os.path.join(fig_save_path, f'{metric}_{filters}.pdf')
 fig.savefig(fig_path)
 plt.show()
