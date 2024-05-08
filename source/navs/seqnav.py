@@ -98,8 +98,10 @@ class SequentialPerfectMemory(Navigator):
         :return:
         '''
         query_img = self.pipe.apply(query_img)
+        if self.flimit - self.blimit < 10:
+            import pdb; pdb.set_trace()
         # get the rotational similarities between a query image and a window of route images
-        wrsims = rmf(query_img, self.route_images[self.blimit:self.flimit], self.matcher, self.deg_range, self.deg_step)
+        wrsims = self.rmf(query_img, self.route_images[self.blimit:self.flimit], self.matcher, self.deg_range, self.deg_step)
         self.window_log.append([self.blimit, self.flimit])
         # Holds the best rot. match between the query image and route images
         wind_sims = []

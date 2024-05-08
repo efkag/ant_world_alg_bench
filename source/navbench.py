@@ -157,7 +157,121 @@ class Benchmark:
         pool.join()
 
         return logs
+    
+    def bench_singe_core_aw(self, params, route_ids=None):
+        # save the parmeters of the test in a json file
+        check_for_dir_and_create(self.results_path)
+        check_for_dir_and_create(os.path.join(self.results_path, 'metadata'))
+        param_path = os.path.join(self.results_path, 'params.yml')
+        temp_params = copy.deepcopy(params)
+        temp_params['routes_path'] = self.routes_path
+        temp_params['route_ids'] = route_ids
+        with open(param_path, 'w') as fp:
+            yaml.dump(temp_params, fp)
 
+        grid = self.get_grid_dict(params)
+        self.total_jobs = len(grid)
+        self.total_jobs = self.total_jobs * len(route_ids)
+        print('{} combinations, testing on {} routes, running on 1 core'.format(self.total_jobs, len(route_ids)))
+        print('data path: ', self.routes_path)
+        print('save path: ', self.results_path)
+
+        log = {'route_id': [],'nav-name':[], 'blur': [], 'edge': [], 'res': [],  'histeq':[], 'vcrop':[], 
+               'window': [], 'matcher': [], 'deg_range':[], 'mean_error': [], 
+               'seconds': [], 'errors': [], 'index_diff': [], 'window_log': [], 
+               'matched_index': [], 'min_dist_index': [], 'dist_diff': [], 'tx': [], 'ty': [], 'th': [],
+               'ah': [] , 'rmfs_file':[],'best_sims':[], 'loc_norm':[], 
+               'gauss_loc_norm':[], 'wave':[]}
+        
+        routes = load_routes(self.routes_path, route_ids, max_dist=self.dist, grid_path=self.grid_path)
+        #  Go though all combinations in the chunk
+        for combo in grid:
+
+            matcher = combo['matcher']
+            window = combo['window']
+            window_log = None
+            for route in routes:  # for every route
+                tic = time.perf_counter()
+                # Preprocess images
+                pipe = Pipeline(**combo)
+                route_imgs = pipe.apply(route.get_imgs())
+                test_imgs = pipe.apply(route.get_qimgs())
+                # Run navigation algorithm
+                if window:
+                    nav = spm.SequentialPerfectMemory(route_imgs, **combo)
+                    recovered_heading, window_log = nav.navigate(test_imgs)
+                elif window == 0:
+                    nav = pm.PerfectMemory(route_imgs, **combo)
+                    recovered_heading = nav.navigate(test_imgs)
+                else:
+                    infomaxParams = infomax.Params()
+                    nav = infomax.InfomaxNetwork(infomaxParams, route_imgs, **combo)
+                    recovered_heading = nav.navigate(test_imgs)
+
+                toc = time.perf_counter()
+                # Get time complexity
+                time_compl = toc - tic
+                # Get the errors and the minimum distant index of the route memory
+                qxy = route.get_qxycoords()
+                traj = {'x': qxy['x'], 'y': qxy['y'], 'heading': recovered_heading}
+                #!!!!!! Important step to get the heading in the global coord system
+                traj['heading'] = squash_deg(route.get_qyaw() + recovered_heading)
+                errors, min_dist_index = route.calc_aae(traj)
+                # Difference between matched index and minimum distance index and distance between points
+                matched_index = nav.get_index_log()
+                if matched_index:
+                    index_diffs = np.subtract(min_dist_index, nav.get_index_log())
+                    dist_diff = calc_dists(route.get_xycoords(), min_dist_index, matched_index)
+                    index_diffs = index_diffs.tolist()
+                    dist_diff = dist_diff.tolist()
+                else:
+                    index_diffs = None
+                    dist_diff = None
+
+                mean_route_error = np.mean(errors)
+                window_log = nav.get_window_log()
+                rec_headings = nav.get_rec_headings()
+                deg_range = nav.deg_range
+
+                rmf_logs = np.array(nav.get_rsims_log(), dtype=object)
+                rmf_logs_file = f"rmfs-{uuid.uuid4().hex}"
+                rmfs_path = os.path.join(self.results_path, 'metadata', rmf_logs_file)
+                np.save(rmfs_path, rmf_logs)
+
+                log['nav-name'].append(nav.get_name())
+                log['route_id'].append(route.get_route_id())
+                log['blur'].append(combo.get('blur'))
+                log['histeq'].append(combo.get('histeq'))
+                log['edge'].append(combo.get('edge_range'))
+                log['res'].append(combo.get('shape'))
+                log['vcrop'].append(combo.get('vcrop'))
+                log['window'].append(window)
+                log['loc_norm'].append(combo.get('loc_norm'))
+                log['gauss_loc_norm'].append(combo.get('gauss_loc_norm'))
+                log['wave'].append(combo.get('wave'))
+                log['matcher'].append(matcher)
+                log['deg_range'].append(deg_range)
+                log['mean_error'].append(mean_route_error)
+                log['seconds'].append(time_compl)
+                log['window_log'].append(window_log)
+                log['rmfs_file'].append(rmf_logs_file)
+                log['tx'].append(traj['x'].tolist())
+                log['ty'].append(traj['y'].tolist())
+                # This is the heading in the global coord system
+                log['th'].append(traj['heading'].tolist())
+                # This is the agent heading from the egocentric agent reference
+                log['ah'].append(rec_headings)
+                log['matched_index'].append(matched_index)
+                log['min_dist_index'].append(min_dist_index)
+                log['index_diff'].append(index_diffs)
+                log['dist_diff'].append(dist_diff)
+                log['errors'].append(errors)
+                log['best_sims'].append(nav.get_best_sims())
+            self.jobs += 1
+            print(datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y"))
+            print('Jobs completed: {}/{}'.format(self.jobs, self.total_jobs))
+        return log
+    
     def bench_singe_core(self, params, route_ids=None):
         # save the parmeters of the test in a json file
         check_for_dir_and_create(self.results_path)
@@ -171,7 +285,7 @@ class Benchmark:
 
         grid = self.get_grid_dict(params)
         self.total_jobs = len(grid)
-        self.total_jobs * len(route_ids)
+        self.total_jobs = self.total_jobs * len(route_ids)
         print('{} combinations, testing on {} routes, running on 1 core'.format(self.total_jobs, len(route_ids)))
         print('data path: ', self.routes_path)
         print('save path: ', self.results_path)
@@ -318,7 +432,7 @@ class Benchmark:
             self.log = self.bench_paral(params, route_ids, cores=cores)
             self.unpack_results()
         else:
-            self.log = self.bench_singe_core(params, route_ids)
+            self.log = self.bench_singe_core_aw(params, route_ids)
 
         bench_results = pd.DataFrame(self.log)
         write_path = os.path.join(self.results_path, 'results.csv')

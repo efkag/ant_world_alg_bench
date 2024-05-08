@@ -27,7 +27,7 @@ class Navigator():
         self.rmf = rmf
         self.using_torch = False
 
-        if torch.cuda.is_available():
+        if False:
             self.using_torch = True
             self.route_images = np.array(self.route_images)
             self.route_images = torch.Tensor(self.route_images)

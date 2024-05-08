@@ -65,7 +65,7 @@ def static_bench_antworld():
                   #'loc_norm': [True, False],
                   #'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
                   'deg_range':[(-180, 180)],
-                  'window': [10, 15, 20, 25, 30, 40, 50, 75, 100, 150, 200, 300, 500], 
+                  'window': [-20], 
                   'matcher': ['mae'],
                   'grid_dist':[0.2]
                   }
@@ -76,7 +76,7 @@ def static_bench_antworld():
                                filename='results.csv',
                                bench_data='aw2'
                                )
-    bench.benchmark(parameters, routes, parallel=True, cores=15)
+    bench.benchmark(parameters, routes, parallel=False, cores=1)
 
 
 
