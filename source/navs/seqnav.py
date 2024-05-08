@@ -192,7 +192,7 @@ class SequentialPerfectMemory(Navigator):
         # Update the bounds of the window
         # the window limits bounce back near the ends of the route
         self.blimit = max(0, min(self.mem_pointer - self.lower, self.route_end-self.window) )
-        self.flimit = min(self.route_end, self.mem_pointer + self.upper)
+        self.flimit = min(self.route_end, max(self.mem_pointer + self.upper, self.window))
 
     def check_w_size(self):
         self.window = self.route_end if self.window > self.route_end else self.window
