@@ -283,10 +283,12 @@ class SequentialPerfectMemory(Navigator):
         :return:
         '''
         # Dynamic window adaptation based on match gradient.
-        if best > self.prev_match or self.window <= self.min_window:
+        if best > self.prev_match:
             self.window += round(self.route_end/self.window)
+            self.window = min(self.window, self.route_end)
         else:
             self.window -= round(self.route_end/self.window)
+            self.window = max(self.window, self.min_window)
         self.prev_match = best
 
     def dynamic_window_sma_log_rate(self, best):
