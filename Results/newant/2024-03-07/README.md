@@ -1,0 +1,1 @@
+This is the same as the 2024-01-22 bench but the function that is used to id the closest point on the route (optimal) from a test point uses a better search window.

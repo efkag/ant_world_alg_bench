@@ -267,9 +267,9 @@ class Benchmark:
                 log['dist_diff'].append(dist_diff)
                 log['errors'].append(errors)
                 log['best_sims'].append(nav.get_best_sims())
-            self.jobs += 1
-            print(datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y"))
-            print('Jobs completed: {}/{}'.format(self.jobs, self.total_jobs))
+                self.jobs += 1
+                print(datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y"))
+                print('Jobs completed: {}/{}'.format(self.jobs, self.total_jobs))
         return log
     
     def bench_singe_core(self, params, route_ids=None):
