@@ -12,7 +12,7 @@ from source.tools.results import filter_results, read_results
 sns.set_context("paper", font_scale=1)
 
 
-directory = 'static-bench/2024-05-07'
+directory = 'static-bench/2024-05-08'
 results_path = os.path.join('Results', 'newant', directory)
 fig_save_path = os.path.join(results_path, 'analysis')
 check_for_dir_and_create(fig_save_path)
@@ -37,7 +37,7 @@ fig, ax = plt.subplots(figsize=figsize)
 # Group then back to dataframe
 df = df.groupby(['nav-name'])[metric].apply(sum).to_frame(metric).reset_index()
 print(df['nav-name'].unique())
-order = ['SMW(10)', 'SMW(15)', 'SMW(20)', 'SMW(25)', 
+order = ['A-SMW(20)', 'PM', 'SMW(10)', 'SMW(15)', 'SMW(20)', 'SMW(25)', 
         'SMW(30)', 'SMW(40)', 'SMW(50)', 'SMW(75)', 'SMW(100)', 'SMW(150)',
         'SMW(200)', 'SMW(300)', 'SMW(500)']
 df = df.explode(metric)
@@ -48,6 +48,8 @@ sns.violinplot(data=df, x='nav-name', y=metric, order=order, cut=0, ax=ax)
 ax.set_ylim([-1, 180])
 ax.set_ylabel('AAE')
 ax.set_xlabel('navigation algorithm')
+ax.tick_params(axis='x', rotation=90)
+
 plt.tight_layout()
 fig_path = os.path.join(fig_save_path, f'{metric}_{filters}.png')
 fig.savefig(fig_path)

@@ -39,10 +39,10 @@ plt.plot(w_log_shrink, label='log shrinkage')
 plt.scatter(range(len(w_log_shrink)),w_log_shrink)
 
 
-# plt.plot(w_lin_growth, label='linear growth')
-# plt.scatter(range(len(w_lin_growth)), w_lin_growth)
-# plt.plot(w_lin_shrink, label='linear shrinkage')
-# plt.scatter(range(len(w_lin_shrink)), w_lin_shrink)
+plt.plot(w_lin_growth, label='linear growth')
+plt.scatter(range(len(w_lin_growth)), w_lin_growth)
+plt.plot(w_lin_shrink, label='linear shrinkage')
+plt.scatter(range(len(w_lin_shrink)), w_lin_shrink)
 
 
 plt.plot(w_exp_growth, label='exp growth')

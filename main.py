@@ -105,19 +105,19 @@ def live_bench():
                   #'s2s':{'window':[20], 'queue_size':[3], 'matcher':['mae'], 'sub_window':[3]}
     }
 
-    routes = [*range(20)]
+    routes = [1]
     num_of_repeats = 3
     parameters['repeat'] = [*range(num_of_repeats)]
     cbench.benchmark(results_path, routes_path, params=parameters, nav_params=nav_params,
-                    route_ids=routes, parallel=True, num_of_repeats=num_of_repeats, cores=3)
+                    route_ids=routes, parallel=True, num_of_repeats=num_of_repeats, cores=1)
 
 
 def main():
     start_dtime = datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y")
     print(start_dtime)
     #static_bench()
-    static_bench_antworld()
-    #live_bench()
+    #static_bench_antworld()
+    live_bench()
     
     end_dtime = datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y")
 

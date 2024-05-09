@@ -11,7 +11,7 @@ from source.imgproc import Pipeline
 class SequentialPerfectMemory(Navigator):
 
     def __init__(self, route_images, matcher='mae', deg_range=(-180, 180), degree_shift=1, 
-                window=20, dynamic_range=0.1, w_thresh=None, mid_update=True, sma_size=3,
+                window=20, dynamic_range=0.1, w_thresh=None, mid_update=False, sma_size=3,
                 **kwargs):
         super().__init__(route_images, matcher=matcher, deg_range=deg_range, degree_shift=degree_shift, **kwargs)
         
@@ -65,6 +65,7 @@ class SequentialPerfectMemory(Navigator):
         # self.gauss_rv = norm(loc=mu, scale=sig)
 
         # Adaptive window parameters
+        self.mid_update = mid_update
         self.dynamic_range = dynamic_range
         self.min_window = 10
         self.window_margin = 5
@@ -142,7 +143,7 @@ class SequentialPerfectMemory(Navigator):
             self.check_w_size()
 
         # Update memory pointer
-        self.update_mid_pointer(idx)
+        self.update_pointer(idx)
         return heading
 
     def eval_ridf(self, ridf):
@@ -168,13 +169,21 @@ class SequentialPerfectMemory(Navigator):
         :param idx:
         :return:
         '''
-        self.mem_pointer += idx
-        # in this case the upperpart is equal to the upper margin
-        self.upper = self.window
+        if self.mid_update:
+            # Update memory pointer
+            self.mem_pointer = self.blimit + idx
+            # update upper an lower margins
+            self.upper = int(round(self.window/2))
+            self.lower = self.window - self.upper
+        else:
+            self.mem_pointer = self.blimit + idx
+            # in this case the upperpart is equal to the upper margin
+            self.lower = 0
+            self.upper = self.window
         # Update the bounds of the window
         # the window limits bounce back near the ends of the route
-        self.blimit = max(0, self.mem_pointer)
-        self.flimit = min(self.route_end, self.mem_pointer + self.upper)
+        self.blimit = max(0, min(self.mem_pointer - self.lower, self.route_end-self.window) )
+        self.flimit = min(self.route_end, max(self.mem_pointer + self.upper, self.window))
 
     def update_mid_pointer(self, idx):
         '''
