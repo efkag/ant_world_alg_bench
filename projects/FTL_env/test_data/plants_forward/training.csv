@@ -1,8 +1,3 @@
-Time [s], Filename
-0.114816, test_route/snapshot_0.png
-0.306242, test_route/snapshot_1.png
-0.424405, test_route/snapshot_2.png
-0.562745, test_route/snapshot_3.png
-0.669633, test_route/snapshot_4.png
-0.803392, test_route/snapshot_5.png
-0.939741, test_route/snapshot_6.png
+version https://git-lfs.github.com/spec/v1
+oid sha256:ade42c1ee33abdd763b654f14deb4e0afe66eceb4298b154766b04628e2bbf2c
+size 271
