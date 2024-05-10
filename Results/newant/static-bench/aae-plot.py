@@ -8,6 +8,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from source.utils import check_for_dir_and_create
 import seaborn as sns
+import numpy as np
 from source.tools.results import filter_results, read_results
 sns.set_context("paper", font_scale=1)
 
@@ -21,13 +22,24 @@ data = read_results(os.path.join(results_path, 'results.csv'))
 # data = pd.read_csv('exp4.csv')
 
 
-figsize = (6, 3)
-metric = 'errors'
+figsize = (10, 5)
+
 filters = {'res':'(180, 40)','blur':True, 'matcher':'mae', 
            #'edge':False,
         }
 df = filter_results(data, **filters)
 
+metric = 'errors'
+grouping_func = sum
+method = np.count_nonzero
+aae_threshold = 30 #degrees
+dist_threshold = 0.3 #m
+
+def new_perf_metric(r):
+    mask = (np.array(r['errors']) >= aae_threshold) | (np.array(r['dist_diff']) >= dist_threshold)
+    return method(mask)/mask.size
+
+df['mod_aae'] = df.apply(new_perf_metric, axis=1)
 
 '''
 Plot for one specific matcher with one specific pre-proc
@@ -35,17 +47,17 @@ Plot for one specific matcher with one specific pre-proc
 fig, ax = plt.subplots(figsize=figsize)
 #plt.title(matcher + ', route:' + str(route_id))
 # Group then back to dataframe
-df = df.groupby(['nav-name'])[metric].apply(sum).to_frame(metric).reset_index()
+df = df.groupby(['nav-name'])[metric].apply(grouping_func).to_frame(metric).reset_index()
 print(df['nav-name'].unique())
 order = ['A-SMW(20)', 'PM', 'SMW(10)', 'SMW(15)', 'SMW(20)', 'SMW(25)', 
         'SMW(30)', 'SMW(40)', 'SMW(50)', 'SMW(75)', 'SMW(100)', 'SMW(150)',
         'SMW(200)', 'SMW(300)', 'SMW(500)']
 df = df.explode(metric)
-df['errors'] = pd.to_numeric(df[metric])
+df[metric] = pd.to_numeric(df[metric])
 
 sns.violinplot(data=df, x='nav-name', y=metric, order=order, cut=0, ax=ax)
 
-ax.set_ylim([-1, 180])
+# ax.set_ylim([-1, 180])
 ax.set_ylabel('AAE')
 ax.set_xlabel('navigation algorithm')
 ax.tick_params(axis='x', rotation=90)
