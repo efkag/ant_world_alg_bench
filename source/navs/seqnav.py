@@ -101,6 +101,7 @@ class SequentialPerfectMemory(Navigator):
         :return:
         '''
         start_time = time.perf_counter()
+
         query_img = self.pipe.apply(query_img)
         # get the rotational similarities between a query image and a window of route images
         wrsims = self.rmf(query_img, self.route_images[self.blimit:self.flimit], self.matcher, self.deg_range, self.deg_step)

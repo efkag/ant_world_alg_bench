@@ -14,6 +14,8 @@ class PerfectMemory(Navigator):
 
     def get_heading(self, query_img):
         start_time = time.perf_counter()
+        
+        query_img = self.pipe.apply(query_img)
         # get the rotational similarities between a query image and a window of route images
         rsims = self.rmf(query_img, self.route_images, self.matcher, self.deg_range, self.deg_step)
 
