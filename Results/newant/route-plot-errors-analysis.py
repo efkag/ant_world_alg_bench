@@ -14,7 +14,7 @@ from source.tools.results import filter_results, read_results
 import yaml
 sns.set_context("paper", font_scale=1)
 
-directory = 'seq2seq/2024-04-15'
+directory = '2024-03-07'
 results_path = os.path.join('Results', 'newant', directory)
 fig_save_path = os.path.join('Results', 'newant', directory, 'analysis')
 data = read_results(os.path.join(results_path, 'results.csv'))
@@ -26,7 +26,7 @@ data.drop(data[data['nav-name'] == 'InfoMax'].index, inplace=True)
 
 
 # Plot a specific route
-route_id = 0
+route_id = 14
 fig_save_path = os.path.join(fig_save_path, f"route{route_id}")
 check_for_dir_and_create(fig_save_path)
 path = os.path.join(routes_path, f"route{route_id}")
@@ -35,9 +35,10 @@ path = os.path.join(routes_path, f"route{route_id}")
 threshold = 0
 repeat_no = 0
 
-filters = {'route_id':route_id, 'res':'(180, 40)','blur':True, 
-           'window':20, 'matcher':'mae', 'edge':False,
-           'num_of_repeat': repeat_no, 'nav-name':'s2sSMW(20, 3)'}
+filters = {'nav-name':'SMW(300)',
+           'route_id':route_id, 'res':'(180, 40)','blur':True, 
+           'matcher':'mae', 'edge':False,
+           'num_of_repeat': repeat_no, }
 traj = filter_results(data, **filters)
 print(traj.shape[0], ' rows')
 traj = traj.to_dict(orient='records')[0]

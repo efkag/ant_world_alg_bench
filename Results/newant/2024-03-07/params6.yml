@@ -1,0 +1,15 @@
+asmw:
+  matcher: [mae]
+  window: [-20]
+blur: [true]
+deg_range:
+- !!python/tuple [-180, 180]
+num_of_repeats: 3
+r: [0.05]
+repeat: [0, 1, 2]
+repos_thresh: [0.3]
+route_ids: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+routes_path: datasets/new-antworld/curve-bins
+shape:
+- !!python/tuple [180, 40]
+t: [1000]

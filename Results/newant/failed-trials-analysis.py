@@ -8,72 +8,74 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+import yaml
 from ast import literal_eval
+from source.tools.results import filter_results, read_results
 from source.utils import load_route_naw, plot_route, animated_window, check_for_dir_and_create
 sns.set_context("paper", font_scale=1)
 
+# general paths
 directory = '2024-03-07'
-results_path = os.path.join('Results', 'newant', directory)
-fig_save_path = os.path.join('Results', 'newant', directory, 'analysis')
-check_for_dir_and_create(fig_save_path)
-data = pd.read_csv(os.path.join(results_path, 'results.csv'), index_col=False)
-#data['trial_fail_count'] = data['trial_fail_count'].apply(literal_eval)
+results_path = os.path.join('Results', 'newant',  directory)
+fig_save_path = os.path.join(results_path, 'analysis')
+
+data = read_results(os.path.join(results_path, 'results.csv'))
+with open(os.path.join(results_path, 'params.yml')) as fp:
+    params = yaml.load(fp)
+routes_path = params['routes_path']
 
 
 
-# Choose a specific pre. processing
-# route_id = 7
-matcher = 'mae'
-blur = True
-# edge = 'False' 
-res = '(180, 40)'
-g_loc_norm = 'False'#"{'sig1': 2, 'sig2': 20}"
-# loc_norm = 'False'
-title = None
 
-data = data.loc[data['nav-name'] != 'InfoMax']
+
+#data = data.loc[data['nav-name'] != 'InfoMax']
 # imax_df = data.loc[data['nav-name'] == 'InfoMax']
 # data = pd.concat([data, imax_df])
 
-data = data.loc[(data['matcher'] == matcher) 
-                & (data['res'] == res) 
-                & (data['blur'] == blur) 
-                #& (data['edge'] == edge) 
-                #& (data['gauss_loc_norm'] == g_loc_norm)
-                #& (data['loc_norm'] == loc_norm)
-                #& (data['route_id'] == route_id ) 
-                # & (data['num_of_repeat'] == 0) 
-             #& (data['route_id'] <= 4 ) #& (data['route_id'] < 10 )
-                
-]
+# Plot a specific route
+for route_id in range(20):
+#route_id = 2
+   if route_id+1:
+      repeat_no = 0
+      save_path = os.path.join(fig_save_path, f"route{route_id}")
+      check_for_dir_and_create(save_path)
+
+   filters = {'route_id':route_id, #'num_of_repeat': repeat_no,
+            'res':'(180, 40)','blur':True, 'matcher':'mae', 'edge':False,
+            }
+   df = filter_results(data, **filters)
 
 
-#################
-# in case of repeats
-method = np.mean
-#data = data.groupby(['window', 'route_id'])["trial_fail_count"].apply(method).to_frame("trial_fail_count").reset_index()
-##### if the dataset had nav-names
-data = data.groupby(['nav-name', 'route_id'])["trial_fail_count"].apply(method).to_frame("trial_fail_count").reset_index()
-print(data['nav-name'].unique())
-order = ['A-SMW(15)', 'PM', 'SMW(10)', 'SMW(15)', 'SMW(20)', 'SMW(25)', 
-         'SMW(30)', 'SMW(40)', 'SMW(50)', 'SMW(75)', 'SMW(100)']
+   #################
+   # in case of repeats
+   method = list
+   #df = df.groupby(['window', 'route_id'])["trial_fail_count"].apply(method).to_frame("trial_fail_count").reset_index()
+   ##### if the dataset had nav-names
+   df = df.groupby(['nav-name', 'route_id'])["trial_fail_count"].apply(method).to_frame("trial_fail_count").reset_index()
+   print(df['nav-name'].unique())
+   order = ['A-SMW(15)', 'A-SMW(20)', 'PM', 'SMW(10)', 'SMW(15)', 'SMW(20)', 'SMW(25)', 
+            'SMW(30)', 'SMW(40)', 'SMW(50)', 'SMW(75)', 'SMW(100)', 'SMW(150)',
+            'SMW(200)', 'SMW(300)', 'SMW(500)']
 
-figsize = (8., 4)
-fig, ax = plt.subplots(figsize=figsize)
-#ax.set_ylim(0, 20)
-#sns.barplot(x="window", y="trial_fail_count", data=data, ax=ax, estimator=method, capsize=.2, ci=None)
-sns.boxplot(data=data, x="nav-name", y="trial_fail_count",  ax=ax, order=order)
-# window_labels = ['Adaptive SMW', 'PM', 'Fixed 15', 'Fixed 25']
-# ax.set_xticklabels(window_labels)
-ax.set_xlabel('Navigation Algorithm')
-ax.set_ylabel('Mean TFC')
-plt.tight_layout()
-# path = os.path.join(fig_save_path, f'route[{route_id}]-failed trials.png')
-temp_save_path = os.path.join(fig_save_path, 'failed-trials.png')
-fig.savefig(temp_save_path)
-temp_save_path = os.path.join(fig_save_path, 'failed-trials.pdf')
-fig.savefig(temp_save_path)
-plt.show()
+   df = df.explode("trial_fail_count")
+
+   figsize = (8., 4)
+   fig, ax = plt.subplots(figsize=figsize)
+   ax.set_title(f'route: {route_id}')
+   #ax.set_ylim(0, 20)
+   #sns.barplot(x="window", y="trial_fail_count", df=df, ax=ax, estimator=method, capsize=.2, ci=None)
+   sns.boxplot(data=df, x="nav-name", y="trial_fail_count",  ax=ax, order=order)
+
+   ax.tick_params(axis='x', labelrotation=90)
+   ax.set_xlabel('Navigation Algorithm')
+   ax.set_ylabel('Mean TFC')
+   plt.tight_layout()
+   # path = os.path.join(fig_save_path, f'route[{route_id}]-failed trials.png')
+   temp_save_path = os.path.join(save_path, f'swarm-failed-trials{filters}.png')
+   fig.savefig(temp_save_path)
+   temp_save_path = os.path.join(save_path, 'swarm-failed-trials.pdf')
+   fig.savefig(temp_save_path)
+   plt.show()
 
 
 ################# joint plot

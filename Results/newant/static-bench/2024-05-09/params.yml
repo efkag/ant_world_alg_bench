@@ -1,0 +1,52 @@
+blur:
+- true
+deg_range:
+- !!python/tuple
+  - -180
+  - 180
+grid_dist:
+- 0.2
+matcher:
+- mae
+route_ids:
+- 0
+- 1
+- 2
+- 3
+- 4
+- 5
+- 6
+- 7
+- 8
+- 9
+- 10
+- 11
+- 12
+- 13
+- 14
+- 15
+- 16
+- 17
+- 18
+- 19
+routes_path: datasets/new-antworld/curve-bins
+shape:
+- !!python/tuple
+  - 180
+  - 40
+window:
+- 0
+- -20
+- 10
+- 15
+- 20
+- 25
+- 30
+- 40
+- 50
+- 75
+- 100
+- 150
+- 200
+- 300
+- 500

@@ -391,3 +391,11 @@ def load_all_bob_routes(path, ids, suffix=None, repeats=None, **kwargs):
         routes_l.append(route)
     return routes_l
 
+
+# TODO:
+class Datatset:
+    def __init__(self, data_path, route_ids, repeats=None, mode='grid',  **kwargs) -> None:
+        self.data_path = data_path
+
+    def get_test_set(self):
+        pass
