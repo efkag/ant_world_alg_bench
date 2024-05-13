@@ -99,14 +99,14 @@ def live_bench():
                   #'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
                   }
     
-    nav_params = {#'pm':{'matcher':['mae']},
-                  #'smw':{'window':[300, 500], 'matcher':['mae']},
-                  'asmw':{'window':[-20], 'matcher':['mae']},
+    nav_params = {'pm':{'matcher':['mae']},
+                  'smw':{'window':[10, 15, 20, 25, 30, 40, 50, 75, 100, 150, 200, 300, 500], 'matcher':['mae']},
+                  'asmw':{'window':[-15], 'matcher':['mae']},
                   #'s2s':{'window':[20], 'queue_size':[3], 'matcher':['mae'], 'sub_window':[3]}
     }
 
-    routes = [1]
-    num_of_repeats = 3
+    routes = [1, 2, 3]
+    num_of_repeats = 1
     parameters['repeat'] = [*range(num_of_repeats)]
     cbench.benchmark(results_path, routes_path, params=parameters, nav_params=nav_params,
                     route_ids=routes, parallel=True, num_of_repeats=num_of_repeats, cores=1)

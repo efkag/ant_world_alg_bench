@@ -1,6 +1,7 @@
 from source.utils import rotate, mae, rmse, dot_dist, cor_dist, rmf, seq2seqrmf, pair_rmf, cos_sim, mean_angle
 from source.analysis import d2i_rmfs_eval
 import numpy as np
+import time
 from scipy.stats import norm
 from collections import deque
 from .navs import Navigator
@@ -33,6 +34,7 @@ class SequentialPerfectMemory(Navigator):
         self.CMA = []
         self.sma_qmet_log = []
         self.best_ridfs = []
+        self.time_com= []
         # append a starting value for the d2i qiality metric log
         # TODO: the metrics shouls proapblly be classes that each have their own
         # initialisation values etc
@@ -98,6 +100,7 @@ class SequentialPerfectMemory(Navigator):
         :param query_img:
         :return:
         '''
+        start_time = time.perf_counter()
         query_img = self.pipe.apply(query_img)
         # get the rotational similarities between a query image and a window of route images
         wrsims = self.rmf(query_img, self.route_images[self.blimit:self.flimit], self.matcher, self.deg_range, self.deg_step)
@@ -144,6 +147,8 @@ class SequentialPerfectMemory(Navigator):
 
         # Update memory pointer
         self.update_pointer(idx)
+        end_time = time.perf_counter()
+        self.time_com.append((end_time-start_time))
         return heading
 
     def eval_ridf(self, ridf):
@@ -388,6 +393,9 @@ class SequentialPerfectMemory(Navigator):
 
     def get_CMA(self):
         return self.CMA
+    
+    def get_time_com(self):
+        return self.time_com
     
     def get_name(self):
         if self.adaptive:

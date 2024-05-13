@@ -58,6 +58,10 @@ class Navigator():
     @abstractmethod
     def get_best_sims(self):
         pass
+
+    @abstractmethod
+    def get_time_com(self):
+        pass
     
     @abstractmethod
     def get_name(self):

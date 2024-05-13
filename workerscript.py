@@ -64,7 +64,7 @@ for combo in chunk:
     rpt = combo.get('repeat') # the repeat number
     for route in routes:  # for every route
         agent.set_seed(rpt)
-        tic = time.perf_counter()
+        #tic = time.perf_counter()
         
         pipe = Pipeline(**combo)
         route_imgs = pipe.apply(route.get_imgs())
@@ -84,8 +84,8 @@ for combo in chunk:
         
         traj, nav = agent.run_agent(route, nav, **combo)
 
-        toc = time.perf_counter()
-        time_compl = toc - tic
+        #toc = time.perf_counter()
+        time_compl = nav.get_time_com()
         # Get the aae and the minimum distant index of the route memory
         eval_traj = copy.deepcopy(traj)
         eval_traj['heading'][0] = eval_traj['heading'][1]

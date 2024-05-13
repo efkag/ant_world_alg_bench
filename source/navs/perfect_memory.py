@@ -1,4 +1,5 @@
 from .navs import Navigator
+import time
 
 class PerfectMemory(Navigator):
 
@@ -9,8 +10,10 @@ class PerfectMemory(Navigator):
         self.matched_index_log = []
         self.best_sims = []
         self.best_ridfs = []
+        self.time_com = []
 
     def get_heading(self, query_img):
+        start_time = time.perf_counter()
         # get the rotational similarities between a query image and a window of route images
         rsims = self.rmf(query_img, self.route_images, self.matcher, self.deg_range, self.deg_step)
 
@@ -34,6 +37,8 @@ class PerfectMemory(Navigator):
         self.recovered_heading.append(heading)
         # Update memory pointer
         self.matched_index_log.append(idx)
+        end_time = time.perf_counter()
+        self.time_com.append((end_time-start_time))
         return heading
     
     def navigate(self, query_imgs):
