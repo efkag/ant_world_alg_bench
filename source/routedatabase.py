@@ -220,6 +220,10 @@ class BoBRoute:
         # self.vcrop = int(round(self.img_shape[1] * self.vcrop))
         self.sample_step = sample_step
 
+        # if self.unwraper:
+        #         img = cv.imread(im_path, cv.IMREAD_GRAYSCALE)
+        #         self.unwraper = self.unwraper(img)
+
         self.route_dict = self.load_route()
 
 
@@ -244,7 +248,7 @@ class BoBRoute:
         route_data['yaw'] = squash_deg(route_data['yaw'])
         # print(route_data.keys())
         if self.read_imgs:
-            imgs = []
+            imgs = np.empty((len(route_data), self.img_shape[1], self.img_shape[0]))
             for i, file in enumerate(route_data['filename']):
                 #careful the filenames contain a leading space
                 im_path = os.path.join(self.path, file.strip())
@@ -253,11 +257,10 @@ class BoBRoute:
                     self.unwraper = self.unwraper(img)
                 elif self.unwraper:
                     img = self.unwraper.unwarp(img)
-                    img = self.resizer(img)
-                imgs.append(img)
+                img = self.resizer(img)
+                imgs[i] = img
             
-            route_data['imgs'] = np.array(imgs)
-            import pdb;pdb.set_trace()
+            route_data['imgs'] = imgs
         return route_data
 
     def set_sample_step(self, step: int):
