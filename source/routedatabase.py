@@ -248,7 +248,7 @@ class BoBRoute:
         route_data['yaw'] = squash_deg(route_data['yaw'])
         # print(route_data.keys())
         if self.read_imgs:
-            imgs = np.empty((len(route_data), self.img_shape[1], self.img_shape[0]))
+            imgs = np.empty((len(route_data['filename']), self.img_shape[1], self.img_shape[0]))
             for i, file in enumerate(route_data['filename']):
                 #careful the filenames contain a leading space
                 im_path = os.path.join(self.path, file.strip())
