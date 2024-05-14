@@ -78,6 +78,7 @@ check_for_dir_and_create(fig_save_path)
 route = BoBRoute(path=route_path, read_imgs=True, unwraper=Unwraper)
 ref_imgs = route.get_imgs()
 ref_imgs = pipe.apply(ref_imgs)
+ref_imgs = np.asarray(ref_imgs)
 
 #trial data
 logs_path = os.path.join(route_path, 'testing')
@@ -103,7 +104,7 @@ max_heat_value = 0
 heatmap = np.full((len(trial_imgs), len(ref_imgs)), max_heat_value)
 
 
-trial_imgs = np.asarray(trial_imgs)
+
 file_path = os.path.join(fig_save_path,f'heatmap-route({route_id})-trial({trial_name}).npy')
 #file_path =  os.path.join(fig_save_path, 'heatmap.npy')
 if os.path.isfile(file_path):
