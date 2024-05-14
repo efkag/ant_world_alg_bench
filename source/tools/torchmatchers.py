@@ -61,11 +61,12 @@ def rmf(query_img, ref_imgs, matcher=mae, d_range=(-180, 180), d_step=1):
     """
     query_img = torch.Tensor(query_img)
     query_img = query_img.to(device)
-    if ref_imgs.ndim < 3:
-      ref_imgs = torch.unsqueeze(ref_imgs, 0)
 
     if not torch.is_tensor(ref_imgs):
         ref_imgs = torch.Tensor(ref_imgs).to(device)
+
+    if ref_imgs.ndim < 3:
+      ref_imgs = torch.unsqueeze(ref_imgs, 0)
 
     degrees = range(*d_range, d_step)
     total_search_angle = round((d_range[1] - d_range[0]) / d_step)
