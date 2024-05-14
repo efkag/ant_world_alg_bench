@@ -13,7 +13,9 @@ from source.imgproc import Pipeline
 from matplotlib import pyplot as plt
 import seaborn as sns
 from source.display import plot_ftl_route
-from source.utils import mae, rmf, cor_dist, check_for_dir_and_create
+from source.utils import check_for_dir_and_create
+from source.tools.matchers import mae, rmf, cor_dist
+from source.tools import torchmatchers
 sns.set_context("paper", font_scale=1)
 
 def load_testing_logs(route_path, dname):
@@ -47,21 +49,26 @@ pm_logs = ['pm0', 'pm1', 'pm2', 'pm3', 'pm4']
 asmw_logs = ['asmw0', 'asmw1', 'asmw2', 'asmw3', 'asmw4'] 
 
 #Params
-route_id=2
-pm_best_match = True
+route_id=3
+##########################
+# if pm_best_match then that will plot the real PM match from the testing logs
+# if pm_simu_best_match then is simulates the pm matches from the primary trial_data
+pm_best_match = False
 #or
 pm_simu_best_match = True
+##########################
 window_heatmap = False
 trial_name = asmw_logs[1]
-pm_trial_name = pm_logs[1]
+pm_trial_name = pm_logs[0]
 
-
+rmf_func = torchmatchers.rmf
+rmf_matcher = torchmatchers.mae
 combo = {'shape':(180, 50),'vcrop':0.5, 'histeq':True}
 pipe = Pipeline(**combo)
 
 
-
-route_path = os.path.join(fwd, '2023-09-11', f'route{route_id}')
+directory = '2023-10-03'
+route_path = os.path.join(fwd, directory, f'route{route_id}')
 fig_save_path = os.path.join(route_path, 'analysis')
 check_for_dir_and_create(fig_save_path)
 
@@ -84,34 +91,34 @@ if pm_best_match and not pm_simu_best_match:
     pm_trial = load_testing_logs(logs_path, pm_trial_name )
     pm_matched_i = pm_trial['matched_index']
 
-# use this for the HEAT map using the PM trial images
-logs_path = os.path.join(route_path, 'testing')
-pm_trial = load_testing_logs(logs_path, pm_trial_name )
-trial_imgs = pm_trial['imgs']
-trial_imgs = pipe.apply(trial_imgs)
+    # use this for the HEAT map using the PM trial images
+    logs_path = os.path.join(route_path, 'testing')
+    pm_trial = load_testing_logs(logs_path, pm_trial_name )
+    trial_imgs = pm_trial['imgs']
+    trial_imgs = pipe.apply(trial_imgs)
 
 max_heat_value = 0
 heatmap = np.full((len(trial_imgs), len(ref_imgs)), max_heat_value)
 
 
 
-#file_path = os.path.join(fig_save_path,f'heatmap-route({route_id})-trial({trial_name}).npy')
-file_path =  os.path.join(fig_save_path, 'heatmap.npy')
+file_path = os.path.join(fig_save_path,f'heatmap-route({route_id})-trial({trial_name}).npy')
+#file_path =  os.path.join(fig_save_path, 'heatmap.npy')
 if os.path.isfile(file_path):
     heatmap = np.load(file_path)
 else:
     if window_heatmap:
-        #this populated the heatmap fro the windows only
+        #this populated the heatmap for the windows only
         for i, (im, ws, we) in enumerate(zip(trial_imgs, trial['ws'], trial['we'])):
             w_imgs = ref_imgs[ws:we]
             #get the RDF field
-            rdff = rmf(im, w_imgs, matcher=mae, d_range=(-90, 90))
+            rdff = rmf_func(im, w_imgs, matcher=rmf_matcher, d_range=(-90, 90))
             ridf_mins = np.min(rdff, axis=1)
             heatmap[i, ws:we] = ridf_mins
     else:
         for i, im in enumerate(trial_imgs):
             #get the RDF field
-            rdff = rmf(im, ref_imgs, matcher=mae, d_range=(-90, 90))
+            rdff = rmf_func(im, ref_imgs, matcher=rmf_matcher, d_range=(-90, 90))
             ridf_mins = np.min(rdff, axis=1)
             heatmap[i,:] = ridf_mins
         np.save(file_path, heatmap)

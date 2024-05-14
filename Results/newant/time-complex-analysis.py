@@ -7,21 +7,31 @@ sys.path.append(os.getcwd())
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import yaml
 import seaborn as sns
 from ast import literal_eval
 from source.analysis import perc_outliers
+from source.tools.results import filter_results, read_results
 sns.set_context("paper", font_scale=1)
 
 
-directory = '2024-03-07'
-results_path = os.path.join('Results', 'newant', directory)
-fig_save_path = os.path.join('Results', 'newant', directory, 'analysis')
-data = pd.read_csv(os.path.join(results_path, 'results.csv'), index_col=False)
+# general paths
+directory = '2024-05-13'
+results_path = os.path.join('Results', 'newant',  directory)
+fig_save_path = os.path.join(results_path, 'analysis')
 
-# Convert list of strings to actual list of lists
-#data['errors'] = data['errors'].apply(literal_eval)
-data['dist_diff'] = data['dist_diff'].apply(literal_eval)
-data['seconds'] = data['seconds'].astype(float)
+data = read_results(os.path.join(results_path, 'results.csv'))
+with open(os.path.join(results_path, 'params.yml')) as fp:
+    params = yaml.load(fp)
+routes_path = params['routes_path']
+
+
+filters = {'res':'(180, 40)','blur':True, 'matcher':'mae', 'edge':False,
+        }
+df = filter_results(data, **filters)
+
+df['seconds'] = df['seconds'].apply(literal_eval)
+df = df.explode('seconds')
 
 
 ####### Box plot
@@ -30,11 +40,11 @@ fig, ax = plt.subplots(figsize=figsize)
 ax = sns.boxplot(x="nav-name", y="seconds", data=data, ax=ax)
 # window_labels = ['Adaptive (20)', 'PM', 'w=15', 'w=20', 'w=25', 'w=30']
 # ax.set_xticklabels(window_labels)
-ax.set_xlabel('Window size')
+ax.set_xlabel('Navigation Algorithm')
 ax.set_ylabel('Runtime (s)')
-ax.set_title("B", loc="left")
-plt.tight_layout(pad=0)
-fig.savefig(fig_save_path + '/time-complex-all.png')
+#ax.set_title("B", loc="left")
+plt.tight_layout()
+fig.savefig(fig_save_path + f'time-complex-all.png')
 plt.show()
 #################
 

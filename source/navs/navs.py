@@ -31,7 +31,7 @@ class Navigator():
             self.using_torch = True
             self.route_images = np.array(self.route_images)
             self.route_images = torch.Tensor(self.route_images)
-            self.route_images = self.route_images.cuda()
+            self.route_images = self.route_images.to(device)
             self.matcher = torchmatchers.pick_im_matcher(matcher)
             self.rmf = torchmatchers.rmf
     
