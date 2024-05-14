@@ -52,14 +52,16 @@ asmw_logs = ['asmw0', 'asmw1', 'asmw2', 'asmw3', 'asmw4']
 route_id=3
 ##########################
 # if pm_best_match then that will plot the real PM match from the testing logs
-# if pm_simu_best_match then is simulates the pm matches from the primary trial_data
-pm_best_match = False
+# if secondary_best_match_simu then is simulates the pm matches from the primary trial_data
+secondary_best_match = False
 #or
-pm_simu_best_match = True
+secondary_best_match_simu = True
 ##########################
+trial_imgs_to_use = 'secondary'
 window_heatmap = False
 trial_name = asmw_logs[1]
-pm_trial_name = pm_logs[0]
+secondary_trial_name = pm_logs[0]
+
 
 rmf_func = torchmatchers.rmf
 rmf_matcher = torchmatchers.mae
@@ -85,16 +87,16 @@ trial_imgs = pipe.apply(trial_imgs)
 
 
 # pm trial
-if pm_best_match and not pm_simu_best_match:
+if secondary_best_match and not secondary_best_match_simu:
     #trial data
     logs_path = os.path.join(route_path, 'testing')
-    pm_trial = load_testing_logs(logs_path, pm_trial_name )
-    pm_matched_i = pm_trial['matched_index']
-
-    # use this for the HEAT map using the PM trial images
+    secondary_trial = load_testing_logs(logs_path, secondary_trial_name )
+    secondary_matched = secondary_trial['matched_index']
+if trial_imgs_to_use == 'secondary':
+# use this for the HEAT map using the PM trial images
     logs_path = os.path.join(route_path, 'testing')
-    pm_trial = load_testing_logs(logs_path, pm_trial_name )
-    trial_imgs = pm_trial['imgs']
+    secondary_trial = load_testing_logs(logs_path, secondary_trial_name )
+    trial_imgs = secondary_trial['imgs']
     trial_imgs = pipe.apply(trial_imgs)
 
 max_heat_value = 0
@@ -125,8 +127,8 @@ else:
 
 
 
-if pm_best_match and pm_simu_best_match:
-    pm_matched_i = np.argmin(heatmap, axis=1)
+if secondary_best_match and secondary_best_match_simu:
+    secondary_matched = np.argmin(heatmap, axis=1)
 
 
 matched_i = trial['matched_index']
@@ -138,8 +140,8 @@ fig, ax = plt.subplots(figsize=fig_size)
 sns.heatmap(heatmap, ax=ax)
 #ax.imshow(heatmap)
 ax.plot(matched_i, range(len(matched_i)), label='ASMW match')
-if pm_best_match:
-    ax.plot(pm_matched_i, range(len(pm_matched_i)), c='k', label='PM match')
+if secondary_best_match:
+    ax.plot(secondary_matched, range(len(secondary_matched)), c='k', label='PM match')
 ax.plot(ws, range(len(ws)), c='g', label='window limits')
 ax.plot(we, range(len(we)), c='g')
 ax.set_xticks([])
@@ -149,6 +151,6 @@ ax.set_ylabel('query images')
 
 plt.legend()
 plt.tight_layout()
-fig.savefig(os.path.join(fig_save_path, f'heatmap-route({route_id})-trial({trial_name})-pmline({pm_best_match}).pdf'), dpi=200)
-fig.savefig(os.path.join(fig_save_path, f'heatmap-route({route_id})-trial({trial_name})-pmline({pm_best_match}).png'), dpi=200)
+fig.savefig(os.path.join(fig_save_path, f'heatmap-route({route_id})-trial({trial_name})-pmline({secondary_best_match}).pdf'), dpi=200)
+fig.savefig(os.path.join(fig_save_path, f'heatmap-route({route_id})-trial({trial_name})-pmline({secondary_best_match}).png'), dpi=200)
 plt.show()

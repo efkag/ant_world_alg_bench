@@ -256,7 +256,8 @@ class BoBRoute:
                     img = self.resizer(img)
                 imgs.append(img)
             
-            route_data['imgs'] = imgs
+            route_data['imgs'] = np.array(imgs)
+            import pdb;pdb.set_trace()
         return route_data
 
     def set_sample_step(self, step: int):
