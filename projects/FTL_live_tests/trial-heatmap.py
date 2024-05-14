@@ -103,7 +103,7 @@ max_heat_value = 0
 heatmap = np.full((len(trial_imgs), len(ref_imgs)), max_heat_value)
 
 
-
+trial_imgs = np.asarray(trial_imgs)
 file_path = os.path.join(fig_save_path,f'heatmap-route({route_id})-trial({trial_name}).npy')
 #file_path =  os.path.join(fig_save_path, 'heatmap.npy')
 if os.path.isfile(file_path):
