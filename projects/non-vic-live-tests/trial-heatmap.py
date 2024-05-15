@@ -12,8 +12,10 @@ from source.unwraper import Unwraper
 from source.imgproc import Pipeline
 from matplotlib import pyplot as plt
 import seaborn as sns
-from source.display import plot_ftl_route
-from source.utils import mae, rmf, cor_dist, check_for_dir_and_create
+from source.imgproc import resize
+from source.utils import check_for_dir_and_create
+from source.tools.matchers import mae, rmf, cor_dist
+from source.tools import torchmatchers
 sns.set_context("paper", font_scale=1)
 
 def read_img_gen(data_path, img_files):
@@ -39,17 +41,20 @@ def load_testing_logs(data_path, dname='', pipe=None):
         route['we'] = route.pop('Window end')
     imgs = []
     # imgs_gen = read_img_gen(data_path, route['filename'])
-    # im0 = next(imgs_gen)
-    # unwraper = Unwraper(im0)
-    # im0 = unwraper.unwarp(im0)
-    # im0 = pipe.apply(im0)
-    # imgs.append(im0)
-    # for im in imgs_gen:
-    #     im = unwraper.unwarp(im)
-    #     if pipe:
-    #         im = pipe.apply(im)
-    #     imgs.append(im)
-
+    im_path = os.path.join(data_path, route['filename'][0].strip())
+    img0 = cv.imread(im_path, cv.IMREAD_GRAYSCALE)
+    unwraper = Unwraper(img0)
+    resizer = resize((360, 90))
+    for i in route['filename']:
+        
+        im_path = os.path.join(route_path, i.strip())
+        img = cv.imread(im_path, cv.IMREAD_GRAYSCALE)
+        img = unwraper.unwarp(img)
+        if pipe:
+            img = pipe.apply(img)
+        else:
+            img = resizer(im)
+        imgs.append(im)
     route['imgs'] = imgs
     return route
 
@@ -58,27 +63,28 @@ def load_testing_logs(data_path, dname='', pipe=None):
 
 #Params
 #route_id=2
-pm_best_match = True
+#pm_best_match = True
 #or
-pm_simu_best_match = True
+secondary_best_match_simu = True
 window_heatmap = False
-trial_name = '20230918_170735'
-#pm_trial_name = pm_logs[1]
+trial_name = '20160211_172745'
 
 
-combo = {'shape':(180, 50), 'histeq':True}
+rmf_func = torchmatchers.rmf
+rmf_matcher = torchmatchers.mae
+combo = {'shape':(180, 50),'vcrop':0.5, 'histeq':True}
 pipe = Pipeline(**combo)
 
 
 
-#route_path = os.path.join(fwd, '2023-09-11', f'route{route_id}')
-route_path = os.path.join(fwd, '2023-09-18/demo')
+directory = '2023-10-03'
+route_path = os.path.join(fwd, directory)
 fig_save_path = os.path.join(route_path, 'analysis')
 check_for_dir_and_create(fig_save_path)
 
 # route data
 print(f'reading route from{route_path}')
-route = load_testing_logs(route_path, pipe=pipe)
+route = load_testing_logs(route_path, dname='training' ,pipe=pipe)
 ref_imgs = route['imgs']
 
 
@@ -86,20 +92,18 @@ ref_imgs = route['imgs']
 #trial data
 logs_path = os.path.join(route_path, 'testing')
 print(f'reading logs from{logs_path}')
-trial = load_testing_logs(logs_path, trial_name, pipe=pipe )
+trial = load_testing_logs(logs_path, dname=trial_name, pipe=pipe)
 trial_imgs = trial['imgs']
 
 
 
-matched_i = trial['matched_index']
-ws = trial['ws']
-we = trial['we']
+
 # pm trial
-# if pm_best_match and not pm_simu_best_match:
+# if pm_best_match and not secondary_best_match_simu:
 #     #trial data
 #     logs_path = os.path.join(route_path, 'testing')
 #     pm_trial = load_testing_logs(logs_path, pm_trial_name )
-#     pm_matched_i = pm_trial['matched_index']
+#     secondary_matched = pm_trial['matched_index']
 
 # # use this for the HEAT map using the PM trial images
 # logs_path = os.path.join(route_path, 'testing')
@@ -123,22 +127,25 @@ else:
         for i, (im, ws, we) in enumerate(zip(trial_imgs, trial['ws'], trial['we'])):
             w_imgs = ref_imgs[ws:we]
             #get the RDF field
-            rdff = rmf(im, w_imgs, matcher=mae, d_range=(-90, 90))
+            rdff = rmf_func(im, w_imgs, matcher=rmf_matcher, d_range=(-90, 90))
             ridf_mins = np.min(rdff, axis=1)
             heatmap[i, ws:we] = ridf_mins
     else:
         for i, im in enumerate(trial_imgs):
             #get the RDF field
-            rdff = rmf(im, ref_imgs, matcher=mae, d_range=(-90, 90))
+            rdff = rmf_func(im, ref_imgs, matcher=rmf_matcher, d_range=(-90, 90))
             ridf_mins = np.min(rdff, axis=1)
             heatmap[i,:] = ridf_mins
         np.save(file_path, heatmap)
 
 
 
-if pm_best_match and pm_simu_best_match:
-    pm_matched_i = np.argmin(heatmap, axis=1)
+if secondary_best_match_simu:
+    secondary_matched = np.argmin(heatmap, axis=1)
 
+matched_i = trial['matched_index']
+ws = trial['ws']
+we = trial['we']
 
 
 fig_size = (4, 3)
@@ -146,8 +153,8 @@ fig, ax = plt.subplots(figsize=fig_size)
 sns.heatmap(heatmap, ax=ax)
 #ax.imshow(heatmap, cmap='hot')
 ax.plot(matched_i, range(len(matched_i)), label='ASMW match')
-if pm_best_match:
-    ax.plot(pm_matched_i, range(len(pm_matched_i)), c='k', label='PM match')
+if secondary_best_match_simu:
+    ax.plot(secondary_matched, range(len(secondary_matched)), c='k', label='PM match')
 ax.plot(ws, range(len(ws)), c='g', label='window limits')
 ax.plot(we, range(len(we)), c='g')
 ax.set_xticks([])
@@ -158,7 +165,7 @@ ax.set_ylabel('query images')
 
 plt.legend()
 plt.tight_layout()
-fig.savefig(os.path.join(fig_save_path, f'heatmap-route(-)-trial({trial_name})-pmline({pm_best_match}).png'), dpi=200)
-#fig.savefig(os.path.join(fig_save_path, f'heatmap-route(-)-trial({trial_name})-pmline({pm_best_match}).pdf'), dpi=200, rasterize=True)
+fig.savefig(os.path.join(fig_save_path, f'heatmap-route(-)-trial({trial_name})-pmline({secondary_best_match_simu}).png'), dpi=200)
+fig.savefig(os.path.join(fig_save_path, f'heatmap-route(-)-trial({trial_name})-pmline({secondary_best_match_simu}).pdf'), dpi=200, rasterize=True)
 
 plt.show()
