@@ -169,5 +169,6 @@ ax.legend(loc=1)
 plt.tight_layout()
 fig.savefig(os.path.join(fig_save_path, f'heatmap-route(-)-trial({trial_name})-pmline({secondary_best_match_simu}).png'), dpi=200)
 fig.savefig(os.path.join(fig_save_path, f'heatmap-route(-)-trial({trial_name})-pmline({secondary_best_match_simu}).pdf'), dpi=200)
+fig.savefig(os.path.join(fig_save_path, f'heatmap-route(-)-trial({trial_name})-pmline({secondary_best_match_simu}).svg'), format='svg')
 
 plt.show()
