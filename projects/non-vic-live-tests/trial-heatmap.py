@@ -46,8 +46,7 @@ def load_testing_logs(data_path, dname='', pipe=None):
     unwraper = Unwraper(img0)
     resizer = resize((360, 90))
     for i in route['filename']:
-        
-        im_path = os.path.join(route_path, i.strip())
+        im_path = os.path.join(data_path, i.strip())
         img = cv.imread(im_path, cv.IMREAD_GRAYSCALE)
         img = unwraper.unwarp(img)
         if pipe:
