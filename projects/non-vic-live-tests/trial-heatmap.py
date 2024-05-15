@@ -53,8 +53,8 @@ def load_testing_logs(data_path, dname='', pipe=None):
         if pipe:
             img = pipe.apply(img)
         else:
-            img = resizer(im)
-        imgs.append(im)
+            img = resizer(img)
+        imgs.append(img)
     route['imgs'] = imgs
     return route
 
