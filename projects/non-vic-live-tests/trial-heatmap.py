@@ -77,7 +77,7 @@ pipe = Pipeline(**combo)
 
 
 
-directory = '2023-10-03'
+directory = '2023-10-06'
 route_path = os.path.join(fwd, directory)
 fig_save_path = os.path.join(route_path, 'analysis')
 check_for_dir_and_create(fig_save_path)
@@ -86,6 +86,7 @@ check_for_dir_and_create(fig_save_path)
 print(f'reading route from{route_path}')
 route = load_testing_logs(route_path, dname='training' ,pipe=pipe)
 ref_imgs = route['imgs']
+ref_imgs = np.asarray(ref_imgs)
 
 
 
