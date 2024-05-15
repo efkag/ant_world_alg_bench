@@ -82,7 +82,7 @@ fig_save_path = os.path.join(route_path, 'analysis')
 check_for_dir_and_create(fig_save_path)
 
 # route data
-print(f'reading route from{route_path}')
+print(f'reading route from {route_path}')
 route = load_testing_logs(route_path, dname='training' ,pipe=pipe)
 ref_imgs = route['imgs']
 ref_imgs = np.asarray(ref_imgs)
@@ -91,7 +91,7 @@ ref_imgs = np.asarray(ref_imgs)
 
 #trial data
 logs_path = os.path.join(route_path, 'testing')
-print(f'reading logs from{logs_path}')
+print(f'reading logs from {logs_path}, trial: {trial_name}')
 trial = load_testing_logs(logs_path, dname=trial_name, pipe=pipe)
 trial_imgs = trial['imgs']
 
@@ -115,8 +115,8 @@ trial_imgs = trial['imgs']
 
 
 
-#file_path = os.path.join(fig_save_path,f'heatmap-route({route_id})-trial({trial_name}).npy')
-file_path =  os.path.join(fig_save_path, 'heatmap.npy')
+file_path = os.path.join(fig_save_path,f'heatmap-route({directory})-trial({trial_name}).npy')
+#file_path =  os.path.join(fig_save_path, 'heatmap.npy')
 if os.path.isfile(file_path):
     heatmap = np.load(file_path)
 else:
@@ -166,6 +166,6 @@ ax.set_ylabel('query images')
 plt.legend()
 plt.tight_layout()
 fig.savefig(os.path.join(fig_save_path, f'heatmap-route(-)-trial({trial_name})-pmline({secondary_best_match_simu}).png'), dpi=200)
-fig.savefig(os.path.join(fig_save_path, f'heatmap-route(-)-trial({trial_name})-pmline({secondary_best_match_simu}).pdf'), dpi=200, rasterize=True)
+fig.savefig(os.path.join(fig_save_path, f'heatmap-route(-)-trial({trial_name})-pmline({secondary_best_match_simu}).pdf'), dpi=200)
 
 plt.show()
