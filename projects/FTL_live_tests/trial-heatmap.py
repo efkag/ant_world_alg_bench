@@ -49,18 +49,18 @@ pm_logs = ['pm0', 'pm1', 'pm2', 'pm3', 'pm4']
 asmw_logs = ['asmw0', 'asmw1', 'asmw2', 'asmw3', 'asmw4'] 
 
 #Params
-route_id=3
+route_id=2
 ##########################
 # if pm_best_match then that will plot the real PM match from the testing logs
 # if secondary_best_match_simu then is simulates the pm matches from the primary trial_data
 secondary_best_match = False
 #or
-secondary_best_match_simu = True
+secondary_best_match_simu = False
 ##########################
 trial_imgs_to_use = 'secondary'
 window_heatmap = False
-trial_name = asmw_logs[1]
-secondary_trial_name = pm_logs[0]
+trial_name = pm_logs[1] # asmw_logs[1]
+secondary_trial_name = asmw_logs[4] # pm_logs[0]
 
 
 rmf_func = torchmatchers.rmf
@@ -69,7 +69,7 @@ combo = {'shape':(180, 50),'vcrop':0.5, 'histeq':True}
 pipe = Pipeline(**combo)
 
 
-directory = '2023-10-03'
+directory = '2023-09-11'
 route_path = os.path.join(fwd, directory, f'route{route_id}')
 fig_save_path = os.path.join(route_path, 'analysis')
 check_for_dir_and_create(fig_save_path)
