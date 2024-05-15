@@ -13,6 +13,7 @@ from source.imgproc import Pipeline
 from matplotlib import pyplot as plt
 import seaborn as sns
 from source.imgproc import resize
+from source.tools.results import save_to_mat
 from source.utils import check_for_dir_and_create
 from source.tools.matchers import mae, rmf, cor_dist
 from source.tools import torchmatchers
@@ -116,6 +117,7 @@ trial_imgs = trial['imgs']
 
 
 file_path = os.path.join(fig_save_path,f'heatmap-route({directory})-trial({trial_name}).npy')
+mat_heatmap_io_path = os.path.join(fig_save_path, f'heatmap-route({directory})-trial({trial_name}).mat')
 #file_path =  os.path.join(fig_save_path, 'heatmap.npy')
 if os.path.isfile(file_path):
     heatmap = np.load(file_path)
@@ -137,6 +139,7 @@ else:
             ridf_mins = np.min(rdff, axis=1)
             heatmap[i,:] = ridf_mins
         np.save(file_path, heatmap)
+        save_to_mat(mat_heatmap_io_path, heatmap)
 
 
 
