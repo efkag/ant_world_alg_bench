@@ -59,8 +59,8 @@ secondary_best_match_simu = False
 ##########################
 trial_imgs_to_use = 'secondary'
 window_heatmap = False
-trial_name = pm_logs[1] # asmw_logs[1]
-secondary_trial_name = asmw_logs[4] # pm_logs[0]
+trial_name = asmw_logs[1]
+secondary_trial_name = pm_logs[1]
 
 
 rmf_func = torchmatchers.rmf
@@ -130,7 +130,6 @@ else:
 
 if secondary_best_match and secondary_best_match_simu:
     secondary_matched = np.argmin(heatmap, axis=1)
-
 
 matched_i = trial['matched_index']
 ws = trial['ws']
