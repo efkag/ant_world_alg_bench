@@ -26,7 +26,7 @@ from catch_areas import catch_areas_4route
 #         }
 
 
-routes_path = '/its/home/sk526/ant_world_alg_bench/new-antworld/curve-bins'
+routes_path = 'datasets/new-antworld/curve-bins'
 route_ids = [*range(20)]
 routes = load_routes(routes_path, route_ids)
 params = {'blur': True,
