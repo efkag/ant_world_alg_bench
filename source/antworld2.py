@@ -101,6 +101,7 @@ class Agent:
         '''
         self.agent.set_position(xy[0], xy[1], self.z)
         self.agent.set_attitude(deg, self.noise(), self.noise())
+        #img = self.agent.read_frame()
         img = cv2.cvtColor(self.agent.read_frame(), cv2.COLOR_BGR2GRAY)
         return self.pipe.apply(img)
 

@@ -8,7 +8,8 @@ import pandas as pd
 import numpy as np
 import seaborn as sns
 from ast import literal_eval
-from source.utils import load_route_naw, plot_route, animated_window, check_for_dir_and_create
+from source.utils import load_route_naw, animated_window, check_for_dir_and_create
+from source.display import plot_route
 from source.routedatabase import Route
 from source.tools.results import filter_results, read_results
 import yaml
@@ -72,6 +73,6 @@ print(temp_save_path)
 plot_route(route, traj, scale=None, size=figsize, save=True, path=temp_save_path, title=title)
 
 
-if traj['window_log']:
-    temp_path = os.path.join(fig_save_path,f'window-plots-{traj["nav-name"]}')
-    animated_window(route, traj=traj, path=temp_path, size=figsize, title=None)
+# if traj['window_log']:
+#     temp_path = os.path.join(fig_save_path,f'window-plots-{traj["nav-name"]}')
+#     animated_window(route, traj=traj, path=temp_path, size=figsize, title=None)
