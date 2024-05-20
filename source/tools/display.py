@@ -15,13 +15,13 @@ from mpl_toolkits.mplot3d import axes3d
 sns.set_context("paper", font_scale=1)
 
 fwd = os.path.dirname(__file__)
-col_background = cv.imread(os.path.join(fwd, 'aw_assets', 'collision_-10_10_1.75.png'), cv.IMREAD_GRAYSCALE)
-map_background = cv.imread(os.path.join(fwd, 'aw_assets', 'topdown_[-10,10].png'), cv.IMREAD_GRAYSCALE)
+col_background = cv.imread(os.path.join(fwd, 'aw_assets', 'collision_grey-10_10_1.75.png'), cv.IMREAD_GRAYSCALE)
+map_background = cv.imread(os.path.join(fwd, 'aw_assets', 'topdown_[-10,10].png'))
 map_background = cv.cvtColor(map_background, cv.COLOR_BGR2RGB)
 
 
 def plot_route(route, traj=None, scale=None, window=None, windex=None, save=False, size=(10, 10), path=None, title=None,
-               ax=None, label=None, background=col_background, zoom=None, zoom_factor=None):
+               ax=None, label=None, background=col_background, zoom=None, zoom_factor=5):
     '''
     Plots the route and any given test points if available.
     Note the route headings are rotated 90 degrees as the 0 degree origin
@@ -41,7 +41,7 @@ def plot_route(route, traj=None, scale=None, window=None, windex=None, save=Fals
         fig, ax = plt.subplots(figsize=size)
     ax.set_title(title,  loc="left")
     if background is not None:
-        ax.imshow(background, zorder=0, extent=[-10, 10, -10, 10])#, cmap='gray')
+        ax.imshow(background, zorder=0, extent=[-10, 10, -10, 10], cmap='gray')
     
     u, v = pol2cart_headings(90 - route['yaw'])
     ax.scatter(route['x'], route['y'], label='training route')

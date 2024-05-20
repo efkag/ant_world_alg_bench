@@ -80,4 +80,11 @@ def rmf(query_img, ref_imgs, matcher=mae, d_range=(-180, 180), d_step=1):
     return ridfs if ridfs.shape[0] > 1 else ridfs[0]
 
 def is_cuda_avail():
-    return torch.cuda.is_available()
+    if torch.cuda.is_available():
+        try:
+            x = torch.rand(2)
+            x = x.cuda()
+            x = x * 2
+        except:
+            return False
+    return True

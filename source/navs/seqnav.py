@@ -297,10 +297,10 @@ class SequentialPerfectMemory(Navigator):
         '''
         # Dynamic window adaptation based on match gradient.
         if best > self.prev_match:
-            self.window += round(self.min_window/np.log(self.window))
+            self.window += round(self.route_end/self.window)
             self.window = min(self.window, self.route_end)
         else:
-            self.window -= round(np.log(self.window))
+            self.window -= round(self.route_end/self.window)
             self.window = max(self.window, self.min_window)
         self.prev_match = best
 

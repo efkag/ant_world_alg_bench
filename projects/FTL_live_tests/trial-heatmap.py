@@ -53,9 +53,9 @@ route_id=2
 ##########################
 # if pm_best_match then that will plot the real PM match from the testing logs
 # if secondary_best_match_simu then is simulates the pm matches from the primary trial_data
-secondary_best_match = False
+secondary_best_match = True
 #or
-secondary_best_match_simu = False
+secondary_best_match_simu = True
 ##########################
 trial_imgs_to_use = 'secondary'
 window_heatmap = False

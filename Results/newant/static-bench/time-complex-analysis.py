@@ -48,8 +48,8 @@ plt.yscale("log")
 #window_labels = ['Adaptive (20)', 'PM', 'w=15', 'w=20', 'w=25', 'w=30']
 #ax.set_xticklabels(window_labels)
 ax.set_xlabel('navigation algorithm')
-ax.set_ylabel('Runtime (s)')
-
+ax.set_ylabel('Runtime (s), log scale')
+ax.tick_params(axis='x', labelrotation=90)
 plt.tight_layout()
 fig.savefig(fig_save_path + '/time-complex-all.png')
 fig.savefig(fig_save_path + '/time-complex-all.pdf')

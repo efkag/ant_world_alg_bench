@@ -31,8 +31,8 @@ routes_path = 'datasets/new-antworld/curve-bins'
 
 
 # Plot a specific route
-route_id = 18
-repeat_no = 2
+route_id = 8
+repeat_no = 0
 fig_save_path = os.path.join(fig_save_path, f"route{route_id}", 'full_heatmaps')
 check_for_dir_and_create(fig_save_path)
 route_path = os.path.join(routes_path, f'route{route_id}')
@@ -43,7 +43,7 @@ title = None
 
 
 filters = {'route_id':route_id, 'res':'(180, 40)','blur':True, 
-           'window':300, 'matcher':'mae', 'edge':False,
+           'window':30, 'matcher':'mae', 'edge':False,
            'num_of_repeat': repeat_no}
 traj = filter_results(data, **filters)
 print(traj.shape[0], ' rows')
