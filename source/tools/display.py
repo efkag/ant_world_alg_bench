@@ -20,15 +20,15 @@ map_background = cv.imread(os.path.join(fwd, 'aw_assets', 'topdown_[-10,10].png'
 map_background = cv.cvtColor(map_background, cv.COLOR_BGR2RGB)
 
 
-def plot_route(route, traj=None, scale=None, window=None, windex=None, save=False, size=(10, 10), path=None, title=None,
-               ax=None, label=None, background=col_background, zoom=None, zoom_factor=5):
+def plot_route(route, traj=None, qwidth=None, window=None, windex=None, save=False, size=(10, 10), path=None, title=None,
+               ax=None, label=None, background=col_background, zoom=None, zoom_factor=5, step=1):
     '''
     Plots the route and any given test points if available.
     Note the route headings are rotated 90 degrees as the 0 degree origin
     for the antworld is north but for pyplot it is east.
     :param route:
     :param traj:
-    :param scale:
+    :param qwidth: quiver width
     :param window:
     :param windex:
     :param save:
@@ -46,7 +46,7 @@ def plot_route(route, traj=None, scale=None, window=None, windex=None, save=Fals
     u, v = pol2cart_headings(90 - route['yaw'])
     ax.scatter(route['x'], route['y'], label='training route')
     ax.annotate('Start', (route['x'][0], route['y'][0]))
-    #ax.quiver(route['x'], route['y'], u, v, scale=scale)
+    #ax.quiver(route['x'], route['y'], u, v, width=qwidth)
     if window is not None and windex:
         start = window[0]
         end = window[1]
@@ -56,7 +56,7 @@ def plot_route(route, traj=None, scale=None, window=None, windex=None, save=Fals
         else:
             ax.scatter(traj['x'][:windex], traj['y'][:windex])
             u, v = pol2cart_headings(90 - traj['heading'])
-            ax.quiver(traj['x'][:windex], traj['y'][:windex], u[:windex], v[:windex], scale=scale)
+            ax.quiver(traj['x'][:windex], traj['y'][:windex], u[:windex], v[:windex], width=qwidth)
             ax.plot([traj['x'][:windex], route['x'][traj['min_dist_index'][:windex]]],
                     [traj['y'][:windex], route['y'][traj['min_dist_index'][:windex]]], color='k')
     # Plot grid test points
@@ -65,9 +65,9 @@ def plot_route(route, traj=None, scale=None, window=None, windex=None, save=Fals
     # Plot the trajectory of the agent when repeating the route
     if traj and not window:
         u, v = pol2cart_headings(90 - traj['heading'])
-        ax.scatter(traj['x'], traj['y'], label=label)
+        ax.scatter(traj['x'], traj['y'], label=f'{label} trial')
         # ax.plot(traj['x'], traj['y'])
-        ax.quiver(traj['x'], traj['y'], u, v, scale=scale)
+        ax.quiver(traj['x'][::step], traj['y'][::step], u[::step], v[::step], scale_units='xy', units='xy', width=qwidth)
     ax.set_aspect('equal', 'datalim')
     
     if zoom:

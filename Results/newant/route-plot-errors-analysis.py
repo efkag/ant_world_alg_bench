@@ -8,6 +8,8 @@ import pandas as pd
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes
+from mpl_toolkits.axes_grid1.inset_locator import mark_inset
 from ast import literal_eval
 from source.utils import load_route_naw, animated_window, check_for_dir_and_create
 from source.tools.display import plot_route
@@ -28,7 +30,7 @@ data.drop(data[data['nav-name'] == 'InfoMax'].index, inplace=True)
 
 
 # Plot a specific route
-route_id = 8
+route_id = 16
 fig_save_path = os.path.join(fig_save_path, f"route{route_id}")
 check_for_dir_and_create(fig_save_path)
 path = os.path.join(routes_path, f"route{route_id}")
@@ -51,7 +53,7 @@ title = None
 
 
 
-errors = traj['aae']
+errors = np.asarray(traj['aae'])
 
 #errors = np.array(errors[0])
 traj['x'] = np.array(traj['tx'])
@@ -72,15 +74,31 @@ print(traj.keys())
 temp_save_path = os.path.join(fig_save_path, f'route{route_id}_thre({threshold})_{traj["nav-name"]}.png')
 
 print(temp_save_path)
-
+scale=None
 fig, ax = plt.subplots(figsize=(4, 4))
 
 zoom = (np.mean(route['x']).item(), np.mean(route['y']).item())
 
-plot_route(route, traj, scale=100, size=figsize, save=False, 
-           path=temp_save_path, title=title, ax=ax, zoom=None, zoom_factor=7)
-fig.tight_layout()
+plot_route(route, traj, qwidth=0.05, size=figsize, save=False, 
+           path=temp_save_path, title=title, ax=ax, zoom=zoom, zoom_factor=7)
+ax.set_ylabel('X[m]')
+ax.set_xlabel('Y[m]')
+
+axins = zoomed_inset_axes(ax, zoom=2, loc=1)
+plot_route(route, traj, qwidth=0.09, size=figsize, 
+           ax=axins, zoom=zoom, zoom_factor=7)
+# sub region of the original plot/axes
+xz, yz = -2.20, -3.20 
+x1, x2, y1, y2 = xz-1, xz+1, yz-1, yz+1
+axins.set_xlim(x1, x2)
+axins.set_ylim(y1, y2)
+
+#axins.set_axis_off()
+mark_inset(ax, axins, loc1=2, loc2=4, fc="none", ec="0.5")
+
+#fig.tight_layout()
 fig.savefig(temp_save_path)
+fig.savefig(os.path.join(fig_save_path, f'route{route_id}_thre({threshold})_{traj["nav-name"]}.pdf'))
 plt.show()
 
 # if traj['window_log']:
