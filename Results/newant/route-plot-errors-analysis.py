@@ -39,7 +39,7 @@ path = os.path.join(routes_path, f"route{route_id}")
 threshold = 0
 repeat_no = 0
 
-filters = {'nav-name':'PM',
+filters = {'nav-name':'SMW(300)',
            'route_id':route_id, 'res':'(180, 40)','blur':True, 
            'matcher':'mae', 'edge':False,
            'num_of_repeat': repeat_no, 
@@ -80,13 +80,13 @@ fig, ax = plt.subplots(figsize=(4, 4))
 zoom = (np.mean(route['x']).item(), np.mean(route['y']).item())
 
 plot_route(route, traj, qwidth=0.05, size=figsize, save=False, 
-           path=temp_save_path, title=title, ax=ax, zoom=zoom, zoom_factor=7)
+           path=temp_save_path, title=title, ax=ax, zoom=zoom, zoom_factor=7, step=2)
 ax.set_ylabel('X[m]')
 ax.set_xlabel('Y[m]')
 
 axins = zoomed_inset_axes(ax, zoom=2, loc=1)
-plot_route(route, traj, qwidth=0.09, size=figsize, 
-           ax=axins, zoom=zoom, zoom_factor=7)
+plot_route(route, traj, qwidth=0.05, size=figsize, 
+           ax=axins, zoom=zoom, zoom_factor=7, step=2)
 # sub region of the original plot/axes
 xz, yz = -2.20, -3.20 
 x1, x2, y1, y2 = xz-1, xz+1, yz-1, yz+1

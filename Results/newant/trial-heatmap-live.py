@@ -31,8 +31,8 @@ routes_path = 'datasets/new-antworld/curve-bins'
 
 
 # Plot a specific route
-route_id = 8
-repeat_no = 0
+route_id = 16
+repeat_no = 1
 fig_save_path = os.path.join(fig_save_path, f"route{route_id}", 'full_heatmaps')
 check_for_dir_and_create(fig_save_path)
 route_path = os.path.join(routes_path, f'route{route_id}')
@@ -43,7 +43,7 @@ title = None
 
 
 filters = {'route_id':route_id, 'res':'(180, 40)','blur':True, 
-           'window':30, 'matcher':'mae', 'edge':False,
+           'window':-15, 'matcher':'mae', 'edge':False,
            'num_of_repeat': repeat_no}
 traj = filter_results(data, **filters)
 print(traj.shape[0], ' rows')
@@ -87,7 +87,7 @@ else:
     save_to_mat(mat_heatmap_io_path, heatmap)
     np.save(heatmap_io_path, heatmap)
 
-fig_size = (10, 5)
+fig_size = (6, 3)
 fig, ax = plt.subplots(figsize=fig_size)
 sns.heatmap(heatmap, ax=ax)
 #ax.imshow(heatmap)
@@ -105,7 +105,7 @@ ax.set_ylabel('query images')
 
 plt.legend()
 plt.tight_layout()
-#fig.savefig(os.path.join(fig_save_path, f'heatmap-route({route_id})-rep({repeat_no})-{traj["nav-name"]}.pdf'), dpi=200)
+fig.savefig(os.path.join(fig_save_path, f'heatmap-route({route_id})-rep({repeat_no})-{traj["nav-name"]}.pdf'), dpi=200)
 fig.savefig(os.path.join(fig_save_path, f'heatmap-route({route_id})-rep({repeat_no})-{traj["nav-name"]}.png'), dpi=200)
 # plt.show()
 
