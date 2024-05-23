@@ -21,7 +21,7 @@ map_background = cv.cvtColor(map_background, cv.COLOR_BGR2RGB)
 
 
 def plot_route(route, traj=None, qwidth=None, window=None, windex=None, save=False, size=(10, 10), path=None, title=None,
-               ax=None, label=None, background=col_background, zoom=None, zoom_factor=5, step=1):
+               ax=None, label=None, background=map_background, zoom=None, zoom_factor=5, step=1):
     '''
     Plots the route and any given test points if available.
     Note the route headings are rotated 90 degrees as the 0 degree origin
@@ -41,7 +41,7 @@ def plot_route(route, traj=None, qwidth=None, window=None, windex=None, save=Fal
         fig, ax = plt.subplots(figsize=size)
     ax.set_title(title,  loc="left")
     if background is not None:
-        ax.imshow(background, zorder=0, extent=[-10, 10, -10, 10], cmap='gray')
+        ax.imshow(background, zorder=0, extent=[-10, 10, -10, 10])#, cmap='gray')
     
     u, v = pol2cart_headings(90 - route['yaw'])
     ax.scatter(route['x'], route['y'], label='training route')
@@ -50,7 +50,7 @@ def plot_route(route, traj=None, qwidth=None, window=None, windex=None, save=Fal
     if window is not None and windex:
         start = window[0]
         end = window[1]
-        ax.quiver(route['x'][start:end], route['y'][start:end], u[start:end], v[start:end], color='r', scale=scale)
+        ax.quiver(route['x'][start:end], route['y'][start:end], u[start:end], v[start:end], color='r', width=qwidth)
         if not traj:
             ax.scatter(route['qx'][:windex], route['qy'][:windex])
         else:
@@ -67,7 +67,8 @@ def plot_route(route, traj=None, qwidth=None, window=None, windex=None, save=Fal
         u, v = pol2cart_headings(90 - traj['heading'])
         ax.scatter(traj['x'], traj['y'], label=f'{label} trial')
         # ax.plot(traj['x'], traj['y'])
-        ax.quiver(traj['x'][::step], traj['y'][::step], u[::step], v[::step], scale_units='xy', units='xy', width=qwidth)
+        ax.quiver(traj['x'][::step], traj['y'][::step], u[::step], v[::step], width=qwidth)
+        #ax.quiver(traj['x'][::step], traj['y'][::step], u[::step], v[::step], scale_units='xy', units='xy', width=qwidth)
     ax.set_aspect('equal', 'datalim')
     
     if zoom:
