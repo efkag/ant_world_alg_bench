@@ -27,10 +27,10 @@ def static_bench():
                   #'loc_norm': [{'kernel_shape':(3, 3)}, False],
                   'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
                   'deg_range':[(-90, 90)],
-                  'window': [0], 
+                  'window': [None], 
                   'matcher': ['mae'],
-                  'ref_route': [1],
-                  'sample_step':[5]
+                  'ref_route': [1, 2, 3, 4, 5],
+                  'sample_step':[2]
                   }
     
     routes = [1]
@@ -38,10 +38,10 @@ def static_bench():
                                grid_path=None, 
                                filename='results.csv',
                                route_path_suffix='r',
-                               route_repeats=3,
+                               route_repeats=5,
                                bench_data='bob'
                                )
-    bench.benchmark(parameters, routes, parallel=True, cores=1)
+    bench.benchmark(parameters, routes, parallel=False, cores=1)
 
 
 
@@ -118,9 +118,9 @@ def live_bench():
 def main():
     start_dtime = datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y")
     print(start_dtime)
-    #static_bench()
+    static_bench()
     #static_bench_antworld()
-    live_bench()
+    #live_bench()
     
     end_dtime = datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y")
 

@@ -272,7 +272,7 @@ class Benchmark:
                 print('Jobs completed: {}/{}'.format(self.jobs, self.total_jobs))
         return log
     
-    def bench_singe_core(self, params, route_ids=None):
+    def  bench_singe_core(self, params, route_ids=None):
         # save the parmeters of the test in a json file
         check_for_dir_and_create(self.results_path)
         check_for_dir_and_create(os.path.join(self.results_path, 'metadata'))
@@ -318,18 +318,16 @@ class Benchmark:
                 for rep_id in repeat_ids: # for every repeat route
                     test_rep = route[rep_id]
                     test_rep.set_sample_step(combo['sample_step'])
-                    tic = time.perf_counter()
                     # Preprocess images
                     pipe = Pipeline(**combo)
                     route_imgs = pipe.apply(ref_rep.get_imgs())
                     test_imgs = pipe.apply(test_rep.get_imgs())
                 
-                    tic = time.perf_counter()
                     # Preprocess images
                     pipe = Pipeline(**combo)
                     route_imgs = pipe.apply(ref_rep.get_imgs())
                     test_imgs = pipe.apply(test_rep.get_imgs())
-
+                    
                     if window:
                         nav = spm.SequentialPerfectMemory(route_imgs, matcher, **combo)
                         recovered_heading, window_log = nav.navigate(test_imgs)
@@ -338,12 +336,10 @@ class Benchmark:
                         recovered_heading = nav.navigate(test_imgs)
                     else:
                         infomaxParams = infomax.Params()
-                        nav = infomax.InfomaxNetwork(infomaxParams, route_imgs, **combo)
+                        nav = infomax.InfomaxNetwork(route_imgs, infomaxParams, **combo)
                         recovered_heading = nav.navigate(test_imgs)
 
-                    toc = time.perf_counter()
-
-                    time_compl = toc - tic
+                    time_compl = nav.get_time_com()
                     # Get the errors and the minimum distant index of the route memory
                     qxy = test_rep.get_xycoords()
                     traj = {'x': qxy['x'], 'y': qxy['y'], 'heading': recovered_heading}
@@ -432,7 +428,7 @@ class Benchmark:
             self.log = self.bench_paral(params, route_ids, cores=cores)
             self.unpack_results()
         else:
-            self.log = self.bench_singe_core_aw(params, route_ids)
+            self.log = self.bench_singe_core(params, route_ids)
 
         bench_results = pd.DataFrame(self.log)
         write_path = os.path.join(self.results_path, 'results.csv')
