@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import os
 import numpy as np
+import time
 from pathlib import Path
 
 fwd = Path(__file__).resolve()
@@ -28,7 +29,7 @@ class Params():
 
 
 class InfomaxNetwork(nn.Module):
-    def __init__(self, infomaxParams, imgs, deg_range=(-180, 180), degree_shift=1, **kwargs):
+    def __init__(self, imgs, infomaxParams=Params(), deg_range=(-180, 180), degree_shift=1, **kwargs):
         super(InfomaxNetwork, self).__init__()
         
         self.deg_range = deg_range
@@ -43,6 +44,7 @@ class InfomaxNetwork(nn.Module):
         self.recovered_heading = []
         self.logs = []
         self.best_sims = []
+        self.time_com = []
 
         # prep imgs
         # self.imgs = torch.from_numpy(np.array([i.flatten() for i in imgs])).float()
@@ -154,7 +156,9 @@ class InfomaxNetwork(nn.Module):
         return torch.roll(img, -cols_to_shift, dims=1)
 
     def get_heading(self, query_img):
+        start_time = time.perf_counter()
         query_img = torch.from_numpy(query_img).float()
+        query_img = query_img.to(device=device)
         query_img = self.Standardize(query_img)
         rot_qimgs = torch.empty((self.total_search_angle, self.num_of_rows, self.num_of_cols),  requires_grad=False)
         for i, rot in enumerate(self.degrees):
@@ -169,6 +173,8 @@ class InfomaxNetwork(nn.Module):
         self.best_sims.append(rsim[idx])
         rec_head = self.degrees[idx]
         self.recovered_heading.append(rec_head)
+        end_time = time.perf_counter()
+        self.time_com.append((end_time-start_time))
         return rec_head
     
     def get_rsim(self, query_img):
@@ -212,6 +218,8 @@ class InfomaxNetwork(nn.Module):
     def get_best_sims(self):
         return self.best_sims
 
+    def get_time_com(self):
+        return self.time_com
 
     def reset_window(self, pointer):pass
 

@@ -3,6 +3,7 @@ from datetime import date
 today = date.today()
 string_date = today.strftime("%Y-%m-%d")
 from source import navbench
+from source.navs.infomax import Params
 
 
 def static_bench():
@@ -99,9 +100,11 @@ def live_bench():
                   #'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
                   }
     
+    infomaxParams = Params()
     nav_params = {#'pm':{'matcher':['mae']},
                   #'smw':{'window':[10, 15, 20, 25, 30, 40, 50, 75, 100, 150, 200, 300, 500], 'matcher':['mae']},
-                  'asmw':{'window':[-15], 'matcher':['mae']},
+                  #'asmw':{'window':[-15], 'matcher':['mae']},
+                  'imax':{'infomaxParams':[infomaxParams]}
                   #'s2s':{'window':[20], 'queue_size':[3], 'matcher':['mae'], 'sub_window':[3]}
     }
 
@@ -109,7 +112,7 @@ def live_bench():
     num_of_repeats = 3
     parameters['repeat'] = [*range(num_of_repeats)]
     cbench.benchmark(results_path, routes_path, params=parameters, nav_params=nav_params,
-                    route_ids=routes, parallel=True, num_of_repeats=num_of_repeats, cores=3)
+                    route_ids=routes, parallel=True, num_of_repeats=num_of_repeats, cores=1)
 
 
 def main():

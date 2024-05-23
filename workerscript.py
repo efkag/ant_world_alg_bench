@@ -75,9 +75,6 @@ for combo in chunk:
         nav = nav_class(route_imgs, **combo)
         
 
-        # else:
-        #     infomaxParams = infomax.Params()
-        #     nav = infomax.InfomaxNetwork(infomaxParams, route_imgs, **combo)
         # if segment_length:
         #     traj, nav = agent.segment_test(route, nav, segment_length=segment_length, t=t, r=r, sigma=None, preproc=combo)
 

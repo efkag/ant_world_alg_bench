@@ -10,7 +10,7 @@ def pick_nav(nav_name=None):
             'smw': spm.SequentialPerfectMemory, 
             'asmw': spm.SequentialPerfectMemory, 
             's2s': spm.Seq2SeqPerfectMemory,
-            'imax': infomax}
+            'imax': infomax.InfomaxNetwork}
     if not navs.get(nav_name):
         raise Exception('Non valid navigator class name')
     return navs.get(nav_name)
