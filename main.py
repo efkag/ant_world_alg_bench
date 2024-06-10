@@ -9,12 +9,12 @@ from source.navs.infomax import Params
 def static_bench():
     #results_path = f'/its/home/sk526/ant_world_alg_bench/Results/stanmer/{string_date}'
     #results_path = f'/mnt/data0/sk526/results/stanmer/{string_date}'
-    results_path = f'Results/campus/{string_date}'
+    results_path = f'Results/stanmer/{string_date}'
     
     #routes_path = '/its/home/sk526/sussex-ftl-dataset/repeating-routes'
     #routes_path = '/mnt/data0/sk526/sussex-ftl-dataset/repeating-routes'
     #routes_path = '/its/home/sk526/navlib/data/outdoors/clean/for_bench/campus'
-    routes_path = 'datasets/campus'
+    routes_path = 'datasets/stanmer'
     #routes_path = '/mnt/data0/sk526/stanmer'
     # parameters = {'blur': [True], 'segment_l': [3], 'shape': [(180, 50), (90, 25)], 'edge_range': [(180, 200)],
     #               'window': list(range(10, 12)), 'matcher': ['corr', 'rmse']}
@@ -23,12 +23,12 @@ def static_bench():
                   'shape': [(180, 45)],
                   'vcrop':[0],
                   #'histeq':[True],
-                  'edge_range': [(50, 255), False],
+                  #'edge_range': [(50, 255), False],
                   #'loc_norm': [{'kernel_shape':(3, 3)}, False],
-                  'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
+                  'gauss_loc_norm': [{'sig1':2, 'sig2':20}],
                   'deg_range':[(-90, 90)],
                   'window': [None], 
-                  'matcher': ['mae'],
+                  'matcher': [None],
                   'ref_route': [1, 2, 3, 4, 5],
                   'sample_step':[2]
                   }

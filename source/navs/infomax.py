@@ -11,7 +11,7 @@ path=str(Path(fwd).parents[1])
 import matplotlib.pyplot as plt
 # Set global variable for the pytorch device
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-device = torch.device("cpu")
+#device = torch.device("cpu")
 
 
 class Params():
