@@ -165,7 +165,7 @@ class InfomaxNetwork(nn.Module):
             rimg = self.rotate(rot, query_img)
             
             rot_qimgs[i] = rimg
-        rsim = self.Familiarity(rot_qimgs).squeeze().detach().numpy()
+        rsim = self.Familiarity(rot_qimgs).squeeze().detach().cpu().numpy()
         # save the rsim for the logs
         self.logs.append(rsim)
 
@@ -191,7 +191,7 @@ class InfomaxNetwork(nn.Module):
             rot_qimgs[i] = rimg
             # rimg = torch.unsqueeze(rimg, 0)
             # rsim.append( np.asscalar( self.Familiarity(rimg).squeeze().detach().numpy()) )
-        rsim = self.Familiarity(rot_qimgs).squeeze().detach().numpy()
+        rsim = self.Familiarity(rot_qimgs).squeeze().detach().cpu().numpy()
         return rsim
 
     def navigate(self, query_imgs):
