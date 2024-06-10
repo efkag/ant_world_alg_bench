@@ -10,7 +10,7 @@ path=str(Path(fwd).parents[1])
 
 import matplotlib.pyplot as plt
 # Set global variable for the pytorch device
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 #device = torch.device("cpu")
 
 
@@ -160,7 +160,7 @@ class InfomaxNetwork(nn.Module):
         query_img = torch.from_numpy(query_img).float()
         query_img = query_img.to(device=device)
         query_img = self.Standardize(query_img)
-        rot_qimgs = torch.empty((self.total_search_angle, self.num_of_rows, self.num_of_cols),  requires_grad=False)
+        rot_qimgs = torch.empty((self.total_search_angle, self.num_of_rows, self.num_of_cols),  requires_grad=False).to(device)
         for i, rot in enumerate(self.degrees):
             rimg = self.rotate(rot, query_img)
             
