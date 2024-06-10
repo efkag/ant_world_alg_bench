@@ -13,8 +13,8 @@ def static_bench():
     
     #routes_path = '/its/home/sk526/sussex-ftl-dataset/repeating-routes'
     #routes_path = '/mnt/data0/sk526/sussex-ftl-dataset/repeating-routes'
-    routes_path = '/its/home/sk526/navlib/data/outdoors/clean/for_bench/stanmer'
-    #routes_path = 'datasets/stanmer'
+    #routes_path = '/its/home/sk526/navlib/data/outdoors/clean/for_bench/stanmer'
+    routes_path = 'datasets/stanmer'
     #routes_path = '/mnt/data0/sk526/stanmer'
     # parameters = {'blur': [True], 'segment_l': [3], 'shape': [(180, 50), (90, 25)], 'edge_range': [(180, 200)],
     #               'window': list(range(10, 12)), 'matcher': ['corr', 'rmse']}
@@ -29,7 +29,7 @@ def static_bench():
                   'deg_range':[(-90, 90)],
                   'window': [None], 
                   'matcher': [None],
-                  'ref_route': [1],
+                  'ref_route': [1, 2, 3, 4, 5],
                   'sample_step':[2]
                   }
     
@@ -38,7 +38,7 @@ def static_bench():
                                grid_path=None, 
                                filename='results.csv',
                                route_path_suffix='r',
-                               route_repeats=2,
+                               route_repeats=5,
                                bench_data='bob'
                                )
     bench.benchmark(parameters, routes, parallel=False, cores=1)
