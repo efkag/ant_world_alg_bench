@@ -49,7 +49,7 @@ class InfomaxNetwork(nn.Module):
         # prep imgs
         # self.imgs = torch.from_numpy(np.array([i.flatten() for i in imgs])).float()
         self.imgs = [torch.unsqueeze(torch.from_numpy(item).float(), 0) for item in imgs]
-
+        self.imgs = self.imgs.to(device)
         self.size = self.imgs[0].flatten().size(0)
         self.params = infomaxParams
 
