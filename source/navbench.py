@@ -329,7 +329,7 @@ class Benchmark:
                     test_imgs = pipe.apply(test_rep.get_imgs())
                     
                     if window:
-                        nav = spm.SequentialPerfectMemory(route_imgs, matcher, **combo)
+                        nav = spm.SequentialPerfectMemory(route_imgs, **combo)
                         recovered_heading, window_log = nav.navigate(test_imgs)
                     elif window == 0:
                         nav = pm.PerfectMemory(route_imgs, **combo)
