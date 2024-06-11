@@ -217,6 +217,9 @@ class InfomaxNetwork(nn.Module):
 
     def get_best_sims(self):
         return self.best_sims
+    
+    def get_best_ridfs(self):
+        return self.logs
 
     def get_time_com(self):
         return self.time_com
