@@ -372,8 +372,8 @@ class Benchmark:
                     best_ridfs = nav.get_best_ridfs()
                     best_ridfs = np.array(best_ridfs)
                     ridfs_file = f"ridfs-{self.jobs}_{uuid.uuid4().hex}"
-                    ridfs_file = os.path.join(self.results_path, 'metadata', ridfs_file)
-                    np.save(ridfs_file, best_ridfs)
+                    ridfs_path = os.path.join(self.results_path, 'metadata', ridfs_file)
+                    np.save(ridfs_path, best_ridfs)
 
                     log['nav-name'].append(nav.get_name())
                     log['route_id'].append(ri)
