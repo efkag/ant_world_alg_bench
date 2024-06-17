@@ -335,8 +335,8 @@ class Benchmark:
                         nav = pm.PerfectMemory(route_imgs, **combo)
                         recovered_heading = nav.navigate(test_imgs)
                     else:
-                        infomaxParams = infomax.Params()
-                        nav = infomax.InfomaxNetwork(route_imgs, infomaxParams, **combo)
+                        #infomaxParams = infomax.Params()
+                        nav = infomax.InfomaxNetwork(route_imgs, **combo)
                         recovered_heading = nav.navigate(test_imgs)
 
                     time_compl = nav.get_time_com()
