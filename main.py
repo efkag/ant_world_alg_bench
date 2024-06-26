@@ -9,28 +9,28 @@ from source.navs.infomax import Params
 def static_bench():
     #results_path = f'/its/home/sk526/ant_world_alg_bench/Results/stanmer/{string_date}'
     #results_path = f'/mnt/data0/sk526/results/stanmer/{string_date}'
-    results_path = f'Results/stanmer/{string_date}'
+    results_path = f'Results/campus/{string_date}'
     
     #routes_path = '/its/home/sk526/sussex-ftl-dataset/repeating-routes'
     #routes_path = '/mnt/data0/sk526/sussex-ftl-dataset/repeating-routes'
     #routes_path = '/its/home/sk526/navlib/data/outdoors/clean/for_bench/stanmer'
-    routes_path = 'datasets/stanmer'
+    routes_path = 'datasets/campus'
     #routes_path = '/mnt/data0/sk526/stanmer'
     # parameters = {'blur': [True], 'segment_l': [3], 'shape': [(180, 50), (90, 25)], 'edge_range': [(180, 200)],
     #               'window': list(range(10, 12)), 'matcher': ['corr', 'rmse']}
     
     parameters = {'blur': [True], 
-                  'shape': [(180, 45)],
+                  'shape': [(360, 90), (180, 45)],
                   'vcrop':[0],
                   #'histeq':[True],
                   #'edge_range': [(50, 255), False],
                   #'loc_norm': [{'kernel_shape':(3, 3)}, False],
                   'gauss_loc_norm': [{'sig1':2, 'sig2':20}],
                   'deg_range':[(-90, 90)],
-                  'window': [None], 
-                  'matcher': [None],
+                  'window': [500, -250], 
+                  'matcher': ['mae'],
                   'ref_route': [1, 2, 3, 4, 5],
-                  'sample_step':[2]
+                  #'sample_step':[2]
                   }
     
     routes = [1]
@@ -118,9 +118,9 @@ def live_bench():
 def main():
     start_dtime = datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y")
     print(start_dtime)
-    #static_bench()
+    static_bench()
     #static_bench_antworld()
-    live_bench()
+    #live_bench()
     
     end_dtime = datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y")
 

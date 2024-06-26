@@ -28,6 +28,7 @@ ref_imgs = route.get_imgs()[q_img_idx - search_margin:q_img_idx + search_margin]
 
 params = {'blur': True,
         'shape': (180, 40), 
+        'gauss_loc_norm': {'sig1':2, 'sig2':20},
         }
 pipe = Pipeline(**params)
 q_img = pipe.apply(q_img)
@@ -35,6 +36,9 @@ ref_imgs = pipe.apply(ref_imgs)
 
 
 q_img_hist = np.histogram(q_img.flatten(), bins=256, density=True)[0]
+
+plt.hist(q_img.flatten(), bins=256, density=True)
+plt.show()
 
 ref_imgs_hist = [np.histogram(im.flatten(),bins=256, density=True)[0] for im in ref_imgs]
 
