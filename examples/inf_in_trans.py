@@ -14,17 +14,19 @@ import matplotlib.pyplot as plt
 from time import perf_counter
 sns.set_context("paper", font_scale=1)
 
-route_path = 'datasets/new-antworld/exp1/route1/'
-#route_path = 'test-routes/route1'
-route = Route(route_path, 1)
+# route_path = 'datasets/new-antworld/exp1/route1/'
+# #route_path = 'test-routes/route1'
+# route = Route(route_path, 1)
 
-route = BoBRoute()
+route_path = 'datasets/campus/route1/r1'
+route = BoBRoute(path=route_path, read_imgs=True)
 
 save_path = os.path.join(fwd, 'rmf-surfaces')
 check_for_dir_and_create(save_path)
 
-q_img_idx = 50
-search_margin = 30
+bins = 125
+q_img_idx = 300
+search_margin = 50
 q_img = route.get_imgs()[q_img_idx]
 ref_imgs = route.get_imgs()[q_img_idx - search_margin:q_img_idx + search_margin]
 
@@ -37,12 +39,12 @@ q_img = pipe.apply(q_img)
 ref_imgs = pipe.apply(ref_imgs)
 
 
-q_img_hist = np.histogram(q_img.flatten(), bins=256, density=True)[0]
+q_img_hist = np.histogram(q_img.flatten(), bins=bins, density=True)[0]
 
-plt.hist(q_img.flatten(), bins=256, density=True)
+plt.hist(q_img.flatten(), bins=bins, density=True)
 plt.show()
 
-ref_imgs_hist = [np.histogram(im.flatten(),bins=256, density=True)[0] for im in ref_imgs]
+ref_imgs_hist = [np.histogram(im.flatten(),bins=bins, density=True)[0] for im in ref_imgs]
 
 klds = [entropy(q_img_hist, im_hist) for im_hist in ref_imgs_hist]
 print(klds)
