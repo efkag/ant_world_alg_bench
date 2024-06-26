@@ -299,12 +299,7 @@ class BoBRoute:
 
     def get_roll(self): return self.route_dict['roll'][::self.sample_step]
     
-    def get_imgs(self):
-        ' this could be one line but for clarity i am showing the use of the variable sample_step'
-        if self.sample_step > 1:
-            return self.route_dict['imgs'][::self.sample_step]
-        else:
-            return self.route_dict['imgs']
+    def get_imgs(self): return self.route_dict['imgs'][::self.sample_step]
 
     def get_qimgs(self):
         return self.route_dict['qimgs']
