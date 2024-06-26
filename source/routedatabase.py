@@ -219,6 +219,8 @@ class BoBRoute:
         # # change vcrop from percentage to an actual row index
         # self.vcrop = int(round(self.img_shape[1] * self.vcrop))
         self.sample_step = sample_step
+        if sample_step is None:
+            self.sample_step = 1
 
         # if self.unwraper:
         #         img = cv.imread(im_path, cv.IMREAD_GRAYSCALE)
