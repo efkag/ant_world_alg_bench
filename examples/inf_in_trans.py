@@ -6,7 +6,7 @@ sys.path.append(os.getcwd())
 import numpy as np
 from scipy.stats import entropy
 from source.utils import mae, rmf, cor_dist, cos_dist, dot_dist, mutual_inf, entropy_dist, check_for_dir_and_create
-from source.routedatabase import Route
+from source.routedatabase import Route, BoBRoute
 from source.imgproc import Pipeline
 from source.display import plot_3d
 import seaborn as sns
@@ -17,6 +17,8 @@ sns.set_context("paper", font_scale=1)
 route_path = 'datasets/new-antworld/exp1/route1/'
 #route_path = 'test-routes/route1'
 route = Route(route_path, 1)
+
+route = BoBRoute()
 
 save_path = os.path.join(fwd, 'rmf-surfaces')
 check_for_dir_and_create(save_path)

@@ -310,14 +310,14 @@ class Benchmark:
             for ri, route in enumerate(routes):  # for every route
                 #print('ref route -> ', combo['ref_route'])
                 ref_rep = route[combo['ref_route']]
-                ref_rep.set_sample_step(combo['sample_step'])
+                ref_rep.set_sample_step(combo.get('sample_step'))
                 repeat_ids = [*range(1, self.route_repeats+1)]
                 #print(repeat_ids)
                 repeat_ids.remove(combo['ref_route'])
                 #print(repeat_ids)
                 for rep_id in repeat_ids: # for every repeat route
                     test_rep = route[rep_id]
-                    test_rep.set_sample_step(combo['sample_step'])
+                    test_rep.set_sample_step(combo.get('sample_step'))
                     # Preprocess images
                     pipe = Pipeline(**combo)
                     route_imgs = pipe.apply(ref_rep.get_imgs())
@@ -589,7 +589,7 @@ class Benchmark:
             for ri, route in enumerate(routes):  # for every route
                 #print('ref route -> ', combo['ref_route'])
                 ref_rep = route[combo['ref_route']]
-                ref_rep.set_sample_step(combo['sample_step'])
+                ref_rep.set_sample_step(combo.get('sample_step'))
                 repeat_ids = [*range(1, repeats+1)]
                 #print(repeat_ids)
                 repeat_ids.remove(combo['ref_route'])
@@ -597,7 +597,7 @@ class Benchmark:
 
                 for rep_id in repeat_ids: # for every repeat route
                     test_rep = route[rep_id]
-                    test_rep.set_sample_step(combo['sample_step'])
+                    test_rep.set_sample_step(combo.get('sample_step'))
                     # print(datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y"),
                     #       ' testting: ', combo)
                     tic = time.perf_counter()
