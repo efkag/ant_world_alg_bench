@@ -272,7 +272,7 @@ class Benchmark:
                 print('Jobs completed: {}/{}'.format(self.jobs, self.total_jobs))
         return log
     
-    def  bench_singe_core(self, params, route_ids=None):
+    def bench_singe_core(self, params, route_ids=None):
         # save the parmeters of the test in a json file
         check_for_dir_and_create(self.results_path)
         check_for_dir_and_create(os.path.join(self.results_path, 'metadata'))
@@ -350,6 +350,7 @@ class Benchmark:
                     # Difference between matched index and minimum distance index and distance between points
                     matched_index = nav.get_index_log()
                     if matched_index:
+                        matched_index = np.asarray(matched_index) * ref_rep.sample_step
                         index_diffs = np.subtract(min_dist_index, nav.get_index_log())
                         dist_diff = calc_dists(ref_rep.get_xycoords(), min_dist_index, matched_index)
                         index_diffs = index_diffs.tolist()
