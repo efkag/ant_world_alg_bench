@@ -144,7 +144,6 @@ class SequentialPerfectMemory(Navigator):
             best = wind_sims[idx]
             # TODO here I need to make the updating function modular
             self.dynamic_window_log_rate(best)
-            self.check_w_size()
 
         # Update memory pointer
         self.update_pointer(idx)
@@ -209,9 +208,6 @@ class SequentialPerfectMemory(Navigator):
         self.blimit = max(0, min(self.mem_pointer - self.lower, self.route_end-self.window) )
         self.flimit = min(self.route_end, max(self.mem_pointer + self.upper, self.window))
 
-    def check_w_size(self):
-        self.window = self.route_end if self.window > self.route_end else self.window
-
     def get_agreement(self, window_headings):
         a = np.full(len(window_headings), 1)
         return cos_sim(a, window_headings)
@@ -259,7 +255,7 @@ class SequentialPerfectMemory(Navigator):
         '''
         self.recovered_heading.append(mean_angle(wind_heading))
 
-    def dynamic_window_con(self, best):
+    def dynamic_window_linear(self, best):
         '''
         Change the window size depending on the best img match gradient.
         If the last best img sim > the current best img sim the window grows
@@ -268,13 +264,15 @@ class SequentialPerfectMemory(Navigator):
         :return:
         '''
         # Dynamic window adaptation based on match gradient.
-        if best > self.prev_match or self.window <= self.min_window:
+        if best > self.prev_match:
             self.window += self.window_margin
+            self.window = min(self.window, self.route_end)
         else:
             self.window -= self.window_margin
+            self.window = max(self.window, self.min_window)
         self.prev_match = best
     
-    def dynamic_window_rate(self, best):
+    def dynamic_window_exp_rate(self, best):
         '''
         Change the window size depending on the current best and previous img match gradient. 
         Update the size by the dynamic_rate (percetage of the window size)
@@ -282,10 +280,12 @@ class SequentialPerfectMemory(Navigator):
         :return:
         '''
         # Dynamic window adaptation based on match gradient.
-        if best > self.prev_match or self.window <= self.min_window:
+        if best > self.prev_match:
             self.window += round(self.window * self.dynamic_range)
+            self.window = min(self.window, self.route_end)
         else:
             self.window -= round(self.window * self.dynamic_range)
+            self.window = max(self.window, self.min_window)
         self.prev_match = best
 
     def dynamic_window_log_rate(self, best):
