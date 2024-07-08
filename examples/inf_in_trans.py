@@ -24,7 +24,7 @@ route = BoBRoute(path=route_path, read_imgs=True)
 save_path = os.path.join(fwd, 'rmf-surfaces')
 check_for_dir_and_create(save_path)
 
-bins = 125
+bins = 25
 q_img_idx = 300
 search_margin = 50
 q_img = route.get_imgs()[q_img_idx]
