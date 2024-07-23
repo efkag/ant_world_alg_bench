@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import os
 import numpy as np
+import time
 from pathlib import Path
 
 fwd = Path(__file__).resolve()
@@ -9,8 +10,8 @@ path=str(Path(fwd).parents[1])
 
 import matplotlib.pyplot as plt
 # Set global variable for the pytorch device
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-device = torch.device("cpu")
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+#device = torch.device("cpu")
 
 
 class Params():
@@ -28,7 +29,7 @@ class Params():
 
 
 class InfomaxNetwork(nn.Module):
-    def __init__(self, infomaxParams, imgs, deg_range=(-180, 180), degree_shift=1, **kwargs):
+    def __init__(self, imgs, infomaxParams=Params(), deg_range=(-180, 180), degree_shift=1, **kwargs):
         super(InfomaxNetwork, self).__init__()
         
         self.deg_range = deg_range
@@ -43,11 +44,12 @@ class InfomaxNetwork(nn.Module):
         self.recovered_heading = []
         self.logs = []
         self.best_sims = []
+        self.time_com = []
 
         # prep imgs
         # self.imgs = torch.from_numpy(np.array([i.flatten() for i in imgs])).float()
-        self.imgs = [torch.unsqueeze(torch.from_numpy(item).float(), 0) for item in imgs]
-
+        self.imgs = [torch.unsqueeze(torch.from_numpy(item).float().to(device), 0) for item in imgs]
+        #self.imgs = self.imgs.to(device)
         self.size = self.imgs[0].flatten().size(0)
         self.params = infomaxParams
 
@@ -154,14 +156,16 @@ class InfomaxNetwork(nn.Module):
         return torch.roll(img, -cols_to_shift, dims=1)
 
     def get_heading(self, query_img):
+        start_time = time.perf_counter()
         query_img = torch.from_numpy(query_img).float()
+        query_img = query_img.to(device=device)
         query_img = self.Standardize(query_img)
-        rot_qimgs = torch.empty((self.total_search_angle, self.num_of_rows, self.num_of_cols),  requires_grad=False)
+        rot_qimgs = torch.empty((self.total_search_angle, self.num_of_rows, self.num_of_cols),  requires_grad=False).to(device)
         for i, rot in enumerate(self.degrees):
             rimg = self.rotate(rot, query_img)
             
             rot_qimgs[i] = rimg
-        rsim = self.Familiarity(rot_qimgs).squeeze().detach().numpy()
+        rsim = self.Familiarity(rot_qimgs).squeeze().detach().cpu().numpy()
         # save the rsim for the logs
         self.logs.append(rsim)
 
@@ -169,6 +173,8 @@ class InfomaxNetwork(nn.Module):
         self.best_sims.append(rsim[idx])
         rec_head = self.degrees[idx]
         self.recovered_heading.append(rec_head)
+        end_time = time.perf_counter()
+        self.time_com.append((end_time-start_time))
         return rec_head
     
     def get_rsim(self, query_img):
@@ -185,7 +191,7 @@ class InfomaxNetwork(nn.Module):
             rot_qimgs[i] = rimg
             # rimg = torch.unsqueeze(rimg, 0)
             # rsim.append( np.asscalar( self.Familiarity(rimg).squeeze().detach().numpy()) )
-        rsim = self.Familiarity(rot_qimgs).squeeze().detach().numpy()
+        rsim = self.Familiarity(rot_qimgs).squeeze().detach().cpu().numpy()
         return rsim
 
     def navigate(self, query_imgs):
@@ -211,7 +217,12 @@ class InfomaxNetwork(nn.Module):
 
     def get_best_sims(self):
         return self.best_sims
+    
+    def get_best_ridfs(self):
+        return self.logs
 
+    def get_time_com(self):
+        return self.time_com
 
     def reset_window(self, pointer):pass
 

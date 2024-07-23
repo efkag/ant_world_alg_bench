@@ -7,12 +7,13 @@ sys.path.append(os.getcwd())
 import pandas as pd
 import numpy as np
 import seaborn as sns
+import cv2 as cv
 from ast import literal_eval
 from source.utils import load_route_naw, pol2cart_headings, plot_route, animated_window, check_for_dir_and_create, squash_deg
 from source.routedatabase import Route, BoBRoute
 import yaml
 from matplotlib import pyplot as plt
-from source.display import plot_route, plot_ftl_route
+from source.tools.display import plot_route, plot_ftl_route
 sns.set_context("paper", font_scale=1)
 
 ## Antworld routes
@@ -22,8 +23,9 @@ route_id = 0
 path = os.path.join(path, f"route{route_id}")
 grid_path = 'datasets/new-antworld/grid70'
 
-route = Route(path=path, grid_path=grid_path, route_id=route_id, read_imgs=False)
+route = Route(path=path, route_id=route_id, read_imgs=False)
 route = route.get_route_dict()
+
 
 plot_route(route)
 
@@ -42,7 +44,7 @@ route_path = route_path + str(1)
 
 route = BoBRoute(path=route_path, route_id=route_id, read_imgs=False)
 route = route.get_route_dict()
-print(route['yaw'])
+#print(route['yaw'])
 # for some reason the FTL data is shifted by 90 deg
 u, v = pol2cart_headings(90 +  route['yaw'] )
 plt.scatter(route['x'], route['y'])

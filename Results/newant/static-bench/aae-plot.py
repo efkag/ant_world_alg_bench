@@ -13,7 +13,7 @@ from source.tools.results import filter_results, read_results
 sns.set_context("paper", font_scale=1)
 
 
-directory = 'static-bench/2024-05-10_mid'
+directory = 'static-bench/2024-05-08'
 results_path = os.path.join('Results', 'newant', directory)
 fig_save_path = os.path.join(results_path, 'analysis')
 check_for_dir_and_create(fig_save_path)

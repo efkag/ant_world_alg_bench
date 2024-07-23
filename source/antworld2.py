@@ -2,7 +2,7 @@ import os
 import cv2
 import numpy as np
 from scipy.spatial.distance import cdist
-from source.imgproc import Pipeline
+from source.imageproc.imgproc import Pipeline
 from source.utils import check_for_dir_and_create, write_route, squash_deg, travel_dist, pol2cart
 from source.gencoords import generate_from_points, generate_grid
 
@@ -102,6 +102,7 @@ class Agent:
         self.agent.set_position(xy[0], xy[1], self.z)
         self.agent.set_attitude(deg, self.noise(), self.noise())
         img = cv2.cvtColor(self.agent.read_frame(), cv2.COLOR_BGR2GRAY)
+        #img = self.agent.read_frame()
         return self.pipe.apply(img)
 
     def update_position(self, xy, deg, r):

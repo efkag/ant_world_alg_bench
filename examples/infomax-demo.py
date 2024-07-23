@@ -11,7 +11,7 @@ import torch
 from source.routedatabase import Route
 from source.routedatabase import BoBRoute
 from source import infomax
-from source.imgproc import Pipeline
+from source.imageproc.imgproc import Pipeline
 from source.unwraper import Unwraper
 import matplotlib.pyplot as plt
 import seaborn as sns

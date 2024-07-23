@@ -13,7 +13,7 @@ from source.tools.benchutils import pick_nav
 from source import infomax
 from source import antworld2 as aw
 from source.routedatabase import Route, load_routes
-from source.imgproc import Pipeline
+from source.imageproc.imgproc import Pipeline
 
 print('Argument List:', str(sys.argv))
 
@@ -64,7 +64,7 @@ for combo in chunk:
     rpt = combo.get('repeat') # the repeat number
     for route in routes:  # for every route
         agent.set_seed(rpt)
-        tic = time.perf_counter()
+        #tic = time.perf_counter()
         
         pipe = Pipeline(**combo)
         route_imgs = pipe.apply(route.get_imgs())
@@ -75,17 +75,14 @@ for combo in chunk:
         nav = nav_class(route_imgs, **combo)
         
 
-        # else:
-        #     infomaxParams = infomax.Params()
-        #     nav = infomax.InfomaxNetwork(infomaxParams, route_imgs, **combo)
         # if segment_length:
         #     traj, nav = agent.segment_test(route, nav, segment_length=segment_length, t=t, r=r, sigma=None, preproc=combo)
 
         
         traj, nav = agent.run_agent(route, nav, **combo)
 
-        toc = time.perf_counter()
-        time_compl = toc - tic
+        #toc = time.perf_counter()
+        time_compl = nav.get_time_com()
         # Get the aae and the minimum distant index of the route memory
         eval_traj = copy.deepcopy(traj)
         eval_traj['heading'][0] = eval_traj['heading'][1]

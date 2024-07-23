@@ -16,7 +16,7 @@ from source.utils import pre_process, load_route_naw, check_for_dir_and_create, 
 #TODO Get rid of this import
 from source.navs import seqnav as spm
 from source.routedatabase import Route, load_all_bob_routes, load_routes, load_bob_routes, load_bob_routes_repeats
-from source.imgproc import Pipeline
+from source.imageproc.imgproc import Pipeline
 from source.navs import infomax
 
 
@@ -310,40 +310,36 @@ class Benchmark:
             for ri, route in enumerate(routes):  # for every route
                 #print('ref route -> ', combo['ref_route'])
                 ref_rep = route[combo['ref_route']]
-                ref_rep.set_sample_step(combo['sample_step'])
+                ref_rep.set_sample_step(combo.get('sample_step'))
                 repeat_ids = [*range(1, self.route_repeats+1)]
                 #print(repeat_ids)
                 repeat_ids.remove(combo['ref_route'])
                 #print(repeat_ids)
                 for rep_id in repeat_ids: # for every repeat route
                     test_rep = route[rep_id]
-                    test_rep.set_sample_step(combo['sample_step'])
-                    tic = time.perf_counter()
+                    test_rep.set_sample_step(combo.get('sample_step'))
                     # Preprocess images
                     pipe = Pipeline(**combo)
                     route_imgs = pipe.apply(ref_rep.get_imgs())
                     test_imgs = pipe.apply(test_rep.get_imgs())
                 
-                    tic = time.perf_counter()
                     # Preprocess images
                     pipe = Pipeline(**combo)
                     route_imgs = pipe.apply(ref_rep.get_imgs())
                     test_imgs = pipe.apply(test_rep.get_imgs())
-
+                    
                     if window:
-                        nav = spm.SequentialPerfectMemory(route_imgs, matcher, **combo)
+                        nav = spm.SequentialPerfectMemory(route_imgs, **combo)
                         recovered_heading, window_log = nav.navigate(test_imgs)
                     elif window == 0:
                         nav = pm.PerfectMemory(route_imgs, **combo)
                         recovered_heading = nav.navigate(test_imgs)
                     else:
-                        infomaxParams = infomax.Params()
-                        nav = infomax.InfomaxNetwork(infomaxParams, route_imgs, **combo)
+                        #infomaxParams = infomax.Params()
+                        nav = infomax.InfomaxNetwork(route_imgs, **combo)
                         recovered_heading = nav.navigate(test_imgs)
 
-                    toc = time.perf_counter()
-
-                    time_compl = toc - tic
+                    time_compl = nav.get_time_com()
                     # Get the errors and the minimum distant index of the route memory
                     qxy = test_rep.get_xycoords()
                     traj = {'x': qxy['x'], 'y': qxy['y'], 'heading': recovered_heading}
@@ -376,8 +372,8 @@ class Benchmark:
                     best_ridfs = nav.get_best_ridfs()
                     best_ridfs = np.array(best_ridfs)
                     ridfs_file = f"ridfs-{self.jobs}_{uuid.uuid4().hex}"
-                    ridfs_file = os.path.join(self.results_path, 'metadata', ridfs_file)
-                    np.save(ridfs_file, best_ridfs)
+                    ridfs_path = os.path.join(self.results_path, 'metadata', ridfs_file)
+                    np.save(ridfs_path, best_ridfs)
 
                     log['nav-name'].append(nav.get_name())
                     log['route_id'].append(ri)
@@ -432,7 +428,7 @@ class Benchmark:
             self.log = self.bench_paral(params, route_ids, cores=cores)
             self.unpack_results()
         else:
-            self.log = self.bench_singe_core_aw(params, route_ids)
+            self.log = self.bench_singe_core(params, route_ids)
 
         bench_results = pd.DataFrame(self.log)
         write_path = os.path.join(self.results_path, 'results.csv')
@@ -593,7 +589,7 @@ class Benchmark:
             for ri, route in enumerate(routes):  # for every route
                 #print('ref route -> ', combo['ref_route'])
                 ref_rep = route[combo['ref_route']]
-                ref_rep.set_sample_step(combo['sample_step'])
+                ref_rep.set_sample_step(combo.get('sample_step'))
                 repeat_ids = [*range(1, repeats+1)]
                 #print(repeat_ids)
                 repeat_ids.remove(combo['ref_route'])
@@ -601,7 +597,7 @@ class Benchmark:
 
                 for rep_id in repeat_ids: # for every repeat route
                     test_rep = route[rep_id]
-                    test_rep.set_sample_step(combo['sample_step'])
+                    test_rep.set_sample_step(combo.get('sample_step'))
                     # print(datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y"),
                     #       ' testting: ', combo)
                     tic = time.perf_counter()

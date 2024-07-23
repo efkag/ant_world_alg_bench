@@ -212,13 +212,19 @@ class BoBRoute:
         self.proc_qimgs= []
         self.route_id = str(route_id)
         self.unwraper = unwraper
-        # mDefult resizing to the max size needed for the benchmarks
+        # Default resizing to the max size needed for the benchmarks
         self.img_shape = (360, 90)
         self.resizer = resize(self.img_shape)
         # self.vcrop = vcrop
         # # change vcrop from percentage to an actual row index
         # self.vcrop = int(round(self.img_shape[1] * self.vcrop))
         self.sample_step = sample_step
+        if sample_step is None:
+            self.sample_step = 1
+
+        # if self.unwraper:
+        #         img = cv.imread(im_path, cv.IMREAD_GRAYSCALE)
+        #         self.unwraper = self.unwraper(img)
 
         self.route_dict = self.load_route()
 
@@ -253,7 +259,7 @@ class BoBRoute:
                     self.unwraper = self.unwraper(img)
                 elif self.unwraper:
                     img = self.unwraper.unwarp(img)
-                    img = self.resizer(img)
+                img = self.resizer(img)
                 imgs.append(img)
             
             route_data['imgs'] = imgs
@@ -293,12 +299,7 @@ class BoBRoute:
 
     def get_roll(self): return self.route_dict['roll'][::self.sample_step]
     
-    def get_imgs(self):
-        ' this could be one line but for clarity i am showing the use of the variable sample_step'
-        if self.sample_step > 1:
-            return self.route_dict['imgs'][::self.sample_step]
-        else:
-            return self.route_dict['imgs']
+    def get_imgs(self): return self.route_dict['imgs'][::self.sample_step]
 
     def get_qimgs(self):
         return self.route_dict['qimgs']

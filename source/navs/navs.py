@@ -1,12 +1,12 @@
 import numpy as np
 from source.utils import dot_dist
-from source.imgproc import Pipeline
+from source.imageproc.imgproc import Pipeline
 from abc import ABC, abstractmethod
 from source.utils import pick_im_matcher
 from source.utils import rmf
 from source.tools import torchmatchers
 import torch
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda" if torchmatchers.is_cuda_avail() else "cpu")
 
 class Navigator():
     
@@ -27,11 +27,11 @@ class Navigator():
         self.rmf = rmf
         self.using_torch = False
 
-        if torch.cuda.is_available():
+        if torchmatchers.is_cuda_avail():
             self.using_torch = True
             self.route_images = np.array(self.route_images)
             self.route_images = torch.Tensor(self.route_images)
-            self.route_images = self.route_images.cuda()
+            self.route_images = self.route_images.to(device)
             self.matcher = torchmatchers.pick_im_matcher(matcher)
             self.rmf = torchmatchers.rmf
     
@@ -57,6 +57,10 @@ class Navigator():
     
     @abstractmethod
     def get_best_sims(self):
+        pass
+
+    @abstractmethod
+    def get_time_com(self):
         pass
     
     @abstractmethod

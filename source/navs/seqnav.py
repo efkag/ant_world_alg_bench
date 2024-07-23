@@ -1,17 +1,18 @@
 from source.utils import rotate, mae, rmse, dot_dist, cor_dist, rmf, seq2seqrmf, pair_rmf, cos_sim, mean_angle
 from source.analysis import d2i_rmfs_eval
 import numpy as np
+import time
 from scipy.stats import norm
 from collections import deque
 from .navs import Navigator
 from .utils import p_heading
-from source.imgproc import Pipeline
+from source.imageproc.imgproc import Pipeline
 
 
 class SequentialPerfectMemory(Navigator):
 
     def __init__(self, route_images, matcher='mae', deg_range=(-180, 180), degree_shift=1, 
-                window=20, dynamic_range=0.1, w_thresh=None, mid_update=False, sma_size=3,
+                window=20, dynamic_range=0.1, w_thresh=None, mid_update=True, sma_size=3,
                 **kwargs):
         super().__init__(route_images, matcher=matcher, deg_range=deg_range, degree_shift=degree_shift, **kwargs)
         
@@ -33,6 +34,7 @@ class SequentialPerfectMemory(Navigator):
         self.CMA = []
         self.sma_qmet_log = []
         self.best_ridfs = []
+        self.time_com= []
         # append a starting value for the d2i qiality metric log
         # TODO: the metrics shouls proapblly be classes that each have their own
         # initialisation values etc
@@ -60,9 +62,9 @@ class SequentialPerfectMemory(Navigator):
             self.lower = 0
         self.blimit = 0
         self.flimit = self.window
-        # mu = 0
-        # sig = 1
-        # self.gauss_rv = norm(loc=mu, scale=sig)
+        mu = 0
+        sig = 1
+        self.gauss_rv = norm(loc=mu, scale=sig)
 
         # Adaptive window parameters
         self.mid_update = mid_update
@@ -98,6 +100,8 @@ class SequentialPerfectMemory(Navigator):
         :param query_img:
         :return:
         '''
+        start_time = time.perf_counter()
+
         query_img = self.pipe.apply(query_img)
         # get the rotational similarities between a query image and a window of route images
         wrsims = self.rmf(query_img, self.route_images[self.blimit:self.flimit], self.matcher, self.deg_range, self.deg_step)
@@ -119,9 +123,9 @@ class SequentialPerfectMemory(Navigator):
         self.logs.append(wrsims)
 
         # weight the window ridf minima by a pdf
-        # x = np.linspace(norm.ppf(0.01),norm.ppf(0.99), len(wind_sims))
-        # weights = 1 - self.gauss_rv.pdf(x)
-        # wind_sims = weights * wind_sims
+        x = np.linspace(norm.ppf(0.01),norm.ppf(0.99), len(wind_sims))
+        weights = 1 - self.gauss_rv.pdf(x)
+        wind_sims = weights * wind_sims
         # find best image match and heading
         idx = int(round(self.argminmax(wind_sims)))
         self.best_ridfs.append(wrsims[idx])
@@ -140,10 +144,11 @@ class SequentialPerfectMemory(Navigator):
             best = wind_sims[idx]
             # TODO here I need to make the updating function modular
             self.dynamic_window_log_rate(best)
-            self.check_w_size()
 
         # Update memory pointer
         self.update_pointer(idx)
+        end_time = time.perf_counter()
+        self.time_com.append((end_time-start_time))
         return heading
 
     def eval_ridf(self, ridf):
@@ -203,9 +208,6 @@ class SequentialPerfectMemory(Navigator):
         self.blimit = max(0, min(self.mem_pointer - self.lower, self.route_end-self.window) )
         self.flimit = min(self.route_end, max(self.mem_pointer + self.upper, self.window))
 
-    def check_w_size(self):
-        self.window = self.route_end if self.window > self.route_end else self.window
-
     def get_agreement(self, window_headings):
         a = np.full(len(window_headings), 1)
         return cos_sim(a, window_headings)
@@ -253,7 +255,7 @@ class SequentialPerfectMemory(Navigator):
         '''
         self.recovered_heading.append(mean_angle(wind_heading))
 
-    def dynamic_window_con(self, best):
+    def dynamic_window_linear(self, best):
         '''
         Change the window size depending on the best img match gradient.
         If the last best img sim > the current best img sim the window grows
@@ -262,13 +264,15 @@ class SequentialPerfectMemory(Navigator):
         :return:
         '''
         # Dynamic window adaptation based on match gradient.
-        if best > self.prev_match or self.window <= self.min_window:
+        if best > self.prev_match:
             self.window += self.window_margin
+            self.window = min(self.window, self.route_end)
         else:
             self.window -= self.window_margin
+            self.window = max(self.window, self.min_window)
         self.prev_match = best
     
-    def dynamic_window_rate(self, best):
+    def dynamic_window_exp_rate(self, best):
         '''
         Change the window size depending on the current best and previous img match gradient. 
         Update the size by the dynamic_rate (percetage of the window size)
@@ -276,10 +280,12 @@ class SequentialPerfectMemory(Navigator):
         :return:
         '''
         # Dynamic window adaptation based on match gradient.
-        if best > self.prev_match or self.window <= self.min_window:
+        if best > self.prev_match:
             self.window += round(self.window * self.dynamic_range)
+            self.window = min(self.window, self.route_end)
         else:
             self.window -= round(self.window * self.dynamic_range)
+            self.window = max(self.window, self.min_window)
         self.prev_match = best
 
     def dynamic_window_log_rate(self, best):
@@ -291,10 +297,10 @@ class SequentialPerfectMemory(Navigator):
         '''
         # Dynamic window adaptation based on match gradient.
         if best > self.prev_match:
-            self.window += round(self.min_window/np.log(self.window))
+            self.window += round(self.route_end/self.window)
             self.window = min(self.window, self.route_end)
         else:
-            self.window -= round(np.log(self.window))
+            self.window -= round(self.route_end/self.window)
             self.window = max(self.window, self.min_window)
         self.prev_match = best
 
@@ -388,6 +394,9 @@ class SequentialPerfectMemory(Navigator):
 
     def get_CMA(self):
         return self.CMA
+    
+    def get_time_com(self):
+        return self.time_com
     
     def get_name(self):
         if self.adaptive:

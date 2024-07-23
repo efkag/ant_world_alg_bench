@@ -61,6 +61,10 @@ def rmf(query_img, ref_imgs, matcher=mae, d_range=(-180, 180), d_step=1):
     """
     query_img = torch.Tensor(query_img)
     query_img = query_img.to(device)
+
+    if not torch.is_tensor(ref_imgs):
+        ref_imgs = torch.Tensor(ref_imgs).to(device)
+
     if ref_imgs.ndim < 3:
       ref_imgs = torch.unsqueeze(ref_imgs, 0)
 
@@ -76,4 +80,11 @@ def rmf(query_img, ref_imgs, matcher=mae, d_range=(-180, 180), d_step=1):
     return ridfs if ridfs.shape[0] > 1 else ridfs[0]
 
 def is_cuda_avail():
-    return torch.cuda.is_available()
+    if torch.cuda.is_available():
+        try:
+            x = torch.rand(2)
+            x = x.cuda()
+            x = x * 2
+        except:
+            return False
+    return True

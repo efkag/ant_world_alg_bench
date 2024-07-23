@@ -1,8 +1,7 @@
+import numpy as np
 import cv2 as cv
 import numpy as np
 from source.pyDTW import DTW
-
-
 
 def resize(shape):
     '''
@@ -143,3 +142,17 @@ def make_pipeline(sets):
     return pipe
 
 
+class Pipeline:
+    def __init__(self, **sets: dict) -> None:
+        if sets:
+            self.pipe = make_pipeline(sets)
+        else:
+            self.pipe = []
+            self.pipe.append(mod_dtype(np.float32))
+
+    def apply(self, imgs):
+        if not isinstance(imgs, list):
+            imgs = [imgs]
+        for p in self.pipe:
+            imgs = [p(img) for img in imgs]
+        return imgs if len(imgs) > 1 else imgs[0]

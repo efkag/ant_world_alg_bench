@@ -6,7 +6,7 @@ sys.path.append(os.getcwd())
 import numpy as np
 from source.utils import mae, cor_dist, entropy_im, mutual_inf, entropy_dist, rmf, cor_dist, scale2_0_1, save_image, rotate, check_for_dir_and_create
 from source.routedatabase import Route
-from source.imgproc import Pipeline
+from source.imageproc.imgproc import Pipeline
 import seaborn as sns
 import matplotlib.pyplot as plt
 import cv2 as cv

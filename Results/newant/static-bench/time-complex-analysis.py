@@ -8,35 +8,48 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+import yaml
 from ast import literal_eval
 from source.analysis import perc_outliers
 from source.utils import check_for_dir_and_create
+from source.tools.results import filter_results, read_results
 sns.set_context("paper", font_scale=1)
 
 
-directory = 'static-bench/2023-11-23/combined'
-results_path = os.path.join('Results', 'newant', directory)
+
+# general paths
+directory = 'static-bench/time_comp/2024-05-13'
+results_path = os.path.join('Results', 'newant',  directory)
 fig_save_path = os.path.join(results_path, 'analysis')
 check_for_dir_and_create(fig_save_path)
-data = pd.read_csv(os.path.join(results_path, 'results.csv'), index_col=False)
 
-# Convert list of strings to actual list of lists
-data['errors'] = data['errors'].apply(literal_eval)
-data['dist_diff'] = data['dist_diff'].apply(literal_eval)
-data['seconds'] = data['seconds'].astype(float)
+data = read_results(os.path.join(results_path, 'results.csv'))
+with open(os.path.join(results_path, 'params.yml')) as fp:
+    params = yaml.load(fp)
+routes_path = params['routes_path']
 
+
+filters = {'res':'(180, 40)','blur':True, 'matcher':'mae', 'edge':False,
+        }
+df = filter_results(data, **filters)
+df['seconds'] = df['seconds'].apply(literal_eval)
+
+
+df = df.explode('seconds')
+df['seconds'] = pd.to_numeric(df['seconds'])
 
 ####### Box plot
 
 figsize = (6, 3)
 fig, ax = plt.subplots(figsize=figsize)
 
-ax = sns.boxplot(x="nav-name", y="seconds", data=data, ax=ax)
+ax = sns.boxplot(x="nav-name", y="seconds", data=df, ax=ax)
+plt.yscale("log")  
 #window_labels = ['Adaptive (20)', 'PM', 'w=15', 'w=20', 'w=25', 'w=30']
 #ax.set_xticklabels(window_labels)
 ax.set_xlabel('navigation algorithm')
-ax.set_ylabel('Runtime (s)')
-
+ax.set_ylabel('Runtime (s), log scale')
+ax.tick_params(axis='x', labelrotation=90)
 plt.tight_layout()
 fig.savefig(fig_save_path + '/time-complex-all.png')
 fig.savefig(fig_save_path + '/time-complex-all.pdf')

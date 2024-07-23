@@ -29,7 +29,7 @@ routes_path = params['routes_path']
 
 
 # Plot a specific route
-route_id = 12
+route_id = 16
 repeat_no = 0
 fig_save_path = os.path.join(fig_save_path, f"route{route_id}")
 check_for_dir_and_create(fig_save_path)

@@ -3,6 +3,7 @@ from datetime import date
 today = date.today()
 string_date = today.strftime("%Y-%m-%d")
 from source import navbench
+from source.navs.infomax import Params
 
 
 def static_bench():
@@ -12,7 +13,7 @@ def static_bench():
     
     #routes_path = '/its/home/sk526/sussex-ftl-dataset/repeating-routes'
     #routes_path = '/mnt/data0/sk526/sussex-ftl-dataset/repeating-routes'
-    #routes_path = '/its/home/sk526/navlib/data/outdoors/clean/for_bench/campus'
+    #routes_path = '/its/home/sk526/navlib/data/outdoors/clean/for_bench/stanmer'
     routes_path = 'datasets/campus'
     #routes_path = '/mnt/data0/sk526/stanmer'
     # parameters = {'blur': [True], 'segment_l': [3], 'shape': [(180, 50), (90, 25)], 'edge_range': [(180, 200)],
@@ -22,14 +23,14 @@ def static_bench():
                   'shape': [(180, 45)],
                   'vcrop':[0],
                   #'histeq':[True],
-                  'edge_range': [(50, 255), False],
+                  #'edge_range': [(50, 255), False],
                   #'loc_norm': [{'kernel_shape':(3, 3)}, False],
-                  'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
+                  'gauss_loc_norm': [{'sig1':2, 'sig2':20}],
                   'deg_range':[(-90, 90)],
-                  'window': [0], 
+                  'window': [500, -250], 
                   'matcher': ['mae'],
-                  'ref_route': [1],
-                  'sample_step':[5]
+                  'ref_route': [1, 2, 3, 4, 5],
+                  #'sample_step':[2]
                   }
     
     routes = [1]
@@ -37,10 +38,10 @@ def static_bench():
                                grid_path=None, 
                                filename='results.csv',
                                route_path_suffix='r',
-                               route_repeats=3,
+                               route_repeats=5,
                                bench_data='bob'
                                )
-    bench.benchmark(parameters, routes, parallel=True, cores=1)
+    bench.benchmark(parameters, routes, parallel=False, cores=1)
 
 
 
@@ -83,11 +84,11 @@ def static_bench_antworld():
 def live_bench():
     from source import cbench
     #'segment_length':[3],
-    results_path = f'Results/newant/{string_date}'
+    results_path = f'Results/newant/time_comp/{string_date}'
     routes_path = 'datasets/new-antworld/curve-bins'
     parameters = {'repos_thresh':[.3], 
                   'r': [0.05], 
-                  't': [1000], 
+                  't': [100], 
                   'blur': [True],
                   'shape': [(180, 40)],
                   'deg_range':[(-180, 180)],
@@ -99,14 +100,16 @@ def live_bench():
                   #'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
                   }
     
-    nav_params = {#'pm':{'matcher':['mae']},
-                  #'smw':{'window':[300, 500], 'matcher':['mae']},
+    infomaxParams = Params()
+    nav_params = {'pm':{'matcher':['mae']},
+                  #'smw':{'window':[10, 15, 20, 25, 30, 40, 50, 75, 100, 150, 200, 300, 500], 'matcher':['mae']},
                   'asmw':{'window':[-20], 'matcher':['mae']},
+                  #'imax':{'infomaxParams':[infomaxParams]}
                   #'s2s':{'window':[20], 'queue_size':[3], 'matcher':['mae'], 'sub_window':[3]}
     }
 
-    routes = [1]
-    num_of_repeats = 3
+    routes = [1,2]
+    num_of_repeats = 1
     parameters['repeat'] = [*range(num_of_repeats)]
     cbench.benchmark(results_path, routes_path, params=parameters, nav_params=nav_params,
                     route_ids=routes, parallel=True, num_of_repeats=num_of_repeats, cores=1)
@@ -115,9 +118,9 @@ def live_bench():
 def main():
     start_dtime = datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y")
     print(start_dtime)
-    #static_bench()
+    static_bench()
     #static_bench_antworld()
-    live_bench()
+    #live_bench()
     
     end_dtime = datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y")
 

@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 from matplotlib import pyplot as plt
-from source.imgproc import Pipeline
+from source.imageproc.imgproc import Pipeline
 from source.utils import rmf, cor_dist, mae, rmse,  rotate, check_for_dir_and_create
 from source.routedatabase import Route, BoBRoute, load_bob_routes, load_routes
 from catch_areas import catch_areas_4route
@@ -26,7 +26,7 @@ from catch_areas import catch_areas_4route
 #         }
 
 
-routes_path = '/its/home/sk526/ant_world_alg_bench/new-antworld/curve-bins'
+routes_path = 'datasets/new-antworld/curve-bins'
 route_ids = [*range(20)]
 routes = load_routes(routes_path, route_ids)
 params = {'blur': True,

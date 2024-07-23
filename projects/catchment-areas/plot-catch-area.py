@@ -14,7 +14,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 from matplotlib import pyplot as plt
-from source.imgproc import Pipeline
+from source.imageproc.imgproc import Pipeline
 from source.utils import rmf, cor_dist, mae, rmse, center_ridf, check_for_dir_and_create
 from source.routedatabase import Route, BoBRoute
 from source.unwraper import Unwraper
