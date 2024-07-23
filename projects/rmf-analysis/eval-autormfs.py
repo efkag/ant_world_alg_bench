@@ -16,7 +16,7 @@ from source.display import plot_ridf_multiline, plot_3d
 from source.utils import rmf, cor_dist, save_image, mse, check_for_dir_and_create
 from source.routedatabase import Route
 from source.analysis import  eval_pair_rmf, d2i_eval
-from source.imgproc import Pipeline
+from source.imageproc.imgproc import Pipeline
 
 params = {#'blur': True,
         'shape': (180, 40),

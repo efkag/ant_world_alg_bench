@@ -4,8 +4,9 @@ import os
 fwd = os.path.dirname(__file__)
 sys.path.append(os.getcwd())
 
+from source.imageproc.imgproc import Pipeline
 from source.utils import pre_process, save_image, check_for_dir_and_create
-from source.imgproc import lin, glin, make_pipeline, Pipeline
+from source.imgproc import lin, glin, make_pipeline
 from source.routedatabase import Route
 from source.routedatabase import BoBRoute
 import matplotlib.pyplot as plt

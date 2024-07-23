@@ -12,7 +12,7 @@ import seaborn as sns
 from ast import literal_eval
 import yaml
 from source.routedatabase import Route
-from source.imgproc import Pipeline
+from source.imageproc.imgproc import Pipeline
 from source.utils import cor_dist, mae, check_for_dir_and_create, scale2_0_1, pair_rmf
 from source.analysis import flip_gauss_fit, eval_gauss_rmf_fit, d2i_rmfs_eval
 sns.set_context("paper", font_scale=1)

@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 from matplotlib import pyplot as plt
-from source.imgproc import Pipeline
+from source.imageproc.imgproc import Pipeline
 from source.utils import rmf, cor_dist, mae, rmse,  rotate, check_for_dir_and_create
 from source.routedatabase import Route, BoBRoute, load_bob_routes, load_routes
 from catch_areas import catch_areas_4route

@@ -13,7 +13,7 @@ from ast import literal_eval
 from source.utils import mae, rmf, cor_dist, save_image, rotate, check_for_dir_and_create
 from source.display import plot_ftl_route
 from source.routedatabase import BoBRoute
-from source.imgproc import Pipeline
+from source.imageproc.imgproc import Pipeline
 import yaml
 sns.set_context("paper", font_scale=1)
 

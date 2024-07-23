@@ -16,7 +16,7 @@ from source.utils import pre_process, load_route_naw, check_for_dir_and_create, 
 #TODO Get rid of this import
 from source.navs import seqnav as spm
 from source.routedatabase import Route, load_all_bob_routes, load_routes, load_bob_routes, load_bob_routes_repeats
-from source.imgproc import Pipeline
+from source.imageproc.imgproc import Pipeline
 from source.navs import infomax
 
 

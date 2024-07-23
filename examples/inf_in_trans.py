@@ -7,7 +7,7 @@ import numpy as np
 from scipy.stats import entropy
 from source.utils import mae, rmf, cor_dist, cos_dist, dot_dist, mutual_inf, entropy_dist, check_for_dir_and_create
 from source.routedatabase import Route, BoBRoute
-from source.imgproc import Pipeline
+from source.imageproc.imgproc import Pipeline
 from source.display import plot_3d
 import seaborn as sns
 import matplotlib.pyplot as plt

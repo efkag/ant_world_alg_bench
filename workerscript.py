@@ -13,7 +13,7 @@ from source.tools.benchutils import pick_nav
 from source import infomax
 from source import antworld2 as aw
 from source.routedatabase import Route, load_routes
-from source.imgproc import Pipeline
+from source.imageproc.imgproc import Pipeline
 
 print('Argument List:', str(sys.argv))
 

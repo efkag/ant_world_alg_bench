@@ -11,7 +11,7 @@ import seaborn as sns
 from source.utils import rmf, pick_im_matcher, check_for_dir_and_create
 from source.antworld2 import Agent
 from source.utils import load_route_naw, plot_route, animated_window, check_for_dir_and_create
-from source.imgproc import Pipeline
+from source.imageproc.imgproc import Pipeline
 from source.routedatabase import Route
 from source.tools.results import filter_results, read_results, save_to_mat
 import yaml

@@ -14,7 +14,7 @@ from source.utils import cor_dist, mae, check_for_dir_and_create
 from source.routedatabase import Route
 from source import antworld2 as aw
 from source.seqnav import SequentialPerfectMemory
-from source.imgproc import Pipeline
+from source.imageproc.imgproc import Pipeline
 sns.set_context("paper", font_scale=1)
 
 

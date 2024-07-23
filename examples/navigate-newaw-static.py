@@ -9,7 +9,7 @@ from source.utils import load_route_naw, plot_route, seq_angular_error, animated
 #from source import seqnav
 from source.navs import perfect_memory, seqnav
 from source.routedatabase import Route
-from source.imgproc import Pipeline
+from source.imageproc.imgproc import Pipeline
 import numpy as np
 
 route_id = 1

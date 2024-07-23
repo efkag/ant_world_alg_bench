@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 from source.routedatabase import BoBRoute
 from source.unwraper import Unwraper
-from source.imgproc import Pipeline
+from source.imageproc.imgproc import Pipeline
 from matplotlib import pyplot as plt
 import seaborn as sns
 from source.display import plot_ftl_route

@@ -9,7 +9,7 @@ import copy
 import cv2 as cv
 from source.utils import check_for_dir_and_create
 from source.utils import pol2cart, pol2cart_headings, rotate
-from source.imgproc import Pipeline
+from source.imageproc.imgproc import Pipeline
 from source.routedatabase import Route
 from mpl_toolkits.mplot3d import axes3d
 sns.set_context("paper", font_scale=1)

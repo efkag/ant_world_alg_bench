@@ -8,7 +8,7 @@ from source.utils import mae, rmf, cor_dist, save_image, rotate, check_for_dir_a
 from source.tools import torchmatchers
 import torch
 from source.routedatabase import Route
-from source.imgproc import Pipeline
+from source.imageproc.imgproc import Pipeline
 import seaborn as sns
 import matplotlib.pyplot as plt
 import cv2 as cv

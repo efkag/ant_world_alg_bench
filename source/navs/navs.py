@@ -1,6 +1,6 @@
 import numpy as np
 from source.utils import dot_dist
-from source.imgproc import Pipeline
+from source.imageproc.imgproc import Pipeline
 from abc import ABC, abstractmethod
 from source.utils import pick_im_matcher
 from source.utils import rmf

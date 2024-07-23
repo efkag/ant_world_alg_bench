@@ -12,7 +12,7 @@ from ast import literal_eval
 from source.utils import load_route_naw, plot_route, animated_window, check_for_dir_and_create
 from source.routedatabase import Route
 from source.tools.results import filter_results, read_results
-from source.imgproc import Pipeline
+from source.imageproc.imgproc import Pipeline
 from source.utils import mae, rmf, rotate
 
 import yaml

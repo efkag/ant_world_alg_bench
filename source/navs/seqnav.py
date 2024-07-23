@@ -6,7 +6,7 @@ from scipy.stats import norm
 from collections import deque
 from .navs import Navigator
 from .utils import p_heading
-from source.imgproc import Pipeline
+from source.imageproc.imgproc import Pipeline
 
 
 class SequentialPerfectMemory(Navigator):

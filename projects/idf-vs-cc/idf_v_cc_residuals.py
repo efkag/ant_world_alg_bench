@@ -9,7 +9,7 @@ import cv2 as cv
 import numpy as np
 import seaborn as sns
 from matplotlib import pyplot as plt
-from source.imgproc import Pipeline
+from source.imageproc.imgproc import Pipeline
 from source.utils import rmf, cor_dist, mae, rotate, check_for_dir_and_create
 from source.routedatabase import Route
 from source.display import heat_with_marginals

@@ -2,7 +2,7 @@ from source.utils import pick_im_matcher, mae, rmse, cor_dist, rmf, nanmae
 import numpy as np
 from source.navs.navs import Navigator
 from source.utils import dot_dist
-from source.imgproc import Pipeline
+from source.imageproc.imgproc import Pipeline
 
 
 class PerfectMemory(Navigator):

@@ -2,7 +2,7 @@ import os
 import cv2
 import numpy as np
 from scipy.spatial.distance import cdist
-from source.imgproc import Pipeline
+from source.imageproc.imgproc import Pipeline
 from source.utils import check_for_dir_and_create, write_route, squash_deg, travel_dist, pol2cart
 from source.gencoords import generate_from_points, generate_grid
 
