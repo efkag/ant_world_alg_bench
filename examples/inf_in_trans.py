@@ -18,7 +18,7 @@ sns.set_context("paper", font_scale=1)
 # #route_path = 'test-routes/route1'
 # route = Route(route_path, 1)
 
-route_path = 'datasets/campus/route1/r1'
+route_path = '/home/efkag/navlib/data/campus/route1/r1'
 route = BoBRoute(path=route_path, read_imgs=True)
 
 save_path = os.path.join(fwd, 'rmf-surfaces')
@@ -37,11 +37,13 @@ params = {'blur': True,
 pipe = Pipeline(**params)
 q_img = pipe.apply(q_img)
 ref_imgs = pipe.apply(ref_imgs)
+ref_imgs = np.asarray(ref_imgs)
 
+bins = np.histogram_bin_edges(ref_imgs.flatten(), bins=bins)
 
 q_img_hist = np.histogram(q_img.flatten(), bins=bins, density=True)[0]
 
-plt.hist(q_img.flatten(), bins=bins, density=True)
+plt.hist(q_img.flatten(), bins=bins, density=False)
 plt.show()
 
 ref_imgs_hist = [np.histogram(im.flatten(),bins=bins, density=True)[0] for im in ref_imgs]

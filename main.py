@@ -20,7 +20,7 @@ def static_bench():
     #               'window': list(range(10, 12)), 'matcher': ['corr', 'rmse']}
     
     parameters = {'blur': [True], 
-                  'shape': [(360, 90), (180, 45)],
+                  'shape': [(180, 45)],
                   'vcrop':[0],
                   #'histeq':[True],
                   #'edge_range': [(50, 255), False],
