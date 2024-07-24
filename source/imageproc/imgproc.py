@@ -2,6 +2,7 @@ import numpy as np
 import cv2 as cv
 import numpy as np
 from source.pyDTW import DTW
+from source.imageproc import imclust
 
 def resize(shape):
     '''
@@ -149,10 +150,28 @@ class Pipeline:
         else:
             self.pipe = []
             self.pipe.append(mod_dtype(np.float32))
+        self.mask_flag = False
+        if sets.get('mask'):
+            self.mask_flag = True
+            self.masks = None
+            self.resizer = resize(sets.get('shape'))
+            self.blurrer = gauss_blur()
 
     def apply(self, imgs):
         if not isinstance(imgs, list):
             imgs = [imgs]
+        # create masks
+        if self.mask_flag:
+            imgs = [self.resizer(im) for im in imgs]
+            imgs = [self.blurrer(im) for im in imgs]
+            self.masks = [imclust.cluster_im(im) for im in imgs]
+            imgs = [cv.cvtColor(im, cv.COLOR_RGB2GRAY)for im in imgs]
         for p in self.pipe:
             imgs = [p(img) for img in imgs]
+        # apply the mask
+        if self.mask_flag:
+            imgs = [ im * self.masks[i] for i, im in enumerate(imgs)]
         return imgs if len(imgs) > 1 else imgs[0]
+    
+    def get_masks(self):
+        return self.masks

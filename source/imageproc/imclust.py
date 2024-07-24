@@ -14,6 +14,7 @@ def im_to_long_form(im: np.ndarray):
 def cluster_im(im: np.ndarray, whiten=False):
     h, w, c = im.shape
     im_data = im_to_long_form(im)
+    im_data = im_data.astype(np.float32, copy=False)
     if whiten: im_data = whiten(im_data)
     centroids = [im_data[int(h/2)], im_data[int(-h/2)]]
     centroids, labels = kmeans2(im_data, k=centroids)
@@ -24,3 +25,4 @@ def cluster_im(im: np.ndarray, whiten=False):
 def extract_skyline(im: np.ndarray):
     skyline = np.argmax(im, axis=0)
     return skyline.max()-skyline
+
