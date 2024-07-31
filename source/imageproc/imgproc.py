@@ -151,9 +151,9 @@ class Pipeline:
             self.pipe = []
             self.pipe.append(mod_dtype(np.float32))
         self.mask_flag = False
+        self.masks = None
         if sets.get('mask'):
             self.mask_flag = True
-            self.masks = None
             self.resizer = resize(sets.get('shape'))
             self.blurrer = gauss_blur()
 
@@ -170,7 +170,7 @@ class Pipeline:
             imgs = [p(img) for img in imgs]
         # apply the mask
         if self.mask_flag:
-            imgs = [ im * self.masks[i] for i, im in enumerate(imgs)]
+            imgs = [ np.where(self.masks[i] == 0, np.nan, im) for i, im in enumerate(imgs)]
         return imgs if len(imgs) > 1 else imgs[0]
     
     def get_masks(self):

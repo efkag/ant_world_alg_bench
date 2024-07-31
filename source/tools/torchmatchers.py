@@ -26,7 +26,7 @@ def mae(a, b, mask=None):
     :return:
     """
     if mask is not None:
-        return torch.mean(torch.abs(torch.sub(a, b)) * mask, axis=(1, 2)).detach().cpu().numpy()
+        return torch.nanmean(torch.abs(torch.sub(a, b)), axis=(1, 2)).detach().cpu().numpy()
     return torch.mean(torch.abs(torch.sub(a, b)), axis=(1, 2)).detach().cpu().numpy()
 
 
@@ -40,7 +40,8 @@ def dot_dist(a, b, mask=None):
     """
     #a = torch.unsqueeze(a, 0)
     if mask is not None:
-        b = b*mask
+        b = torch.nan_to_num(b)
+        a = torch.nan_to_num(a)
     a = a.flatten()
     b = b.flatten(start_dim=1)
     res = 1 - torch.matmul(b, a)
@@ -71,9 +72,6 @@ def rmf(query_img, ref_imgs, matcher=mae, d_range=(-180, 180), d_step=1, mask=No
 
     if ref_imgs.ndim < 3:
       ref_imgs = torch.unsqueeze(ref_imgs, 0)
-    
-    if mask is not None and not torch.is_tensor(mask):
-        mask = torch.Tensor(mask).to(device)
 
     degrees = range(*d_range, d_step)
     total_search_angle = round((d_range[1] - d_range[0]) / d_step)
