@@ -16,12 +16,6 @@ class SequentialPerfectMemory(Navigator):
                 **kwargs):
         super().__init__(route_images, matcher=matcher, deg_range=deg_range, degree_shift=degree_shift, **kwargs)
         
-        # if the dot product distance is used we need to make sure the images are standardized
-        if self.matcher == dot_dist:
-            self.pipe = Pipeline(normstd=True)
-            self.route_images = self.pipe.apply(route_images)
-        else: 
-            self.pipe = Pipeline()
         # Log Variables
         self.recovered_heading = []
         self.logs = []
