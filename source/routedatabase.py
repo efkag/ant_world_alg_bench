@@ -254,7 +254,7 @@ class BoBRoute:
             for i, file in enumerate(route_data['filename']):
                 #careful the filenames contain a leading space
                 im_path = os.path.join(self.path, file.strip())
-                img = cv.imread(im_path, cv.IMREAD_GRAYSCALE)
+                img = cv.imread(im_path)
                 if self.unwraper and i==0:# unwrap the images
                     self.unwraper = self.unwraper(img)
                 elif self.unwraper:
