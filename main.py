@@ -22,15 +22,15 @@ def static_bench():
     parameters = {'blur': [True], 
                   'shape': [(180, 45)],
                   'vcrop':[0],
-                  'mask':[True],
+                  'mask':[True, False],
                   #'histeq':[True],
                   #'edge_range': [(50, 255), False],
                   #'loc_norm': [{'kernel_shape':(3, 3)}, False],
-                  'gauss_loc_norm': [{'sig1':2, 'sig2':20}],
+                  'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
                   'deg_range':[(-90, 90)],
                   'window': [500, -250], 
                   'matcher': ['mae'],
-                  'ref_route': [1],
+                  'ref_route': [1, 2],
                   'sample_step':[2]
                   }
     
@@ -39,7 +39,7 @@ def static_bench():
                                grid_path=None, 
                                filename='results.csv',
                                route_path_suffix='r',
-                               route_repeats=2,
+                               route_repeats=5,
                                bench_data='bob'
                                )
     bench.benchmark(parameters, routes, parallel=False, cores=1)
