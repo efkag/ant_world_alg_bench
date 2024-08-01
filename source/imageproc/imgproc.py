@@ -165,7 +165,8 @@ class Pipeline:
             imgs = [self.resizer(im) for im in imgs]
             imgs = [self.blurrer(im) for im in imgs]
             self.masks = [imclust.cluster_im(im) for im in imgs]
-            imgs = [cv.cvtColor(im, cv.COLOR_RGB2GRAY)for im in imgs]
+        # Convert to greyscale
+        imgs = [cv.cvtColor(im, cv.COLOR_BGR2GRAY)for im in imgs]
         for p in self.pipe:
             imgs = [p(img) for img in imgs]
         # apply the mask
