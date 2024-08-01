@@ -67,8 +67,14 @@ def rmf(query_img, ref_imgs, matcher=mae, d_range=(-180, 180), d_step=1, mask=No
     query_img = torch.as_tensor(query_img)
     query_img = query_img.to(device)
 
-    if not torch.is_tensor(ref_imgs):
-        ref_imgs = torch.Tensor(ref_imgs).to(device)
+    ref_imgs = torch.as_tensor(ref_imgs)
+    ref_imgs = ref_imgs.to(device)
+
+    if ref_imgs.isnan().any():
+        mask = True
+    
+    # if not torch.is_tensor(ref_imgs):
+    #     ref_imgs = torch.Tensor(ref_imgs).to(device)
 
     if ref_imgs.ndim < 3:
       ref_imgs = torch.unsqueeze(ref_imgs, 0)
