@@ -27,9 +27,11 @@ def canny(upper, lower):
     return lambda im: cv.Canny(cv.normalize(src=im, dst=im, alpha=0, beta=255, norm_type=cv.NORM_MINMAX, dtype=cv.CV_8U), upper, lower)
 
 
-def standardize():
-    return lambda im: (im - np.mean(im)) / np.std(im)
+def normalize():
+    return lambda im: im.astype(np.float32, copy=False) / np.linalg.norm(im)
 
+# def norm(im):
+#     im = im.astype()
 
 def scale021():
     #return lambda im: cv.normalize(src=im, dst=im, alpha=0, beta=1, norm_type=cv.NORM_MINMAX)
@@ -131,6 +133,8 @@ def make_pipeline(sets):
     if sets.get('edge_range'):
         lims = sets['edge_range']
         pipe.append(canny(lims[0], lims[1])) 
+    if sets.get('norm'):
+        pipe.append(normalize())
     if sets.get('type'):
         pipe.append(mod_dtype(sets.get('type')))
     else:
