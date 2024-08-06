@@ -11,16 +11,16 @@ def im_to_long_form(im: np.ndarray):
     return np.column_stack((im_long, ri.ravel()))
 
 
-def cluster_im(im: np.ndarray, whiten=False):
+def cluster_im(im: np.ndarray, whiten_data=False):
     '''
     im: Image array in BGR. Assumes the image array is in BRG format
     because the cetroid for the sky is calculated based on the the
-    maximus blue value.
+    maximum blue value.
     '''
     h, w, c = im.shape
     im_data = im_to_long_form(im)
     im_data = im_data.astype(np.float32, copy=False)
-    if whiten: im_data = whiten(im_data)
+    if whiten_data: im_data = whiten(im_data)
     # assumes BGR format!!
     cent_sky = im_data[im_data[:, 0].argmax()]
     centroids = [cent_sky, im_data[int(-h/2)]]

@@ -15,7 +15,9 @@ def read_results(path: str):
     # Convert list of strings to actual list of lists
     for k in keys:
         if k in data.columns:
-            data[k] = data[k].apply(literal_eval)
+            if data[k].all():
+                data[k] = data[k].str.replace('nan','None')
+                data[k] = data[k].apply(literal_eval)
     return data
 
 
@@ -24,7 +26,9 @@ def filter_results(df: pd.DataFrame, **filters):
         if fil not in df:
             print(fil, ' is not a valid column name')
             return
+
         df = df.loc[df[fil] == filters[fil]]
+        #if df.empty: breakpoint()
     if df.empty:
         raise Exception('Empty dataframe!')
     return df
