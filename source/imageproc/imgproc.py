@@ -30,8 +30,6 @@ def canny(upper, lower):
 def normalize():
     return lambda im: im.astype(np.float32, copy=False) / np.linalg.norm(im)
 
-# def norm(im):
-#     im = im.astype()
 
 def scale021():
     #return lambda im: cv.normalize(src=im, dst=im, alpha=0, beta=1, norm_type=cv.NORM_MINMAX)

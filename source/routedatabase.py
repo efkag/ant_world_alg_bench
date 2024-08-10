@@ -257,7 +257,7 @@ class BoBRoute:
                 img = cv.imread(im_path)
                 if self.unwraper and i==0:# unwrap the images
                     self.unwraper = self.unwraper(img)
-                elif self.unwraper:
+                if self.unwraper:
                     img = self.unwraper.unwarp(img)
                 img = self.resizer(img)
                 imgs.append(img)
