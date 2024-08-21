@@ -117,9 +117,9 @@ class SequentialPerfectMemory(Navigator):
         self.logs.append(wrsims)
 
         # weight the window ridf minima by a pdf
-        x = np.linspace(norm.ppf(0.01),norm.ppf(0.99), len(wind_sims))
-        weights = 1 - self.gauss_rv.pdf(x)
-        wind_sims = weights * wind_sims
+        # x = np.linspace(norm.ppf(0.01),norm.ppf(0.99), len(wind_sims))
+        # weights = 1 - self.gauss_rv.pdf(x)
+        # wind_sims = weights * wind_sims
         # find best image match and heading
         idx = int(round(self.argminmax(wind_sims)))
         self.best_ridfs.append(wrsims[idx])
