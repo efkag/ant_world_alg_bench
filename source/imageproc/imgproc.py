@@ -168,15 +168,16 @@ class Pipeline:
             cimgs = [self.blurrer(im) for im in cimgs]
             self.masks = [imclust.cluster_im(im) for im in cimgs]
         # Convert to greyscale
-        if imgs[0].ndim > 2:
-            imgs = [cv.cvtColor(im, cv.COLOR_BGR2GRAY) for im in imgs]
-        for p in self.pipe:
-            imgs = [p(img) for img in imgs]
-        # apply the mask
-        if self.mask_flag:
-            imgs = [ np.where(self.masks[i] == 0, np.nan, im) for i, im in enumerate(imgs)]
+        # if imgs[0].ndim > 2:
+        #     imgs = [cv.cvtColor(im, cv.COLOR_BGR2GRAY) for im in imgs]
+        # for p in self.pipe:
+        #     imgs = [p(img) for img in imgs]
+        # # apply the mask
+        # if self.mask_flag:
+        #     imgs = [ np.where(self.masks[i] == 0, np.nan, im) for i, im in enumerate(imgs)]
         # if self.mask_flag:
         #     imgs = [ self.masks[i]*im for i, im in enumerate(imgs)]
+        imgs = self.masks
         return imgs if len(imgs) > 1 else imgs[0]
     
     def get_masks(self):
