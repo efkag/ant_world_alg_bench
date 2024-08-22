@@ -173,10 +173,10 @@ class Pipeline:
         for p in self.pipe:
             imgs = [p(img) for img in imgs]
         # apply the mask
-        # if self.mask_flag:
-        #     imgs = [ np.where(self.masks[i] == 0, np.nan, im) for i, im in enumerate(imgs)]
         if self.mask_flag:
-            imgs = [ self.masks[i]*im for i, im in enumerate(imgs)]
+            imgs = [ np.where(self.masks[i] == 0, np.nan, im) for i, im in enumerate(imgs)]
+        # if self.mask_flag:
+        #     imgs = [ self.masks[i]*im for i, im in enumerate(imgs)]
         return imgs if len(imgs) > 1 else imgs[0]
     
     def get_masks(self):
