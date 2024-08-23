@@ -321,9 +321,7 @@ class Benchmark:
                     # Preprocess images
                     pipe = Pipeline(**combo)
                     route_imgs = pipe.apply(ref_rep.get_imgs())
-                    route_imgs = pipe.get_masks()
                     test_imgs = pipe.apply(test_rep.get_imgs())
-                    test_imgs = pipe.get_masks()
                     
                     if window:
                         nav = spm.SequentialPerfectMemory(route_imgs, **combo)
