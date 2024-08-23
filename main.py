@@ -29,7 +29,7 @@ def static_bench():
                   #'loc_norm': [{'kernel_shape':(3, 3)}, False],
                   'gauss_loc_norm': [{'sig1':2, 'sig2':20}],
                   'deg_range':[(-90, 90)],
-                  'window': [500, -250], 
+                  'window': [350, 500], 
                   'matcher': ['mae', 'dot'],
                   'ref_route': [1, 2],
                   'sample_step':[2]

@@ -52,8 +52,6 @@ traj = filter_results(data, **filters)
 traj = traj.to_dict(orient='records')[0]
 
 
-
-
 midxs = traj['matched_index']
 hist = np.ones(traj['window'])
 w_log = traj['window_log']
