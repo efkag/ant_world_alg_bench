@@ -18,11 +18,10 @@ class Navigator():
         self.degrees = np.arange(*deg_range)
         self.matcher = pick_im_matcher(matcher)
         # if the dot product distance is used we need to make sure the images are standardized
+        self.pipe = Pipeline()
         if self.matcher == dot_dist:
-            self.pipe = Pipeline(normstd=True)
+            self.pipe = Pipeline(norm=True)
             self.route_images = self.pipe.apply(route_images)
-        else: 
-            self.pipe = Pipeline()
         self.argminmax = np.argmin
         self.rmf = rmf
         self.using_torch = False

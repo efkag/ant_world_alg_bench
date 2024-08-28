@@ -254,16 +254,31 @@ class BoBRoute:
             for i, file in enumerate(route_data['filename']):
                 #careful the filenames contain a leading space
                 im_path = os.path.join(self.path, file.strip())
-                img = cv.imread(im_path, cv.IMREAD_GRAYSCALE)
+                img = cv.imread(im_path)
                 if self.unwraper and i==0:# unwrap the images
                     self.unwraper = self.unwraper(img)
-                elif self.unwraper:
+                if self.unwraper:
                     img = self.unwraper.unwarp(img)
                 img = self.resizer(img)
                 imgs.append(img)
             
             route_data['imgs'] = imgs
         return route_data
+    
+    def read_img(self, indices:list):
+        if not isinstance(indices, list):
+            indices = [indices]
+        imgs = []
+        for i in indices:
+            im_path = os.path.join(self.path, self.route_dict['filename'][i].strip())
+            img = cv.imread(im_path)
+            if Unwraper == self.unwraper:
+                self.unwraper = self.unwraper(img)
+            if self.unwraper:
+                img = self.unwraper.unwarp(img)
+            img = self.resizer(img)
+            imgs.append(img)
+        return imgs if len(indices)>1 else imgs[0]
 
     def set_sample_step(self, step: int):
         self.sample_step = step

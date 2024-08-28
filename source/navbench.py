@@ -290,7 +290,7 @@ class Benchmark:
         print('data path: ', self.routes_path)
         print('save path: ', self.results_path)
 
-        log = {'route_id': [],'ref_route':[], 'rep_id': [], 'nav-name':[], 'sample_rate':[], 'blur': [], 
+        log = {'route_id': [],'ref_route':[], 'rep_id': [], 'nav-name':[], 'sample_rate':[], 'blur': [], 'mask':[], 
             'histeq':[], 'edge': [], 'res': [], 'vcrop':[], 'loc_norm':[], 'gauss_loc_norm':[],
             'window': [], 'matcher': [], 'deg_range':[], 'mean_error': [], 'seconds': [], 'errors': [], 
             'index_diff': [], 'window_log': [], 'matched_index': [], 'min_dist_index': [],
@@ -318,11 +318,6 @@ class Benchmark:
                 for rep_id in repeat_ids: # for every repeat route
                     test_rep = route[rep_id]
                     test_rep.set_sample_step(combo.get('sample_step'))
-                    # Preprocess images
-                    pipe = Pipeline(**combo)
-                    route_imgs = pipe.apply(ref_rep.get_imgs())
-                    test_imgs = pipe.apply(test_rep.get_imgs())
-                
                     # Preprocess images
                     pipe = Pipeline(**combo)
                     route_imgs = pipe.apply(ref_rep.get_imgs())
@@ -381,6 +376,8 @@ class Benchmark:
                     log['rep_id'].append(test_rep.get_route_id())
                     log['sample_rate'].append(combo.get('sample_step'))
                     log['blur'].append(combo.get('blur'))
+                    log['mask'].append(combo.get('mask'))
+                    log['mask_addend'].append(combo.get('mask_addend'))
                     log['histeq'].append(combo.get('histeq'))
                     log['edge'].append(combo.get('edge_range'))
                     log['res'].append(combo.get('shape'))

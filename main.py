@@ -22,15 +22,18 @@ def static_bench():
     parameters = {'blur': [True], 
                   'shape': [(180, 45)],
                   'vcrop':[0],
+                  'mask':[True, False],
+                  'mask_adder': [0.5, False],
+                  #'normstd':True,
                   #'histeq':[True],
                   #'edge_range': [(50, 255), False],
                   #'loc_norm': [{'kernel_shape':(3, 3)}, False],
-                  'gauss_loc_norm': [{'sig1':2, 'sig2':20}],
+                  'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
                   'deg_range':[(-90, 90)],
-                  'window': [500, -250], 
-                  'matcher': ['mae'],
-                  'ref_route': [1, 2, 3, 4, 5],
-                  #'sample_step':[2]
+                  'window': [350, 500], 
+                  'matcher': ['mae', 'dot'],
+                  'ref_route': [1, 2],
+                  'sample_step':[2]
                   }
     
     routes = [1]

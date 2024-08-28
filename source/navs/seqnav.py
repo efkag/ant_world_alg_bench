@@ -16,12 +16,6 @@ class SequentialPerfectMemory(Navigator):
                 **kwargs):
         super().__init__(route_images, matcher=matcher, deg_range=deg_range, degree_shift=degree_shift, **kwargs)
         
-        # if the dot product distance is used we need to make sure the images are standardized
-        if self.matcher == dot_dist:
-            self.pipe = Pipeline(normstd=True)
-            self.route_images = self.pipe.apply(route_images)
-        else: 
-            self.pipe = Pipeline()
         # Log Variables
         self.recovered_heading = []
         self.logs = []
@@ -51,6 +45,7 @@ class SequentialPerfectMemory(Navigator):
             self.lower = self.window - self.upper
             self.mem_pointer = self.window - self.upper
             self.w_thresh = w_thresh
+            #TODO: need to make a window histogram for the adaptive window'
             if sma_size:
                 self.sma_size = sma_size
                 #self.idf_sma = []
@@ -60,6 +55,7 @@ class SequentialPerfectMemory(Navigator):
             self.mem_pointer = 0
             self.upper = window
             self.lower = 0
+            self.w_hist = np.ones(self.window)
         self.blimit = 0
         self.flimit = self.window
         mu = 0
@@ -123,11 +119,15 @@ class SequentialPerfectMemory(Navigator):
         self.logs.append(wrsims)
 
         # weight the window ridf minima by a pdf
-        x = np.linspace(norm.ppf(0.01),norm.ppf(0.99), len(wind_sims))
-        weights = 1 - self.gauss_rv.pdf(x)
+        # x = np.linspace(norm.ppf(0.01),norm.ppf(0.99), len(wind_sims))
+        # weights = 1 - self.gauss_rv.pdf(x)
+        weights = 1 - (self.w_hist/sum(self.w_hist))
         wind_sims = weights * wind_sims
         # find best image match and heading
         idx = int(round(self.argminmax(wind_sims)))
+        #update histogram
+        self.w_hist[idx] += 1
+        # save ridfs
         self.best_ridfs.append(wrsims[idx])
         self.best_sims.append(wind_sims[idx])
         heading = wind_headings[idx]

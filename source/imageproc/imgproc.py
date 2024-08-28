@@ -2,6 +2,7 @@ import numpy as np
 import cv2 as cv
 import numpy as np
 from source.pyDTW import DTW
+from source.imageproc import imclust
 
 def resize(shape):
     '''
@@ -26,8 +27,8 @@ def canny(upper, lower):
     return lambda im: cv.Canny(cv.normalize(src=im, dst=im, alpha=0, beta=255, norm_type=cv.NORM_MINMAX, dtype=cv.CV_8U), upper, lower)
 
 
-def standardize():
-    return lambda im: (im - np.mean(im)) / np.std(im)
+def normalize():
+    return lambda im: im.astype(np.float32, copy=False) / np.linalg.norm(im)
 
 
 def scale021():
@@ -105,6 +106,14 @@ def quant(k=3):
     return lambda im: _quant(im, k=k)
 
 
+def mask_addend(masks, addend):
+    if isinstance(addend, (int, float)):
+        return [mask + addend for mask in masks]
+    elif len(addend) > 1:
+        return [np.where(mask == 0, mask+addend[0], mask+addend[1]) for mask in masks]
+    else:
+        raise Exception('Invalid number of addends for mask weight matrix')
+
 def make_pipeline(sets):
     '''
     Create a pre-processing pipeline from a dictionary of settings
@@ -130,6 +139,8 @@ def make_pipeline(sets):
     if sets.get('edge_range'):
         lims = sets['edge_range']
         pipe.append(canny(lims[0], lims[1])) 
+    if sets.get('norm'):
+        pipe.append(normalize())
     if sets.get('type'):
         pipe.append(mod_dtype(sets.get('type')))
     else:
@@ -149,10 +160,37 @@ class Pipeline:
         else:
             self.pipe = []
             self.pipe.append(mod_dtype(np.float32))
+        self.mask_flag = False
+        self.masks = None
+        self.mask_addend = None
+        if sets.get('mask'):
+            self.mask_flag = True
+            self.resizer = resize(sets.get('shape'))
+            self.blurrer = gauss_blur()
+            if sets.get('mask_addend'):
+                self.mask_addend = sets.get('mask_addend')
 
     def apply(self, imgs):
         if not isinstance(imgs, list):
             imgs = [imgs]
+        # create masks
+        if self.mask_flag:
+            cimgs = [self.resizer(im) for im in imgs]
+            cimgs = [self.blurrer(im) for im in cimgs]
+            self.masks = [imclust.cluster_im(im) for im in cimgs]
+            if self.mask_addend is not None:
+                self.masks = mask_addend(self.masks, self.mask_addend)
+        # Convert to greyscale
+        if imgs[0].ndim > 2:
+            imgs = [cv.cvtColor(im, cv.COLOR_BGR2GRAY) for im in imgs]
         for p in self.pipe:
             imgs = [p(img) for img in imgs]
+        # apply the mask
+        # if self.mask_flag:
+        #     imgs = [ np.where(self.masks[i] == 0, np.nan, im) for i, im in enumerate(imgs)]
+        if self.mask_flag:
+            imgs = [ self.masks[i]*im for i, im in enumerate(imgs)]
         return imgs if len(imgs) > 1 else imgs[0]
+    
+    def get_masks(self):
+        return self.masks

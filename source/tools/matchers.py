@@ -282,7 +282,7 @@ def pick_im_matcher(im_matcher=None):
         raise Exception('Non valid matcher method name')
     return matchers.get(im_matcher)
 
-def rmf(query_img, ref_imgs, matcher=mae, d_range=(-180, 180), d_step=1):
+def rmf(query_img, ref_imgs, matcher=mae, d_range=(-180, 180), d_step=1, norm_imgs=False):
     """
     Rotational Matching Function.
     Rotates a query image and compares it with one or more reference images
@@ -297,6 +297,10 @@ def rmf(query_img, ref_imgs, matcher=mae, d_range=(-180, 180), d_step=1):
     assert not isinstance(query_img, list)
     if not isinstance(ref_imgs, list):
         ref_imgs = [ref_imgs]
+
+    if norm_imgs:
+        ref_mean = np.mean(ref_imgs)
+        ref_imgs = [im - ref_mean for im in ref_imgs]
 
     degrees = range(*d_range, d_step)
     total_search_angle = round((d_range[1] - d_range[0]) / d_step)
