@@ -377,6 +377,7 @@ class Benchmark:
                     log['sample_rate'].append(combo.get('sample_step'))
                     log['blur'].append(combo.get('blur'))
                     log['mask'].append(combo.get('mask'))
+                    log['mask_addend'].append(combo.get('mask_addend'))
                     log['histeq'].append(combo.get('histeq'))
                     log['edge'].append(combo.get('edge_range'))
                     log['res'].append(combo.get('shape'))
