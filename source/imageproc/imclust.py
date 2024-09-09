@@ -20,6 +20,7 @@ def cluster_im(im: np.ndarray, whiten_data=False):
     h, w, c = im.shape
     im_data = im_to_long_form(im)
     im_data = im_data.astype(np.float32, copy=False)
+    #im_data = scale021(im_data)
     if whiten_data: im_data = whiten(im_data)
     # assumes BGR format!!
     cent_sky = im_data[im_data[:, 0].argmax()]
@@ -28,6 +29,8 @@ def cluster_im(im: np.ndarray, whiten_data=False):
     im_quant = labels.reshape(h, w)
     return im_quant
 
+def scale021(im: np.ndarray):
+    return (im - im.min(axis=0)) / (im.max(axis=0) - im.min(axis=0))
 
 def extract_skyline(im: np.ndarray):
     skyline = np.argmax(im, axis=0)
