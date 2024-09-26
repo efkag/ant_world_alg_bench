@@ -13,7 +13,7 @@ class SequentialPerfectMemory(Navigator):
 
     def __init__(self, route_images, matcher='mae', deg_range=(-180, 180), degree_shift=1, 
                 window=20, dynamic_range=0.1, w_thresh=None, mid_update=True, sma_size=3,
-                **kwargs):
+                norm_imgs=False, **kwargs):
         super().__init__(route_images, matcher=matcher, deg_range=deg_range, degree_shift=degree_shift, **kwargs)
         
         # Log Variables
@@ -38,6 +38,7 @@ class SequentialPerfectMemory(Navigator):
 
         # Window parameters
         self.starting_window = abs(window)
+        self.norm_imgs = norm_imgs
         if window < 0:
             self.window = abs(window)
             self.adaptive = True
@@ -100,7 +101,7 @@ class SequentialPerfectMemory(Navigator):
 
         query_img = self.pipe.apply(query_img)
         # get the rotational similarities between a query image and a window of route images
-        wrsims = self.rmf(query_img, self.route_images[self.blimit:self.flimit], self.matcher, self.deg_range, self.deg_step)
+        wrsims = self.rmf(query_img, self.route_images[self.blimit:self.flimit], self.matcher, self.deg_range, self.deg_step, self.norm_imgs)
         self.window_log.append([self.blimit, self.flimit])
         # Holds the best rot. match between the query image and route images
         wind_sims = []

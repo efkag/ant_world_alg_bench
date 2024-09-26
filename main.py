@@ -23,7 +23,7 @@ def static_bench():
                   'shape': [(180, 45)],
                   'vcrop':[0],
                   'mask':[True, False],
-                  'mask_adder': [0.5, False],
+                  #'mask_addend': [0.5],
                   #'normstd':True,
                   #'histeq':[True],
                   #'edge_range': [(50, 255), False],

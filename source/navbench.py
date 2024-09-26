@@ -291,7 +291,7 @@ class Benchmark:
         print('save path: ', self.results_path)
 
         log = {'route_id': [],'ref_route':[], 'rep_id': [], 'nav-name':[], 'sample_rate':[], 'blur': [], 'mask':[], 
-            'histeq':[], 'edge': [], 'res': [], 'vcrop':[], 'loc_norm':[], 'gauss_loc_norm':[],
+            'mask_addend':[], 'histeq':[], 'edge': [], 'res': [], 'vcrop':[], 'loc_norm':[], 'gauss_loc_norm':[],
             'window': [], 'matcher': [], 'deg_range':[], 'mean_error': [], 'seconds': [], 'errors': [], 
             'index_diff': [], 'window_log': [], 'matched_index': [], 'min_dist_index': [],
             'dist_diff': [], 'tx': [], 'ty': [], 'th': [],'ah': [] , 

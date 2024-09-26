@@ -53,7 +53,7 @@ def pick_im_matcher(im_matcher=None):
         raise Exception('Non valid matcher method name')
     return matchers.get(im_matcher)
 
-def rmf(query_img, ref_imgs, matcher=mae, d_range=(-180, 180), d_step=1, mask=None):
+def rmf(query_img, ref_imgs, matcher=mae, d_range=(-180, 180), d_step=1, mask=None, norm_imgs=False):
     """
     Rotational Matching Function.
     Rotates a query image and compares it with one or more reference images
@@ -72,6 +72,9 @@ def rmf(query_img, ref_imgs, matcher=mae, d_range=(-180, 180), d_step=1, mask=No
 
     if ref_imgs.isnan().any():
         mask = True
+
+    if norm_imgs:
+        ref_imgs = ref_imgs - torch.mean(ref_imgs)
     
     # if not torch.is_tensor(ref_imgs):
     #     ref_imgs = torch.Tensor(ref_imgs).to(device)
