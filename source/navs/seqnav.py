@@ -59,9 +59,9 @@ class SequentialPerfectMemory(Navigator):
             self.w_hist = np.ones(self.window)
         self.blimit = 0
         self.flimit = self.window
-        mu = 0
-        sig = 1
-        self.gauss_rv = norm(loc=mu, scale=sig)
+        # mu = 0
+        # sig = 1
+        # self.gauss_rv = norm(loc=mu, scale=sig)
 
         # Adaptive window parameters
         self.mid_update = mid_update
@@ -119,15 +119,13 @@ class SequentialPerfectMemory(Navigator):
         # append the rsims of all window route images for that query image
         self.logs.append(wrsims)
 
-        # weight the window ridf minima by a pdf
-        # x = np.linspace(norm.ppf(0.01),norm.ppf(0.99), len(wind_sims))
         # weights = 1 - self.gauss_rv.pdf(x)
-        weights = 1 - (self.w_hist/sum(self.w_hist))
-        wind_sims = weights * wind_sims
+        # weights = 1 - (self.w_hist/sum(self.w_hist))
+        # wind_sims = weights * wind_sims
         # find best image match and heading
         idx = int(round(self.argminmax(wind_sims)))
         #update histogram
-        self.w_hist[idx] += 1
+        # self.w_hist[idx] += 1
         # save ridfs
         self.best_ridfs.append(wrsims[idx])
         self.best_sims.append(wind_sims[idx])
