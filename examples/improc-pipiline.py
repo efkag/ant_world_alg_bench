@@ -22,11 +22,12 @@ route_path = 'new-antworld/exp1/route1/'
 route = Route(route_path, 1)
 fig_save_path = os.path.join(fwd, 'figures')
 check_for_dir_and_create(fig_save_path)
-params = {#'blur': True,
+params = {'blur': True,
         'shape': (360, 80),
         #'histeq': True, 
         #'edge_range': (180, 200),
-        'gauss_loc_norm': {'sig1':2, 'sig2':20},
+        #'laplacian':True,
+        #'gauss_loc_norm': {'sig1':2, 'sig2':20},
         #'vcrop':1.
         }
 im_file = f'{str(params)}'

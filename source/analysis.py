@@ -187,9 +187,11 @@ def flip_gauss_fit(rsim, d_range=(-180, 180), eta=None):
         half_depth=depth/2
         maxindx=np.argmax(rsim[0:muidx])
         p1 = np.argmin(np.abs((rsim[maxindx:muidx]-half_depth)),0)
+        #p1 = np.argmin(np.abs((rsim[:muidx]-half_depth)),0)
         p1=maxindx+p1
         maxindx=np.argmax(rsim[muidx:])
         p2 = np.argmin(np.abs(rsim[muidx:muidx+maxindx]-half_depth),0)
+        #p2 = np.argmin(np.abs(rsim[muidx:]-half_depth),0)
         p2 = muidx + p2
         eta = np.abs(p2-p1)
 

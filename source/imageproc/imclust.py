@@ -7,12 +7,12 @@ def im_to_long_form(im: np.ndarray):
     h, w, c = im.shape
     #r, g, b = np.dsplit(im, im.shape[-1])
     im_long = im.reshape(h*w,c)
-    ri,ci = np.indices(im.shape[:2])
-    #return im_long
-    return np.column_stack((im_long, ri.ravel()))
+    #ri,ci = np.indices(im.shape[:2])
+    return im_long
+    #return np.column_stack((im_long, ri.ravel()))
 
 
-def cluster_im(im: np.ndarray, whiten_data=False, dialation=False):
+def cluster_im(im: np.ndarray, iter=15,  whiten_data=False, dialation=False):
     '''
     im: Image array in BGR. Assumes the image array is in BRG format
     because the cetroid for the sky is calculated based on the the
@@ -25,8 +25,10 @@ def cluster_im(im: np.ndarray, whiten_data=False, dialation=False):
     if whiten_data: im_data = whiten(im_data)
     # assumes BGR format!!
     cent_sky = im_data[im_data[:, 0].argmax()]
-    centroids = [cent_sky, im_data[int(-h/2)]]
-    centroids, labels = kmeans2(im_data, k=centroids)
+    centroids = [cent_sky, im_data[int(-w/2)]]
+    # _, labels, centroids = cv.kmeans(im_data, K=2, bestLabels=None, criteria=(cv.TERM_CRITERIA_MAX_ITER, iter, 0)
+    #           , attempts=1, flags=cv.KMEANS_PP_CENTERS, centers=np.array(centroids))
+    centroids, labels = kmeans2(im_data, k=centroids, iter=iter)
     im_quant = labels.reshape(h, w)
 
     #dialation

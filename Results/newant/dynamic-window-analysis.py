@@ -27,14 +27,14 @@ data = read_results(os.path.join(results_path, 'results.csv'))
 
 # Plot a specific route
 title = None
-figsize = (10, 6)
-route_id = 0
+figsize = (7, 2.5)
+route_id = 2
 repeat_no = 0
 fig_save_path = os.path.join(fig_save_path, f'route{route_id}')
 check_for_dir_and_create(fig_save_path)
 
 filters = {'route_id':route_id, 'res':'(180, 40)','blur':True, 
-           'window':-15, 'matcher':'mae', 'edge':False, 
+           'window':-20, 'matcher':'mae', 'edge':False, 
            'num_of_repeat': repeat_no, 
            #'nav-name':'s2sSMW(20, 3)'
            }
@@ -66,14 +66,16 @@ ax2 = ax1.twinx()
 # idfg_csum = np.cumsum(idfg)
 # ax2.plot(range(len(idfg_csum)), idfg_csum, label='IDF grad. sum', color='k')
 
-ax2.plot(range(len(traj['best_sims'])), traj['best_sims'], label='image diff.', color='g')
+ax2.plot(range(len(traj['best_sims'])), traj['best_sims'], label='RIDF minima', color='g')
 #ax2.scatter(range(len(traj['best_sims'])), traj['best_sims'], color='g')
 
 #ax2.set_ylim([0.0, 1.0])
-ax2.set_ylabel(f'{filters["matcher"]} image distance')
-ax1.legend()
-ax2.legend(loc=0)
+ax2.set_ylabel(f'MAE image distance')
+ax1.legend(loc=2)
+ax2.legend(loc=1)
+fig.tight_layout()
 
-fig_save_path = os.path.join(fig_save_path, f'aliasing-route{route_id}.{traj["nav-name"]}.png')
-fig.savefig(fig_save_path)
+
+fig.savefig(os.path.join(fig_save_path, f'aliasing-route{route_id}.{traj["nav-name"]}.png'))
+fig.savefig(os.path.join(fig_save_path, f'aliasing-route{route_id}.{traj["nav-name"]}.svg'))
 plt.show()

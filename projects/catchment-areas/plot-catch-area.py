@@ -22,7 +22,7 @@ from catch_areas import trans_catch_areas, rot_catch_areas
 from source.display import imgshow
 
 route_path = 'test-routes/FTLroutes/N-1-01'
-route_path = '/its/home/sk526/sussex-ftl-dataset/repeating-routes/route1/N-1'
+#route_path = '/its/home/sk526/sussex-ftl-dataset/repeating-routes/route1/N-1-01'
 
 route = BoBRoute(path=route_path, read_imgs=True, unwraper=Unwraper)
 
@@ -36,21 +36,31 @@ params = {'blur': True,
 pipe = Pipeline(**params)
 imgs = pipe.apply(imgs)
 
+ref=30
+start = 20
+stop = 40
+ridf_field, areas, area_lims = rot_catch_areas(imgs[ref], imgs[start:stop], route=route)
 
-ridf_field, areas, area_lims = rot_catch_areas(imgs[30], imgs[25:35])
+ref = 0
+query = 10
 
-imgshow(imgs[30], path=fwd, save_id='img')
+cv.imwrite(os.path.join(fwd, 'refimg.jpg'), imgs[ref])
+cv.imwrite(os.path.join(fwd, 'qimg.jpg'), imgs[query])
+
+imgshow(imgs[ref])
+imgshow(imgs[query])
 
 fig, ax = plt.subplots(figsize=(7, 3))
-ax.plot(range(-180, 180),ridf_field[5], label='RIDF')
-ax.plot(range(-180, 180),np.gradient(ridf_field[5]), label='RIDF gradient')
+ax.plot(range(-180, 180),ridf_field[ref], label='RIDF')
+ax.plot(range(-180, 180),np.gradient(ridf_field[query]), label='RIDF gradient')
 left_lim = area_lims[5][0]
 right_lim = area_lims[5][1]
 ax.set_xlabel('angle [degrees]')
 ax.set_ylabel('IDF')
 plt.tight_layout(pad=0.5)
-ax.scatter(range(left_lim-180, right_lim-180), ridf_field[5, left_lim:right_lim], s=10, label='catchment area points')
+ax.scatter(range(left_lim-180, right_lim-180), ridf_field[ref, left_lim:right_lim], s=10, label='catchment area points')
 #ax.set_xticklabels([*range(-180, 180, 10)])
 plt.legend()
 fig.savefig(os.path.join(fwd, 'catch.png'))
+fig.savefig(os.path.join(fwd, 'catch.pdf'))
 plt.show()

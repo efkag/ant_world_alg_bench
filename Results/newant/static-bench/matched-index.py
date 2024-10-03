@@ -35,17 +35,17 @@ data['matched_index'] = data['matched_index'].apply(literal_eval)
 
 # Plot a specific route
 title = None
-route_id = 5
+route_id = 2
 fig_save_path = os.path.join(fig_save_path, f'route{route_id}')
 check_for_dir_and_create(fig_save_path)
-window = -15
+window =15
 matcher = 'corr'
 blur = True
 edge = '(190, 240)'
 #loc_norm = 'False' # {'kernel_shape':(5, 5)}
 #gauss_loc_norm = 'False' #"{'sig1': 2, 'sig2': 20}"
 res = '(180, 40)'
-figsize = (6, 2)
+figsize = (6, 2.5)
 
 traj = data.loc[(data['matcher'] == matcher)
                 & (data['blur'] == blur) 
@@ -73,19 +73,25 @@ w_size = np.diff(traj['window_log'], axis=1)
 
 fig, ax1 = plt.subplots(figsize=figsize)
 plt.title(title, loc="left")
-ax1.plot(range(len(traj['abs_index_diff'])), traj['abs_index_diff'], label='index missmatch')
+line1 = ax1.plot(range(len(traj['abs_index_diff'])), traj['abs_index_diff'], label='index missmatch (left y axis)')
 #ax1.set_ylim([0, 260])
-ax1.plot(range(len(w_size)), w_size, label='window size')
+line2 = ax1.plot(range(len(w_size)), w_size, label='window size (left y axis)')
 ax1.set_ylabel('route index scale')
 ax1.set_xlabel('test points')
 
 ax2 = ax1.twinx()
-ax2.plot(range(len(traj['best_sims'])), traj['best_sims'], label='image diff.', color='g')
+line3 = ax2.plot(range(len(traj['best_sims'])), traj['best_sims'], label='RIDF minima (right y axis)', color='g')
 ax2.set_ylim([0.0, 1.0])
 ax2.set_ylabel(f'{matcher} image distance')
-ax1.legend(loc=2)
-ax2.legend(loc=0)
+ax2.set_ylabel(f'CCD image distance')
 
+# ax1.legend(loc=2)
+# ax2.legend(loc=0)
+lns = line1+line2+line3
+labs = [l.get_label() for l in lns]
+ax1.legend(lns, labs, loc='upper right', fontsize="8")
+
+fig.tight_layout()
 fig_path = os.path.join(fig_save_path, 'aliasing-route{}.w{}.m{}.res{}.edge{}.png'\
     .format(route_id, window, matcher, res, edge))
 fig.savefig(fig_path)
@@ -96,37 +102,38 @@ fig.savefig(fig_path)
 
 ###################################################################################
 ## different plot of the same data
-title=None
+# title=None
 
 
-w_log = np.array(traj['window_log'])
-# import pdb; pdb.set_trace()
-ws = w_log[:, 0]
-we = w_log[:, 1]
-matched_index = traj['matched_index']
+# w_log = np.array(traj['window_log'])
+# # import pdb; pdb.set_trace()
+# ws = w_log[:, 0]
+# we = w_log[:, 1]
+# matched_index = traj['matched_index']
 
 
-fig, ax1 = plt.subplots(figsize=figsize)
-plt.title(title, loc="left")
-ax1.plot(range(len(matched_index)), matched_index, label='matched index')
-#window limits
-# ax1.plot(ws, c='g', label='window limits')
-# ax1.plot(we, c='g')
-#ax1.set_ylim([0, 260])
-# ax1.plot(range(len(w_size)), w_size, label='window size')
-ax1.set_ylabel('route index scale')
-ax1.set_xlabel('test points')
+# fig, ax1 = plt.subplots(figsize=figsize)
+# plt.title(title, loc="left")
+# ax1.plot(range(len(matched_index)), matched_index, label='matched index')
+# #window limits
+# # ax1.plot(ws, c='g', label='window limits')
+# # ax1.plot(we, c='g')
+# #ax1.set_ylim([0, 260])
+# # ax1.plot(range(len(w_size)), w_size, label='window size')
+# ax1.set_ylabel('route index scale')
+# ax1.set_xlabel('test points')
 
-ax2 = ax1.twinx()
-ax2.plot(range(len(traj['best_sims'])), traj['best_sims'], label='image diff.', color='g')
-ax2.set_ylim([0.0, 1.0])
-ax2.set_ylabel(f'{matcher} image distance')
-ax1.legend(loc=2)
-ax2.legend(loc=0)
+# ax2 = ax1.twinx()
+# ax2.plot(range(len(traj['best_sims'])), traj['best_sims'], label='image diff.', color='g')
+# ax2.set_ylim([0.0, 1.0])
+# ax2.set_ylabel(f'{matcher} image distance')
+# ax1.legend(loc=2)
+# ax2.legend(loc=0)
 
-fig_path = os.path.join(fig_save_path, f'matching-route{route_id}.w{window}.m{matcher}.res{res}.edge{edge}.png')
-fig.savefig(fig_path)
-fig_path = os.path.join(fig_save_path,  f'matching-route{route_id}.w{window}.m{matcher}.res{res}.edge{edge}.pdf')
-fig.savefig(fig_path)
-plt.show()
+# fig_path = os.path.join(fig_save_path, f'matching-route{route_id}.w{window}.m{matcher}.res{res}.edge{edge}.png')
+# fig.savefig(fig_path)
+# fig_path = os.path.join(fig_save_path,  f'matching-route{route_id}.w{window}.m{matcher}.res{res}.edge{edge}.pdf')
+# fig.savefig(fig_path)
+
 ###################################################################################
+plt.show()

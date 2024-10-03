@@ -32,9 +32,9 @@ def rot_catch_areas(query_img, ref_imgs, matcher=mae, deg_range=(-180, 180), **k
     route = kwargs.get('route')
     yaw = squash_deg(route.get_yaw())
     indices = np.argmin(ridf_field, axis=1)
-    headings = np.take(degrees, indices)
-    headings = squash_deg(headings + yaw)
-    adiffs = angular_diff(headings, yaw)
+    # headings = np.take(degrees, indices)
+    # headings = squash_deg(headings + yaw)
+    # adiffs = angular_diff(headings, yaw)
     #### cneter the RIDF to get the Rotational CA of each later
     ridf_field = center_ridf(ridf_field)
     indices = np.argmin(ridf_field, axis=1)
@@ -53,7 +53,7 @@ def rot_catch_areas(query_img, ref_imgs, matcher=mae, deg_range=(-180, 180), **k
         left_lim = j - np.argmax(np.flip(halfleft) > 0.0)
         area_lims.append((left_lim, right_lim))
         areas[i] = right_lim - left_lim
-    return ridf_field, areas, area_lims, adiffs, None
+    return ridf_field, areas, area_lims#, adiffs, None
 
 
 def trans_catch_areas(query_img, ref_imgs, matcher=mae, error_thresh=25, 

@@ -65,14 +65,16 @@ front_auto_ridf = rmf(pfor_im, pfor_im, matcher=mae, d_range=deg_range)
 right_ridf = rmf(pri_im, pfor_im, matcher=mae, d_range=deg_range)
 degrees = np.arange(*deg_range)
 
-fig, ax = plt.subplots(figsize=(7,3))
+fig, ax = plt.subplots(figsize=(6,2.5))
 ax.plot(degrees, empty_ridf, label='plant for. vs empty img')
-ax.plot(degrees, front_auto_ridf, label='plant for. vs itself')
+# ax.plot(degrees, front_auto_ridf, label='plant for. vs itself')
 ax.plot(degrees, right_ridf, label='plant for. vs plant left')
 ax.set_xlabel('Degrees')
 ax.set_ylabel('MAE')
+
 plt.legend()
-plt.tight_layout(pad=0.5)
+plt.tight_layout()
+fig.savefig(os.path.join(fwd, 'ftl_ridfs.svg'))
 plt.show()
 
 

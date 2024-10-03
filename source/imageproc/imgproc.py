@@ -27,6 +27,10 @@ def canny(upper, lower):
     return lambda im: cv.Canny(cv.normalize(src=im, dst=im, alpha=0, beta=255, norm_type=cv.NORM_MINMAX, dtype=cv.CV_8U), upper, lower)
 
 
+def laplacian(ksize=1):
+    return lambda im: cv.Laplacian(im, cv.CV_32F, ksize=ksize)
+
+
 def normalize():
     return lambda im: im.astype(np.float32, copy=False) / np.linalg.norm(im)
 
@@ -139,6 +143,8 @@ def make_pipeline(sets):
     if sets.get('edge_range'):
         lims = sets['edge_range']
         pipe.append(canny(lims[0], lims[1])) 
+    if sets.get('laplacian'):
+        pipe.append(laplacian())
     if sets.get('norm'):
         pipe.append(normalize())
     if sets.get('type'):
