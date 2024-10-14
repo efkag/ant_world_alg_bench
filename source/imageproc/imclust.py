@@ -12,7 +12,7 @@ def im_to_long_form(im: np.ndarray):
     #return np.column_stack((im_long, ri.ravel()))
 
 
-def cluster_im(im: np.ndarray, iter=15,  whiten_data=False, dialation=False):
+def cluster_im(im: np.ndarray, iter=15,  whiten_data=False, dialation=True):
     '''
     im: Image array in BGR. Assumes the image array is in BRG format
     because the cetroid for the sky is calculated based on the the
@@ -36,7 +36,7 @@ def cluster_im(im: np.ndarray, iter=15,  whiten_data=False, dialation=False):
         im_quant = im_quant.astype(np.uint8)
         kernel = cv.getStructuringElement(cv.MORPH_RECT, (5, 5))
         im_quant = cv.dilate(im_quant, kernel, iterations=1)
-        im_quant = im_quant.astype()
+        #im_quant = im_quant.astype()
 
     return im_quant
 

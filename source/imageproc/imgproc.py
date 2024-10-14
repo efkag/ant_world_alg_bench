@@ -11,12 +11,12 @@ def resize(shape):
     return lambda im: cv.resize(im, shape, interpolation=cv.INTER_NEAREST)
 
 
-def gauss_blur(kernel_shape=(3, 3)):
+def gauss_blur(ksize=(3, 3), **kwargs):
     '''
     Return a function to blur image
     given the kernel size and the mean
     '''
-    return lambda im: cv.GaussianBlur(im, kernel_shape, 0)
+    return lambda im: cv.GaussianBlur(im, ksize, 0)
 
 
 def canny(upper, lower):
@@ -27,7 +27,7 @@ def canny(upper, lower):
     return lambda im: cv.Canny(cv.normalize(src=im, dst=im, alpha=0, beta=255, norm_type=cv.NORM_MINMAX, dtype=cv.CV_8U), upper, lower)
 
 
-def laplacian(ksize=1):
+def laplacian(ksize=1, **kwargs):
     return lambda im: cv.Laplacian(im, cv.CV_32F, ksize=ksize)
 
 
@@ -49,16 +49,16 @@ def mod_dtype(dtype):
     return lambda im: im.astype(dtype)
 
 
-def lin(img, kernel_shape=(5, 5)):
+def lin(img, ksize=(5, 5)):
     '''
     Local Image Normalisation
     Normalises and each pixel using 
     the mean of the neighboring pixels
     '''
     img = img.astype(np.float32, copy=False)
-    mu = cv.blur(img, kernel_shape)
+    mu = cv.blur(img, ksize)
     img = img - mu
-    var = cv.blur(img*img, kernel_shape)
+    var = cv.blur(img*img, ksize)
     sig = var**0.5 + np.finfo(float).eps
     img = img / sig
     return img
@@ -144,7 +144,7 @@ def make_pipeline(sets):
         lims = sets['edge_range']
         pipe.append(canny(lims[0], lims[1])) 
     if sets.get('laplacian'):
-        pipe.append(laplacian())
+        pipe.append(laplacian(**sets.get('laplacian')))
     if sets.get('norm'):
         pipe.append(normalize())
     if sets.get('type'):

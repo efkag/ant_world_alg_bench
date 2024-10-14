@@ -6,6 +6,7 @@ from scipy.stats import norm
 from collections import deque
 from .navs import Navigator
 from .utils import p_heading
+from source.tools.metrics import get_ridf_depths
 from source.imageproc.imgproc import Pipeline
 
 
