@@ -1,9 +1,7 @@
 import numpy as np
-from source.utils import dot_dist
 from source.imageproc.imgproc import Pipeline
 from abc import ABC, abstractmethod
-from source.utils import pick_im_matcher
-from source.utils import rmf
+from source.tools.matchers import rmf, pick_im_matcher, dot_dist
 from source.tools import torchmatchers
 import torch
 device = torch.device("cuda" if torchmatchers.is_cuda_avail() else "cpu")

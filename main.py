@@ -69,12 +69,12 @@ def static_bench_antworld():
                   #'loc_norm': [True, False],
                   #'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
                   'deg_range':[(-180, 180)],
-                  'window': [-20], 
+                  'window': [25], 
                   'matcher': ['mae'],
                   'grid_dist':[0.2]
                   }
     
-    routes = [*range(20)]
+    routes = [1, 2]
     bench = navbench.Benchmark(results_path, routes_path, 
                                grid_path=grid_path, grid_dist=0.2,
                                filename='results.csv',
@@ -104,9 +104,9 @@ def live_bench():
                   }
     
     infomaxParams = Params()
-    nav_params = {'pm':{'matcher':['mae']},
+    nav_params = {#'pm':{'matcher':['mae']},
                   #'smw':{'window':[10, 15, 20, 25, 30, 40, 50, 75, 100, 150, 200, 300, 500], 'matcher':['mae']},
-                  'asmw':{'window':[-20], 'matcher':['mae']},
+                  'asmw':{'window':[20], 'matcher':['mae']},
                   #'imax':{'infomaxParams':[infomaxParams]}
                   #'s2s':{'window':[20], 'queue_size':[3], 'matcher':['mae'], 'sub_window':[3]}
     }
@@ -121,9 +121,9 @@ def live_bench():
 def main():
     start_dtime = datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y")
     print(start_dtime)
-    static_bench()
+    #static_bench()
     #static_bench_antworld()
-    #live_bench()
+    live_bench()
     
     end_dtime = datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y")
 

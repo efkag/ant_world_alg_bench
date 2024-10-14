@@ -1,7 +1,11 @@
 import numpy as np
 from numpy.linalg import norm
 from scipy.stats import circmean
+from collections.abc import Iterable
 
+def mean_angle(angles):
+    angles = np.deg2rad(angles)
+    return np.rad2deg(circmean(angles))
 
 def rotate(d, image):
     """
@@ -312,3 +316,31 @@ def rmf(query_img, ref_imgs, matcher=mae, d_range=(-180, 180), d_step=1, norm_im
         sims[:, i] = matcher(rqimg, ref_imgs)
 
     return sims if sims.shape[0] > 1 else sims[0]
+
+#TODO reddo this function
+def seq2seqrmf(query_imgs, ref_imgs, matcher=mae, d_range=(-180, 180), d_step=1):
+    """
+    Rotational Matching Function.
+    Rotates multiple query images and compares then with one or more reference images
+    :param query_img:
+    :param ref_imgs:
+    :param matcher:
+    :param d_range:
+    :param d_step:
+    :return:
+    """
+    assert d_step > 0
+    assert isinstance(query_imgs, Iterable)
+    if not isinstance(ref_imgs, list):
+        ref_imgs = [ref_imgs]
+
+    degrees = range(*d_range, d_step)
+    total_search_angle = round((d_range[1] - d_range[0]) / d_step)
+    sims = np.empty((len(query_imgs)*len(ref_imgs), total_search_angle), dtype=np.float32)
+    for i, query_img in enumerate(query_imgs):
+        for j, rot in enumerate(degrees):
+            # rotated query image
+            rqimg = rotate(rot, query_img)
+            sims[(i)*len(ref_imgs):(i+1)*len(ref_imgs), j] = matcher(rqimg, ref_imgs)
+
+    return sims

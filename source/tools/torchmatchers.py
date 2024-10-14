@@ -18,19 +18,19 @@ def rotate(d, image):
     return torch.roll(image, -cols_to_shift, dims=1)
 
 
-def mae(a, b, mask=None):
+def mae(a, b, mask=False):
     """
     Image Differencing Function MAE
     :param a: A single query image
     :param b: One or more reference images
     :return:
     """
-    if mask is not None:
+    if mask:
         return torch.nanmean(torch.abs(torch.sub(a, b)), axis=(1, 2)).detach().cpu().numpy()
     return torch.mean(torch.abs(torch.sub(a, b)), axis=(1, 2)).detach().cpu().numpy()
 
 
-def dot_dist(a, b, mask=None):
+def dot_dist(a, b, mask=False):
     """
     Returns the dot product distance.
     This function assumes the vectors have zero means and unit variance.
@@ -39,7 +39,7 @@ def dot_dist(a, b, mask=None):
     :return: distance between [0, 2]
     """
     #a = torch.unsqueeze(a, 0)
-    if mask is not None:
+    if mask:
         b = torch.nan_to_num(b)
         a = torch.nan_to_num(a)
     a = a.flatten()
@@ -53,7 +53,7 @@ def pick_im_matcher(im_matcher=None):
         raise Exception('Non valid matcher method name')
     return matchers.get(im_matcher)
 
-def rmf(query_img, ref_imgs, matcher=mae, d_range=(-180, 180), d_step=1, mask=None, norm_imgs=False):
+def rmf(query_img, ref_imgs, matcher=mae, d_range=(-180, 180), d_step=1, norm_imgs=False):
     """
     Rotational Matching Function.
     Rotates a query image and compares it with one or more reference images
@@ -70,6 +70,7 @@ def rmf(query_img, ref_imgs, matcher=mae, d_range=(-180, 180), d_step=1, mask=No
     ref_imgs = torch.as_tensor(ref_imgs)
     ref_imgs = ref_imgs.to(device)
 
+    mask=False
     if ref_imgs.isnan().any():
         mask = True
 
@@ -101,4 +102,5 @@ def is_cuda_avail():
             x = x * 2
         except:
             return False
-    return True
+        return True
+    return False

@@ -1,4 +1,4 @@
-from source.utils import rotate, mae, rmse, dot_dist, cor_dist, rmf, seq2seqrmf, pair_rmf, cos_sim, mean_angle
+from source.tools.matchers import rotate, mean_angle, cos_sim, seq2seqrmf
 from source.analysis import d2i_rmfs_eval
 import numpy as np
 import time
@@ -102,17 +102,14 @@ class SequentialPerfectMemory(Navigator):
 
         query_img = self.pipe.apply(query_img)
         # get the rotational similarities between a query image and a window of route images
-        wrsims = self.rmf(query_img, self.route_images[self.blimit:self.flimit], self.matcher, self.deg_range, self.deg_step, self.norm_imgs)
+        wrsims = self.rmf(query_img, self.route_images[self.blimit:self.flimit], self.matcher
+                          ,d_range=self.deg_range, d_step=self.deg_step, norm_imgs=self.norm_imgs)
         self.window_log.append([self.blimit, self.flimit])
-        # Holds the best rot. match between the query image and route images
-        wind_sims = []
-        # Recovered headings for the current image
-        wind_headings = []
+
         # get best similarity match adn index w.r.t degrees
         indices = self.argminmax(wrsims, axis=1)
-        for i, idx in enumerate(indices):
-            wind_sims.append(wrsims[i, idx])
-            wind_headings.append(self.degrees[idx])
+        wind_sims = wrsims[np.arange(0, self.window), indices]
+        wind_headings = self.degrees[indices]
 
         # Save the best degree and sim for window similarities
         self.window_sims.append(wind_sims)
@@ -124,8 +121,10 @@ class SequentialPerfectMemory(Navigator):
         # weights = 1 - (self.w_hist/sum(self.w_hist))
         # wind_sims = weights * wind_sims
         # find best image match and heading
-        idx = int(round(self.argminmax(wind_sims)))
+        depths = get_ridf_depths(wrsims)
+        idx = np.argmax(depths)
         #update histogram
+
         # self.w_hist[idx] += 1
         # save ridfs
         self.best_ridfs.append(wrsims[idx])
@@ -415,14 +414,6 @@ class Seq2SeqPerfectMemory(Navigator):
         self.queue_size = queue_size
         self.queue = deque(maxlen=queue_size)
         self.sub_window = sub_window
-
-        # if the dot product distance is used we need to make sure the images are standardized
-        if self.matcher == dot_dist:
-            self.pipe = Pipeline(normstd=True)
-            self.route_images = self.pipe.apply(route_images)
-
-        else: 
-            self.pipe = Pipeline()
 
         # Log Variables
         self.recovered_heading = []
