@@ -23,7 +23,7 @@ class PerfectMemory(Navigator):
 
         # get best similarity match adn index w.r.t degrees
         indices = self.argminmax(rsims, axis=1)
-        mem_sims = rsims[np.arange(0, self.window), indices]
+        mem_sims = rsims[np.arange(0, self.route_end), indices]
         mem_headings = self.degrees[indices]
 
         # append the rsims of all window route images for that query image
