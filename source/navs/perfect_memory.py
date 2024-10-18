@@ -1,5 +1,7 @@
 from .navs import Navigator
 import time
+import numpy as np
+from source.tools.metrics import get_ridf_depths
 
 class PerfectMemory(Navigator):
 
@@ -19,20 +21,17 @@ class PerfectMemory(Navigator):
         # get the rotational similarities between a query image and a window of route images
         rsims = self.rmf(query_img, self.route_images, self.matcher, self.deg_range, self.deg_step)
 
-        # Holds the best rot. match between the query image and route images
-        mem_sims = []
-        # Recovered headings for the current image
-        mem_headings = []
         # get best similarity match adn index w.r.t degrees
         indices = self.argminmax(rsims, axis=1)
-        for i, idx in enumerate(indices):
-            mem_sims.append(rsims[i, idx])
-            mem_headings.append(self.degrees[idx])
+        mem_sims = rsims[np.arange(0, self.window), indices]
+        mem_headings = self.degrees[indices]
 
         # append the rsims of all window route images for that query image
         #self.logs.append(rsims)
         # find best image match and heading
-        idx = int(self.argminmax(mem_sims))
+        depths = get_ridf_depths(rsims)
+        idx = np.argmax(depths)
+
         self.best_ridfs.append(rsims[idx])
         self.best_sims.append(mem_sims[idx])
         heading = mem_headings[idx]

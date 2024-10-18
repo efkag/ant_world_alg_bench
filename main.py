@@ -28,9 +28,9 @@ def static_bench():
                   #'histeq':[True],
                   #'edge_range': [(50, 255), False],
                   #'loc_norm': [{'kernel_shape':(3, 3)}, False],
-                  'gauss_loc_norm': [{'sig1':2, 'sig2':20}, False],
+                  'gauss_loc_norm': [{'sig1':2, 'sig2':20}],
                   'deg_range':[(-90, 90)],
-                  'window': [200, 300, 400], 
+                  'window': [0], 
                   'matcher': ['mae', 'dot'],
                   'ref_route': [1, 2, 3],
                   'sample_step':[2]
