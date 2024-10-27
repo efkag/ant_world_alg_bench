@@ -14,7 +14,7 @@ class SequentialPerfectMemory(Navigator):
 
     def __init__(self, route_images, matcher='mae', deg_range=(-180, 180), degree_shift=1, 
                 window=20, dynamic_range=0.1, w_thresh=None, mid_update=True, sma_size=3,
-                norm_imgs=False, match_type='depth', **kwargs):
+                norm_imgs=False, match_type='ridf_depth', **kwargs):
         super().__init__(route_images, matcher=matcher, deg_range=deg_range, degree_shift=degree_shift, **kwargs)
         
         # Log Variables

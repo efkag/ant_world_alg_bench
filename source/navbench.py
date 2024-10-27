@@ -292,7 +292,7 @@ class Benchmark:
 
         log = {'route_id': [],'ref_route':[], 'rep_id': [], 'nav-name':[], 'sample_rate':[], 'blur': [], 'mask':[], 
             'mask_addend':[], 'histeq':[], 'edge': [], 'res': [], 'vcrop':[], 'loc_norm':[], 'gauss_loc_norm':[],
-            'window': [], 'matcher': [], 'deg_range':[], 'mean_error': [], 'seconds': [], 'errors': [], 
+            'window': [], 'matcher': [], 'match_type':[], 'deg_range':[], 'mean_error': [], 'seconds': [], 'errors': [], 
             'index_diff': [], 'window_log': [], 'matched_index': [], 'min_dist_index': [],
             'dist_diff': [], 'tx': [], 'ty': [], 'th': [],'ah': [] , 
             'rmfs_file':[], 'best_ridfs_file': [],
@@ -387,6 +387,7 @@ class Benchmark:
                     log['gauss_loc_norm'].append(combo.get('gauss_loc_norm'))
                     log['wave'].append(combo.get('wave'))
                     log['matcher'].append(matcher)
+                    log['match_type'].append(combo.get('match_type'))
                     log['deg_range'].append(deg_range)
                     log['mean_error'].append(mean_route_error)
                     log['seconds'].append(time_compl)
