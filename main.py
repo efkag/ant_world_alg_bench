@@ -32,7 +32,7 @@ def static_bench():
                   'deg_range':[(-90, 90)],
                   'window': [0, 100, 200, 300, 400], 
                   'matcher': ['mae'],
-                  'match_type':['ridf_minima', 'ridf_depth'],
+                  'match_type':['ridf_min', 'ridf_depth'],
                   'ref_route': [1, 2, 3],
                   'sample_step':[2]
                   }
