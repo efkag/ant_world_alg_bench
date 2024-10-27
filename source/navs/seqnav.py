@@ -14,7 +14,7 @@ class SequentialPerfectMemory(Navigator):
 
     def __init__(self, route_images, matcher='mae', deg_range=(-180, 180), degree_shift=1, 
                 window=20, dynamic_range=0.1, w_thresh=None, mid_update=True, sma_size=3,
-                norm_imgs=False, **kwargs):
+                norm_imgs=False, match_type='depth', **kwargs):
         super().__init__(route_images, matcher=matcher, deg_range=deg_range, degree_shift=degree_shift, **kwargs)
         
         # Log Variables
@@ -23,7 +23,7 @@ class SequentialPerfectMemory(Navigator):
         self.window_log = []
         self.matched_index_log = []
         self.confidence = [1] * self.route_end
-        self.window_sims = []
+        self.window_difs = []
         self.best_sims = []
         self.window_headings = []
         self.CMA = []
@@ -37,6 +37,12 @@ class SequentialPerfectMemory(Navigator):
         # Matching variables
         self.prev_match = 0.0
 
+        match_methods = {'ridf_min':self.window_match_minima, 
+                       'ridf_depth':self.window_match_depth}
+        if match_type not in match_methods.keys():
+            raise Exception('Non valid window match method type')
+        self.get_window_match = match_methods.get(match_type)
+        
         # Window parameters
         self.starting_window = abs(window)
         self.norm_imgs = norm_imgs
@@ -60,9 +66,7 @@ class SequentialPerfectMemory(Navigator):
             self.w_hist = np.ones(self.window)
         self.blimit = 0
         self.flimit = self.window
-        # mu = 0
-        # sig = 1
-        # self.gauss_rv = norm(loc=mu, scale=sig)
+
 
         # Adaptive window parameters
         self.mid_update = mid_update
@@ -102,33 +106,33 @@ class SequentialPerfectMemory(Navigator):
 
         query_img = self.pipe.apply(query_img)
         # get the rotational similarities between a query image and a window of route images
-        wrsims = self.rmf(query_img, self.route_images[self.blimit:self.flimit], self.matcher
+        wridfs = self.rmf(query_img, self.route_images[self.blimit:self.flimit], self.matcher
                           ,d_range=self.deg_range, d_step=self.deg_step, norm_imgs=self.norm_imgs)
         self.window_log.append([self.blimit, self.flimit])
 
-        # get best similarity match adn index w.r.t degrees
-        indices = self.argminmax(wrsims, axis=1)
-        wind_sims = wrsims[np.arange(0, self.window), indices]
+        # get RIDF window minima 
+        indices = self.argminmax(wridfs, axis=1)
+        wind_difs = wridfs[np.arange(0, self.window), indices]
         wind_headings = self.degrees[indices]
 
         # Save the best degree and sim for window similarities
-        self.window_sims.append(wind_sims)
+        self.window_difs.append(wind_difs)
         self.window_headings.append(wind_headings)
         # append the rsims of all window route images for that query image
-        self.logs.append(wrsims)
+        self.logs.append(wridfs)
 
         # weights = 1 - self.gauss_rv.pdf(x)
         # weights = 1 - (self.w_hist/sum(self.w_hist))
         # wind_sims = weights * wind_sims
-        # find best image match and heading
-        depths = get_ridf_depths(wrsims)
-        idx = np.argmax(depths)
-        #update histogram
 
+        # find best image match index
+        idx = self.get_window_match(wridfs)
+
+        #update histogram
         # self.w_hist[idx] += 1
         # save ridfs
-        self.best_ridfs.append(wrsims[idx])
-        self.best_sims.append(wind_sims[idx])
+        self.best_ridfs.append(wridfs[idx])
+        self.best_sims.append(wind_difs[idx])
         heading = wind_headings[idx]
         self.recovered_heading.append(heading)
 
@@ -137,10 +141,10 @@ class SequentialPerfectMemory(Navigator):
         self.matched_index_log.append(matched_idx)
 
         #evaluate ridf
-        # h_eval = self.eval_ridf(wrsims[idx])
+        # h_eval = self.eval_ridf(wridfs[idx])
 
         if self.adaptive:
-            best = wind_sims[idx]
+            best = wind_difs[idx]
             # TODO here I need to make the updating function modular
             self.dynamic_window_log_rate(best)
 
@@ -168,8 +172,7 @@ class SequentialPerfectMemory(Navigator):
 
     def update_pointer(self, idx):
         '''
-        Update the mem pointer to the back of the window
-        mem_pointer = blimit
+        Update the mem pointer
         :param idx:
         :return:
         '''
@@ -189,23 +192,13 @@ class SequentialPerfectMemory(Navigator):
         self.blimit = max(0, min(self.mem_pointer - self.lower, self.route_end-self.window) )
         self.flimit = min(self.route_end, max(self.mem_pointer + self.upper, self.window))
 
-    def update_mid_pointer(self, idx):
-        '''
-        Update the mem pointer to the middle of the window
-        :param idx:
-        :return:
-        '''
-        # Update memory pointer
-        self.mem_pointer = self.blimit + idx
-
-        # update upper an lower margins
-        self.upper = int(round(self.window/2))
-        self.lower = self.window - self.upper
-
-        # Update the bounds of the window
-        # the window limits bounce back near the ends of the route
-        self.blimit = max(0, min(self.mem_pointer - self.lower, self.route_end-self.window) )
-        self.flimit = min(self.route_end, max(self.mem_pointer + self.upper, self.window))
+    def window_match_depth(self, wridfs):
+        depths = get_ridf_depths(wridfs)
+        return np.argmax(depths)
+    
+    def window_match_minima(self, wridfs):
+        idx = np.unravel_index(np.argmin(wridfs, axis=None), wridfs.shape)
+        return idx[0]
 
     def get_agreement(self, window_headings):
         a = np.full(len(window_headings), 1)
@@ -379,8 +372,8 @@ class SequentialPerfectMemory(Navigator):
     def get_confidence(self):
         return self.confidence
 
-    def get_window_sims(self):
-        return self.window_sims
+    def get_window_difs(self):
+        return self.window_difs
 
     def get_best_sims(self):
         return self.best_sims
